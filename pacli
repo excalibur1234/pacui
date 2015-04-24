@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#  update as 18.04.2015 23:39:34
+#  updated on 24.04.2015 23:39:34
 
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -19,13 +19,13 @@
 #  
 
 #################################################################
-# designe based in IceFox script                                #
-# Modified, adapted and improved by pekman and 	excalibur1234   #
-# Contact and sugestions: pekman@openmailbox.org                #
-# Freenode: #manjaropek #manjaro-geek #manjaro					#
-# Topic discussion 							                    #
-#			http://polr.me/pacli1								#
-#			http://polr.me/pacli2								#
+# Design based on IceFox script                                 #
+# Modified, adapted and improved by pekman and excalibur1234    #
+# Contact and suggestions: pekman@openmailbox.org               #
+# Freenode: #manjaropek #manjaro-geek #manjaro			#
+# Topic discussion 						#
+#			http://polr.me/pacli1			#
+#			http://polr.me/pacli2			#
 #################################################################
 
 # set colors
@@ -47,7 +47,7 @@ NC='\e[0m'
     echo -e " ·  $NC  9 $NC  Remove Package                      $NC 10 $NC  Remove Package + Deps     ·"
     echo -e " ·  $NC 11 $NC  List Orphan Packages                $NC 12 $NC  Remove Orphan Packages    ·"
     echo -e " ·  $NC 13 $NC  Local List                          $NC 14 $NC  Dependencies Tree         ·"
-    echo -e " ·  $NC 15 $NC  Installed Packages                  $NC 16 $NC  Fix Improve Errors        ·"
+    echo -e " ·  $NC 15 $NC  Installed Packages                  $NC 16 $NC  Fix Errors                ·"
     echo " ··············································································"
     echo ""
     echo " ··············································································"
@@ -56,7 +56,7 @@ NC='\e[0m'
     echo -e " ·  $NC 21 $NC  Remove from AUR + Deps              $NC 22 $NC  Installed from AUR        ·"
     echo " ··············································································"
     echo ""
-    echo -e " $BLUE Select a number between 1 and 22 and press [Enter]$NC $RED 23 for exit Pacli$NC"
+    echo -e " $BLUE Select a number between 1 and 22 and press [Enter]$NC $RED 23 Exit pacli$NC"
     echo ""
     read choix
     case $choix in
@@ -198,9 +198,9 @@ NC='\e[0m'
             
         16)
             echo ""
-            sudo rm -f /var/lib/pacman/db.lck && sudo pacman-mirrors -g && sudo pacman -Syyuu  && sudo pacman -Suu
+            sudo rm -f /var/lib/pacman/db.lck && sudo pacman-mirrors -g && sudo pacman -Syyu  && sudo pacman -Suu
             echo ""
-            echo -e "\033[42;1;37m Task successfully executed. Now press ENTER \033[0m"
+            echo -e "\033[42;1;37m All Pacman errors fixed. Now press ENTER \033[0m"
             read     
             ;;
         17)
