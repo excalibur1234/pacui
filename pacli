@@ -69,8 +69,7 @@ NC='\e[0m'
             ;;
         2)
             echo
-            sudo pacman-mirrors -g
-	    sudo pacman -Syy
+            sudo pacman-mirrors -g && sudo pacman -Syy
             echo ""
             echo -e "\033[42;1;37m Fastest mirror chosen. To return to pacli press ENTER \033[0m"
             read
