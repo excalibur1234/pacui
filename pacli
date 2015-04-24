@@ -198,7 +198,7 @@ NC='\e[0m'
             
         16)
             echo ""
-            sudo rm -f /var/lib/pacman/db.lck && sudo pacman-mirrors -g && sudo pacman -Syyu  && sudo pacman -Suu
+            sudo rm -f /var/lib/pacman/db.lck && sudo pacman-mirrors -g && sudo pacman -Syy
             echo ""
             echo -e "\033[42;1;37m All Pacman errors fixed. Now press ENTER \033[0m"
             read     
