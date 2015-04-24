@@ -200,7 +200,7 @@ NC='\e[0m'
             echo ""
             sudo rm -f /var/lib/pacman/db.lck && sudo pacman-mirrors -g && sudo pacman -Syyuu  && sudo pacman -Suu
             echo ""
-            echo -e "\033[42;1;37m Pacman errors corrected. Now press ENTER \033[0m"
+            echo -e "\033[42;1;37m Task successfully executed. Now press ENTER \033[0m"
             read     
             ;;
         17)
