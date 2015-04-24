@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#  20.02.2015 03:17:16
+#  update as 18.04.2015 23:39:34
 
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@
 # designe based in IceFox script                                #
 # Modified, adapted and improved by pekman and 	excalibur1234   #
 # Contact and sugestions: pekman@openmailbox.org                #
-# Freenode: #manjaropek #manjaro-br #manjaro					#
+# Freenode: #manjaropek #manjaro-geek #manjaro					#
 # Topic discussion 							                    #
 #			http://polr.me/pacli1								#
 #			http://polr.me/pacli2								#
@@ -47,19 +47,16 @@ NC='\e[0m'
     echo -e " ·  $NC  9 $NC  Remove Package                      $NC 10 $NC  Remove Package + Deps     ·"
     echo -e " ·  $NC 11 $NC  List Orphan Packages                $NC 12 $NC  Remove Orphan Packages    ·"
     echo -e " ·  $NC 13 $NC  Local List                          $NC 14 $NC  Dependencies Tree         ·"
-    echo -e " ·  $NC 15 $NC  Installed Packages                                                        ·"
+    echo -e " ·  $NC 15 $NC  Installed Packages                  $NC 16 $NC  Fix Improve Errors        ·"
     echo " ··············································································"
     echo ""
     echo " ··············································································"
-    echo -e " ·  $NC 16 $NC  Update AUR                          $NC 17 $NC  Search on AUR             ·"
-    echo -e " ·  $NC 18 $NC  Install from AUR                    $NC 19 $NC  Remove from AUR           ·"
-    echo -e " ·  $NC 20 $NC  Remove from AUR + Deps              $NC 21 $NC  Installed from AUR        ·"
+    echo -e " ·  $NC 17 $NC  Update AUR                          $NC 18 $NC  Search on AUR             ·"
+    echo -e " ·  $NC 19 $NC  Install from AUR                    $NC 20 $NC  Remove from AUR           ·"
+    echo -e " ·  $NC 21 $NC  Remove from AUR + Deps              $NC 22 $NC  Installed from AUR        ·"
     echo " ··············································································"
     echo ""
-    echo " ··············································································"
-    echo -e " ·  $NC 22 $NC  Quit                                                                      ·"
-    echo ""
-    echo -e " $BLUE Select a number between 1 and 22 and press [Enter]$NC"
+    echo -e " $BLUE Select a number between 1 and 22 and press [Enter]$NC $RED 23 for exit Pacli$NC"
     echo ""
     read choix
     case $choix in
@@ -198,7 +195,15 @@ NC='\e[0m'
             echo -e "\033[42;1;37m Your list of packages was exported. Now press ENTER \033[0m"
             read     
             ;;
+            
         16)
+            echo ""
+            sudo rm -f /var/lib/pacman/db.lck && sudo pacman-mirrors -g && sudo pacman -Syyuu  && sudo pacman -Suu
+            echo ""
+            echo -e "\033[42;1;37m Pacman errors corrected. Now press ENTER \033[0m"
+            read     
+            ;;
+        17)
             echo ""
             echo "To update AUR packages press ENTER. Then provide your user password."
             yaourt -Syyuua
@@ -206,7 +211,7 @@ NC='\e[0m'
             echo -e "\033[42;1;37m There is nothing else to do. To return to pacli press ENTER \033[0m"
             read     
             ;;
-        17)
+        18)
             echo ""
             echo "Do you want to search a package in the AUR? Press ENTER to continue."
             echo ""
@@ -216,7 +221,7 @@ NC='\e[0m'
             echo -e "\033[42;1;37m Serch completed. To return to pacli press ENTER \033[0m"
             read
             ;;
-        18)
+        19)
             echo ""
             echo "Do you want to install a package from the AUR? Put the correct package name below and press ENTER"
             echo ""
@@ -226,7 +231,7 @@ NC='\e[0m'
             echo -e "\033[42;1;37m Task completed. To return to pacli press ENTER \033[0m"
             read 
             ;;
-        19)
+        20)
             echo ""
             echo "Do you want to remove a single package from the AUR? All Dependencies will be kept as orphans. Put the correct name below and press ENTER"
             echo ""
@@ -236,7 +241,7 @@ NC='\e[0m'
             echo -e "\033[42;1;37m Task completed. To return to pacli press ENTER \033[0m"
             read
             ;;
-        20)
+        21)
             echo ""
             echo "Do you want to remove a package from AUR including all its dependencies? Put the correct name below and press ENTER"
             echo ""
@@ -246,14 +251,14 @@ NC='\e[0m'
             echo -e "\033[42;1;37m Task completed. To return to pacli press ENTER \033[0m"
             read
             ;;
-	21)
+		22)
             echo ""
             cd /tmp; pacman -Qem >> unoficial.txt; $EDITOR unoficial.txt; rm unoficial.txt
             echo ""
             echo -e "\033[42;1;37m Your list of packages was exported. Now press ENTER \033[0m"
             read     
             ;;
-        22)
+        23)
             clear && exit
             read
             ;;
