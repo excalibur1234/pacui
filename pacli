@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#  updated on 24.04.2015 23:39:34
+#  updated on 17.05.2015 16:11:02
 
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #################################################################
 # Design based on IceFox script                                 #
 # Modified, adapted and improved by pekman and excalibur1234    #
+# translation by spylinux										#
 # Contact and suggestions: pekman@openmailbox.org               #
 # Freenode: #manjaropek #manjaro-geek #manjaro			#
 # Topic discussion 						#
