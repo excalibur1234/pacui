@@ -1,0 +1,272 @@
+#!/bin/bash
+
+#  updated on 24.04.2015 23:39:34
+
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
+#  
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#  
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+#  MA 02110-1301, USA.
+#  
+
+#################################################################
+# Design based on IceFox script                                 #
+# Modified, adapted and improved by pekman and excalibur1234    #
+# Contact and suggestions: pekman@openmailbox.org               #
+# Freenode: #manjaropek #manjaro-geek #manjaro			#
+# Topic discussion 						#
+#			http://polr.me/pacli1			#
+#			http://polr.me/pacli2			#
+#################################################################
+
+# set colors
+RED='\e[41m'
+BLUE='\e[44m'
+ORANGE='\e[46m'
+NC='\e[0m'
+    while true; do
+    clear
+    echo ""
+    echo -e "                   \e[47;3;32m Bash Frontend for Pacman/Yaourt - pacli \033[0m "
+    echo -e "                \e[33;5;1m (✌╰_╯)☞ \e[m$RED WARNING! USE WITH CAUTION $NC\e[33;5;1m ¯\_(ツ)_/¯ \e[m"
+    echo -e " ┌────────────────────────────────────────────────────────────────────────────┐"
+    echo -e " │  $NC  1 $NC  Update System      \e[32;5;1m ───▄████▄───── \033[0m $NC  2 $NC  Optimize Mirrors          │"
+    echo -e " │  $NC  3 $NC  Optimize Database  \e[32;5;1m ──███▄█▀────── \033[0m $NC  4 $NC  Clean Package Cache       │"
+    echo -e " │  $NC  5 $NC  Search Package     \e[32;5;1m ─▐████──█──█── \033[0m $NC  6 $NC  Package Information       │"
+    echo -e " │  $NC  7 $NC  Install Package    \e[32;5;1m ──█████▄────── \033[0m $NC  8 $NC  Detail Installed Packages │"
+    echo -e " │  $NC  9 $NC  Remove Package     \e[32;5;1m ───▀████▀───── \033[0m $NC 10 $NC  Remove Package + Deps     │"
+    echo -e " │  $NC 11 $NC  List Orphan Packages                $NC 12 $NC  Remove Orphan Packages    │"
+    echo -e " │  $NC 13 $NC  Local List                          $NC 14 $NC  Dependencies Tree         │"
+    echo -e " │  $NC 15 $NC  Installed Packages                  $NC 16 $NC  Fix Errors                │"
+    echo " └────────────────────────────────────────────────────────────────────────────┘"
+    echo ""
+    echo " ┌────────────────────────────────────────────────────────────────────────────┐"
+    echo -e " │  $NC 17 $NC  Update AUR                          $NC 18 $NC  Search on AUR             │"
+    echo -e " │  $NC 19 $NC  Install from AUR                    $NC 20 $NC  Remove from AUR           │"
+    echo -e " │  $NC 21 $NC  Remove from AUR + Deps              $NC 22 $NC  Installed from AUR        │"
+    echo " └────────────────────────────────────────────────────────────────────────────┘"
+    echo ""
+    echo -e " $BLUE Select a number between 1 and 22 and press [Enter]$NC $RED 23 Exit pacli$NC"
+    echo ""
+    read choix
+    case $choix in
+        1)
+            echo
+            sudo pacman -Syyuu
+            echo ""
+            echo -e "\033[42;1;37m Your system is updated. To return to pacli press ENTER \033[0m"
+            read
+            ;;
+        2)
+            echo
+            sudo pacman-mirrors -g && sudo pacman -Syy
+            echo ""
+            echo -e "\033[42;1;37m Fastest mirror chosen. To return to pacli press ENTER \033[0m"
+            read
+            ;;
+        3)
+            echo
+            sudo pacman-optimize
+            echo ""
+            echo -e "\033[42;1;37m Pacman Database optimized. To return to pacli press ENTER \033[0m"
+            read
+            ;;
+        4)
+            echo
+            paccache -ruk0
+	    paccache -rk3
+            echo ""
+            echo -e "\033[42;1;37m Unneeded and old package versions removed. To return to pacli press ENTER \033[0m"
+            read
+            ;;
+        5)
+            echo ""
+            echo "Do you want to search a package? Put the name below and press ENTER"
+            echo ""
+            read searchpackage
+            pacman -Ss $searchpackage
+            echo ""
+            echo -e "\033[42;1;37m The search is complete. To return to pacli press ENTER \033[0m"
+            read
+            ;;
+        6)
+            echo ""
+            echo "Do you want to check specific information about a package? Put the name below and press ENTER"
+            echo ""
+            read searchpackage
+            pacman -Si $searchpackage
+            echo ""
+            echo -e "\033[42;1;37m The search for information ended. To return to pacli press ENTER \033[0m"
+            read 
+			;;
+        7)
+            echo ""
+            echo "Do you want to install a package? Put the name below and press ENTER"
+            echo ""
+            read installpackage
+            sudo pacman -S $installpackage
+            echo ""
+            echo -e "\033[42;1;37m The package installation is finished. To return to pacli press ENTER \033[0m"
+            read
+            ;;
+        8)
+            echo ""
+            echo "Do you want to check specific information about a package?  Put the name below and press ENTER"
+            echo ""
+            read searchpackage
+            pacman -Qi $searchpackage
+            echo ""
+            echo -e "\033[42;1;37m All information displayed. To return to pacli press ENTER \033[0m"
+            read
+            ;;
+        9)
+            echo ""
+            echo "Do you want to uninstall a single package? All Dependencies will be kept as orphans. Put the name below and press ENTER"
+            echo ""
+            read uninstallpackage
+            sudo pacman -R $uninstallpackage
+            echo ""
+            echo -e "\033[42;1;37m Action completed. To return to pacli press ENTER \033[0m"
+            read
+            ;;
+        10)
+			echo ""
+            echo "Do you want to uninstall a package including all its dependencies? Put the name below and press ENTER"
+            echo ""
+            read uninstallpackage
+            sudo pacman -Rsn $uninstallpackage
+            echo ""
+            echo -e "\033[42;1;37m Action completed. To return to pacli press ENTER \033[0m"
+            read
+            ;;
+        11)
+            echo ""
+            echo "Display all orphan packages"
+            pacman -Qqdt
+            echo ""
+            echo -e "\033[42;1;37m Checking completed. To return to pacli press ENTER \033[0m"
+            read        
+            ;;
+        12)
+            echo ""
+            echo "Do you want to uninstall orphan packages including all its dependencies? Press ENTER to continue."
+            echo ""
+            read uninstallpackage
+            sudo pacman -Rns $(pacman -Qqdt)
+            echo ""
+            echo -e "\033[42;1;37m Task completed. To return to pacli press ENTER \033[0m"
+            read
+            ;;
+        13)
+            echo ""
+            echo "Do you want to list all local files of a package? Put the package name below and press ENTER"
+            echo ""
+            read Packcage
+            pacman -Ql $Packcage
+            echo ""
+            echo -e "\033[42;1;37m Task completed. To return to pacli press ENTER \033[0m"
+            read 
+            ;;
+        14)
+            echo ""
+            echo "Do you want to display the dependency tree of a package? Put the package name below and press ENTER"
+            echo ""
+            read Packcage
+            pactree $Packcage >> pactree.txt; $EDITOR pactree.txt; rm pactree.txt
+            echo ""
+            echo -e "\033[42;1;37m Task completed. Now press ENTER \033[0m"
+            read
+            ;;
+        15)
+            echo ""
+            cd /tmp; pacman -Qet >> packs.txt; $EDITOR packs.txt; rm packs.txt
+            echo ""
+            echo -e "\033[42;1;37m Your list of packages was exported. Now press ENTER \033[0m"
+            read     
+            ;;
+            
+        16)
+            echo ""
+            sudo rm -f /var/lib/pacman/db.lck && sudo pacman-mirrors -g && sudo pacman -Syy
+            echo ""
+            echo -e "\033[42;1;37m All Pacman errors fixed. Now press ENTER \033[0m"
+            read     
+            ;;
+        17)
+            echo ""
+            echo "To update AUR packages press ENTER. Then provide your user password."
+            yaourt -Syyuua
+            echo ""
+            echo -e "\033[42;1;37m There is nothing else to do. To return to pacli press ENTER \033[0m"
+            read     
+            ;;
+        18)
+            echo ""
+            echo "Do you want to search a package in the AUR? Press ENTER to continue."
+            echo ""
+            read searchpackage
+            yaourt -Ss $searchpackage 
+            echo ""           
+            echo -e "\033[42;1;37m Serch completed. To return to pacli press ENTER \033[0m"
+            read
+            ;;
+        19)
+            echo ""
+            echo "Do you want to install a package from the AUR? Put the correct package name below and press ENTER"
+            echo ""
+            read Packcage
+            yaourt -S $Packcage
+            echo ""
+            echo -e "\033[42;1;37m Task completed. To return to pacli press ENTER \033[0m"
+            read 
+            ;;
+        20)
+            echo ""
+            echo "Do you want to remove a single package from the AUR? All Dependencies will be kept as orphans. Put the correct name below and press ENTER"
+            echo ""
+            read Packcage
+            yaourt -R $Packcage
+            echo ""
+            echo -e "\033[42;1;37m Task completed. To return to pacli press ENTER \033[0m"
+            read
+            ;;
+        21)
+            echo ""
+            echo "Do you want to remove a package from AUR including all its dependencies? Put the correct name below and press ENTER"
+            echo ""
+            read Packcage
+            yaourt -Rsn $Packcage
+            echo ""
+            echo -e "\033[42;1;37m Task completed. To return to pacli press ENTER \033[0m"
+            read
+            ;;
+		22)
+            echo ""
+            cd /tmp; pacman -Qem >> unoficial.txt; $EDITOR unoficial.txt; rm unoficial.txt
+            echo ""
+            echo -e "\033[42;1;37m Your list of packages was exported. Now press ENTER \033[0m"
+            read     
+            ;;
+        23)
+            clear && exit
+            read
+            ;;
+        *)
+            echo -e "$RED Wrong option $NC"
+            echo "Wait and try again later..."
+            echo ""
+            sleep 3
+            clear
+            ;;
+    esac
+    done
+fi
