@@ -252,8 +252,16 @@ NC='\e[0m'
             echo ""
             echo -e "$NC Task completed. To return to pacli press [Enter] $NC"
             read     
-            ;;
+            ;;     
         23)
+            echo ""
+            pacman -Qem
+            echo ""
+            downgrade $(pacman -Qq | pmenu -p 'select package to uninstall >')
+            echo -e "$NC Task completed. To return to pacli press [Enter] $NC"
+            read     
+            ;;          ää
+        24)
             clear && exit
             read
             ;;
