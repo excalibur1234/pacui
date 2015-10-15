@@ -10,7 +10,7 @@ license=MIT
 depends=('pmenu'
 	'pacman'
 	'yaourt'
-	'downdgrade'
+	'downgrade'
 	'bash')
 makedepends=('git')
 source=("git://github.com/Chrysostomus/$pkgname")
