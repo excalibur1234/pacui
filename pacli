@@ -38,9 +38,9 @@ NC='\e[0m'
     while true; do
     clear
     echo ""
-    echo -e "                      $NC ::pacman and yaourt with pacli:: $NC "
+    echo -e "                             $NC ::Package manager:: $NC "
     echo ""
-    echo -e "                          $NC WARNING! USE WITH CAUTION $NC"
+    echo -e ""
     echo -e " ┌────────────────────────────────────────────────────────────────────────────┐"
     echo -e " │  $NC  1 $NC  Update System                       $NC  2 $NC  Optimize Mirrors          │"
     echo -e " │  $NC  3 $NC  Optimize Database                   $NC  4 $NC  Clean Package Cache       │"
@@ -50,7 +50,7 @@ NC='\e[0m'
     echo -e " │  $NC 11 $NC  List Orphan Packages                $NC 12 $NC  Remove Orphan Packages    │"
     echo -e " │  $NC 13 $NC  Local List                          $NC 14 $NC  Dependencies Tree         │"
     echo -e " │  $NC 15 $NC  Installed Packages                  $NC 16 $NC  Fix Errors                │"
-    echo -e " │  $NC 17 $NC  Downgrade Packages                 		                       │"
+    echo -e " │  $NC 17 $NC  Downgrade Packages                		                      │"
     echo " └────────────────────────────────────────────────────────────────────────────┘"
     echo ""
     echo " ┌────────────────────────────────────────────────────────────────────────────┐"
@@ -124,7 +124,7 @@ NC='\e[0m'
             echo ""
             echo "Do you want to check specific information about a package?  Put the name below and press [Enter]"
             echo ""
-            pacman -Qi $(pacman -Qq | pmenu -p 'select a package' >)
+            pacman -Qi $(pacman -Qq | pmenu -p 'select a package >')
             echo ""
             echo -e "$NC All information displayed. To return to pacli press [Enter] $NC"
             read
@@ -256,12 +256,11 @@ NC='\e[0m'
             ;;     
         17)
             echo ""
-            pacman -Qem
             echo ""
             downgrade $(pacman -Qq | pmenu -p 'select package to downgrade >')
             echo -e "$NC Task completed. To return to pacli press [Enter] $NC"
             read     
-            ;;          ää
+            ;;         
         24)
             clear && exit
             read
