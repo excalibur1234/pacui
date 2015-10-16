@@ -105,7 +105,6 @@ NC='\e[0m'
             echo ""
             echo "Do you want to check specific information about a package? Put the name below and press [Enter]"
             echo ""
-            read searchpackage
             pacman -Si $(pacman -Slq | pmenu -p 'select package to search >')
             echo ""
             echo -e "$NC The search for information ended. To return to pacli press [Enter] $NC"
@@ -142,7 +141,6 @@ NC='\e[0m'
 			echo ""
             echo "Do you want to uninstall a package including all its dependencies? Put the name below and press [Enter]"
             echo ""
-            read uninstallpackage
             sudo pacman -Rsn $(pacman -Qq | pmenu -p 'select package to uninstall >')
             echo ""
             echo -e "$NC Action completed. To return to pacli press [Enter] $NC"
@@ -160,7 +158,6 @@ NC='\e[0m'
             echo ""
             echo "Do you want to uninstall orphan packages including all its dependencies? Press [Enter] to continue."
             echo ""
-            read uninstallpackage
             sudo pacman -Rns $(pacman -Qqdt)
             echo ""
             echo -e "$NC Task completed. To return to pacli press [Enter] $NC"
