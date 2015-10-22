@@ -55,11 +55,10 @@ NC='\e[0m'
     echo ""
     echo " ┌────────────────────────────────────────────────────────────────────────────┐"
     echo -e " │  $NC 18 $NC  Update AUR                          $NC 19 $NC  Search on AUR             │"
-    echo -e " │  $NC 20 $NC  Install from AUR                    $NC 21 $NC  Remove from AUR           │"
-    echo -e " │  $NC 22 $NC  Remove from AUR + Deps              $NC 23 $NC  Installed from AUR        │"
+    echo -e " │  $NC 20 $NC  Install from AUR                    $NC 21 $NC  List Installed from AUR   │"
     echo " └────────────────────────────────────────────────────────────────────────────┘"
     echo ""
-    echo -e "    $NC Select a number between 1 and 22 and press [Enter]$NC $NC - 24 Exit pacli$NC"
+    echo -e "    $NC Select a number between 1 and 22 and press [Enter]$NC $NC - 0 Exit pacli$NC"
     echo ""
     read choix
     case $choix in
@@ -105,6 +104,7 @@ NC='\e[0m'
             echo ""
             echo "Do you want to check specific information about a package? Put the name below and press [Enter]"
             echo ""
+            read searchpackage
             pacman -Si $(pacman -Slq | pmenu -p 'select package to search >')
             echo ""
             echo -e "$NC The search for information ended. To return to pacli press [Enter] $NC"
@@ -130,7 +130,7 @@ NC='\e[0m'
             ;;
         9)
             echo ""
-            echo "Do you want to uninstall a single package? All Dependencies will be kept as orphans. Put the name below and press [Enter]"
+            echo "Select package to uninstall. All Dependencies will be kept as orphans."
             echo ""
             sudo pacman -R $(pacman -Qq | pmenu -p 'select package to uninstall >')
             echo ""
@@ -139,7 +139,7 @@ NC='\e[0m'
             ;;
         10)
 			echo ""
-            echo "Do you want to uninstall a package including all its dependencies? Put the name below and press [Enter]"
+            echo "Select package to uninstall. All of its dependencies shall be removed."
             echo ""
             sudo pacman -Rsn $(pacman -Qq | pmenu -p 'select package to uninstall >')
             echo ""
@@ -156,7 +156,7 @@ NC='\e[0m'
             ;;
         12)
             echo ""
-            echo "Do you want to uninstall orphan packages including all its dependencies? Press [Enter] to continue."
+            echo "Uninstalling orphan packages with their depencies."
             echo ""
             sudo pacman -Rns $(pacman -Qqdt)
             echo ""
@@ -165,7 +165,7 @@ NC='\e[0m'
             ;;
         13)
             echo ""
-            echo "Do you want to list all local files of a package? Put the package name below and press [Enter]"
+            echo "Select package to list all local files of."
             echo ""
             pacman -Ql $(pacman -Qq | pmenu -p 'select a package >')
             echo ""
@@ -174,9 +174,9 @@ NC='\e[0m'
             ;;
         14)
             echo ""
-            echo "Do you want to display the dependency tree of a package? Put the package name below and press [Enter]"
+            echo "Select a package whose dependency tree is to be displayed."
             echo ""
-            pactree $(pacman -Slq | pmenu -p 'select a package >')
+            pactree $(pacman -Qq | pmenu -p 'select a package >')
             echo ""
             echo -e "$NC Task completed. To return to pacli press [Enter] $NC"
             read
@@ -198,7 +198,7 @@ NC='\e[0m'
             ;;
         18)
             echo ""
-            echo "To update AUR packages press [Enter]. Then provide your user password."
+            echo ""
             yaourt -Syyuua
             echo ""
             echo -e "$NC There is nothing else to do. To return to pacli press [Enter] $NC"
@@ -206,7 +206,7 @@ NC='\e[0m'
             ;;
         19)
             echo ""
-            echo "Do you want to search a package in the AUR? Press [Enter] to continue."
+            echo "Enter name of package to be searched from AUR and press [Enter] to continue."
             echo ""
             read searchpackage
             yaourt -Ss $searchpackage 
@@ -216,35 +216,15 @@ NC='\e[0m'
             ;;
         20)
             echo ""
-            echo "Do you want to install a package from the AUR? Put the correct package name below and press [Enter]"
+            echo "Enter name of package to be searched and installed from AUR and press [Enter] to continue"
             echo ""
             read Packcage
-            yaourt -S $Packcage
+            yaourt $Packcage
             echo ""
             echo -e "$NC Task completed. To return to pacli press [Enter] $NC"
             read 
             ;;
         21)
-            echo ""
-            echo "Do you want to remove a single package from the AUR? All Dependencies will be kept as orphans. Put the correct name below and press [Enter]"
-            echo ""
-            read Packcage
-            yaourt -R $Packcage
-            echo ""
-            echo -e "$NC Task completed. To return to pacli press [Enter] $NC"
-            read
-            ;;
-        22)
-            echo ""
-            echo "Do you want to remove a package from AUR including all its dependencies? Put the correct name below and press [Enter]"
-            echo ""
-            read Packcage
-            yaourt -Rsn $Packcage
-            echo ""
-            echo -e "$NC Task completed. To return to pacli press [Enter] $NC"
-            read
-            ;;
-        23)
             echo ""
             pacman -Qem
             echo ""
@@ -258,7 +238,7 @@ NC='\e[0m'
             echo -e "$NC Task completed. To return to pacli press [Enter] $NC"
             read     
             ;;         
-        24)
+        0)
             clear && exit
             read
             ;;
