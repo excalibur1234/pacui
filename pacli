@@ -317,6 +317,7 @@ NC='\e[0m'
         11)
             echo ""
             echo "Display all orphan packages"
+            echo ""
             pacman -Qqdt
             echo ""
             echo -e "$NC Checking completed. To return to pacli press [Enter] $NC"
