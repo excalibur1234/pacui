@@ -77,7 +77,7 @@ On traditional hard drives (HDD) this command can speed up all actions related t
 
 "paccache -ruk0
  paccache -rk2"
-By default Manjaro uses a cache for downloading all packages. These cached packages never get deleted automatically. This enables you to DOWNGRADE PACKAGES, which are broken, without a working internet connection. The package cache of an old and actively used Manjaro installation can become quite large. Clean it to regain space on your root partition.
+By default Pacman uses this cache direcoty for downloading packages: /var/cache/pacman/pkg/... . No cached packages get deleted automatically. This enables you to DOWNGRADE PACKAGES, which are broken, without a working internet connection. The package cache of an old and actively used Manjaro installation can become quite large. Clean it to regain space on your root partition.
 The first command removes all packages from cache, which are not installed (anymore) on your system. The second command removes all old packages from your cache except the 2 latest versions: The version you have currently installed on your system and the previous version.
 If you want to remove ALL cached packages run "sudo pacman -Scc". Attention: This will make it impossible to reinstall or DOWNGRADE PACKAGES without a working internet connection.
 
