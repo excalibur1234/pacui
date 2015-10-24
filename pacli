@@ -35,7 +35,7 @@ function help_text() {
 Welcome to Pacli's Help Page.
 
 
-Pacli is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Yaourt as back ends. Additionally, it uses some Manjaro exclusive commands. Pacli offers to you the most common and useful features for managing your Packages.
+Pacli is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Yaourt as back ends. Additionally, it uses some Manjaro exclusive commands. Pacli offers to you the most common and useful features for managing your packages.
 On the following Help Page all options Pacli offers are described in detail.
 
 
@@ -63,13 +63,13 @@ If you want a faster way to update your system, use "sudo pacman -Syu".
 
 "sudo pacman-mirrors -g && sudo pacman -Syy"
 This command tests your connection to all available Manjaro repository mirrors/servers. The mirror with the best connection is automatically chosen for you. Additionally, the latest package database is downloaded from the chosen mirror.
-If you want to speed up this command test only your connection to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -g -c Germany,France"
+If you want to speed up this command: Only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -g -c Germany,France"
 
 
 3 - OPTIMIZE DATABASE
 
 "sudo pacman-optimize"
-This command effectively defragments your Pacman database. It is recommended to CLEAN your PACKAGE CACHE before using this option.
+This command effectively defragments your Pacman database. It is recommended to CLEAN PACKAGE CACHE before using this option.
 On traditional hard drives (HDD) this command can speed up all actions related to Pacman. But it is NOT recommended to use this command on modern solid state hard drives (SSD)!
 
 
@@ -77,7 +77,7 @@ On traditional hard drives (HDD) this command can speed up all actions related t
 
 "paccache -ruk0
  paccache -rk2"
-By default Manjaro uses a cache for downloading all packages. These cached packages are not deleted automatically. This enables you to DOWNGRADE broken PACKAGES without a working internet connection. The package cache of an old and actively used Manjaro installation can become quite large. Clean it to gain space on your root partition back.
+By default Manjaro uses a cache for downloading all packages. These cached packages never get deleted automatically. This enables you to DOWNGRADE PACKAGES, which are broken, without a working internet connection. The package cache of an old and actively used Manjaro installation can become quite large. Clean it to regain space on your root partition.
 The first command removes all packages from cache, which are not installed (anymore) on your system. The second command removes all old packages from your cache except the 2 latest versions: The version you have currently installed on your system and the previous version.
 If you want to remove ALL cached packages run "sudo pacman -Scc". Attention: This will make it impossible to reinstall or DOWNGRADE PACKAGES without a working internet connection.
 
@@ -85,13 +85,14 @@ If you want to remove ALL cached packages run "sudo pacman -Scc". Attention: Thi
 5 - SEARCH PACKAGE
 
 "pacman -Ss <PACKAGE NAME>"
-This option will search for <PACKAGE NAME> in all available packages in the Manjaro repositories. It will NOT search on the Arch User Repository (AUR).
+This option searches for <PACKAGE NAME> in the Manjaro repositories. Both package names and package descriptions will get searched. It will NOT search on the Arch User Repository (AUR).
 
 
 6 - PACKAGE INFORMATION
 
 "pacman -Si <PACKAGE NAME>"
 This command displays a lot of information about <PACKAGE NAME>. <PACKAGE NAME> must be a package from the Manjaro repositories.
+If you want more information try "pacman -Sii <PACKAGE NAME>". If you look for information from AUR packages try "yaourt -Sii <PACKAGE NAME>".
 
 
 7 - INSTALL PACKAGE
@@ -104,6 +105,7 @@ This option downloads and installs <PACKAGE NAME> on your system. <PACKAGE NAME>
 
 "pacman -Qi <PACKAGE NAME>"
 This command displays a lot of information about <PACKAGE NAME>. <PACKAGE NAME> must be installed on your system.
+If you want more information try "pacman -Qii <PACKAGE NAME>".
 
 
 9 - REMOVE PACKAGE
@@ -121,13 +123,13 @@ This command removes <PACKAGE NAME> including all dependencies, which are no lon
 11 - LIST ORPHANED PACKAGES
 
 "pacman -Qqdt"
-This option lists all orphaned packages on your system. Orphaned packages are old dependencies ( packages not explicitly installed by you), which were never removed from your system. 
+This option lists all orphaned packages on your system. Orphaned packages are old dependencies (packages not explicitly installed by you), which were never removed from your system. 
 
 
 12 - REMOVE ORPHANED PACKAGES
 
 "sudo pacman -Rns $(pacman -Qqdt)"
-This command removes all orphaned packages on your system. Orphaned packages are old dependencies ( packages not explicitly installed by you), which were never removed from your system. 
+This command removes all orphaned packages from your system. Orphaned packages are old dependencies (packages not explicitly installed by you), which were never removed from your system. 
 Attention: It might be undesireable to remove all orphaned packages (often). It is recommended to LIST ORPHAN PACKAGES first.
 
 
@@ -173,20 +175,21 @@ Display this help page.
 19 - UPDATE AUR
 
 "yaourt -Syyuua"
-This command does the same as UPDATE SYSTEM, but with one excpetion: It updates all packages from Arch User Repository (AUR), which have an updated PKGBUILD file.
-Attention: When a new version of an AUR package is available, often the PKGBUILD file does not need to be updated. If you want to install the latest version of an AUR package, (re-)install it with INSTALL FROM AUR. If you want to install the latest version of all AUR packages do "yaourt -Syyuua --devel".
+This command does the same as UPDATE SYSTEM, but with one excpetion: It also updates all packages from Arch User Repository (AUR), which have an updated PKGBUILD file.
+Attention: When a new version of an AUR package is available, often the PKGBUILD file is not updated. If you want to install the latest version of an AUR package, (re-)install it with INSTALL FROM AUR. If you want to install the latest version of all AUR packages do "yaourt -Syyuua --devel".
 
 
 20 - SEARCH + INSTALL FROM AUR
 
 "yaourt <PACKAGE NAME>"
 This command does the same as SEARCH PACKAGE, but additionally it searches the Arch User Repository (AUR). Search results can be installed on your system.
+If you want to exit this mode without installing any packages, press [Enter].
 
 
 21 - INSTALL FROM AUR
 
 "yaourt -S <PACKAGE NAME>"
-This command does the same as INSTALL PACKAGE, but additionally AUR packages can be installed.
+This command does the same as INSTALL PACKAGE. Additionally, AUR packages can be installed.
 
 
 22 - LIST INSTALLED FROM AUR
