@@ -21,8 +21,8 @@
 #################################################################
 # Design based on IceFox script                                 #
 # Modified, adapted and improved by pekman and excalibur1234    #
-# translation by spylinux	
-# Pmenu support added by Chrysostomus				#
+# translation by spylinux					#
+# Pmenu and Downgrade support added by Chrysostomus		#
 # Contact and suggestions: pekman@openmailbox.org               #
 # Freenode: #manjaropek #manjaro-geek #manjaro			#
 # Topic discussion 						#
@@ -38,7 +38,7 @@ NC='\e[0m'
     while true; do
     clear
     echo ""
-    echo -e "                             $NC ::Package manager:: $NC "
+    echo -e "                             $NC ::Pacli - Package manager:: $NC "
     echo ""
     echo -e ""
     echo -e " ┌────────────────────────────────────────────────────────────────────────────┐"
@@ -47,18 +47,18 @@ NC='\e[0m'
     echo -e " │  $NC  5 $NC  Search Package                      $NC  6 $NC  Package Information       │"
     echo -e " │  $NC  7 $NC  Install Package                     $NC  8 $NC  Detail Installed Packages │"
     echo -e " │  $NC  9 $NC  Remove Package                      $NC 10 $NC  Remove Package + Deps     │"
-    echo -e " │  $NC 11 $NC  List Orphan Packages                $NC 12 $NC  Remove Orphan Packages    │"
+    echo -e " │  $NC 11 $NC  List Orphaned Packages              $NC 12 $NC  Remove Orphaned Packages  │"
     echo -e " │  $NC 13 $NC  Local List                          $NC 14 $NC  Dependencies Tree         │"
     echo -e " │  $NC 15 $NC  Installed Packages                  $NC 16 $NC  Fix Errors                │"
-    echo -e " │  $NC 17 $NC  Downgrade Packages                		                      │"
+    echo -e " │  $NC 17 $NC  Downgrade Packages                  $NC 18 $NC  Help                      │"
     echo " └────────────────────────────────────────────────────────────────────────────┘"
     echo ""
     echo " ┌────────────────────────────────────────────────────────────────────────────┐"
-    echo -e " │  $NC 18 $NC  Update AUR                          $NC 19 $NC  Search on AUR             │"
-    echo -e " │  $NC 20 $NC  Install from AUR                    $NC 21 $NC  List Installed from AUR   │"
+    echo -e " │  $NC 19 $NC  Update AUR                          $NC 20 $NC  Search on AUR             │"
+    echo -e " │  $NC 21 $NC  Install from AUR                    $NC 22 $NC  List Installed from AUR   │"
     echo " └────────────────────────────────────────────────────────────────────────────┘"
     echo ""
-    echo -e "    $NC Select a number between 1 and 21 and press [Enter]$NC $NC - 0 Exit pacli$NC"
+    echo -e "    $NC Select a number between 1 and 22 and press [Enter]$NC $NC - 0 Exit Pacli$NC"
     echo ""
     read choix
     case $choix in
@@ -104,7 +104,6 @@ NC='\e[0m'
             echo ""
             echo "Do you want to check specific information about a package? Put the name below and press [Enter]"
             echo ""
-            read searchpackage
             pacman -Si $(pacman -Slq | pmenu -p 'select package to search >')
             echo ""
             echo -e "$NC The search for information ended. To return to pacli press [Enter] $NC"
@@ -138,7 +137,7 @@ NC='\e[0m'
             read
             ;;
         10)
-			echo ""
+	    echo ""
             echo "Select package to uninstall. All of its dependencies shall be removed."
             echo ""
             sudo pacman -Rsn $(pacman -Qq | pmenu -p 'select package to uninstall >')
@@ -196,7 +195,17 @@ NC='\e[0m'
             echo -e "$NC All Pacman errors fixed. Now press [Enter] $NC"
             read     
             ;;
+        17)
+            echo ""
+            echo ""
+            downgrade $(pacman -Qq | pmenu -p 'select package to downgrade >')
+            echo -e "$NC Task completed. To return to pacli press [Enter] $NC"
+            read     
+            ;;
         18)
+        
+        
+        19)
             echo ""
             echo ""
             yaourt -Syyuua
@@ -204,7 +213,7 @@ NC='\e[0m'
             echo -e "$NC There is nothing else to do. To return to pacli press [Enter] $NC"
             read     
             ;;
-        19)
+        20)
             echo ""
             echo "Enter name of package to be searched from AUR and press [Enter] to continue."
             echo ""
@@ -214,7 +223,7 @@ NC='\e[0m'
             echo -e "$NC Serch completed. To return to pacli press [Enter] $NC"
             read
             ;;
-        20)
+        21)
             echo ""
             echo "Enter name of package to be searched and installed from AUR and press [Enter] to continue"
             echo ""
@@ -224,20 +233,13 @@ NC='\e[0m'
             echo -e "$NC Task completed. To return to pacli press [Enter] $NC"
             read 
             ;;
-        21)
+        22)
             echo ""
             pacman -Qem
             echo ""
             echo -e "$NC Task completed. To return to pacli press [Enter] $NC"
             read     
             ;;     
-        17)
-            echo ""
-            echo ""
-            downgrade $(pacman -Qq | pmenu -p 'select package to downgrade >')
-            echo -e "$NC Task completed. To return to pacli press [Enter] $NC"
-            read     
-            ;;         
         0)
             clear && exit
             read
