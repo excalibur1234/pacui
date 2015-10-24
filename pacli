@@ -118,13 +118,13 @@ This command removes <PACKAGE NAME> from your system. A copy of <PACKAGE NAME> w
 This command removes <PACKAGE NAME> including all dependencies, which are no longer needed by other packages, from your system. A copy of <PACKAGE NAME> will be kept in your package cache.
 
 
-11 - LIST ORPHAN PACKAGES
+11 - LIST ORPHANED PACKAGES
 
 "pacman -Qqdt"
 This option lists all orphaned packages on your system. Orphaned packages are old dependencies ( packages not explicitly installed by you), which were never removed from your system. 
 
 
-12 - REMOVE ORPHAN PACKAGES
+12 - REMOVE ORPHANED PACKAGES
 
 "sudo pacman -Rns $(pacman -Qqdt)"
 This command removes all orphaned packages on your system. Orphaned packages are old dependencies ( packages not explicitly installed by you), which were never removed from your system. 
