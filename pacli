@@ -60,8 +60,8 @@ NC='\e[0m'
     echo " └────────────────────────────────────────────────────────────────────────────┘"
     echo ""
     echo " ┌────────────────────────────────────────────────────────────────────────────┐"
-    echo -e " │  $NC 19 $NC  Update AUR                          $NC 20 $NC  Search + Install on AUR   │"
-    echo -e " │  $NC 21 $NC  List Installed from AUR                                                   │"
+    echo -e " │  $NC 19 $NC  Update AUR                          $NC 20 $NC  Search + Install from AUR │"
+    echo -e " │  $NC 21 $NC  Install from AUR                    $NC 22 $NC  List Installed from AUR   │"
     echo " └────────────────────────────────────────────────────────────────────────────┘"
     echo ""
     echo -e "    $NC Select a number between 1 and 22 and press [Enter]$NC $NC - 0 Exit Pacli$NC"
@@ -235,6 +235,16 @@ NC='\e[0m'
             read 
             ;;
         21)
+            echo ""
+            echo "Enter name of package to be installed from AUR and press [Enter] to continue"
+            echo ""
+            read Packcage
+            yaourt -S $Packcage
+            echo ""
+            echo -e "$NC Task completed. To return to pacli press [Enter] $NC"
+            read 
+            ;;
+        22)
             echo ""
             pacman -Qem
             echo ""
