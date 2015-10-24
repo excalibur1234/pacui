@@ -30,6 +30,12 @@
 #			http://polr.me/pacli2			#
 #################################################################
 
+function help_text() {
+	cat 	<<-EOF
+::The helptext comes here
+	EOF
+}
+
 # set colors
 RED='\e[41m'
 BLUE='\e[44m'
@@ -54,8 +60,8 @@ NC='\e[0m'
     echo " └────────────────────────────────────────────────────────────────────────────┘"
     echo ""
     echo " ┌────────────────────────────────────────────────────────────────────────────┐"
-    echo -e " │  $NC 19 $NC  Update AUR                          $NC 20 $NC  Search on AUR             │"
-    echo -e " │  $NC 21 $NC  Install from AUR                    $NC 22 $NC  List Installed from AUR   │"
+    echo -e " │  $NC 19 $NC  Update AUR                          $NC 20 $NC  Search + Install on AUR   │"
+    echo -e " │  $NC 21 $NC  List Installed from AUR                                                   │"
     echo " └────────────────────────────────────────────────────────────────────────────┘"
     echo ""
     echo -e "    $NC Select a number between 1 and 22 and press [Enter]$NC $NC - 0 Exit Pacli$NC"
@@ -203,8 +209,13 @@ NC='\e[0m'
             read     
             ;;
         18)
-        
-        
+            echo ""
+            echo ""
+            help_text
+            echo ""
+            echo -e "$NC To return to pacli press [Enter] $NC"
+            read
+            ;;
         19)
             echo ""
             echo ""
@@ -215,16 +226,6 @@ NC='\e[0m'
             ;;
         20)
             echo ""
-            echo "Enter name of package to be searched from AUR and press [Enter] to continue."
-            echo ""
-            read searchpackage
-            yaourt -Ss $searchpackage 
-            echo ""           
-            echo -e "$NC Serch completed. To return to pacli press [Enter] $NC"
-            read
-            ;;
-        21)
-            echo ""
             echo "Enter name of package to be searched and installed from AUR and press [Enter] to continue"
             echo ""
             read Packcage
@@ -233,7 +234,7 @@ NC='\e[0m'
             echo -e "$NC Task completed. To return to pacli press [Enter] $NC"
             read 
             ;;
-        22)
+        21)
             echo ""
             pacman -Qem
             echo ""
