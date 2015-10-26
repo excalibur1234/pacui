@@ -126,7 +126,7 @@ This option lists all orphaned packages on your system. Orphaned packages are ol
 Answer with "y" or "n" to remove all listed orphaned packages or not.
 
 
-12 - LOCAL LIST
+12 - LIST LOCAL PACKAGE FILES
 
 "pacman -Ql <PACKAGE NAME>"
 This command lists all files and their install directory contained in <PACKAGE NAME>. <PACKAGE NAME> must be installed on your system.
@@ -139,7 +139,7 @@ This command will display a complete tree of all dependencies of <PACKAGE NAME>.
 Attention: The dependency tree can be quite long an complex for higher level packages such as "firefox".
 
 
-14 - INSTALLED PACKAGES
+14 - LIST INSTALLED PACKAGES
 
 "pacman -Qet"
 This option lists all packages from Manjaro's repositories installed on your system.
@@ -212,8 +212,8 @@ NC='\e[0m'
     echo -e " │  $NC  5 $NC  Search Package                      $NC  6 $NC  Package Information       │"
     echo -e " │  $NC  7 $NC  Install Package                     $NC  8 $NC  Detail Installed Packages │"
     echo -e " │  $NC  9 $NC  Remove Package                      $NC 10 $NC  Remove Package + Deps     │"
-    echo -e " │  $NC 11 $NC  Remove Orphaned Packages            $NC 12 $NC  Local List                │"
-    echo -e " │  $NC 13 $NC  Dependencies Tree                   $NC 14 $NC  Installed Packages        │"
+    echo -e " │  $NC 11 $NC  Remove Orphaned Packages            $NC 12 $NC  List Local Package Files  │"
+    echo -e " │  $NC 13 $NC  Dependencies Tree                   $NC 14 $NC  List Installed Packages   │"
     echo -e " │  $NC 15 $NC  Fix Errors                          $NC 16 $NC  Downgrade Packages        │"
     echo -e " │  $NC 17 $NC  Help                                                                      │"
     echo " └────────────────────────────────────────────────────────────────────────────┘"
