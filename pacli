@@ -100,7 +100,7 @@ If you want more information try "pacman -Sii <PACKAGE NAME>". If you look for i
 This option downloads and installs <PACKAGE NAME> on your system. <PACKAGE NAME> must be a package from the Manjaro repositories.
 
 
-8 - DETAIL INSTALLED PACKAGES
+8 - INSTALLED PACKAGE INFO
 
 "pacman -Qi <PACKAGE NAME>"
 This command displays a lot of information about <PACKAGE NAME>. <PACKAGE NAME> must be installed on your system.
@@ -210,7 +210,7 @@ NC='\e[0m'
     echo -e " │  $NC  1 $NC  Update System                       $NC  2 $NC  Optimize Mirrors          │"
     echo -e " │  $NC  3 $NC  Optimize Database                   $NC  4 $NC  Clean Package Cache       │"
     echo -e " │  $NC  5 $NC  Search Package                      $NC  6 $NC  Package Information       │"
-    echo -e " │  $NC  7 $NC  Install Package                     $NC  8 $NC  Detail Installed Packages │"
+    echo -e " │  $NC  7 $NC  Install Package                     $NC  8 $NC  Installed Package Info    │"
     echo -e " │  $NC  9 $NC  Remove Package                      $NC 10 $NC  Remove Package + Deps     │"
     echo -e " │  $NC 11 $NC  Remove Orphaned Packages            $NC 12 $NC  List Local Package Files  │"
     echo -e " │  $NC 13 $NC  Dependencies Tree                   $NC 14 $NC  List Installed Packages   │"
