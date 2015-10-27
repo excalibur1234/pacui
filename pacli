@@ -192,6 +192,9 @@ This command does the same as INSTALL PACKAGE. Additionally, AUR packages can be
 
 "pacman -Qem"
 This command lists all installed packages, which are from the AUR or which were manually installed.
+
+
+To exit this Help Page, press "q".
 	EOF
 }
 
@@ -215,7 +218,7 @@ NC='\e[0m'
     echo -e " │  $NC 11 $NC  Remove Orphaned Packages            $NC 12 $NC  List Local Package Files  │"
     echo -e " │  $NC 13 $NC  Dependencies Tree                   $NC 14 $NC  List Installed Packages   │"
     echo -e " │  $NC 15 $NC  Fix Errors                          $NC 16 $NC  Downgrade Packages        │"
-    echo -e " │  $NC 17 $NC  Help                                                                      │"
+    echo -e " │  $NC 17 $NC  Help                                                                     │"
     echo " └────────────────────────────────────────────────────────────────────────────┘"
     echo ""
     echo " ┌────────────────────────────────────────────────────────────────────────────┐"
@@ -230,175 +233,154 @@ NC='\e[0m'
         1)
             echo
             sudo pacman -Syu
-            echo ""
+            echo
             echo -e "$NC Your system is updated. To return to pacli press [Enter] $NC"
             read
             ;;
         2)
             echo
             sudo pacman-mirrors -g && sudo pacman -Syy
-            echo ""
-            echo -e "$NC Fastest mirror chosen. To return to pacli press [Enter] $NC"
+            echo
+            echo -e "$NC Best Manjaro mirror chosen. To return to pacli press [Enter] $NC"
             read
             ;;
         3)
             echo
             sudo pacman-optimize
-            echo ""
-            echo -e "$NC Pacman Database optimized. To return to pacli press [Enter] $NC"
+            echo
+            echo -e "$NC Pacman Database optimized for HDDs. To return to pacli press [Enter] $NC"
             read
             ;;
         4)
             echo
             paccache -ruk0
 	    paccache -rk2
-            echo ""
+            echo
             echo -e "$NC Unneeded and old package versions removed. To return to pacli press [Enter] $NC"
             read
             ;;
         5)
-            echo ""
-            echo "Do you want to search a package? Put the name below and press [Enter]"
-            echo ""
+            echo
             pacman -Ss $(pacman -Slq | pmenu -p 'select package to search >')
-            echo ""
-            echo -e "$NC The search is complete. To return to pacli press [Enter] $NC"
+            echo
+            echo -e "$NC Package search is complete. If you see no results, no package was found. To return to pacli press [Enter] $NC"
             read
             ;;
         6)
-            echo ""
-            echo "Do you want to check specific information about a package? Put the name below and press [Enter]"
-            echo ""
+            echo
             pacman -Si $(pacman -Slq | pmenu -p 'select package to search >')
-            echo ""
-            echo -e "$NC The search for information ended. To return to pacli press [Enter] $NC"
+            echo
+            echo -e "$NC Search for information ended. To return to pacli press [Enter] $NC"
             read 
 			;;
         7)
-            echo ""
-            echo "Do you want to install a package? Put the name below and press [Enter]"
-            echo ""
+            echo
             sudo pacman -S $(pacman -Slq | pmenu -p 'select package to install >')
-            echo ""
-            echo -e "$NC The package installation is finished. To return to pacli press [Enter] $NC"
+            echo
+            echo -e "$NC Package installation is finished. To return to pacli press [Enter] $NC"
             read
             ;;
         8)
-            echo ""
-            echo "Do you want to check specific information about a package?  Put the name below and press [Enter]"
-            echo ""
+            echo
             pacman -Qi $(pacman -Qq | pmenu -p 'select a package >')
-            echo ""
-            echo -e "$NC All information displayed. To return to pacli press [Enter] $NC"
+            echo
+            echo -e "$NC Package information displayed. To return to pacli press [Enter] $NC"
             read
             ;;
         9)
-            echo ""
-            echo "Select package to uninstall. All Dependencies will be kept as orphans."
-            echo ""
+            echo
             sudo pacman -R $(pacman -Qq | pmenu -p 'select package to uninstall >')
-            echo ""
-            echo -e "$NC Action completed. To return to pacli press [Enter] $NC"
+            echo
+            echo -e "$NC Package removed. To return to pacli press [Enter] $NC"
             read
             ;;
         10)
-	    echo ""
-            echo "Select package to uninstall. All of its dependencies shall be removed."
-            echo ""
+	    echo
             sudo pacman -Rsn $(pacman -Qq | pmenu -p 'select package to uninstall >')
-            echo ""
-            echo -e "$NC Action completed. To return to pacli press [Enter] $NC"
+            echo
+            echo -e "$NC Package and all unneeded dependencies removed. To return to pacli press [Enter] $NC"
             read
             ;;
         11)
-            echo ""
-            echo ""
+            echo
             yaourt -Qdt
-            echo ""
+            echo
             echo -e "$NC Task completed. To return to pacli press [Enter] $NC"
             read        
             ;;
         12)
-            echo ""
-            echo "Select package to list all local files of."
-            echo ""
+            echo
             pacman -Ql $(pacman -Qq | pmenu -p 'select a package >')
-            echo ""
-            echo -e "$NC Task completed. To return to pacli press [Enter] $NC"
+            echo
+            echo -e "$NC All lokal files in package listed. To return to pacli press [Enter] $NC"
             read 
             ;;
         13)
-            echo ""
-            echo "Select a package whose dependency tree is to be displayed."
-            echo ""
+            echo
             pactree $(pacman -Qq | pmenu -p 'select a package >')
-            echo ""
-            echo -e "$NC Task completed. To return to pacli press [Enter] $NC"
+            echo
+            echo -e "$NC Dependency tree displayed. To return to pacli press [Enter] $NC"
             read
             ;;
         14)
-            echo ""
+            echo
             pacman -Qet
-            echo ""
-            echo -e "$NC Task completed. To return to pacli press [Enter] $NC"
+            echo
+            echo -e "$NC All your installed packages from the Manjaro repositories listed. To return to pacli press [Enter] $NC"
             read     
             ;;
             
         15)
-            echo ""
+            echo
             sudo rm -f /var/lib/pacman/db.lck && sudo pacman-mirrors -g && sudo pacman -Syyuu
-            echo ""
-            echo -e "$NC All Pacman errors fixed. Now press [Enter] $NC"
+            echo
+            echo -e "$NC Most common Pacman errors fixed. Now press [Enter] $NC"
             read     
             ;;
         16)
-            echo ""
-            echo ""
+            echo
             downgrade $(pacman -Qq | pmenu -p 'select package to downgrade >')
-            echo -e "$NC Task completed. To return to pacli press [Enter] $NC"
+            echo
+            echo -e "$NC Downgrade process finished. To return to pacli press [Enter] $NC"
             read     
             ;;
         17)
-            echo ""
-            echo ""
+            echo
             help_text
-            echo ""
-            echo -e "$NC To return to pacli press [Enter] $NC"
-            read
+            echo
             ;;
         18)
-            echo ""
-            echo ""
+            echo
             yaourt -Syyuua
-            echo ""
+            echo
             echo -e "$NC There is nothing else to do. To return to pacli press [Enter] $NC"
             read     
             ;;
         19)
-            echo ""
+            echo
             echo "Enter name of package to be searched and installed from AUR and press [Enter] to continue"
-            echo ""
+            echo
             read Packcage
             yaourt $Packcage
-            echo ""
+            echo
             echo -e "$NC Task completed. To return to pacli press [Enter] $NC"
             read 
             ;;
         20)
-            echo ""
+            echo
             echo "Enter name of package to be installed from AUR and press [Enter] to continue"
-            echo ""
+            echo
             read Packcage
             yaourt -S $Packcage
-            echo ""
+            echo
             echo -e "$NC Task completed. To return to pacli press [Enter] $NC"
             read 
             ;;
         21)
-            echo ""
+            echo
             pacman -Qem
-            echo ""
-            echo -e "$NC Task completed. To return to pacli press [Enter] $NC"
+            echo
+            echo -e "$NC All locally installed packages listed. To return to pacli press [Enter] $NC"
             read     
             ;;     
         0)
@@ -408,8 +390,8 @@ NC='\e[0m'
         *)
             echo -e "$RED Wrong option $NC"
             echo "Wait and try again later..."
-            echo ""
-            sleep 3
+            echo
+            sleep 2
             clear
             ;;
     esac
