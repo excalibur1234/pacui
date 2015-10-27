@@ -222,7 +222,7 @@ NC='\e[0m'
     echo -e " │  $NC 11 $NC  Remove Orphaned Packages            $NC 12 $NC  List Local Package Files  │"
     echo -e " │  $NC 13 $NC  Dependencies Tree                   $NC 14 $NC  List Installed Packages   │"
     echo -e " │  $NC 15 $NC  Fix Errors                          $NC 16 $NC  Downgrade Packages        │"
-    echo -e " │  $NC 17 $NC  Help                                                                  │"
+    echo -e " │  $NC 17 $NC  Help                                                                 │"
     echo " └────────────────────────────────────────────────────────────────────────────┘"
     echo ""
     echo " ┌────────────────────────────────────────────────────────────────────────────┐"
