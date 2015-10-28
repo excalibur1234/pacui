@@ -78,13 +78,13 @@ On traditional hard drives (HDD) this command can speed up all actions related t
  paccache -rk2"
 By default Pacman uses this cache direcoty for downloading packages: /var/cache/pacman/pkg/... . No cached packages get deleted automatically. This enables you to DOWNGRADE PACKAGES, which are broken, without a working internet connection. The package cache of an old and actively used Manjaro installation can become quite large. Clean it to regain space on your root partition.
 The first command removes all packages from cache, which are not installed (anymore) on your system. The second command removes all old packages from your cache except the 2 latest versions: The version you have currently installed on your system and the previous version.
-If you want to remove ALL cached packages run "yaourt -Scc". Attention: This will make it impossible to reinstall or DOWNGRADE PACKAGES without a working internet connection.
 
 
-5 - SEARCH PACKAGE
+5 - EMPTY PACKAGE CACHE
 
-"pacman -Ss <PACKAGE NAME>"
-This option searches for <PACKAGE NAME> in the Manjaro repositories. Both package names and package descriptions will get searched. It will NOT search on the Arch User Repository (AUR).
+"yaourt -Scc"
+This command will empty your entire package cache by deleting ALL packages.
+Attention: This will make it impossible to reinstall or DOWNGRADE PACKAGES without a working internet connection.
 
 
 6 - PACKAGE INFORMATION
@@ -216,7 +216,7 @@ NC='\e[0m'
     echo -e " ┌────────────────────────────────────────────────────────────────────────────┐"
     echo -e " │  $NC  1 $NC  Update System                       $NC  2 $NC  Optimize Mirrors          │"
     echo -e " │  $NC  3 $NC  Optimize Database                   $NC  4 $NC  Clean Package Cache       │"
-    echo -e " │  $NC  5 $NC  Search Package                      $NC  6 $NC  Package Information       │"
+    echo -e " │  $NC  5 $RED Empty Package Cache                 $NC  6 $NC  Package Information       │"
     echo -e " │  $NC  7 $NC  Install Package                     $NC  8 $NC  Installed Package Info    │"
     echo -e " │  $NC  9 $NC  Remove Package                      $NC 10 $NC  Remove Package + Deps     │"
     echo -e " │  $NC 11 $NC  Remove Orphaned Packages            $NC 12 $NC  List Local Package Files  │"
@@ -265,9 +265,9 @@ NC='\e[0m'
             ;;
         5)
             echo
-            pacman -Ss $(pacman -Slq | pmenu -p 'Select package to search >')
+            yaourt -Scc
             echo
-            echo -e "$NC Package search is complete. If you see no results, no package was found. To return to pacli press [Enter] $NC"
+            echo -e "$NC Entire package cache emptied. To return to pacli press [Enter] $NC"
             read
             ;;
         6)
