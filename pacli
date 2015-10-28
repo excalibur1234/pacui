@@ -213,7 +213,6 @@ NC='\e[0m'
     echo ""
     echo -e "                             $NC ::Pacli - Package manager:: $NC "
     echo ""
-    echo -e ""
     echo -e " ┌────────────────────────────────────────────────────────────────────────────┐"
     echo -e " │  $NC  1 $NC  Update System                       $NC  2 $NC  Optimize Mirrors          │"
     echo -e " │  $NC  3 $NC  Optimize Database                   $NC  4 $NC  Clean Package Cache       │"
@@ -229,9 +228,10 @@ NC='\e[0m'
     echo " ┌────────────────────────────────────────────────────────────────────────────┐"
     echo -e " │  $NC 18 $NC  Update AUR                          $NC 19 $NC  Search + Install from AUR │"
     echo -e " │  $NC 20 $NC  Install from AUR                    $NC 21 $NC  List Installed from AUR   │"
+    echo -e " │  $NC 22 $NC  AUR Package Information                                             │"
     echo " └────────────────────────────────────────────────────────────────────────────┘"
     echo ""
-    echo -e "    $NC Select a number between 1 and 21 and press [Enter]$NC $NC - 0 Exit Pacli$NC"
+    echo -e "    $NC Select a number between 0 and 22 and press [Enter]$NC $NC - 0 Exit Pacli$NC"
     echo ""
     read choix
     case $choix in
@@ -368,6 +368,8 @@ NC='\e[0m'
             read Packcage
             yaourt $Packcage
             echo
+            echo -e "$NC Yaourt finished. To return to pacli press [Enter] $NC"
+            read  
             ;;
         20)
             echo
@@ -376,6 +378,8 @@ NC='\e[0m'
             read Packcage
             yaourt -S $Packcage
             echo
+            echo -e "$NC Installation from AUR finished. To return to pacli press [Enter] $NC"
+            read  
             ;;
         21)
             echo
@@ -383,7 +387,17 @@ NC='\e[0m'
             echo
             echo -e "$NC All locally installed packages listed. To return to pacli press [Enter] $NC"
             read     
-            ;;     
+            ;;  
+        22)
+            echo
+            echo "Enter name of package to display information about and press [Enter] to continue"
+            echo
+            read Packcage
+            yaourt -Sii $Packcage
+            echo
+            echo -e "$NC Package information listed. To return to pacli press [Enter] $NC"
+            read     
+            ;; 
         0)
             clear && exit
             read
