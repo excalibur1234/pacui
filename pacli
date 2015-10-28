@@ -107,13 +107,7 @@ This command does the same as INSTALL PACKAGE, but it forces the installation of
 Attention: This command is meant for experienced users, who know what they are doing!
 
 
-9 - REMOVE PACKAGE
-
-"sudo pacman -R <PACKAGE NAME>"
-This command removes <PACKAGE NAME> from your system. A copy of <PACKAGE NAME> will be kept in your package cache and all dependencies will be kept on your system. Some dependencies might become orphaned packages.
-
-
-10 - REMOVE PACKAGE + DEPS
+9 - REMOVE PACKAGE + DEPS
 
 "sudo pacman -Rsn <PACKAGE NAME>"
 This command removes <PACKAGE NAME> including all dependencies, which are no longer needed by other packages, from your system. A copy of <PACKAGE NAME> will be kept in your package cache.
@@ -121,6 +115,13 @@ Please note that folders created by the program <PACKAGE NAME> will not get remo
 ~
 ~/.config/
 ~/.local/
+
+
+10 - FORCE REMOVE PACKAGE
+
+"pacman -Rdd <PACKAGE NAME>"
+This command removes <PACKAGE NAME> without checking the dependencies of <PACKAGE NAME> first. This enables experienced users to remove packages and dependencies of packages.
+Attention: This command can break pacakges on your system or even your entire system. Use with great care!
 
 
 11 - REMOVE ORPHANED PACKAGES
@@ -218,7 +219,7 @@ NC='\e[0m'
     echo -e " │  $NC  3 $NC  Optimize Database                   $NC  4 $NC  Clean Package Cache       │"
     echo -e " │  $NC  5 $RED Empty Package Cache                 $NC  6 $NC  Package Information       │"
     echo -e " │  $NC  7 $NC  Install Package                     $NC  8 $RED Force Install Package     │"
-    echo -e " │  $NC  9 $NC  Remove Package                      $NC 10 $NC  Remove Package + Deps     │"
+    echo -e " │  $NC  9 $NC  Remove Package + Deps               $NC 10 $RED Force Remove Package      │"
     echo -e " │  $NC 11 $NC  Remove Orphaned Packages            $NC 12 $NC  List Local Package Files  │"
     echo -e " │  $NC 13 $NC  Dependencies Tree                   $NC 14 $NC  List Installed Packages   │"
     echo -e " │  $NC 15 $NC  Fix Errors                          $NC 16 $NC  Downgrade Packages        │"
@@ -292,17 +293,17 @@ NC='\e[0m'
             read
             ;;
         9)
-            echo
-            sudo pacman -R $(pacman -Qq | pmenu -p 'Select package to remove >')
-            echo
-            echo -e "$NC Package removed. To return to pacli press [Enter] $NC"
-            read
-            ;;
-        10)
 	    echo
             sudo pacman -Rsn $(pacman -Qq | pmenu -p 'Select package to remove >')
             echo
             echo -e "$NC Package and all unneeded dependencies removed. To return to pacli press [Enter] $NC"
+            read
+            ;;
+        10)
+            echo
+            sudo pacman -Rdd $(pacman -Qq | pmenu -p 'Select package to remove >')
+            echo
+            echo -e "$NC Dependency in force mode removed. To return to pacli press [Enter] $NC"
             read
             ;;
         11)
