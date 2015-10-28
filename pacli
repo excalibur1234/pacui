@@ -91,7 +91,7 @@ Attention: This will make it impossible to reinstall or DOWNGRADE PACKAGES witho
 
 "pacman -Si <PACKAGE NAME>"
 This command displays a lot of information about <PACKAGE NAME>. <PACKAGE NAME> must be a package from the Manjaro repositories.
-If you want more information try "pacman -Sii <PACKAGE NAME>". If you look for information from AUR packages try "yaourt -Sii <PACKAGE NAME>".
+If you want more information try "pacman -Sii <PACKAGE NAME>". If you look for information from AUR packages try AUR PACKAGE INFORMATION.
 
 
 7 - INSTALL PACKAGE
@@ -197,6 +197,12 @@ This command does the same as INSTALL PACKAGE. Additionally, AUR packages can be
 
 "pacman -Qem"
 This command lists all installed packages, which are from the AUR or which were manually installed.
+
+
+22 - AUR PACKAGE INFORMATION
+
+"yaourt -Sii <PACKAGE NAME>"
+This command displays a lot of information about <PACKAGE NAME>. <PACKAGE NAME> can be a package from the Manjaro repositories or the Arch User Repository (AUR).
 
 
 To exit this Help Page, press "q".
