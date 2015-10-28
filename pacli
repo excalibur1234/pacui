@@ -100,11 +100,11 @@ If you want more information try "pacman -Sii <PACKAGE NAME>". If you look for i
 This option downloads and installs <PACKAGE NAME> on your system. <PACKAGE NAME> must be a package from the Manjaro repositories.
 
 
-8 - INSTALLED PACKAGE INFO
+8 - FORCE INSTALL PACKAGE
 
-"pacman -Qi <PACKAGE NAME>"
-This command displays a lot of information about <PACKAGE NAME>. <PACKAGE NAME> must be installed on your system.
-If you want more information try "pacman -Qii <PACKAGE NAME>".
+"sudo pacman -S --force <PACKAGE NAME>"
+This command does the same as INSTALL PACKAGE, but it forces the installation of <PACKAGE NAME>.
+Attention: This command is meant for experienced users, who know what they are doing!
 
 
 9 - REMOVE PACKAGE
@@ -217,7 +217,7 @@ NC='\e[0m'
     echo -e " │  $NC  1 $NC  Update System                       $NC  2 $NC  Optimize Mirrors          │"
     echo -e " │  $NC  3 $NC  Optimize Database                   $NC  4 $NC  Clean Package Cache       │"
     echo -e " │  $NC  5 $RED Empty Package Cache                 $NC  6 $NC  Package Information       │"
-    echo -e " │  $NC  7 $NC  Install Package                     $NC  8 $NC  Installed Package Info    │"
+    echo -e " │  $NC  7 $NC  Install Package                     $NC  8 $RED Force Install Package     │"
     echo -e " │  $NC  9 $NC  Remove Package                      $NC 10 $NC  Remove Package + Deps     │"
     echo -e " │  $NC 11 $NC  Remove Orphaned Packages            $NC 12 $NC  List Local Package Files  │"
     echo -e " │  $NC 13 $NC  Dependencies Tree                   $NC 14 $NC  List Installed Packages   │"
@@ -286,9 +286,9 @@ NC='\e[0m'
             ;;
         8)
             echo
-            pacman -Qi $(pacman -Qq | pmenu -p 'Select a package >')
+            sudo pacman -S --force $(pacman -Slq | pmenu -p 'Select package to install >')
             echo
-            echo -e "$NC Package information displayed. To return to pacli press [Enter] $NC"
+            echo -e "$NC Package installation in force mode is finished. To return to pacli press [Enter] $NC"
             read
             ;;
         9)
