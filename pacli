@@ -35,7 +35,7 @@ function help_text() {
 Welcome to Pacli's Help Page.
 
 
-Pacli is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Yaourt as back ends. Additionally, it uses some Manjaro exclusive commands. Pacli offers to you the most common and useful features for managing your packages.
+Pacli is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Yaourt as back ends. Additionally, it uses some Manjaro exclusive commands. Pacli offers you the most common and useful features for managing your packages. Options, which can break your system, are marked in red. 
 On the following Help Page all options Pacli offers are described in detail.
 
 
@@ -58,59 +58,60 @@ This will exit Pacli and clear your terminal.
 This command compares a list of all installed packages with package database on your Manjaro repository mirror/server. If an updated package is available from the Manjaro repositories, it will get downloaded and installed on your system. 
 
 
-2 - OPTIMIZE MIRRORS
+2 - FORCE UPDATE SYSTEM
+
+"sudo pacman -Syu --force"
+This command does the same as UPDATE SYSTEM, but it bypasses file conflict tests and overwrites conflicting files. All files will be overwritten. 
+Attention: This command is meant for experienced users, who know what they are doing!
+
+
+3 - OPTIMIZE MIRRORS
 
 "sudo pacman-mirrors -g && sudo pacman -Syy"
 This command tests your connection to all available Manjaro repository mirrors/servers. The mirror with the best connection is automatically chosen for you. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror.
 If you want to speed up this command: Only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -g -c Germany,France"
 
 
-3 - OPTIMIZE DATABASE
+4 - OPTIMIZE DATABASE
 
 "sudo pacman-optimize"
 This command effectively defragments your Pacman database. It is recommended to CLEAN PACKAGE CACHE before using this option.
 On traditional hard drives (HDD) this command can speed up all actions related to Pacman. But it is NOT recommended to use this command on modern solid state hard drives (SSD)!
 
 
-4 - CLEAN PACKAGE CACHE
+5 - CLEAN PACKAGE CACHE
 
 "paccache -ruk0
  paccache -rk2"
 By default Pacman uses this cache direcoty for downloading packages: /var/cache/pacman/pkg/... . No cached packages get deleted automatically. This enables you to DOWNGRADE PACKAGES, which are broken, without a working internet connection. The package cache of an old and actively used Manjaro installation can become quite large. Clean it to regain space on your root partition.
 The first command removes all packages from cache, which are not installed (anymore) on your system. The second command removes all old packages from your cache except the 2 latest versions: The version you have currently installed on your system and the previous version.
-If you want to remove ALL cached packages run "yaourt -Scc". Attention: This will make it impossible to reinstall or DOWNGRADE PACKAGES without a working internet connection.
 
 
-5 - SEARCH PACKAGE
+6 - EMPTY PACKAGE CACHE
 
-"pacman -Ss <PACKAGE NAME>"
-This option searches for <PACKAGE NAME> in the Manjaro repositories. Both package names and package descriptions will get searched. It will NOT search on the Arch User Repository (AUR).
+"yaourt -Scc"
+This command will empty your entire package cache by deleting ALL packages.
+Attention: This will make it impossible to reinstall or DOWNGRADE PACKAGES without a working internet connection.
 
 
-6 - PACKAGE INFORMATION
+7 - PACKAGE INFORMATION
 
 "pacman -Si <PACKAGE NAME>"
 This command displays a lot of information about <PACKAGE NAME>. <PACKAGE NAME> must be a package from the Manjaro repositories.
-If you want more information try "pacman -Sii <PACKAGE NAME>". If you look for information from AUR packages try "yaourt -Sii <PACKAGE NAME>".
+If you want more information try "pacman -Sii <PACKAGE NAME>". If you look for information from AUR packages try AUR PACKAGE INFORMATION.
 
 
-7 - INSTALL PACKAGE
+8 - INSTALL PACKAGE
 
 "sudo pacman -S <PACKAGE NAME>"
 This option downloads and installs <PACKAGE NAME> on your system. <PACKAGE NAME> must be a package from the Manjaro repositories.
 
 
-8 - INSTALLED PACKAGE INFO
+9 - FORCE INSTALL PACKAGE
 
-"pacman -Qi <PACKAGE NAME>"
-This command displays a lot of information about <PACKAGE NAME>. <PACKAGE NAME> must be installed on your system.
-If you want more information try "pacman -Qii <PACKAGE NAME>".
-
-
-9 - REMOVE PACKAGE
-
-"sudo pacman -R <PACKAGE NAME>"
-This command removes <PACKAGE NAME> from your system. A copy of <PACKAGE NAME> will be kept in your package cache and all dependencies will be kept on your system. Some dependencies might become orphaned packages.
+"sudo pacman -S --force <PACKAGE NAME>"
+This command does the same as INSTALL PACKAGE, but it forces the installation of <PACKAGE NAME>.
+Attention: This command is meant for experienced users, who know what they are doing!
 
 
 10 - REMOVE PACKAGE + DEPS
@@ -123,33 +124,40 @@ Please note that folders created by the program <PACKAGE NAME> will not get remo
 ~/.local/
 
 
-11 - REMOVE ORPHANED PACKAGES
+11 - FORCE REMOVE PACKAGE
+
+"pacman -Rdd <PACKAGE NAME>"
+This command removes <PACKAGE NAME> without checking the dependencies of <PACKAGE NAME> first. This enables experienced users to remove packages and dependencies of packages.
+Attention: This command can break pacakges on your system or even your entire system. Use with great care!
+
+
+12 - REMOVE ORPHANED PACKAGES
 
 yaourt -Qdt
 This option lists all orphaned packages on your system. Orphaned packages are old dependencies (packages not explicitly installed by you), which were never removed from your system. 
 Answer with "y" or "n" to remove all listed orphaned packages or not.
 
 
-12 - LIST LOCAL PACKAGE FILES
+13 - LIST LOCAL PACKAGE FILES
 
 "pacman -Ql <PACKAGE NAME>"
 This command lists all files and their install directory contained in <PACKAGE NAME>. <PACKAGE NAME> must be installed on your system.
 
 
-13 - DEPENDENCIES TREE
+14 - DEPENDENCIES TREE
 
 "pactree <PACKAGE NAME>"
 This command will display a complete tree of all dependencies of <PACKAGE NAME>.
 Attention: The dependency tree can be quite long an complex for higher level packages such as "firefox".
 
 
-14 - LIST INSTALLED PACKAGES
+15 - LIST INSTALLED PACKAGES
 
 "pacman -Qet"
 This option lists all packages from Manjaro's repositories installed on your system.
 
 
-15 - FIX ERRORS
+16 - FIX ERRORS
 
 "sudo rm -f /var/lib/pacman/db.lck && sudo pacman-mirrors -g && sudo pacman -Syyuu"
 This long command attempts to fix the most common issues Manjaro users have with Pacman: 
@@ -159,43 +167,49 @@ Finally, the last command forces a redownload of the latest package database fro
 Attention: Only run this command when no other Pacman instance (e.g. Pacman, Yaourt, Pamac, Octopi, PacmanXG4, ...) is running.
 
 
-16 - DOWNGRADE PACKAGES
+17 - DOWNGRADE PACKAGES
 
 "downgrade <PACKAGE NAME>"
 Manjaro uses a rolling release development model. This means ALL packages on your system continuesly get updated to the latest version. If the latest version of a packages does not work on your system, you can downgrade that package to an earlier, working version.
 This command downgrades <PACKAGE NAME> and offers you a list of old <PACKAGE NAME> versions to choose from. This list includes all old <PACKAGE NAME> versions from your package cache and online sources (if you have a working internet connection).
 
 
-17 - HELP
+18 - HELP
 
 Display this help page.
 
 
 
-18 - UPDATE AUR
+19 - UPDATE AUR
 
 "yaourt -Syyuua"
 This command does the same as UPDATE SYSTEM, but with one excpetion: It also updates all packages from Arch User Repository (AUR), which have an updated PKGBUILD file.
 Attention: When a new version of an AUR package is available, often the PKGBUILD file is not updated. If you want to install the latest version of an AUR package, (re-)install it with INSTALL FROM AUR. If you want to install the latest version of all AUR packages do "yaourt -Syyuua --devel".
 
 
-19 - SEARCH + INSTALL FROM AUR
+20 - SEARCH + INSTALL FROM AUR
 
 "yaourt <PACKAGE NAME>"
 This command does the same as SEARCH PACKAGE, but additionally it searches the Arch User Repository (AUR). Search results can be installed on your system.
 If you want to exit this mode without installing any packages, press [Enter].
 
 
-20 - INSTALL FROM AUR
+21 - INSTALL FROM AUR
 
 "yaourt -S <PACKAGE NAME>"
 This command does the same as INSTALL PACKAGE. Additionally, AUR packages can be installed.
 
 
-21 - LIST INSTALLED FROM AUR
+22 - LIST INSTALLED FROM AUR
 
 "pacman -Qem"
 This command lists all installed packages, which are from the AUR or which were manually installed.
+
+
+23 - AUR PACKAGE INFORMATION
+
+"yaourt -Sii <PACKAGE NAME>"
+This command displays a lot of information about <PACKAGE NAME>. <PACKAGE NAME> can be a package from the Manjaro repositories or the Arch User Repository (AUR).
 
 
 To exit this Help Page, press "q".
@@ -212,25 +226,25 @@ NC='\e[0m'
     echo ""
     echo -e "                             $NC ::Pacli - Package manager:: $NC "
     echo ""
-    echo -e ""
     echo -e " ┌────────────────────────────────────────────────────────────────────────────┐"
-    echo -e " │  $NC  1 $NC  Update System                       $NC  2 $NC  Optimize Mirrors          │"
-    echo -e " │  $NC  3 $NC  Optimize Database                   $NC  4 $NC  Clean Package Cache       │"
-    echo -e " │  $NC  5 $NC  Search Package                      $NC  6 $NC  Package Information       │"
-    echo -e " │  $NC  7 $NC  Install Package                     $NC  8 $NC  Installed Package Info    │"
-    echo -e " │  $NC  9 $NC  Remove Package                      $NC 10 $NC  Remove Package + Deps     │"
-    echo -e " │  $NC 11 $NC  Remove Orphaned Packages            $NC 12 $NC  List Local Package Files  │"
-    echo -e " │  $NC 13 $NC  Dependencies Tree                   $NC 14 $NC  List Installed Packages   │"
-    echo -e " │  $NC 15 $NC  Fix Errors                          $NC 16 $NC  Downgrade Packages        │"
-    echo -e " │  $NC 17 $NC  Help                                                                │"
+    echo -e " │  $NC  1 $NC  Update System                       $NC  2 $RED Force Update System       │"
+    echo -e " │  $NC  2 $NC  Optimize Mirrors                    $NC  4 $NC  Optimize Database         │"
+    echo -e " │  $NC  5 $NC  Clean Package Cache                 $NC  6 $RED Empty Package Cache       │"
+    echo -e " │  $NC  7 $NC  Package Information                 $NC  8 $NC  Install Package           │"
+    echo -e " │  $NC  9 $RED Force Install Package               $NC 10 $NC  Remove Package + Deps     │"
+    echo -e " │  $NC 11 $RED Force Remove Package                $NC 12 $NC  Remove Orphaned Packages  │"
+    echo -e " │  $NC 13 $NC  List Local Package Files            $NC 14 $NC  Dependencies Tree         │"
+    echo -e " │  $NC 15 $NC  List Installed Packages             $NC 16 $NC  Fix Errors                │"
+    echo -e " │  $NC 17 $NC  Downgrade Packages                  $NC 18 $NC  Help                    │"
     echo " └────────────────────────────────────────────────────────────────────────────┘"
     echo ""
     echo " ┌────────────────────────────────────────────────────────────────────────────┐"
-    echo -e " │  $NC 18 $NC  Update AUR                          $NC 19 $NC  Search + Install from AUR │"
-    echo -e " │  $NC 20 $NC  Install from AUR                    $NC 21 $NC  List Installed from AUR   │"
+    echo -e " │  $NC 19 $NC  Update AUR                          $NC 20 $NC  Search + Install from AUR │"
+    echo -e " │  $NC 21 $NC  Install from AUR                    $NC 22 $NC  List Installed from AUR   │"
+    echo -e " │  $NC 23 $NC  AUR Package Information                                             │"
     echo " └────────────────────────────────────────────────────────────────────────────┘"
     echo ""
-    echo -e "    $NC Select a number between 1 and 21 and press [Enter]$NC $NC - 0 Exit Pacli$NC"
+    echo -e "    $NC Select a number between 0 and 23 and press [Enter]$NC $NC - 0 Exit Pacli$NC"
     echo ""
     read choix
     case $choix in
@@ -243,19 +257,26 @@ NC='\e[0m'
             ;;
         2)
             echo
+            sudo pacman -Syu --force
+            echo
+            echo -e "$NC Your system is updated in force mode. To return to pacli press [Enter] $NC"
+            read
+            ;;
+        3)
+            echo
             sudo pacman-mirrors -g && sudo pacman -Syy
             echo
             echo -e "$NC Best Manjaro mirror chosen. To return to pacli press [Enter] $NC"
             read
             ;;
-        3)
+        4)
             echo
             sudo pacman-optimize
             echo
             echo -e "$NC Pacman Database optimized for HDDs. To return to pacli press [Enter] $NC"
             read
             ;;
-        4)
+        5)
             echo
             paccache -ruk0
 	    paccache -rk2
@@ -263,39 +284,32 @@ NC='\e[0m'
             echo -e "$NC Unneeded and old package versions removed. To return to pacli press [Enter] $NC"
             read
             ;;
-        5)
+        6)
             echo
-            pacman -Ss $(pacman -Slq | pmenu -p 'Select package to search >')
+            yaourt -Scc
             echo
-            echo -e "$NC Package search is complete. If you see no results, no package was found. To return to pacli press [Enter] $NC"
+            echo -e "$NC Entire package cache emptied. To return to pacli press [Enter] $NC"
             read
             ;;
-        6)
+        7)
             echo
             pacman -Si $(pacman -Slq | pmenu -p 'Select package to display information about >')
             echo
             echo -e "$NC Search for information ended. To return to pacli press [Enter] $NC"
             read 
             ;;
-        7)
+        8)
             echo
             sudo pacman -S $(pacman -Slq | pmenu -p 'Select package to install >')
             echo
             echo -e "$NC Package installation is finished. To return to pacli press [Enter] $NC"
             read
             ;;
-        8)
-            echo
-            pacman -Qi $(pacman -Qq | pmenu -p 'Select a package >')
-            echo
-            echo -e "$NC Package information displayed. To return to pacli press [Enter] $NC"
-            read
-            ;;
         9)
             echo
-            sudo pacman -R $(pacman -Qq | pmenu -p 'Select package to remove >')
+            sudo pacman -S --force $(pacman -Slq | pmenu -p 'Select package to install >')
             echo
-            echo -e "$NC Package removed. To return to pacli press [Enter] $NC"
+            echo -e "$NC Package installation in force mode is finished. To return to pacli press [Enter] $NC"
             read
             ;;
         10)
@@ -307,26 +321,33 @@ NC='\e[0m'
             ;;
         11)
             echo
+            sudo pacman -Rdd $(pacman -Qq | pmenu -p 'Select package to remove >')
+            echo
+            echo -e "$NC Dependency in force mode removed. To return to pacli press [Enter] $NC"
+            read
+            ;;
+        12)
+            echo
             yaourt -Qdt
             echo
             echo -e "$NC Task completed. To return to pacli press [Enter] $NC"
             read        
             ;;
-        12)
+        13)
             echo
             pacman -Ql $(pacman -Qq | pmenu -p 'Select a package >')
             echo
             echo -e "$NC All lokal files in package listed. To return to pacli press [Enter] $NC"
             read 
             ;;
-        13)
+        14)
             echo
             pactree $(pacman -Qq | pmenu -p 'Select a package >')
             echo
             echo -e "$NC Dependency tree displayed. To return to pacli press [Enter] $NC"
             read
             ;;
-        14)
+        15)
             echo
             pacman -Qet
             echo
@@ -334,55 +355,69 @@ NC='\e[0m'
             read     
             ;;
             
-        15)
+        16)
             echo
             sudo rm -f /var/lib/pacman/db.lck && sudo pacman-mirrors -g && sudo pacman -Syyuu
             echo
             echo -e "$NC Most common Pacman errors fixed. To return to pacli press [Enter] $NC"
             read     
             ;;
-        16)
+        17)
             echo
             downgrade $(pacman -Qq | pmenu -p 'Select package to downgrade >')
             echo
             echo -e "$NC Downgrade process finished. To return to pacli press [Enter] $NC"
             read     
             ;;
-        17)
+        18)
             echo
             help_text
             echo
             ;;
-        18)
+        19)
             echo
             yaourt -Syua
             echo
             echo -e "$NC Your system is updated. To return to pacli press [Enter] $NC"
             read     
             ;;
-        19)
+        20)
             echo
             echo "Enter name of package to be searched and installed from AUR and press [Enter] to continue"
             echo
             read Packcage
             yaourt $Packcage
             echo
+            echo -e "$NC Yaourt finished. To return to pacli press [Enter] $NC"
+            read  
             ;;
-        20)
+        21)
             echo
             echo "Enter name of package to be installed from AUR and press [Enter] to continue"
             echo
             read Packcage
             yaourt -S $Packcage
             echo
+            echo -e "$NC Installation from AUR finished. To return to pacli press [Enter] $NC"
+            read  
             ;;
-        21)
+        22)
             echo
             pacman -Qem
             echo
             echo -e "$NC All locally installed packages listed. To return to pacli press [Enter] $NC"
             read     
-            ;;     
+            ;;  
+        23)
+            echo
+            echo "Enter name of package to display information about and press [Enter] to continue"
+            echo
+            read Packcage
+            yaourt -Sii $Packcage
+            echo
+            echo -e "$NC Package information listed. To return to pacli press [Enter] $NC"
+            read     
+            ;; 
         0)
             clear && exit
             read
