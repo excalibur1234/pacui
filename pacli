@@ -69,8 +69,8 @@ This command effectively defragments your Pacman database. It is recommended to 
 On traditional hard drives (HDD) this command can speed up all actions related to Pacman. But it is NOT recommended to use this command on modern solid state hard drives (SSD)!
 
 5 - CLEAN PACKAGE CACHE
-"paccache -ruk0
- paccache -rk2"
+"paccache -ruvk0
+ paccache -rvk2"
 By default Pacman uses this cache direcoty for downloading packages: /var/cache/pacman/pkg/... . No cached packages get deleted automatically. This enables you to DOWNGRADE PACKAGES, which are broken, without a working internet connection. The package cache of an old and actively used Manjaro installation can become quite large. Clean it to regain space on your root partition.
 The first command removes all packages from cache, which are not installed (anymore) on your system. The second command removes all old packages from your cache except the 2 latest versions: The version you have currently installed on your system and the previous version.
 
@@ -93,7 +93,7 @@ This option downloads and installs <PACKAGE NAME> on your system. <PACKAGE NAME>
 This command lists all files and their install directory contained in <PACKAGE NAME>. <PACKAGE NAME> must be installed on your system.
 
 10 - DEPENDENCIES TREE
-"pactree <PACKAGE NAME>"
+"pactree -c -s <PACKAGE NAME>"
 This command will display a complete tree of all dependencies of <PACKAGE NAME>.
 Attention: The dependency tree can be quite long an complex for higher level packages such as "firefox".
 
@@ -140,7 +140,7 @@ Attention: This will make it impossible to reinstall or DOWNGRADE PACKAGES witho
 19 - UPDATE AUR
 "yaourt -Syyuua"
 This command does the same as UPDATE SYSTEM, but with one excpetion: It also updates all packages from Arch User Repository (AUR), which have an updated PKGBUILD file.
-Attention: When a new version of an AUR package is available, often the PKGBUILD file is not updated. If you want to install the latest version of an AUR package, (re-)install it with INSTALL FROM AUR. If you want to install the latest version of all AUR packages do "yaourt -Syyuua --devel".
+Attention: When a new version of an AUR package is available, often the PKGBUILD file is not updated. If you want to install the latest version of an AUR package, (re-)install it with INSTALL FROM AUR. If you want to install the latest version of all AUR packages do "yaourt -Syua --devel".
 
 20 - SEARCH + INSTALL FROM AUR
 "yaourt <PACKAGE NAME>"
@@ -149,7 +149,8 @@ If you want to exit this mode without installing any packages, press [Enter].
 
 21 - INSTALL FROM AUR
 "yaourt -S <PACKAGE NAME>"
-This command does the same as INSTALL PACKAGE. Additionally, AUR packages can be installed.
+This command does the same as INSTALL PACKAGE. Additionally, Arch User Repository (AUR) packages can be installed.
+Attention: Experienced users can install packages from the AUR without the need to answer questions all the time by using the command "yaourt -S <PACKAGE NAME> --noconfirm". The "--noconfirm" flag is great to quick and dirty installations of AUR packages on non-secure systems. Please keep always in mind that the AUR can contain any sort of package - including malicious and destructive (parts of) packages. Therefore, it is recommended to always check the PKGBUILD and .INSTALL file manually before installing a package from the AUR.
 
 22 - LIST INSTALLED FROM AUR
 "pacman -Qem"
@@ -203,7 +204,7 @@ NC='\e[0m'
             read
             ;;
         2)
-	    echo
+	        echo
             sudo pacman -Rsn $(pacman -Qq | pmenu -p 'Select package to remove >')
             echo
             echo -e "$NC Package and all unneeded dependencies removed. To return to pacli press [Enter] $NC"
@@ -225,8 +226,8 @@ NC='\e[0m'
             ;;
         5)
             echo
-            paccache -ruk0
-	    paccache -rk2
+            paccache -ruvk0
+	        paccache -rvk2
             echo
             echo -e "$NC Unneeded and old package versions removed. To return to pacli press [Enter] $NC"
             read
@@ -261,7 +262,7 @@ NC='\e[0m'
             ;;
         10)
             echo
-            pactree $(pacman -Qq | pmenu -p 'Select a package >')
+            pactree -c -s $(pacman -Slq | pmenu -p 'Select a package >')
             echo
             echo -e "$NC Dependency tree displayed. To return to pacli press [Enter] $NC"
             read
