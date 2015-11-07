@@ -158,7 +158,7 @@ This command lists all installed packages, which are from the AUR or which were 
 
 23 - AUR PACKAGE INFORMATION
 "yaourt -Sii <PACKAGE NAME>"
-This command displays a lot of information about <PACKAGE NAME>. <PACKAGE NAME> can be a package from the Manjaro repositories or the Arch User Repository (AUR).
+This command displays a lot of information about <PACKAGE NAME>. <PACKAGE NAME> can be a package from the Manjaro repositories or the Arch User Repository (AUR). If <PACKAGE NAME> is installed on your system, the command "yaourt -Qii <PACKAGE NAME>" can display information in a nicer layout.
 
 To exit this Help Page, press "q".
 	EOF
