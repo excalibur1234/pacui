@@ -10,6 +10,7 @@ license=MIT
 depends=('pmenu'
 	'pacman'
 	'yaourt'
+	'sudo'
 	'downgrade'
 	'bash')
 makedepends=('git')
