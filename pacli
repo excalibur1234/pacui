@@ -166,6 +166,8 @@ To exit this Help Page, press "q".
 	EOF
 }
 
+wget -P ~/.cache/packages https://aur.archlinux.org/packages.gz &
+gunzip -f ~/.cache/packages/packages.gz &
 # set colors
 RED='\e[41m'
 BLUE='\e[44m'
@@ -363,8 +365,7 @@ NC='\e[0m'
             echo
             echo "Enter name of package to be installed from AUR and press [Enter] to continue"
             echo
-            read Packcage
-            yaourt -S $Packcage
+            yaourt -S $(cat .cache/packages/packages | pmenu)
             echo
             echo -e "$NC Installation from AUR finished. To return to pacli press [Enter] $NC"
             read  
