@@ -171,6 +171,7 @@ wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzi
 RED='\e[41m'
 BLUE='\e[44m'
 ORANGE='\e[46m'
+YELLOW='\e[93m'
 NC='\e[0m'
     while true; do
     clear
@@ -179,11 +180,11 @@ NC='\e[0m'
     echo ""
     echo -e " ┌────────────────────────────────────────────────────────────────────────────┐"
     echo -e " │  $NC  1 $NC  Update System                       $NC  2 $NC  Remove Package + Deps     │"
-    echo -e " │  $NC  3 $NC  Optimize Mirrors       ───▄████▄    $NC  4 $NC  Optimize Database         │"
-    echo -e " │  $NC  5 $NC  Clean Package Cache   ───███▄█▀     $NC  6 $NC  Remove Orphaned Packages  │"
-    echo -e " │  $NC  7 $NC  Install Package      ───▐████  █  █ $NC  8 $NC  List Local Package Files  │"
-    echo -e " │  $NC  9 $NC  Package Information   ───█████▄     $NC 10 $NC  Installed Package Info    │"
-    echo -e " │  $NC 11 $NC  Dependency Tree      ─────▀████▀    $NC 12 $NC  Reverse Dependency Tree   │"
+    echo -e " │  $NC  3 $NC  Optimize Mirrors       ───$YELLOW▄████▄    $NC  4 $NC  Optimize Database         │"
+    echo -e " │  $NC  5 $NC  Clean Package Cache   ───$YELLOW███▄█▀     $NC  6 $NC  Remove Orphaned Packages  │"
+    echo -e " │  $NC  7 $NC  Install Package      ───$YELLOW▐████  █  █ $NC  8 $NC  List Local Package Files  │"
+    echo -e " │  $NC  9 $NC  Package Information   ───$YELLOW█████▄     $NC 10 $NC  Installed Package Info    │"
+    echo -e " │  $NC 11 $NC  Dependency Tree         ──$YELLOW▀████▀    $NC 12 $NC  Reverse Dependency Tree   │"
     echo -e " │  $NC 13 $NC  List Installed Packages             $NC 14 $NC  Fix Errors                │"
     echo -e " │  $NC 15 $NC  Downgrade Packages                  $NC 16 $NC  Help                      │"
     echo -e " │ $RED  17   Force Install Package                18   Force Update System      $NC │"
