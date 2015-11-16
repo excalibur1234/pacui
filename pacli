@@ -165,7 +165,8 @@ This command lists all installed packages, which are from the AUR or which were 
 To exit this Help Page, press "q".
 	EOF
 }
-wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzip -f /tmp/aur/packages.gz &
+pacman -Slq > /tmp/packages &
+wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzip -f /tmp/aur/packages.gz && cat /tmp/aur/packages >> /tmp/packages &
 
 # set colors
 RED='\e[41m'
@@ -259,10 +260,8 @@ NC='\e[0m'
             ;;
         9)
             echo
-            echo "Enter name of package to display information about and press [Enter] to continue"
             echo
-            read Packcage
-            yaourt -Sii $Packcage
+            yaourt -Sii $(cat /tmp/packages | pmenu -p 'Select a package >')
             echo
             echo -e "$NC Package information displayed. To return to pacli press [Enter] $NC"
             read     
@@ -365,7 +364,7 @@ NC='\e[0m'
             echo
             echo "Enter name of package to be installed from AUR and press [Enter] to continue"
             echo
-            yaourt -S yaourt -S $(cat /tmp/aur/packages | pmenu)
+            yaourt -S $(cat /tmp/aur/packages | pmenu -p 'Select a package >')
             echo
             echo -e "$NC Installation from AUR finished. To return to pacli press [Enter] $NC"
             read  
