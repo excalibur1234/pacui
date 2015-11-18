@@ -31,5 +31,5 @@ git clone https://github.com/Manjaro-Pek/pacli
 ```
 and execute pacli:
 ```
-cd pacli && ./pacli
+cd pacli && chmod +x pacli && ./pacli
 ```
