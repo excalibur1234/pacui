@@ -203,21 +203,21 @@ NC='\e[0m'
     case $choix in
         1)
             echo
-            sudo pacman -Syu
+            sudo pacman -Syu --color always
             echo
             echo -e "$NC Your system is updated. To return to pacli press [Enter] $NC"
             read
             ;;
         2)
 	        echo
-            sudo pacman -Rsn $(pacman -Qq | pmenu -p 'Select package to remove >')
+            sudo pacman -Rsn $(pacman -Qq | pmenu -p 'Select package to remove >') --color always
             echo
             echo -e "$NC Package and all unneeded dependencies removed. To return to pacli press [Enter] $NC"
             read
             ;;
         3)
             echo
-            sudo pacman-mirrors -g && sudo pacman -Syy
+            sudo pacman-mirrors -g && sudo pacman -Syy --color always
             echo
             echo -e "$NC Best Manjaro mirror chosen. To return to pacli press [Enter] $NC"
             read
@@ -246,14 +246,14 @@ NC='\e[0m'
             ;;
         7)
             echo
-            sudo pacman -S $(pacman -Slq | pmenu -p 'Select package to install >')
+            sudo pacman -S $(pacman -Slq | pmenu -p 'Select package to install >') --color always
             echo
             echo -e "$NC Package installation is finished. To return to pacli press [Enter] $NC"
             read
             ;;
         8)
             echo
-            pacman -Ql $(pacman -Qq | pmenu -p 'Select a package >')
+            pacman -Ql $(pacman -Qq | pmenu -p 'Select a package >') --color always
             echo
             echo -e "$NC All local files in package listed. To return to pacli press [Enter] $NC"
             read 
@@ -261,7 +261,7 @@ NC='\e[0m'
         9)
             echo
             echo
-            yaourt -Sii $(cat /tmp/packages | pmenu -p 'Select a package >')
+            yaourt -Sii $(cat /tmp/packages | pmenu -p 'Select a package >') 
             echo
             echo -e "$NC Package information displayed. To return to pacli press [Enter] $NC"
             read     
@@ -289,7 +289,7 @@ NC='\e[0m'
             ;;
         13)
             echo
-            pacman -Qet
+            pacman -Qet --color always
             echo
             echo -e "$NC All your installed packages from the Manjaro repositories listed. To return to pacli press [Enter] $NC"
             read     
@@ -297,7 +297,7 @@ NC='\e[0m'
             
         14)
             echo
-            sudo rm -f /var/lib/pacman/db.lck && sudo pacman-mirrors -g && sudo pacman -Syyuu
+            sudo rm -f /var/lib/pacman/db.lck && sudo pacman-mirrors -g && sudo pacman -Syyuu --color always
             echo
             echo -e "$NC Most common Pacman errors fixed. To return to pacli press [Enter] $NC"
             read     
@@ -316,14 +316,14 @@ NC='\e[0m'
             ;;
         17)
             echo
-            sudo pacman -S --force $(pacman -Slq | pmenu -p 'Select package to install >')
+            sudo pacman -S --force $(pacman -Slq | pmenu -p 'Select package to install >') --color always
             echo
             echo -e "$NC Package installation in force mode is finished. To return to pacli press [Enter] $NC"
             read
             ;;
         18)
             echo
-            sudo pacman -Syu --force
+            sudo pacman -Syu --force --color always
             echo
             echo -e "$NC Your system is updated in force mode. To return to pacli press [Enter] $NC"
             read
@@ -331,7 +331,7 @@ NC='\e[0m'
 
         19)
             echo
-            sudo pacman -Rdd $(pacman -Qq | pmenu -p 'Select package to remove >')
+            sudo pacman -Rdd $(pacman -Qq | pmenu -p 'Select package to remove >') --color always
             echo
             echo -e "$NC Dependency in force mode removed. To return to pacli press [Enter] $NC"
             read
@@ -371,7 +371,7 @@ NC='\e[0m'
             ;;
         24)
             echo
-            pacman -Qem
+            pacman -Qem --color always
             echo
             echo -e "$NC All locally installed packages listed. To return to pacli press [Enter] $NC"
             read     
