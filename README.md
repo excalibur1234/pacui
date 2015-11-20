@@ -23,6 +23,7 @@ First, make sure all dependencies of pacli are installed on your system:
 - [downgrade](https://aur.archlinux.org/packages/downgrade/)
 - bash
 - sudo
+- gzip
 - git
 
 Then, clone this Github repository to your system with the command:
