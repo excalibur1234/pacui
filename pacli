@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#  updated on 17.05.2015 16:11:02
-
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
@@ -27,7 +25,6 @@
 # Freenode: #manjaropek #manjaro-geek #manjaro			#
 # Topic discussion 						#
 #			http://polr.me/pacli1			#
-#			http://polr.me/pacli2			#
 #################################################################
 
 function help_text() {
@@ -38,8 +35,9 @@ On the following Help Page all options Pacli offers are described in detail:
 
 HOME SCREEN
 Pacli's home screen is split into two parts: 
-The upper part focuses on gerneral options and options exclusive to packages from Manjaro's repositories.
+The upper part focuses on gerneral options and options exclusive to packages from Manjaro's repositories. Options, which can break your system, are marked in red. 
 The lower part offers Arch User Repository (AUR) management options.
+Choose an option by entering its number and pressing [Enter].
 
 0 - EXIT PACLI
 "clear && exit"
@@ -62,7 +60,7 @@ Please note that folders created by the program <PACKAGE NAME> will not get remo
 This command tests your connection to all available Manjaro repository mirrors/servers. The mirror with the best connection is automatically chosen for you. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror.
 If you want to speed up this command: Only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -g -c Germany,France"
 
-4 - OPTIMIZE DATABASE
+4 - DEFRAGMENT DATABASE
 "sudo pacman-optimize"
 This command effectively defragments your Pacman database. It is recommended to CLEAN PACKAGE CACHE before using this option.
 On traditional hard drives (HDD) this command can speed up all actions related to Pacman. But it is NOT recommended to use this command on modern solid state hard drives (SSD)!
@@ -95,12 +93,12 @@ This command displays a lot of information about <PACKAGE NAME>.
 This command displays a lot of information about <PACKAGE NAME>. <PACKAGE NAME> must be installed on your system. This command displays other information (e.g. why and how a package was installed) than PACKAGE INFORMATION.
 
 11 - DEPENDENCIES TREE
-"pactree -c -s <PACKAGE NAME>"
+"pactree -s <PACKAGE NAME>"
 This command will display a complete tree of all dependencies - installed on your system - of <PACKAGE NAME>.
 Attention: The dependency tree can be quite long an complex for higher level packages such as "firefox".
 
 12 - REVERSE DEPENDENCIES TREE
-"pactree -c -r <PACKAGE NAME>"
+"pactree -r <PACKAGE NAME>"
 This command will display a tree of installed packages, which depend on <PACKAGE NAME>. Use this command when you want to know why you cannot remove <PACKAGE NAME> from your system.
 
 13 - LIST INSTALLED PACKAGES
@@ -144,7 +142,7 @@ This command will empty your entire package cache by deleting ALL packages.
 Attention: This will make it impossible to reinstall or DOWNGRADE PACKAGES without a working internet connection.
 
 21 - UPDATE AUR
-"yaourt -Syyuua"
+"yaourt -Syua"
 This command does the same as UPDATE SYSTEM, but with one excpetion: It also updates all packages from Arch User Repository (AUR), which have an updated PKGBUILD file.
 Attention: When a new version of an AUR package is available, often the PKGBUILD file is not updated. If you want to install the latest version of an AUR package, (re-)install it with INSTALL FROM AUR. If you want to install the latest version of all AUR packages do "yaourt -Syua --devel".
 
@@ -166,55 +164,59 @@ To exit this Help Page, press "q".
 	EOF
 }
 
+# "yaourt -Sl" downloads a list of packages EVERY TIME it is called. this is unacceptable.
+# write package list of repositories to /tmp/packages. then, download AUR package list, unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/packages.
+pacman -Slq > /tmp/packages &
+wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzip -f /tmp/aur/packages.gz && cat /tmp/aur/packages >> /tmp/packages &
+
 # set colors
 RED='\e[41m'
-BLUE='\e[44m'
-ORANGE='\e[46m'
 NC='\e[0m'
+
     while true; do
     clear
     echo ""
-    echo -e "                             $NC ::Pacli - Package manager:: $NC "
+    echo -e "                     $NC ::Pacli - Package manager:: $NC "
     echo ""
-    echo -e " ┌────────────────────────────────────────────────────────────────────────────┐"
-    echo -e " │  $NC  1 $NC  Update System                       $NC  2 $NC  Remove Package + Deps     │"
-    echo -e " │  $NC  3 $NC  Optimize Mirrors       ───▄████▄    $NC  4 $NC  Optimize Database         │"
-    echo -e " │  $NC  5 $NC  Clean Package Cache   ───███▄█▀     $NC  6 $NC  Remove Orphaned Packages  │"
-    echo -e " │  $NC  7 $NC  Install Package      ───▐████  █  █ $NC  8 $NC  List Local Package Files  │"
-    echo -e " │  $NC  9 $NC  Package Information   ───█████▄     $NC 10 $NC  Installed Package Info    │"
-    echo -e " │  $NC 11 $NC  Dependency Tree      ─────▀████▀    $NC 12 $NC  Reverse Dependency Tree   │"
-    echo -e " │  $NC 13 $NC  List Installed Packages             $NC 14 $NC  Fix Errors                │"
-    echo -e " │  $NC 15 $NC  Downgrade Packages                  $NC 16 $NC  Help                      │"
-    echo -e " │ $RED  17   Force Install Package                18   Force Update System      $NC │"
-    echo -e " │ $RED  19   Force Remove Package                 20   Empty Package Cache      $NC │"
-    echo " └────────────────────────────────────────────────────────────────────────────┘"
+    echo -e " ┌────────────────────────────────────────────────────────────────────┐"
+    echo -e " │  $NC  1 $NC  Update System               $NC  2 $NC  Remove Package + Deps     │"
+    echo -e " │  $NC  3 $NC  Optimize Mirrors            $NC  4 $NC  Defragment Database       │"
+    echo -e " │  $NC  5 $NC  Clean Package Cache         $NC  6 $NC  Remove Orphaned Packages  │"
+    echo -e " │  $NC  7 $NC  Install Package             $NC  8 $NC  List Local Package Files  │"
+    echo -e " │  $NC  9 $NC  Package Information         $NC 10 $NC  Installed Package Info    │"
+    echo -e " │  $NC 11 $NC  Dependency Tree             $NC 12 $NC  Reverse Dependency Tree   │"
+    echo -e " │  $NC 13 $NC  List Installed Packages     $NC 14 $NC  Fix Errors                │"
+    echo -e " │  $NC 15 $NC  Downgrade Packages          $NC 16 $NC  Help                      │"
+    echo -e " │ $RED  17   Force Install Package        18   Force Update System      $NC │"
+    echo -e " │ $RED  19   Force Remove Package         20   Empty Package Cache      $NC │"
+    echo " └────────────────────────────────────────────────────────────────────┘"
     echo ""
-    echo " ┌────────────────────────────────────────────────────────────────────────────┐"
-    echo -e " │  $NC 21 $NC  Update AUR                          $NC 22 $NC  Search + Install from AUR │"
-    echo -e " │  $NC 23 $NC  Install from AUR                    $NC 24 $NC  List Installed from AUR   │"
-    echo " └────────────────────────────────────────────────────────────────────────────┘"
+    echo " ┌────────────────────────────────────────────────────────────────────┐"
+    echo -e " │  $NC 21 $NC  Update AUR                  $NC 22 $NC  Search + Install from AUR │"
+    echo -e " │  $NC 23 $NC  Install from AUR            $NC 24 $NC  List Installed from AUR   │"
+    echo " └────────────────────────────────────────────────────────────────────┘"
     echo ""
-    echo -e "    $NC Select a number between 0 and 24 and press [Enter]$NC $NC - 0 Exit Pacli$NC"
+    echo -e " $NC Select a number between 0 and 24 and press [Enter]$NC $NC - 0 Exit Pacli$NC"
     echo ""
     read choix
     case $choix in
         1)
             echo
-            sudo pacman -Syu
+            sudo pacman -Syu --color always
             echo
             echo -e "$NC Your system is updated. To return to pacli press [Enter] $NC"
             read
             ;;
         2)
 	        echo
-            sudo pacman -Rsn $(pacman -Qq | pmenu -p 'Select package to remove >')
+            sudo pacman -Rsn $(pacman -Qq | pmenu -p 'Select package to remove >') --color always
             echo
             echo -e "$NC Package and all unneeded dependencies removed. To return to pacli press [Enter] $NC"
             read
             ;;
         3)
             echo
-            sudo pacman-mirrors -g && sudo pacman -Syy
+            sudo pacman-mirrors -g && sudo pacman -Syy --color always
             echo
             echo -e "$NC Best Manjaro mirror chosen. To return to pacli press [Enter] $NC"
             read
@@ -223,13 +225,13 @@ NC='\e[0m'
             echo
             sudo pacman-optimize
             echo
-            echo -e "$NC Pacman Database optimized for HDDs. To return to pacli press [Enter] $NC"
+            echo -e "$NC Pacman Database defragmented and optimized for HDDs. To return to pacli press [Enter] $NC"
             read
             ;;
         5)
             echo
             paccache -ruvk0
-	        paccache -rvk2
+	    paccache -rvk2
             echo
             echo -e "$NC Unneeded and old package versions removed. To return to pacli press [Enter] $NC"
             read
@@ -243,31 +245,28 @@ NC='\e[0m'
             ;;
         7)
             echo
-            sudo pacman -S $(pacman -Slq | pmenu -p 'Select package to install >')
+            sudo pacman -S $(pacman -Slq | pmenu -p 'Select package to install >') --color always
             echo
             echo -e "$NC Package installation is finished. To return to pacli press [Enter] $NC"
             read
             ;;
         8)
             echo
-            pacman -Ql $(pacman -Qq | pmenu -p 'Select a package >')
+            pacman -Ql $(pacman -Qq | pmenu -p 'Select a package of which to list all files >') --color always
             echo
             echo -e "$NC All local files in package listed. To return to pacli press [Enter] $NC"
             read 
             ;;
         9)
             echo
-            echo "Enter name of package to display information about and press [Enter] to continue"
-            echo
-            read Packcage
-            yaourt -Sii $Packcage
+            yaourt -Sii $(cat /tmp/packages | pmenu -p 'Select a package to display information about >') 
             echo
             echo -e "$NC Package information displayed. To return to pacli press [Enter] $NC"
             read     
             ;; 
         10)
             echo
-            yaourt -Qii $(pacman -Qq | pmenu -p 'Select a package >')
+            yaourt -Qii $(pacman -Qq | pmenu -p 'Select an installed package to diplay information about >')
             echo
             echo -e "$NC Package information listed. To return to pacli press [Enter] $NC"
             read     
@@ -288,7 +287,7 @@ NC='\e[0m'
             ;;
         13)
             echo
-            pacman -Qet
+            pacman -Qet --color always
             echo
             echo -e "$NC All your installed packages from the Manjaro repositories listed. To return to pacli press [Enter] $NC"
             read     
@@ -296,7 +295,7 @@ NC='\e[0m'
             
         14)
             echo
-            sudo rm -f /var/lib/pacman/db.lck && sudo pacman-mirrors -g && sudo pacman -Syyuu
+            sudo rm -f /var/lib/pacman/db.lck && sudo pacman-mirrors -g && sudo pacman -Syyuu --color always
             echo
             echo -e "$NC Most common Pacman errors fixed. To return to pacli press [Enter] $NC"
             read     
@@ -315,14 +314,14 @@ NC='\e[0m'
             ;;
         17)
             echo
-            sudo pacman -S --force $(pacman -Slq | pmenu -p 'Select package to install >')
+            sudo pacman -S --force $(pacman -Slq | pmenu -p 'Select package to install >') --color always
             echo
             echo -e "$NC Package installation in force mode is finished. To return to pacli press [Enter] $NC"
             read
             ;;
         18)
             echo
-            sudo pacman -Syu --force
+            sudo pacman -Syu --force --color always
             echo
             echo -e "$NC Your system is updated in force mode. To return to pacli press [Enter] $NC"
             read
@@ -330,7 +329,7 @@ NC='\e[0m'
 
         19)
             echo
-            sudo pacman -Rdd $(pacman -Qq | pmenu -p 'Select package to remove >')
+            sudo pacman -Rdd $(pacman -Qq | pmenu -p 'Select package to remove >') --color always
             echo
             echo -e "$NC Dependency in force mode removed. To return to pacli press [Enter] $NC"
             read
@@ -361,22 +360,20 @@ NC='\e[0m'
             ;;
         23)
             echo
-            echo "Enter name of package to be installed from AUR and press [Enter] to continue"
-            echo
-            read Packcage
-            yaourt -S $Packcage
+            yaourt -S $(cat /tmp/packages | pmenu -p 'Select a package to install >')
             echo
             echo -e "$NC Installation from AUR finished. To return to pacli press [Enter] $NC"
             read  
             ;;
         24)
             echo
-            pacman -Qem
+            pacman -Qem --color always
             echo
             echo -e "$NC All locally installed packages listed. To return to pacli press [Enter] $NC"
             read     
             ;;  
         0)
+            echo
             clear && exit
             read
             ;;

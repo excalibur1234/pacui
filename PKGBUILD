@@ -11,6 +11,7 @@ depends=('pmenu'
 	'pacman'
 	'yaourt'
 	'sudo'
+	'gzip'
 	'downgrade'
 	'bash')
 makedepends=('git')
