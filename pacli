@@ -148,8 +148,8 @@ Attention: When a new version of an AUR package is available, often the PKGBUILD
 
 22 - SEARCH + INSTALL FROM AUR
 "yaourt <PACKAGE NAME>"
-This command does the same as SEARCH PACKAGE, but additionally it searches the Arch User Repository (AUR). Search results can be installed on your system.
-If you want to exit this mode without installing any packages, press [Enter].
+This command searches for <PACKAGE NAME> in all Manjaro repositories and the Arch User Repository (AUR). It searches in all package names and package descriptions. Example: You can search for "web browser" and you will find Firefox and other web browsers. One or multiple search results can be installed on your system.
+If you want to exit this mode without installing any packages, simply press [Enter].
 
 23 - INSTALL FROM AUR
 "yaourt -S <PACKAGE NAME>"
