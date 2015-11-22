@@ -8,7 +8,10 @@ pacli is meant for experienced/intermediate/advanced users, who have basic knowl
 
 ## Screenshot
 ![Screenshot 01](https://i.imgur.com/hwGmDeKiO.png)
-
+[Imgur](http://i.imgur.com/eqXZWrC.png)
+[Imgur](http://i.imgur.com/Q2um0ac.png)
+[Imgur](http://i.imgur.com/wbO9LmB.png)
+[Imgur](http://i.imgur.com/kKzqbSl.png)
 
 ## Installation
 
