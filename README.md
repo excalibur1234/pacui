@@ -12,6 +12,7 @@ pacli is meant for experienced/intermediate/advanced users, who have basic knowl
 [Imgur](http://i.imgur.com/Q2um0ac.png)
 [Imgur](http://i.imgur.com/wbO9LmB.png)
 [Imgur](http://i.imgur.com/kKzqbSl.png)
+<blockquote class="imgur-embed-pub" lang="en" data-id="kKzqbSl"><a href="//imgur.com/kKzqbSl">View post on imgur.com</a></blockquote><script async src="//s.imgur.com/min/embed.js" charset="utf-8"></script>
 
 ## Installation
 
