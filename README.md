@@ -6,10 +6,18 @@ pacli is a CLI tool, which provides simple and advanced Pacman and Yaourt comman
 pacli is meant for experienced/intermediate/advanced users, who have basic knowledge of the structure of their Linux system and how Pacman and Yaourt work. Absolute beginners are probably overwhelmed by the amount of choices pacli provides.
 
 
-## Screenshot
+## Screenshots
+
+Home Screen of Pacli:
 ![Screenshot 01](http://i.imgur.com/eqXZWrC.png)
+
+Installation of "fish". [pmenu](https://github.com/sgtpep/pmenu) automatically recommends appropriate packages for Tab Completion:
 ![Screenshot 02](http://i.imgur.com/Q2um0ac.png)
+
+pmenu also recommends AUR packages:
 ![Screenshot 03](http://i.imgur.com/wbO9LmB.png)
+
+Downgrading the package "file-roller":
 ![Screenshot 04](http://i.imgur.com/kKzqbSl.png)
 
 
