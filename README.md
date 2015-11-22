@@ -7,12 +7,11 @@ pacli is meant for experienced/intermediate/advanced users, who have basic knowl
 
 
 ## Screenshot
-![Screenshot 01](https://i.imgur.com/hwGmDeKiO.png)
-[Imgur](http://i.imgur.com/eqXZWrC.png)
-[Imgur](http://i.imgur.com/Q2um0ac.png)
-[Imgur](http://i.imgur.com/wbO9LmB.png)
-[Imgur](http://i.imgur.com/kKzqbSl.png)
-<blockquote class="imgur-embed-pub" lang="en" data-id="kKzqbSl"><a href="//imgur.com/kKzqbSl">View post on imgur.com</a></blockquote><script async src="//s.imgur.com/min/embed.js" charset="utf-8"></script>
+![Screenshot 01](http://i.imgur.com/eqXZWrC.png)
+![Screenshot 02](http://i.imgur.com/Q2um0ac.png)
+![Screenshot 03](http://i.imgur.com/wbO9LmB.png)
+![Screenshot 04](http://i.imgur.com/kKzqbSl.png)
+
 
 ## Installation
 
