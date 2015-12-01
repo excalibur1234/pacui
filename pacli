@@ -196,7 +196,7 @@ NC='\e[0m'
     echo -e " │  $NC 23 $NC  Install from AUR            $NC 24 $NC  List Installed from AUR   │"
     echo " └────────────────────────────────────────────────────────────────────┘"
     echo ""
-    echo -e " $NC Select a number between 0 and 24 and press [Enter]$NC $NC - 0 Exit Pacli$NC"
+    echo -e " $NC Enter a number between 0 and 24 and press [Enter]$NC $NC - 0 Exit Pacli$NC"
     echo ""
     read choix
     case $choix in
