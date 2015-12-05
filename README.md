@@ -11,14 +11,8 @@ pacli is meant for experienced/intermediate/advanced users, who have basic knowl
 Home Screen of Pacli:
 ![Screenshot 01](http://i.imgur.com/eqXZWrC.png)
 
-Installation of "fish". [pmenu](https://github.com/sgtpep/pmenu) automatically recommends appropriate packages for Tab Completion:
-![Screenshot 02](http://i.imgur.com/Q2um0ac.png)
-
-pmenu also recommends AUR packages:
-![Screenshot 03](http://i.imgur.com/wbO9LmB.png)
-
 Downgrading the package "file-roller":
-![Screenshot 04](http://i.imgur.com/kKzqbSl.png)
+![Screenshot 02](http://i.imgur.com/kKzqbSl.png)
 
 
 ## Installation
@@ -30,7 +24,7 @@ Install [pacli from the AUR](https://aur.archlinux.org/packages/pacli/).
 First, make sure all dependencies of pacli are installed on your system:
 - pacman
 - [yaourt](https://wiki.archlinux.org/index.php/Yaourt)
-- [pmenu](https://aur.archlinux.org/packages/pmenu/)
+- [fzf](https://aur.archlinux.org/packages/fzf/)
 - [downgrade](https://aur.archlinux.org/packages/downgrade/)
 - bash
 - sudo
