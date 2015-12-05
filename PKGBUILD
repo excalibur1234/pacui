@@ -3,11 +3,11 @@
 pkgname=pacli
 pkgver=0.1
 pkgrel=1
-pkgdesc="An interactive pacman interface using pmenu"
+pkgdesc="An interactive pacman interface using fzf"
 arch=(any)
 url="https://github.com/Manjaro-Pek/$pkgname"
 license=MIT
-depends=('pmenu'
+depends=('fzf'
 	'pacman'
 	'yaourt'
 	'sudo'
