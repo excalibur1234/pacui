@@ -20,7 +20,7 @@ Downgrading the package "file-roller":
 ### Installation from the AUR
 Install [pacli from the AUR](https://aur.archlinux.org/packages/pacli/).
 
-### Installation by hand
+### Manual Installation
 First, make sure all dependencies of pacli are installed on your system:
 - pacman
 - [yaourt](https://wiki.archlinux.org/index.php/Yaourt)
