@@ -154,7 +154,7 @@ If you want to exit this mode without installing any packages, simply press [Ent
 23 - INSTALL FROM AUR
 "yaourt -S <PACKAGE NAME>"
 This command does the same as INSTALL PACKAGE. Additionally, Arch User Repository (AUR) packages can be installed.
-Attention: Experienced users can install packages from the AUR without the need to answer questions all the time by using the command "yaourt -S <PACKAGE NAME> --noconfirm". The "--noconfirm" flag is great to quick and dirty installations of AUR packages on non-secure systems. Please keep always in mind that the AUR can contain any sort of package - including malicious and destructive (parts of) packages. Therefore, it is recommended to always check the PKGBUILD and .INSTALL file manually before installing a package from the AUR.
+Attention: Experienced users can install packages from the AUR without the need to answer questions all the time by using the command "yaourt -S <PACKAGE NAME> --noconfirm". The "--noconfirm" flag is great for quick and dirty installations of AUR packages on non-secure systems. Please keep always in mind that the AUR can contain any sort of package - including malicious and destructive (parts of) packages. Therefore, it is recommended to always check the PKGBUILD and .INSTALL file manually before installing a package from the AUR.
 
 24 - LIST INSTALLED FROM AUR
 "pacman -Qem"
