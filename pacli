@@ -27,7 +27,7 @@
 #			http://polr.me/pacli1			#
 #################################################################
 
-function help_text() {
+help_text() {
 	less 	<<-EOF
 Welcome to Pacli's Help Page.
 Pacli is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Yaourt as back ends. Additionally, it uses some Manjaro exclusive commands. Pacli offers you the most common and useful features for managing your packages. Options, which can break your system, are marked in red. 
