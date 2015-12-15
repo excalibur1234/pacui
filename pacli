@@ -41,7 +41,7 @@ Choose an option by entering its number and pressing [Enter].
 
 0 - EXIT PACLI
 "clear && exit"
-This will exit Pacli and clear your terminal.
+This will clear your terminal and exit Pacli.
 
 1 - UPDATE SYSTEM
 "sudo pacman -Syu"
@@ -72,7 +72,7 @@ By default Pacman uses this cache direcoty for downloading packages: /var/cache/
 The first command removes all packages from cache, which are not installed (anymore) on your system. The second command removes all old packages from your cache except the 2 latest versions: The version you have currently installed on your system and the previous version.
 
 6 - REMOVE ORPHANED PACKAGES
-yaourt -Qdt
+"yaourt -Qdt"
 This option lists all orphaned packages on your system. Orphaned packages are old dependencies (packages not explicitly installed by you), which were never removed from your system. 
 Answer with "y" or "n" to remove all listed orphaned packages or not.
 
