@@ -94,12 +94,13 @@ This command displays a lot of information about <PACKAGE NAME>. <PACKAGE NAME> 
 
 11 - DEPENDENCIES TREE
 "pactree -s <PACKAGE NAME>"
-This command will display a complete tree of all dependencies - installed on your system - of <PACKAGE NAME>.
-Attention: The dependency tree can be quite long an complex for higher level packages such as "firefox".
+This command will display a complete tree of all dependencies of <PACKAGE NAME>. Dependencies are packages required by <PACKAGE NAME> in order to function. When you install <PACKAGE NAME>, all its dependencies get installed, too.
+Attention: The dependency tree can be quite long and complex for higher level packages such as "firefox".
 
 12 - REVERSE DEPENDENCIES TREE
 "pactree -r <PACKAGE NAME>"
-This command will display a tree of installed packages, which depend on <PACKAGE NAME>. Use this command when you want to know why you cannot remove <PACKAGE NAME> from your system.
+This command will display a tree of installed packages, which depend on <PACKAGE NAME>. In other words: All displayed packages require <PACKAGE NAME> in order to function (properly). 
+Use this command when you want to know why you cannot remove <PACKAGE NAME> from your system.
 
 13 - LIST INSTALLED PACKAGES
 "pacman -Qet"
