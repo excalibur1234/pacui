@@ -246,7 +246,7 @@ NC='\e[0m'
             ;;
         7)
             echo
-            sudo pacman -S $(pacman -Slq | fzf-tmux -e -m  --reverse --prompt='Select packages to install (use TAB to toggle selection) >') --color always
+            sudo pacman -S $(package-query -Sl -f "%n - %d" | fzf-tmux -e -m  --reverse --prompt='Select packages to install (use TAB to toggle selection) >' | awk '{print $1}') --color always
             echo
             echo -e "$NC Package installation is finished. To return to pacli press [Enter] $NC"
             read
