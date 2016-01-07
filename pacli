@@ -147,17 +147,26 @@ Attention: This will make it impossible to reinstall or DOWNGRADE PACKAGES witho
 This command does the same as UPDATE SYSTEM, but with one exception: It also updates all packages from Arch User Repository (AUR), which have an updated PKGBUILD file.
 Attention: When a new version of an AUR package is available, often the PKGBUILD file is not updated. If you want to install the latest version of an AUR package, (re-)install it with INSTALL FROM AUR. If you want to install the latest version of all AUR packages do "yaourt -Syua --devel".
 
-22 - SEARCH + INSTALL FROM AUR
+22 - FORCE UPDATE AUR
+"yaourt -Syua && yaourt -Syua --devel --noconfirm"
+The Arch User Repository (AUR) is a repository of (mostly) PKGBUILD files. Everybody can create such a PKGBUILD file and upload it to the AUR. A PKGBUILD file contains simple and human readable instructions like where to download the source code, what dependencies are needed, where to copy files for installation, etc. Yaourt is a so called AUR Helper: It can interpret PKGBUILD files and download the source code, install dependencies, build files on your system, and copy these files to the right location (a.k.a. installing a program).
+By checking a PKGBUILD file (and .INSTALL file) you can make sure the source code is loaded from an official download server, no harmful dependencies get installed, and the installation instructions do not contain harmful code.
+A lot of PKGBUILD files contain variables (e.g. for program version) in download addresses for source code; this makes them download always the latest source code (e.g. from Github). Some PKGBUILD files contain no variables in download addresses for source code. These PKGBUILD files need to be changed manually every time a new program version is released.
+The first command of FORCE UPDATE AUR does the same as UPDATE AUR: Only AUR packages with updated/changed PKGBUILD files will get updated. This gives you the chance to check these updated/changed PKGBUILD files. 
+The second command of FORCE UPDATE AUR forces a reinstall of ALL your AUR packages. The "--noconfirm" flag is used in a secure way, because no PKGBUILD files have changed since the first command got executed.
+Attention: This might take a long time!
+
+23 - SEARCH + INSTALL FROM AUR
 "yaourt <PACKAGE NAME>"
 This command searches for <PACKAGE NAME> in all Manjaro repositories and the Arch User Repository (AUR). It searches in all package names and package descriptions. Example: You can search for "web browser" and you will find Firefox and other web browsers. One or multiple search results can be installed on your system.
 If you want to exit this mode without installing any packages, simply press [Enter].
 
-23 - INSTALL FROM AUR
+24 - INSTALL FROM AUR
 "yaourt -S <PACKAGE NAME>"
 This command does the same as INSTALL PACKAGE. Additionally, Arch User Repository (AUR) packages can be installed.
 Attention: Experienced users can install packages from the AUR without the need to answer questions all the time by using the command "yaourt -S <PACKAGE NAME> --noconfirm". The "--noconfirm" flag is great for quick and dirty installations of AUR packages on non-secure systems. Please keep always in mind that the AUR can contain any sort of package - including malicious and destructive (parts of) packages. Therefore, it is recommended to always check the PKGBUILD and .INSTALL file manually before installing a package from the AUR.
 
-24 - LIST INSTALLED FROM AUR
+25 - LIST INSTALLED FROM AUR
 "pacman -Qem"
 This command lists all installed packages, which are from the AUR or which were manually installed.
 
@@ -193,11 +202,12 @@ NC='\e[0m'
     echo " └────────────────────────────────────────────────────────────────────┘"
     echo ""
     echo " ┌────────────────────────────────────────────────────────────────────┐"
-    echo -e " │  $NC 21 $NC  Update AUR                  $NC 22 $NC  Search + Install from AUR │"
-    echo -e " │  $NC 23 $NC  Install from AUR            $NC 24 $NC  List Installed from AUR   │"
+    echo -e " │  $NC 21 $NC  Update AUR                  $NC 22 $NC  Force Update AUR          │"
+    echo -e " │  $NC 23 $NC  Search + Install from AUR   $NC 24 $NC  Install from AUR          │"
+    echo -e " │  $NC 25 $NC  List Installed from AUR                            │"
     echo " └────────────────────────────────────────────────────────────────────┘"
     echo ""
-    echo -e " $NC Enter a number between 0 and 24 and press [Enter]$NC $NC - 0 Exit Pacli$NC"
+    echo -e " $NC Enter a number between 0 and 25 and press [Enter]$NC $NC - 0 Exit Pacli$NC"
     echo ""
     read choix
     case $choix in
@@ -349,6 +359,13 @@ NC='\e[0m'
             ;;
         22)
             echo
+            yaourt -Syua && yaourt -Syua --devel --noconfirm
+            echo
+            echo -e "$NC All AUR packages reinstalled. To return to pacli press [Enter] $NC"
+            read
+            ;;
+        23)
+            echo
             echo "Enter name of package to be searched and installed from AUR and press [Enter] to continue"
             echo
             read Packcage
@@ -357,14 +374,14 @@ NC='\e[0m'
             echo -e "$NC Yaourt finished. To return to pacli press [Enter] $NC"
             read
             ;;
-        23)
+        24)
             echo
             yaourt -S $(cat /tmp/packages | fzf-tmux -e -m --reverse --prompt='Select packages to install (toggle selection with TAB) >')
             echo
             echo -e "$NC Installation from AUR finished. To return to pacli press [Enter] $NC"
             read
             ;;
-        24)
+        25)
             echo
             pacman -Qem --color always
             echo
