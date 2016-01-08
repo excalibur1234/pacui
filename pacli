@@ -145,7 +145,7 @@ Attention: This will make it impossible to reinstall or DOWNGRADE PACKAGES witho
 21 - UPDATE AUR
 "yaourt -Syua"
 This command does the same as UPDATE SYSTEM, but with one exception: It also updates all packages from Arch User Repository (AUR), which have an updated PKGBUILD file.
-Attention: When a new version of an AUR package is available, often the PKGBUILD file is not updated. If you want to install the latest version of an AUR package, (re-)install it with INSTALL FROM AUR. If you want to install the latest version of all AUR packages do "yaourt -Syua --devel".
+Attention: When a new version of an AUR package is available, often the PKGBUILD file is not updated. If you want to install the latest version of an AUR package, (re-)install it with INSTALL FROM AUR. If you want to install the latest version of all AUR packages use option FORCE UPDATE AUR.
 
 22 - FORCE UPDATE AUR
 "yaourt -Syua && yaourt -Syua --devel --noconfirm"
