@@ -51,9 +51,9 @@ This command compares a list of all installed packages with package database on 
 "sudo pacman -Rsn <PACKAGE NAME>"
 This command removes <PACKAGE NAME> including all dependencies, which are no longer needed by other packages, from your system. A copy of <PACKAGE NAME> will be kept in your package cache.
 Please note that folders created by the program <PACKAGE NAME> will not get removed from your system. Look for such folders in these places and remove them manually:
-~
+~/
 ~/.config/
-~/.local/
+~/.local/share/
 
 3 - OPTIMIZE MIRRORS
 "sudo pacman-mirrors -g && sudo pacman -Syy"
