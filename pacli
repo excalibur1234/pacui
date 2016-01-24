@@ -204,7 +204,7 @@ NC='\e[0m'
     echo " ┌────────────────────────────────────────────────────────────────────┐"
     echo -e " │  $NC 21 $NC  Update AUR                  $NC 22 $NC  Force Update AUR          │"
     echo -e " │  $NC 23 $NC  Search + Install from AUR   $NC 24 $NC  Install from AUR          │"
-    echo -e " │  $NC 25 $NC  List Installed from AUR                            │"
+    echo -e " │  $NC 25 $NC  List Installed from AUR                                           │"
     echo " └────────────────────────────────────────────────────────────────────┘"
     echo ""
     echo -e " $NC Enter a number between 0 and 25 and press [Enter]$NC $NC - 0 Exit Pacli$NC"
