@@ -11,16 +11,16 @@ pacli is meant for experienced/intermediate/advanced users, who have basic knowl
 Home Screen of pacli:
 ![Screenshot 01](http://i.imgur.com/ZTns6NI.png)
 
-Installing "cantata" from the Manjaro repositories:
+Installing the package "cantata" from the Manjaro repositories:
 ![Screenshot 02](http://i.imgur.com/m1Kzp8U.png)
 
-Removing "qt4" and another package:
+Removing "qt4" and another package from my system:
 ![Screenshot 03](http://i.imgur.com/jJKrdp5.png)
 
 Downgrading the package "file-roller":
 ![Screenshot 04](http://i.imgur.com/kKzqbSl.png)
 
-Looking up what packages depend on "gtk2":
+Looking up what packages on my system depend on "gtk2":
 ![Screenshot 05](http://i.imgur.com/dVfXdLj.png)
 
 
@@ -54,6 +54,7 @@ cd pacli && chmod +x pacli && ./pacli
 
 ### pacli Help
 Choose the "Help" option in pacli by entering "16" and pressing "ENTER". 
+
 This help page explains a little bit about pacli. It also explains every pacli option in detail. If you want to look up which commands pacli uses and understand them, this is the right place for you!
 
 ### Manjaro Forum
