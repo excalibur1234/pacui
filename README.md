@@ -9,10 +9,19 @@ pacli is meant for experienced/intermediate/advanced users, who have basic knowl
 ## Screenshots
 
 Home Screen of Pacli:
-![Screenshot 01](http://i.imgur.com/eqXZWrC.png)
+![Screenshot 01](http://i.imgur.com/ZTns6NI.png)
+
+Installing Cantata from the Manjaro repositories:
+![Screenshot 02](http://i.imgur.com/m1Kzp8U.png)
+
+Removing Qt4 and another package:
+![Screenshot 03](http://i.imgur.com/jJKrdp5.png)
 
 Downgrading the package "file-roller":
-![Screenshot 02](http://i.imgur.com/kKzqbSl.png)
+![Screenshot 04](http://i.imgur.com/kKzqbSl.png)
+
+Looking up what packages depend on GTK2:
+![Screenshot 05](http://i.imgur.com/dVfXdLj.png)
 
 
 ## Installation
