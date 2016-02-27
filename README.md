@@ -29,6 +29,11 @@ Looking up what packages on my system depend on "gtk2":
 ### Installation from the AUR
 Install [pacli from the AUR](https://aur.archlinux.org/packages/pacli/).
 
+Then, start pacli in your terminal with:
+```
+pacli
+```
+
 ### Manual Installation
 First, make sure all dependencies of pacli are installed on your system:
 - pacman
