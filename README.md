@@ -5,6 +5,8 @@ pacli is a CLI tool, which provides simple and advanced Pacman and Yaourt comman
 
 pacli is meant for experienced/intermediate/advanced users, who have basic knowledge of the structure of their Linux system and how Pacman and Yaourt work. Absolute beginners are probably overwhelmed by the amount of choices pacli provides.
 
+It is highly recommended to use an utility, which notifies the user about available updates alongside of pacli. Such a lightweight utility is for example [update-notifier](https://github.com/Chrysostomus/update-notifier).
+
 
 ## Screenshots
 
