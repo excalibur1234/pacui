@@ -16,6 +16,7 @@ depends=('fzf'
 	'downgrade'
 	'bash')
 makedepends=('git')
+optdepends=('update-notifier: Automatically get notified when updates are available')
 source=("git://github.com/Manjaro-Pek/$pkgname")
 md5sums=('SKIP')
 
