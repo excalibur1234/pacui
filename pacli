@@ -64,7 +64,7 @@ Please note that folders created by the program <PACKAGE NAME> will not get remo
 4 - LIST LOCAL PACKAGE FILES
 "pacman -Ql <PACKAGE NAME>"
 This command lists all files and their install directory contained in <PACKAGE NAME>. <PACKAGE NAME> must be installed on your system.
-Have you ever installed a program and did not know with which command it can be started/executed? This command can help you.
+Have you ever installed a program and did not know with which command it can be started/executed? Just look for files (and their names) in your /usr/bin/ directory using LIST LOCAL PACKAGE FILES.
 
 5 - PACKAGE INFORMATION
 "yaourt -Sii <PACKAGE NAME>"
