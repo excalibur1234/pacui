@@ -47,7 +47,11 @@ This will clear your terminal and exit Pacli.
 "sudo pacman -Syu"
 This command compares a list of all installed packages with package database on your Manjaro repository mirror/server. If an updated package is available from the Manjaro repositories, it will get downloaded and installed on your system.
 
-2 - REMOVE PACKAGE + DEPS
+2 - INSTALL PACKAGE
+"sudo pacman -S <PACKAGE NAME>"
+This option downloads and installs <PACKAGE NAME> on your system. <PACKAGE NAME> must be a package from the Manjaro repositories.
+
+3 - REMOVE PACKAGE + DEPS
 "sudo pacman -Rsn <PACKAGE NAME>"
 This command removes <PACKAGE NAME> including all dependencies, which are no longer needed by other packages, from your system. A copy of <PACKAGE NAME> will be kept in your package cache.
 Please note that folders created by the program <PACKAGE NAME> will not get removed from your system. Look for such folders in these places and remove them manually:
@@ -55,57 +59,54 @@ Please note that folders created by the program <PACKAGE NAME> will not get remo
 ~/.config/
 ~/.local/share/
 
-3 - OPTIMIZE MIRRORS
+4 - LIST LOCAL PACKAGE FILES
+"pacman -Ql <PACKAGE NAME>"
+This command lists all files and their install directory contained in <PACKAGE NAME>. <PACKAGE NAME> must be installed on your system.
+Have you ever installed a program and did not know with which command it can be started/executed? This command can help you.
+
+5 - PACKAGE INFORMATION
+"yaourt -Sii <PACKAGE NAME>"
+This command displays a lot of information about <PACKAGE NAME>.
+
+6 - INSTALLED PACKAGE INFORMATION
+"yaourt -Qii <PACKAGE NAME>"
+This command displays a lot of information about <PACKAGE NAME>. <PACKAGE NAME> must be installed on your system. This command displays other information (e.g. why and how a package was installed) than PACKAGE INFORMATION.
+
+7 - DEPENDENCIES TREE
+"pactree -s <PACKAGE NAME>"
+This command will display a complete tree of all dependencies of <PACKAGE NAME>. Dependencies are packages required by <PACKAGE NAME> in order to function. When you install <PACKAGE NAME>, all its dependencies get installed, too.
+Attention: The dependency tree can be long and complex for higher level packages such as "firefox".
+
+8 - REVERSE DEPENDENCIES TREE
+"pactree -r <PACKAGE NAME>"
+This command will display a tree of installed packages, which depend on <PACKAGE NAME>. In other words: All displayed packages require <PACKAGE NAME> in order to function (properly). 
+Use this command when you want to know why you cannot remove <PACKAGE NAME> from your system.
+
+9 - LIST INSTALLED PACKAGES
+"pacman -Qet"
+This option lists all packages from Manjaro's repositories installed on your system.
+
+
+10 - OPTIMIZE MIRRORS
 "sudo pacman-mirrors -g && sudo pacman -Syy"
 This command tests your connection to all available Manjaro repository mirrors/servers. The mirror with the best connection is automatically chosen for you. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror.
 If you want to speed up this command: Only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -g -c Germany,France"
 
-4 - DEFRAGMENT DATABASE
-"sudo pacman-optimize"
-This command effectively defragments your Pacman database. It is recommended to CLEAN PACKAGE CACHE before using this option.
-On traditional hard drives (HDD) this command can speed up all actions related to Pacman. But it is NOT recommended to use this command on modern solid state hard drives (SSD)!
+11 - REMOVE ORPHANED PACKAGES
+"yaourt -Qdt"
+This option lists all orphaned packages on your system. Orphaned packages are old dependencies (packages not explicitly installed by you), which were never removed from your system.
+Answer with "y" or "n" to remove all listed orphaned packages or not.
 
-5 - CLEAN PACKAGE CACHE
+12 - CLEAN PACKAGE CACHE
 "paccache -ruvk0
  paccache -rvk2"
 By default Pacman uses this cache directory for downloading packages: /var/cache/pacman/pkg/... . No cached packages get deleted automatically. This enables you to DOWNGRADE PACKAGES, which are broken, without a working internet connection. The package cache of an old and actively used Manjaro installation can become quite large. Clean it to regain space on your root partition.
 The first command removes all packages from cache, which are not installed (anymore) on your system. The second command removes all old packages from your cache except the 2 latest versions: The version you have currently installed on your system and the previous version.
 
-6 - REMOVE ORPHANED PACKAGES
-"yaourt -Qdt"
-This option lists all orphaned packages on your system. Orphaned packages are old dependencies (packages not explicitly installed by you), which were never removed from your system.
-Answer with "y" or "n" to remove all listed orphaned packages or not.
-
-7 - INSTALL PACKAGE
-"sudo pacman -S <PACKAGE NAME>"
-This option downloads and installs <PACKAGE NAME> on your system. <PACKAGE NAME> must be a package from the Manjaro repositories.
-
-8 - LIST LOCAL PACKAGE FILES
-"pacman -Ql <PACKAGE NAME>"
-This command lists all files and their install directory contained in <PACKAGE NAME>. <PACKAGE NAME> must be installed on your system.
-Have you ever installed a program and did not know with which command it can be started/executed? This command can help you.
-
-9 - PACKAGE INFORMATION
-"yaourt -Sii <PACKAGE NAME>"
-This command displays a lot of information about <PACKAGE NAME>.
-
-10 - INSTALLED PACKAGE INFORMATION
-"yaourt -Qii <PACKAGE NAME>"
-This command displays a lot of information about <PACKAGE NAME>. <PACKAGE NAME> must be installed on your system. This command displays other information (e.g. why and how a package was installed) than PACKAGE INFORMATION.
-
-11 - DEPENDENCIES TREE
-"pactree -s <PACKAGE NAME>"
-This command will display a complete tree of all dependencies of <PACKAGE NAME>. Dependencies are packages required by <PACKAGE NAME> in order to function. When you install <PACKAGE NAME>, all its dependencies get installed, too.
-Attention: The dependency tree can be long and complex for higher level packages such as "firefox".
-
-12 - REVERSE DEPENDENCIES TREE
-"pactree -r <PACKAGE NAME>"
-This command will display a tree of installed packages, which depend on <PACKAGE NAME>. In other words: All displayed packages require <PACKAGE NAME> in order to function (properly). 
-Use this command when you want to know why you cannot remove <PACKAGE NAME> from your system.
-
-13 - LIST INSTALLED PACKAGES
-"pacman -Qet"
-This option lists all packages from Manjaro's repositories installed on your system.
+13 - DEFRAGMENT DATABASE
+"sudo pacman-optimize"
+This command effectively defragments your Pacman database. It is recommended to CLEAN PACKAGE CACHE before using this option.
+On traditional hard drives (HDD) this command can speed up all actions related to Pacman. But it is NOT recommended to use this command on modern solid state hard drives (SSD)!
 
 14 - FIX ERRORS
 "sudo rm -f /var/lib/pacman/db.lck && sudo pacman-mirrors -g && sudo pacman -Syyuu"
@@ -120,40 +121,41 @@ Attention: Only run this command when no other Pacman instance (e.g. Pacman, Yao
 This command displays the last 2000 lines of your Pacman Log.
 The Pacman Log contains all updates, installations, and removals (also in the AUR) you have done. Whenever something breaks on your system (e.g. after an udpate), but you do not remember anymore which packages were changed recently (e.g. during the update), take a look at your Pacman Log and find out. Then, DOWNGRADE PACKAGES, which you think might be broken.
 
-15 - DOWNGRADE PACKAGES
+16 - DOWNGRADE PACKAGES
 "downgrade <PACKAGE NAME>"
 Manjaro uses a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. If the latest version of a packages does not work on your system, you can downgrade that package to an earlier, working version.
 This command downgrades <PACKAGE NAME> and offers you a list of old <PACKAGE NAME> versions to choose from. This list includes all old <PACKAGE NAME> versions from your package cache and online sources (if you have a working internet connection).
 
-16 - HELP
+17 - HELP
 Display this help page.
 
-17 - FORCE INSTALL PACKAGE
+18 - FORCE INSTALL PACKAGE
 "sudo pacman -S --force <PACKAGE NAME>"
 This command does the same as INSTALL PACKAGE, but it forces the installation of <PACKAGE NAME>.
 Attention: This command is meant for experienced users, who know what they are doing!
 
-18 - FORCE UPDATE SYSTEM
+19 - FORCE UPDATE SYSTEM
 "sudo pacman -Syu --force"
 This command does the same as UPDATE SYSTEM, but it bypasses file conflict tests and overwrites conflicting files. All files will be overwritten. 
 Attention: This command is meant for experienced users, who know what they are doing!
 
-19 - FORCE REMOVE PACKAGE
+20 - FORCE REMOVE PACKAGE
 "pacman -Rdd <PACKAGE NAME>"
 This command removes <PACKAGE NAME> without checking the dependencies of <PACKAGE NAME> first. This enables experienced users to remove packages and dependencies of packages. This command only removes <PACKAGE NAME> from your system. All dependencies and orphans are left: run REMOVE ORPHANED PACKAGES afterwards to remove them, too.
 Attention: This command can break pacakges on your system or even your entire system. Use with great care!
 
-20 - EMPTY PACKAGE CACHE
+21 - EMPTY PACKAGE CACHE
 "yaourt -Scc"
 This command will empty your entire package cache by deleting ALL packages.
 Attention: This will make it impossible to reinstall or DOWNGRADE PACKAGES without a working internet connection.
 
-21 - UPDATE AUR
+
+22 - UPDATE AUR
 "yaourt -Syua"
 This command does the same as UPDATE SYSTEM, but with one exception: It also updates all packages from Arch User Repository (AUR), which have an updated PKGBUILD file.
 Attention: When a new version of an AUR package is available, often the PKGBUILD file is not updated. If you want to install the latest version of an AUR package, (re-)install it with INSTALL FROM AUR. If you want to install the latest version of all AUR packages use option FORCE UPDATE AUR.
 
-22 - FORCE UPDATE AUR
+23 - FORCE UPDATE AUR
 "yaourt -Syua && yaourt -Syua --devel --noconfirm"
 The Arch User Repository (AUR) is a repository of (mostly) PKGBUILD files. Everybody can create such a PKGBUILD file and upload it to the AUR. A PKGBUILD file contains simple and human readable instructions like where to download the source code from, what dependencies are needed, where to copy files for installation, etc. Yaourt is a so called AUR Helper: It can interpret PKGBUILD files and download the source code, install dependencies, build files on your system, and copy these files to the right location (a.k.a. installing a program).
 By checking a PKGBUILD file (and .INSTALL file) you can make sure the source code is loaded from an official download server, no harmful dependencies get installed, and the installation instructions do not contain harmful code.
@@ -162,17 +164,17 @@ The first command of FORCE UPDATE AUR does the same as UPDATE AUR: Only AUR pack
 The second command of FORCE UPDATE AUR forces a reinstall of ALL your AUR packages. The "--noconfirm" flag is used in a secure way, because no PKGBUILD files have changed since the first command got executed.
 Attention: This might take a long time!
 
-23 - SEARCH + INSTALL FROM AUR
+24 - SEARCH + INSTALL FROM AUR
 "yaourt <PACKAGE NAME>"
 This command searches for <PACKAGE NAME> in all Manjaro repositories and the Arch User Repository (AUR). It searches in all package names and package descriptions. Example: You can search for "web browser" and you will find Firefox and other web browsers. One or multiple search results can be installed on your system.
 If you want to exit this mode without installing any packages, simply press [Enter].
 
-24 - INSTALL FROM AUR
+25 - INSTALL FROM AUR
 "yaourt -S <PACKAGE NAME>"
 This command does the same as INSTALL PACKAGE. Additionally, Arch User Repository (AUR) packages can be installed.
 Attention: Experienced users can install packages from the AUR without the need to answer questions all the time by using the command "yaourt -S <PACKAGE NAME> --noconfirm". The "--noconfirm" flag is great for quick and dirty installations of AUR packages on non-secure systems. Please keep always in mind that the AUR can contain any sort of package - including malicious and destructive (parts of) packages. Therefore, it is recommended to always check the PKGBUILD and .INSTALL file manually before installing a package from the AUR.
 
-25 - LIST INSTALLED FROM AUR
+26 - LIST INSTALLED FROM AUR
 "pacman -Qem"
 This command lists all installed packages, which are from the AUR or which were manually installed.
 
