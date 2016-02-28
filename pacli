@@ -231,26 +231,75 @@ NC='\e[0m'
             ;;
         2)
             echo
+            sudo pacman -S $(package-query -Sl -f "%n - %d" | fzf-tmux -e -m  --reverse --prompt='Select packages to install (use TAB to toggle selection) >' | awk '{print $1}') --color always
+            echo
+            echo -e "$NC Package installation is finished. To return to pacli press [Enter] $NC"
+            read
+            ;;
+        3)
+            echo
             sudo pacman -Rsn $(pacman -Qq | fzf-tmux -e -m --reverse --prompt='Select packages to remove (use TAB to toggle selection) >') --color always
             echo
             echo -e "$NC Package and all unneeded dependencies removed. To return to pacli press [Enter] $NC"
             read
             ;;
-        3)
+        4)
+            echo
+            pacman -Ql $(pacman -Qq | fzf-tmux -e -m  --reverse --prompt='Select a packages of which to list all files (use TAB to toggle selection)  >') --color always
+            echo
+            echo -e "$NC All local files in package listed. To return to pacli press [Enter] $NC"
+            read
+            ;;
+        5)
+            echo
+            yaourt -Sii $(cat /tmp/packages | fzf-tmux -e --reverse --prompt='Select a package to display information about >') 
+            echo
+            echo -e "$NC Package information displayed. To return to pacli press [Enter] $NC"
+            read
+            ;; 
+        6)
+            echo
+            yaourt -Qii $(pacman -Qq | fzf-tmux -e --reverse --prompt='Select an installed package to diplay information about >')
+            echo
+            echo -e "$NC Package information listed. To return to pacli press [Enter] $NC"
+            read
+            ;; 
+        7)
+            echo
+            pactree -c -s $(pacman -Slq | fzf-tmux -e --reverse --prompt='Select a package >')
+            echo
+            echo -e "$NC Dependency tree displayed. To return to pacli press [Enter] $NC"
+            read
+            ;;
+        8)
+            echo
+            pactree -c -r $(pacman -Qq | fzf-tmux -e --reverse --prompt='Select a package >')
+            echo
+            echo -e "$NC Reverse dependency tree displayed. To return to pacli press [Enter] $NC"
+            read
+            ;;
+        9)
+            echo
+            pacman -Qet --color always
+            echo
+            echo -e "$NC All your installed packages from the Manjaro repositories listed. To return to pacli press [Enter] $NC"
+            read
+            ;;
+        10)
             echo
             sudo pacman-mirrors -g && sudo pacman -Syy --color always
             echo
             echo -e "$NC Best Manjaro mirror chosen. To return to pacli press [Enter] $NC"
             read
             ;;
-        4)
+        11)
             echo
-            sudo pacman-optimize
+            yaourt -Qdt
             echo
-            echo -e "$NC Pacman Database defragmented and optimized for HDDs. To return to pacli press [Enter] $NC"
+            echo -e "$NC Task completed. To return to pacli press [Enter] $NC"
             read
             ;;
-        5)
+        12)
             echo
             paccache -ruvk0
             paccache -rvk2
@@ -258,60 +307,11 @@ NC='\e[0m'
             echo -e "$NC Unneeded and old package versions removed. To return to pacli press [Enter] $NC"
             read
             ;;
-        6)
-            echo
-            yaourt -Qdt
-            echo
-            echo -e "$NC Task completed. To return to pacli press [Enter] $NC"
-            read
-            ;;
-        7)
-            echo
-            sudo pacman -S $(package-query -Sl -f "%n - %d" | fzf-tmux -e -m  --reverse --prompt='Select packages to install (use TAB to toggle selection) >' | awk '{print $1}') --color always
-            echo
-            echo -e "$NC Package installation is finished. To return to pacli press [Enter] $NC"
-            read
-            ;;
-        8)
-            echo
-            pacman -Ql $(pacman -Qq | fzf-tmux -e -m  --reverse --prompt='Select a packages of which to list all files (use TAB to toggle selection)  >') --color always
-            echo
-            echo -e "$NC All local files in package listed. To return to pacli press [Enter] $NC"
-            read
-            ;;
-        9)
-            echo
-            yaourt -Sii $(cat /tmp/packages | fzf-tmux -e --reverse --prompt='Select a package to display information about >') 
-            echo
-            echo -e "$NC Package information displayed. To return to pacli press [Enter] $NC"
-            read
-            ;; 
-        10)
-            echo
-            yaourt -Qii $(pacman -Qq | fzf-tmux -e --reverse --prompt='Select an installed package to diplay information about >')
-            echo
-            echo -e "$NC Package information listed. To return to pacli press [Enter] $NC"
-            read
-            ;; 
-        11)
-            echo
-            pactree -c -s $(pacman -Slq | fzf-tmux -e --reverse --prompt='Select a package >')
-            echo
-            echo -e "$NC Dependency tree displayed. To return to pacli press [Enter] $NC"
-            read
-            ;;
-        12)
-            echo
-            pactree -c -r $(pacman -Qq | fzf-tmux -e --reverse --prompt='Select a package >')
-            echo
-            echo -e "$NC Reverse dependency tree displayed. To return to pacli press [Enter] $NC"
-            read
-            ;;
         13)
             echo
-            pacman -Qet --color always
+            sudo pacman-optimize
             echo
-            echo -e "$NC All your installed packages from the Manjaro repositories listed. To return to pacli press [Enter] $NC"
+            echo -e "$NC Pacman Database defragmented and optimized for HDDs. To return to pacli press [Enter] $NC"
             read
             ;;
         14)
@@ -328,61 +328,61 @@ NC='\e[0m'
             echo -e "$NC Last 2000 lines of Pacman Log displayed. Navigate with SHIFT+PageUp. To return to pacli press [Enter] $NC"
             read
             ;;			
-        15)
+        16)
             echo
             downgrade $(pacman -Qq | fzf-tmux -e --reverse --prompt='Select package to downgrade >')
             echo
             echo -e "$NC Downgrade process finished. To return to pacli press [Enter] $NC"
             read
             ;;
-        16)
+        17)
             echo
             help_text
             echo
             ;;
-        17)
+        18)
             echo
             sudo pacman -S --force $(pacman -Slq | fzf -e --reverse --prompt='Select package to install >') --color always
             echo
             echo -e "$NC Package installation in force mode is finished. To return to pacli press [Enter] $NC"
             read
             ;;
-        18)
+        19)
             echo
             sudo pacman -Syu --force --color always
             echo
             echo -e "$NC Your system is updated in force mode. To return to pacli press [Enter] $NC"
             read
             ;;
-        19)
+        20)
             echo
             sudo pacman -Rdd $(pacman -Qq | fzf-tmux -e -m --reverse --prompt='Select packages to remove >') --color always
             echo
             echo -e "$NC Dependency in force mode removed. To return to pacli press [Enter] $NC"
             read
             ;;
-        20)
+        21)
             echo
             yaourt -Scc
             echo
             echo -e "$NC Entire package cache emptied. To return to pacli press [Enter] $NC"
             read
             ;;
-        21)
+        22)
             echo
             yaourt -Syua
             echo
             echo -e "$NC Your system is updated. To return to pacli press [Enter] $NC"
             read
             ;;
-        22)
+        23)
             echo
             yaourt -Syua && yaourt -Syua --devel --noconfirm
             echo
             echo -e "$NC All AUR packages reinstalled. To return to pacli press [Enter] $NC"
             read
             ;;
-        23)
+        24)
             echo
             echo "Enter name of package to be searched and installed from AUR and press [Enter] to continue"
             echo
@@ -392,14 +392,14 @@ NC='\e[0m'
             echo -e "$NC Yaourt finished. To return to pacli press [Enter] $NC"
             read
             ;;
-        24)
+        25)
             echo
             yaourt -S $(cat /tmp/packages | fzf-tmux -e -m --reverse --prompt='Select packages to install (toggle selection with TAB) >')
             echo
             echo -e "$NC Installation from AUR finished. To return to pacli press [Enter] $NC"
             read
             ;;
-        25)
+        26)
             echo
             pacman -Qem --color always
             echo
