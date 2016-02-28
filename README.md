@@ -11,7 +11,7 @@ It is highly recommended to use an utility, which notifies the user about availa
 ## Screenshots
 
 Home Screen of pacli:
-![Screenshot 01](http://i.imgur.com/ZTns6NI.png)
+![Screenshot 01](http://i.imgur.com/Md3C17d.png)
 
 Installing the package "cantata" from the Manjaro repositories:
 ![Screenshot 02](http://i.imgur.com/m1Kzp8U.png)
