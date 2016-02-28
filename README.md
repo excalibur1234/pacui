@@ -46,6 +46,7 @@ First, make sure all dependencies of pacli are installed on your system:
 - sudo
 - gzip
 - git
+- [update-notifier](https://github.com/Chrysostomus/update-notifier) (optional dependency - will notify the user about available updates)
 
 Then, clone this Github repository to your system with the command:
 ```
