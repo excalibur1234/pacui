@@ -11,7 +11,7 @@ It is highly recommended to use an utility, which notifies the user about availa
 ## Screenshots
 
 Home Screen of pacli:
-![Screenshot 01](http://i.imgur.com/Md3C17d.png)
+![Screenshot 01](http://i.imgur.com/UlECqkm.png)
 
 Installing the package "cantata" from the Manjaro repositories:
 ![Screenshot 02](http://i.imgur.com/m1Kzp8U.png)
@@ -61,7 +61,7 @@ cd pacli && chmod +x pacli && ./pacli
 ## Help
 
 ### pacli Help
-Choose the "Help" option in pacli by entering "17" and pressing "ENTER". 
+Choose the "Help" option in pacli by entering "16" and pressing "ENTER". 
 
 This help page explains a little bit about pacli. It also explains every pacli option in detail. If you want to look up which commands pacli uses and understand them, this is the right place for you!
 
