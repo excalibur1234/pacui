@@ -83,6 +83,7 @@ This option downloads and installs <PACKAGE NAME> on your system. <PACKAGE NAME>
 8 - LIST LOCAL PACKAGE FILES
 "pacman -Ql <PACKAGE NAME>"
 This command lists all files and their install directory contained in <PACKAGE NAME>. <PACKAGE NAME> must be installed on your system.
+Have you ever installed a program and did not know with which command it can be started/executed? This command can help you.
 
 9 - PACKAGE INFORMATION
 "yaourt -Sii <PACKAGE NAME>"
@@ -95,7 +96,7 @@ This command displays a lot of information about <PACKAGE NAME>. <PACKAGE NAME> 
 11 - DEPENDENCIES TREE
 "pactree -s <PACKAGE NAME>"
 This command will display a complete tree of all dependencies of <PACKAGE NAME>. Dependencies are packages required by <PACKAGE NAME> in order to function. When you install <PACKAGE NAME>, all its dependencies get installed, too.
-Attention: The dependency tree can be quite long and complex for higher level packages such as "firefox".
+Attention: The dependency tree can be long and complex for higher level packages such as "firefox".
 
 12 - REVERSE DEPENDENCIES TREE
 "pactree -r <PACKAGE NAME>"
@@ -113,6 +114,11 @@ First, it removes Pacman's database lock.
 Then, it does the same as OPTIMIZE MIRRORS: It will search for working and good Manjaro repository mirrors/servers.
 Finally, the last command forces a redownload of the latest package database from the best Manjaro repository mirror. Then, all your installed packages are checked against this latest package database. If an updated package is available from the Manjaro repositories, it will get downloaded and installed on your system. If an installed package is newer than the same package in the Manjaro repositories, the installed package will get downgraded. This behavior ensures your packages are always in sync with the Manajro repositories, even if you have just switched the Manjaro mirror or switched from unstable to stable branch.
 Attention: Only run this command when no other Pacman instance (e.g. Pacman, Yaourt, Pamac, Octopi, PacmanXG4, ...) is running.
+
+15 - PACMAN LOG
+"tail -2000 /var/log/pacman.log"
+This command displays the last 2000 lines of your Pacman Log.
+The Pacman Log contains all updates, installations, and removals (also in the AUR) you have done. Whenever something breaks on your system (e.g. after an udpate), but you do not remember anymore which packages were changed recently (e.g. during the update), take a look at your Pacman Log and find out. Then, DOWNGRADE PACKAGES, which you think might be broken.
 
 15 - DOWNGRADE PACKAGES
 "downgrade <PACKAGE NAME>"
@@ -189,25 +195,28 @@ NC='\e[0m'
     echo -e "                     $NC ::Pacli - Package manager:: $NC "
     echo ""
     echo -e " ┌────────────────────────────────────────────────────────────────────┐"
-    echo -e " │  $NC  1 $NC  Update System               $NC  2 $NC  Remove Package + Deps     │"
-    echo -e " │  $NC  3 $NC  Optimize Mirrors            $NC  4 $NC  Defragment Database       │"
-    echo -e " │  $NC  5 $NC  Clean Package Cache         $NC  6 $NC  Remove Orphaned Packages  │"
-    echo -e " │  $NC  7 $NC  Install Package             $NC  8 $NC  List Local Package Files  │"
-    echo -e " │  $NC  9 $NC  Package Information         $NC 10 $NC  Installed Package Info    │"
-    echo -e " │  $NC 11 $NC  Dependency Tree             $NC 12 $NC  Reverse Dependency Tree   │"
-    echo -e " │  $NC 13 $NC  List Installed Packages     $NC 14 $NC  Fix Errors                │"
-    echo -e " │  $NC 15 $NC  Downgrade Packages          $NC 16 $NC  Help                      │"
-    echo -e " │ $RED  17   Force Install Package        18   Force Update System      $NC │"
-    echo -e " │ $RED  19   Force Remove Package         20   Empty Package Cache      $NC │"
-    echo " └────────────────────────────────────────────────────────────────────┘"
+    echo -e " │  $NC  1 $NC  Update System               $NC  2 $NC  Install Package           │"
+    echo -e " │  $NC  3 $NC  Remove Package + Deps       $NC  4 $NC  List Local Package Files  │"
+    echo -e " │  $NC  5 $NC  Package Information         $NC  6 $NC  Installed Package Info    │"
+    echo -e " │  $NC  7 $NC  Dependency Tree             $NC  8 $NC  Reverse Dependency Tree   │"
+    echo -e " │  $NC  9 $NC  List Installed Packages                                     │"
+    echo -e " └────────────────────────────────────────────────────────────────────┘"
+    echo -e " ┌────────────────────────────────────────────────────────────────────┐"
+    echo -e " │  $NC 10 $NC  Optimize Mirrors            $NC 11 $NC  Remove Orphaned Packages  │"
+    echo -e " │  $NC 12 $NC  Clean Package Cache         $NC 13 $NC  Defragment Database       │"
+    echo -e " │  $NC 14 $NC  Fix Errors                  $NC 15 $NC  Pacman Log                │"
+    echo -e " │  $NC 16 $NC  Downgrade Packages          $NC 17 $NC  Help                      │"
+    echo -e " │ $RED  18   Force Install Package        19   Force Update System      $NC │"
+    echo -e " │ $RED  20   Force Remove Package         21   Empty Package Cache      $NC │"
+    echo -e " └────────────────────────────────────────────────────────────────────┘"
     echo ""
-    echo " ┌────────────────────────────────────────────────────────────────────┐"
-    echo -e " │  $NC 21 $NC  Update AUR                  $NC 22 $NC  Force Update AUR          │"
-    echo -e " │  $NC 23 $NC  Search + Install from AUR   $NC 24 $NC  Install from AUR          │"
-    echo -e " │  $NC 25 $NC  List Installed from AUR                                     │"
-    echo " └────────────────────────────────────────────────────────────────────┘"
+    echo -e " ┌────────────────────────────────────────────────────────────────────┐"
+    echo -e " │  $NC 22 $NC  Update AUR                  $NC 23 $NC  Force Update AUR          │"
+    echo -e " │  $NC 24 $NC  Search + Install from AUR   $NC 25 $NC  Install from AUR          │"
+    echo -e " │  $NC 26 $NC  List Installed from AUR                                     │"
+    echo -e " └────────────────────────────────────────────────────────────────────┘"
     echo ""
-    echo -e " $NC Enter a number between 0 and 25 and press [Enter]$NC $NC - 0 Exit Pacli$NC"
+    echo -e " $NC Enter a number between 0 and 26 and press [Enter]$NC $NC - 0 Exit Pacli$NC"
     echo ""
     read choix
     case $choix in
@@ -310,6 +319,13 @@ NC='\e[0m'
             echo -e "$NC Most common Pacman errors fixed. To return to pacli press [Enter] $NC"
             read
             ;;
+        15)
+            echo
+            tail -2000 /var/log/pacman.log
+            echo
+            echo -e "$NC Last 2000 lines of Pacman Log displayed. Navigate with SHIFT+PageUp. To return to pacli press [Enter] $NC"
+            read
+            ;;			
         15)
             echo
             downgrade $(pacman -Qq | fzf-tmux -e --reverse --prompt='Select package to downgrade >')

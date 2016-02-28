@@ -61,7 +61,7 @@ cd pacli && chmod +x pacli && ./pacli
 ## Help
 
 ### pacli Help
-Choose the "Help" option in pacli by entering "16" and pressing "ENTER". 
+Choose the "Help" option in pacli by entering "17" and pressing "ENTER". 
 
 This help page explains a little bit about pacli. It also explains every pacli option in detail. If you want to look up which commands pacli uses and understand them, this is the right place for you!
 
