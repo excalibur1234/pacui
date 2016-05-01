@@ -28,7 +28,7 @@ Looking up what packages on my system depend on "gtk2":
 ![Screenshot 05](http://i.imgur.com/dVfXdLj.png)
 
 
-## Installation
+## Installation / Git Clone
 
 First, make sure all dependencies of pacli are installed on your system:
 - pacman
@@ -58,6 +58,12 @@ In order to start pacli, you need to execute the "pacli" file in your pacli dire
 ```
 ./pacli/pacli
 ```
+
+If you want to start pacli with a simple "pacli" command from anywhere in your terminal, you have to copy or move the "pacli" file into your /usr/bin/ directory. A command for doing this could be (when the above installation was followed):
+```
+sudo cp ~/pacli/pacli /usr/bin/
+```
+Now, you type "pacli" into your terminal and pacli will start.
 
 
 ## Help
