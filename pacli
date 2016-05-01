@@ -100,24 +100,7 @@ Use this command when you want to know why you cannot remove <PACKAGE NAME> from
 9 - HELP
 Display this extended help page.
 
-11 - PACMAN LOG
-"tail -2000 /var/log/pacman.log"
-This command displays the last 2000 lines of your Pacman Log.
-The Pacman Log contains all updates, installations, and removals (also in the AUR) you have done. Whenever something breaks on your system (e.g. after an udpate), but you do not remember anymore which packages were changed recently (e.g. during the update), take a look at your Pacman Log and find out. Then, DOWNGRADE PACKAGES, which you think might be broken.
-Navigate the list with your Mouse Wheel or SHIFT + PageUp.
-
-12 - DOWNGRADE PACKAGES
-"downgrade <PACKAGE NAME>"
-Manjaro uses a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. If the latest version of a packages does not work on your system, you can downgrade that package to an earlier, working version.
-This command downgrades <PACKAGE NAME> and offers you a list of old <PACKAGE NAME> versions to choose from. This list includes all old <PACKAGE NAME> versions from your package cache and online sources (if you have a working internet connection).
-After a successful downgrade, you can add <PACKAGE NAME> to your ignore list. This will prevent Pacman from showing any available updates for <PACKAGE NAME>. Remove <PACKAGE NAME> from your ignore list with CONFIGURE PACMAN.
-Alternatively, you can run future updates with the command "sudo pacman -Syu --ignore <PACKAGE NAME>" until a fixed version of <PACKAGE NAME> gets released.
-
-13 - CONFIGURE PACMAN
-"sudo $EDITOR /etc/pacman.conf"
-This command opens pacman settings file in your terminal text editor. This lets you configure various options, like what command is used to download packages, what repositories are used and what packages are ignored.
-
-14 - FIX ERRORS
+10 - FIX ERRORS
 Multiple commands attempt to fix the most common issues Manjaro users have with Pacman:
 
 "sudo rm -f /var/lib/pacman/db.lck" 
@@ -143,30 +126,43 @@ This command removes all packages from your pacman cache, which are not installe
 "sudo pacman -Syyuu"
 This last command forces a redownload of the latest package database from the best Manjaro repository mirror. Then, all your installed packages are checked against this latest package database. If an updated package is available from the Manjaro repositories, it will get downloaded and installed on your system. If an installed package is newer than the same package in the Manjaro repositories, the installed package will get downgraded. This behavior ensures your packages are always in sync with the Manajro repositories, even if you have just switched the Manjaro mirror or switched from unstable to stable branch.
 
-15 - FORCE UPDATE SYSTEM
+11 - PACMAN LOG
+"tail -2000 /var/log/pacman.log"
+This command displays the last 2000 lines of your Pacman Log.
+The Pacman Log contains all updates, installations, and removals (also in the AUR) you have done. Whenever something breaks on your system (e.g. after an udpate), but you do not remember anymore which packages were changed recently (e.g. during the update), take a look at your Pacman Log and find out. Then, DOWNGRADE PACKAGES, which you think might be broken.
+Navigate the list with your Mouse Wheel or SHIFT + PageUp.
+
+12 - DOWNGRADE PACKAGES
+"downgrade <PACKAGE NAME>"
+Manjaro uses a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. If the latest version of a packages does not work on your system, you can downgrade that package to an earlier, working version.
+This command downgrades <PACKAGE NAME> and offers you a list of old <PACKAGE NAME> versions to choose from. This list includes all old <PACKAGE NAME> versions from your package cache and online sources (if you have a working internet connection).
+After a successful downgrade, you can add <PACKAGE NAME> to your ignore list. This will prevent Pacman from showing any available updates for <PACKAGE NAME>. Remove <PACKAGE NAME> from your ignore list with CONFIGURE PACMAN.
+Alternatively, you can run future updates with the command "sudo pacman -Syu --ignore <PACKAGE NAME>" until a fixed version of <PACKAGE NAME> gets released.
+
+13 - FORCE UPDATE SYSTEM
 "sudo pacman -Syu --force"
 This command does the same as UPDATE SYSTEM, but it bypasses file conflict tests and overwrites conflicting files. All files will be overwritten. 
 
-16 - EMPTY PACKAGE CACHE
+14 - EMPTY PACKAGE CACHE
 "yaourt -Scc"
 This command will empty your entire package cache by deleting ALL packages.
 Attention: This will make it impossible to reinstall or DOWNGRADE PACKAGES without a working internet connection.
 
-17 - FORCE INSTALL PACKAGE
+15 - FORCE INSTALL PACKAGE
 "sudo pacman -S --force <PACKAGE NAME>"
 This command does the same as INSTALL PACKAGE, but it forces the installation of <PACKAGE NAME>.
 
-18 - FORCE REMOVE PACKAGE
+16 - FORCE REMOVE PACKAGE
 "pacman -Rdd <PACKAGE NAME>"
 This command removes <PACKAGE NAME> without checking the dependencies of <PACKAGE NAME> first. This enables experienced users to remove packages and dependencies of packages. This command only removes <PACKAGE NAME> from your system. All dependencies and orphans are left: run CLEAN SYSTEM afterwards to remove them, too.
 Attention: This command can break pacakges on your system or even your entire system.
 
-19 - UPDATE AUR
+17 - UPDATE AUR
 "yaourt -Syua"
 This command does the same as UPDATE SYSTEM, but with one exception: It also updates all packages from Arch User Repository (AUR), which have an updated PKGBUILD file.
 Attention: When a new version of an AUR package is available, often the PKGBUILD file is not updated. If you want to install the latest version of an AUR package, (re-)install it with INSTALL FROM AUR. If you want to install the latest versions of all AUR packages use option FORCE UPDATE AUR.
 
-20 - FORCE UPDATE AUR
+18 - FORCE UPDATE AUR
 "yaourt -Syua && yaourt -Syua --devel --noconfirm"
 The Arch User Repository (AUR) is a repository of (mostly) PKGBUILD files. Everybody can create such a PKGBUILD file and upload it to the AUR. A PKGBUILD file contains simple and human readable instructions like where to download the source code from, what dependencies are needed, where to copy files for installation, etc. Yaourt is a so called AUR Helper: It can interpret PKGBUILD files and download the source code, install dependencies, build files on your system, and copy these files to the right location (a.k.a. installing a program).
 By checking a PKGBUILD file (and .INSTALL file) you can make sure the source code is loaded from an official download server, no harmful dependencies get installed, and the installation instructions do not contain harmful code.
@@ -176,18 +172,18 @@ The second command of FORCE UPDATE AUR forces a reinstall of ALL your AUR packag
 Attention: This might take a long time!
 Attention: By default, after every 15min this command will pause and ask again for your password.
 
-21 - SEARCH + INSTALL FROM AUR
+19 - SEARCH + INSTALL FROM AUR
 "yaourt <PACKAGE NAME>"
 This command searches for <PACKAGE NAME> in all Manjaro repositories and the Arch User Repository (AUR). It searches in all package names and package descriptions. 
 Example: You can search for "web browser" and you will find Firefox and other web browsers. One or multiple search results can be installed on your system.
 If you want to exit this mode without installing any packages, simply press [Enter].
 
-22 - INSTALL FROM AUR
+20 - INSTALL FROM AUR
 "yaourt -S <PACKAGE NAME>"
 This command does the same as INSTALL PACKAGE. Additionally, Arch User Repository (AUR) packages can be installed.
 Attention: Experienced users can install packages from the AUR without the need to answer questions all the time by using the command "yaourt -S <PACKAGE NAME> --noconfirm". The "--noconfirm" flag is great for quick and dirty installations of AUR packages on non-secure systems. Please keep always in mind that the AUR can contain any sort of package - including malicious and destructive (parts of) packages. Therefore, it is recommended to always check the PKGBUILD and .INSTALL file manually before installing a package from the AUR.
 
-23 - LIST INSTALLED FROM AUR
+21 - LIST INSTALLED FROM AUR
 "pacman -Qem"
 This command lists all installed packages, which are from the AUR or which were manually installed.
 
@@ -223,20 +219,19 @@ do
     echo -e " │  $NC  7 $NC  Dependency Tree             $NC  8 $NC  Reverse Dependency Tree   │"
     echo -e " └────────────────────────────────────────────────────────────────────┘"
     echo -e " ┌────────────────────────────────────────────────────────────────────┐"
-    echo -e " │  $NC  9 $NC  Help                                                        │"
+    echo -e " │  $NC  9 $NC  Help                        $NC 10 $NC  Fix Errors                │"
     echo -e " │  $NC 11 $NC  Pacman Log                  $NC 12 $NC  Downgrade Packages        │"
-    echo -e " │ $RED  13   Configure Pacman             14   Fix Errors               $NC │"
-    echo -e " │ $RED  15   Force Update System          16   Empty Package Cache      $NC │"
-    echo -e " │ $RED  17   Force Install Package        18   Force Remove Package     $NC │"
+    echo -e " │ $RED  13   Force Update System          14   Empty Package Cache      $NC │"
+    echo -e " │ $RED  15   Force Install Package        16   Force Remove Package     $NC │"
     echo -e " └────────────────────────────────────────────────────────────────────┘"
     echo ""
     echo -e " ┌────────────────────────────────────────────────────────────────────┐"
-    echo -e " │  $NC 19 $NC  Update AUR                  $NC 20 $NC  Force Update AUR          │"
-    echo -e " │  $NC 21 $NC  Search + Install from AUR   $NC 22 $NC  Install from AUR          │"
-    echo -e " │  $NC 23 $NC  List Installed from AUR                                     │"
+    echo -e " │  $NC 17 $NC  Update AUR                  $NC 18 $NC  Force Update AUR          │"
+    echo -e " │  $NC 19 $NC  Search + Install from AUR   $NC 20 $NC  Install from AUR          │"
+    echo -e " │  $NC 21 $NC  List Installed from AUR                                     │"
     echo -e " └────────────────────────────────────────────────────────────────────┘"
     echo ""
-    echo -e " $NC Enter a number between 0 .. 23 and press [Enter]$NC $NC - 0 Exit Pacli$NC"
+    echo -e " $NC Enter a number between 0 .. 21 and press [Enter]$NC $NC - 0 Exit Pacli$NC"
     echo ""
 
 	# save entered number in varialbe "choice"
@@ -326,31 +321,12 @@ do
             ;;
 
 
-        9|10|h|H|help|Help|HELP)
+        9|h|H|help|Help|HELP)
             echo
             help_text
             echo
             ;;
-        11)
-            echo
-            tail -2000 /var/log/pacman.log
-            echo
-            echo -e "$NC Last 2000 lines of Pacman Log displayed. Navigate with SHIFT+PageUp. To return to pacli press [Enter] $NC"
-            read
-            ;;			
-        12)
-            echo
-            downgrade $(pacman -Qq | fzf -e +s --reverse --prompt='Select package to downgrade >')
-            echo
-            echo -e "$NC Downgrade process finished. To return to pacli press [Enter] $NC"
-            read
-            ;;
-        13)
-            echo
-			sudo $EDITOR /etc/pacman.conf
-            echo
-            ;;
-        14)
+        10)
             echo
 
             sudo rm -f /var/lib/pacman/db.lck
@@ -381,21 +357,35 @@ do
             echo -e "\n$NC Most common Pacman errors fixed and system updated. To return to pacli press [Enter] $NC"
             read
             ;;
-        15)
+        11)
+            echo
+            tail -2000 /var/log/pacman.log
+            echo
+            echo -e "$NC Last 2000 lines of Pacman Log displayed. Navigate with SHIFT+PageUp. To return to pacli press [Enter] $NC"
+            read
+            ;;			
+        12)
+            echo
+            downgrade $(pacman -Qq | fzf -e +s --reverse --prompt='Select package to downgrade >')
+            echo
+            echo -e "$NC Downgrade process finished. To return to pacli press [Enter] $NC"
+            read
+            ;;
+        13)
             echo
             sudo pacman -Syu --force --color always
             echo
             echo -e "$NC Your system is updated in force mode. To return to pacli press [Enter] $NC"
             read
             ;;
-        16)
+        14)
             echo
             yaourt -Scc
             echo
             echo -e "$NC Entire package cache emptied. To return to pacli press [Enter] $NC"
             read
             ;;
-        17)
+        15)
             echo
             sudo pacman -S --force $(pacman -Slq | fzf -e +s --reverse --prompt='Select package to install >') --color always
             echo
@@ -403,7 +393,7 @@ do
             read
             ;;
 
-        18)
+        16)
             echo
             sudo pacman -Rdd $(pacman -Qq | fzf -e -m +s --reverse --prompt='Select packages to remove >') --color always
             echo
@@ -413,21 +403,21 @@ do
 
 
 
-        19)
+        17)
             echo
             yaourt -Syua
             echo
             echo -e "$NC Your system is updated. To return to pacli press [Enter] $NC"
             read
             ;;
-        20)
+        18)
             echo
             yaourt -Syua && yaourt -Syua --devel --noconfirm
             echo
             echo -e "$NC All AUR packages reinstalled. To return to pacli press [Enter] $NC"
             read
             ;;
-        21)
+        19)
             echo
             echo "Enter name of package to be searched and installed from AUR and press [Enter] to continue"
             echo
@@ -437,14 +427,14 @@ do
             echo -e "$NC Yaourt finished. To return to pacli press [Enter] $NC"
             read
             ;;
-        22)
+        20)
             echo
             yaourt -S $(cat /tmp/packages | sort | fzf -e -m +s --reverse --prompt='Select packages to install (toggle selection with TAB) >')
             echo
             echo -e "$NC Installation from AUR finished. To return to pacli press [Enter] $NC"
             read
             ;;
-        23)
+        21)
             echo
             pacman -Qem --color always
             echo
