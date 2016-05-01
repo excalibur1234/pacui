@@ -5,6 +5,8 @@ pacli is a CLI tool, which provides simple and advanced Pacman and Yaourt comman
 
 pacli is meant for experienced/intermediate/advanced users, who have basic knowledge of the structure of their Linux system and how Pacman and Yaourt work. Absolute beginners are probably overwhelmed by the amount of choices pacli provides.
 
+This version of pacli follows the KISS principle: The whole program is contained within one file, which contains easy to read bash code.
+
 It is highly recommended to use an utility, which notifies the user about available updates alongside of pacli. Such a lightweight utility is for example [update-notifier](https://github.com/Chrysostomus/update-notifier).
 
 
@@ -28,15 +30,6 @@ Looking up what packages on my system depend on "gtk2":
 
 ## Installation
 
-### Installation from the AUR
-Install [pacli from the AUR](https://aur.archlinux.org/packages/pacli/).
-
-Then, start pacli in your terminal with:
-```
-pacli
-```
-
-### Manual Installation
 First, make sure all dependencies of pacli are installed on your system:
 - pacman
 - [yaourt](https://wiki.archlinux.org/index.php/Yaourt)
@@ -46,6 +39,7 @@ First, make sure all dependencies of pacli are installed on your system:
 - sudo
 - gzip
 - git
+- wget
 - [update-notifier](https://github.com/Chrysostomus/update-notifier) (optional dependency - will notify the user about available updates)
 
 Then, clone this Github repository to your system with the command:

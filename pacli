@@ -14,19 +14,16 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
-#
-
 #################################################################
-# Design based on IceFox script                                 #
-# Modified, adapted and improved by pekman and excalibur1234    #
-# translation by spylinux                                       #
-# fzf and Downgrade support added by Chrysostomus               #
-# Contact and suggestions: pekman@openmailbox.org               #
-# Freenode: #manjaropek #manjaro-geek #manjaro                  #
-# Topic discussion                                              #
-#                       http://polr.me/pacli1                   #
-#################################################################
+#  Design based on IceFox script
+#  Modified, adapted and improved by pekman and excalibur1234
+#  fzf and Downgrade support added by Chrysostomus
+#  Contact and suggestions: pekman@openmailbox.org
+#  Freenode: #manjaro-geek #manjaro
+#  Discussion in the Manjaro forum: http://polr.me/pacli1
 
+
+# function with help text
 help_text() {
 	less 	<<-EOF
 Welcome to Pacli's Help Page.
@@ -181,33 +178,39 @@ To exit this Help Page, press "q".
 	EOF
 }
 
+
 # "yaourt -Sl" downloads a list of packages EVERY TIME it is called. this is unacceptable.
 # write package list of repositories to /tmp/packages. then, download AUR package list, unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/packages.
 pacman -Slq > /tmp/packages &
 wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzip -f /tmp/aur/packages.gz && cat /tmp/aur/packages >> /tmp/packages &
 
-# set colors
-RED='\e[41m'
-NC='\e[0m'
 
-    while true; do
+# set colors
+#RED="\e[31m"	# red text
+RED="\e[41m"	# red background
+NC="\e[0m"
+
+
+# pacli bash script
+while true
+do
     clear
     echo ""
     echo -e "                     $NC ::Pacli - Package manager:: $NC "
     echo ""
     echo -e " ┌────────────────────────────────────────────────────────────────────┐"
-    echo -e " │  $NC  1 $NC  Update System               $NC  2 $NC  Install Package           │"
-    echo -e " │  $NC  3 $NC  Remove Package + Deps       $NC  4 $NC  List Local Package Files  │"
-    echo -e " │  $NC  5 $NC  Package Information         $NC  6 $NC  Installed Package Info    │"
+    echo -e " │  $NC  1 $NC  Update System               $NC  2 $NC  Clean System              │"
+    echo -e " │  $NC  3 $NC  Install Package             $NC  4 $NC  Remove Package + Deps     │"
+    echo -e " │────────────────────────────────────────────────────────────────────│"
+    echo -e " │  $NC  5 $NC  Package Information         $NC  6 $NC  List Local Package Files  │"
     echo -e " │  $NC  7 $NC  Dependency Tree             $NC  8 $NC  Reverse Dependency Tree   │"
     echo -e " └────────────────────────────────────────────────────────────────────┘"
     echo -e " ┌────────────────────────────────────────────────────────────────────┐"
-    echo -e " │  $NC  9 $NC  Optimize Mirrors            $NC 10 $NC  Remove Orphaned Packages  │"
-    echo -e " │  $NC 11 $NC  Clean Package Cache         $NC 12 $NC  Defragment Database       │"
-    echo -e " │  $NC 13 $NC  Fix Errors                  $NC 14 $NC  Pacman Log                │"
-    echo -e " │  $NC 15 $NC  Downgrade Packages          $NC 16 $NC  Help                      │"
-    echo -e " │ $RED  17   Force Install Package        18   Force Update System      $NC │"
-    echo -e " │ $RED  19   Force Remove Package         20   Empty Package Cache      $NC │"
+    echo -e " │  $NC  9 $NC  Help                                                        │"
+    echo -e " │  $NC 11 $NC  Pacman Log                  $NC 12 $NC  Downgrade Packages        │"
+    echo -e " │ $RED  13   Configure pacman.conf        14   Fix Errors               $NC │"
+    echo -e " │ $RED  15   Force Update System          16   Empty Package Cache      $NC │"
+    echo -e " │ $RED  17   Force Install Package        18   Force Remove Package     $NC │"
     echo -e " └────────────────────────────────────────────────────────────────────┘"
     echo ""
     echo -e " ┌────────────────────────────────────────────────────────────────────┐"
@@ -216,12 +219,16 @@ NC='\e[0m'
     echo -e " │  $NC 25 $NC  List Installed from AUR                                     │"
     echo -e " └────────────────────────────────────────────────────────────────────┘"
     echo ""
-    echo -e " $NC Enter a number between 0 and 25 and press [Enter]$NC $NC - 0 Exit Pacli$NC"
+    echo -e " $NC Enter a number between 0 .. 25 and press [Enter]$NC $NC - 0 Exit Pacli$NC"
     echo ""
-    read choix
-    case $choix in
+
+# save entered number in varialbe "choice"
+read choice
+case $choice in
+
+
         1)
-            echo
+            echo			
             sudo pacman -Syu --color always
             echo
             echo -e "$NC Your system is updated. To return to pacli press [Enter] $NC"
@@ -229,107 +236,147 @@ NC='\e[0m'
             ;;
         2)
             echo
-            sudo pacman -S $(package-query -Sl -f "%n - %d" | fzf-tmux -e -m  --reverse --prompt='Select packages to install (use TAB to toggle selection) >' | awk '{print $1}') --color always
-            echo
+			sudo pacman-mirrors -g && sudo pacman -Syy --color always
+            yaourt -Qdt
+            paccache -ruvk0
+            paccache -rvk2
+			disk=$(lsblk -o "name,mountpoint" -pa | sed -n '/^\//h;/\/$/{g;p}' | cut -d/ -f3)
+			disk="${disk:0:3}"
+			if [[ -n "$disk" && -e "/dev/$disk" ]]
+			then
+                if [[ $(cat $(find /sys -name 'rotational' 2>/dev/null | grep "$disk/queue")) == "1" ]]
+				then
+				sudo pacman-optimize
+				fi
+			fi
+			unset disk
+			echo
             echo -e "$NC Package installation is finished. To return to pacli press [Enter] $NC"
             read
             ;;
         3)
             echo
-            sudo pacman -Rsn $(pacman -Qq | fzf-tmux -e -m --reverse --prompt='Select packages to remove (use TAB to toggle selection) >') --color always
+            sudo pacman -S $(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -e -m --reverse --prompt='Select packages to install (use TAB to toggle selection) >' | awk '{print $1}') --color always
             echo
-            echo -e "$NC Package and all unneeded dependencies removed. To return to pacli press [Enter] $NC"
+            echo -e "$NC Package installation is finished. To return to pacli press [Enter] $NC"
             read
             ;;
         4)
             echo
-            pacman -Ql $(pacman -Qq | fzf-tmux -e -m  --reverse --prompt='Select a packages of which to list all files (use TAB to toggle selection)  >') --color always
+            sudo pacman -Rsn $(pacman -Qq | fzf -e -m --reverse --prompt='Select packages to remove (use TAB to toggle selection) >') --color always
+            echo
+            echo -e "$NC Package and all unneeded dependencies removed. To return to pacli press [Enter] $NC"
+            read
+            ;;
+        5)
+            clear
+            echo
+			# the following 2 lines add all package to /tmp/packages, which are neither in the manjaro repository nor the AUR
+            #yaourt -Qq > /tmp/local_packages
+            #cat /tmp/packages /tmp/local_packages | sort | uniq > /tmp/packages
+            pkg=$(cat /tmp/packages | fzf -e --reverse --prompt='Select a package to display information about >')
+            if (yaourt -Qq "${pkg}" &>/dev/null)
+			then
+                out=$(yaourt -Qii "${pkg}")
+            else
+                out=$(yaourt -Sii "${pkg}")
+            fi
+            echo -e "$out" | grep -v "\-\-$" | sed 's/ : \(.*\)/ \x1b[0m: \x1b[1m\1\x1b[0m/; s/  \(.*\)/  \x1b[1m\1\x1b[0m/'
+            unset pkg out
+            echo -e "\n$NC Package information displayed. To return to pacli press [Enter] $NC"
+            read
+            ;;
+        6)
+            echo
+            pacman -Ql $(pacman -Qq | fzf -e -m --reverse --prompt='Select a packages of which to list all files (use TAB to toggle selection)  >') --color always
             echo
             echo -e "$NC All local files in package listed. To return to pacli press [Enter] $NC"
             read
             ;;
-        5)
-            echo
-            yaourt -Sii $(cat /tmp/packages | fzf-tmux -e --reverse --prompt='Select a package to display information about >') 
-            echo
-            echo -e "$NC Package information displayed. To return to pacli press [Enter] $NC"
-            read
-            ;; 
-        6)
-            echo
-            yaourt -Qii $(pacman -Qq | fzf-tmux -e --reverse --prompt='Select an installed package to diplay information about >')
-            echo
-            echo -e "$NC Package information listed. To return to pacli press [Enter] $NC"
-            read
-            ;; 
         7)
             echo
-            pactree -c -s $(pacman -Slq | fzf-tmux -e --reverse --prompt='Select a package >')
+            pactree -c -s $(pacman -Slq | fzf -e --reverse --prompt='Select a package >')
             echo
             echo -e "$NC Dependency tree displayed. To return to pacli press [Enter] $NC"
             read
             ;;
         8)
             echo
-            pactree -c -r $(pacman -Qq | fzf-tmux -e --reverse --prompt='Select a package >')
+            pactree -c -r $(pacman -Qq | fzf -e --reverse --prompt='Select a package >')
             echo
             echo -e "$NC Reverse dependency tree displayed. To return to pacli press [Enter] $NC"
             read
             ;;
-        9)
+
+
+        9|10|h|H|help|Help|HELP)
             echo
-            sudo pacman-mirrors -g && sudo pacman -Syy --color always
+            help_text
             echo
-            echo -e "$NC Best Manjaro mirror chosen. To return to pacli press [Enter] $NC"
-            read
-            ;;
-        10)
-            echo
-            yaourt -Qdt
-            echo
-            echo -e "$NC Task completed. To return to pacli press [Enter] $NC"
-            read
             ;;
         11)
-            echo
-            paccache -ruvk0
-            paccache -rvk2
-            echo
-            echo -e "$NC Unneeded and old package versions removed. To return to pacli press [Enter] $NC"
-            read
-            ;;
-        12)
-            echo
-            sudo pacman-optimize
-            echo
-            echo -e "$NC Pacman Database defragmented and optimized for HDDs. To return to pacli press [Enter] $NC"
-            read
-            ;;
-        13)
-            echo
-            sudo rm -f /var/lib/pacman/db.lck && sudo pacman-mirrors -g && sudo pacman -Syyuu --color always
-            echo
-            echo -e "$NC Most common Pacman errors fixed. To return to pacli press [Enter] $NC"
-            read
-            ;;
-        14)
             echo
             tail -2000 /var/log/pacman.log
             echo
             echo -e "$NC Last 2000 lines of Pacman Log displayed. Navigate with SHIFT+PageUp. To return to pacli press [Enter] $NC"
             read
             ;;			
-        15)
+        12)
             echo
-            downgrade $(pacman -Qq | fzf-tmux -e --reverse --prompt='Select package to downgrade >')
+            downgrade $(pacman -Qq | fzf -e --reverse --prompt='Select package to downgrade >')
             echo
             echo -e "$NC Downgrade process finished. To return to pacli press [Enter] $NC"
             read
             ;;
+        13)
+            echo
+
+            sudo rm -f /var/lib/pacman/db.lck
+            sudo pacman-mirrors -g && sudo pacman -Syy
+
+			sudo rm -r /etc/pacman.d/gnupg &>/dev/null
+			
+			arch=$(uname -m)
+			version="$(lang=C pacman -Si gnupg | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
+			url="http://mirror.netzspielplatz.de/manjaro/packages/stable/core/${arch}/gnupg${version}-${arch}.pkg.tar.xz"
+			wget "${url}" && sudo pacman -U "gnupg${version}-${arch}.pkg.tar.xz" && sudo rm "gnupg${version}-${arch}.pkg.tar.xz"
+
+			version="$(lang=C pacman -Si archlinux-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
+			url="http://mirror.netzspielplatz.de/manjaro/packages/stable/core/${arch}/archlinux-keyring${version}-any.pkg.tar.xz"
+			wget "${url}" && sudo pacman -U "archlinux-keyring${version}-any.pkg.tar.xz" && sudo rm "archlinux-keyring${version}-any.pkg.tar.xz"
+
+			version="$(lang=C pacman -Si manjaro-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
+			url="http://mirror.netzspielplatz.de/manjaro/packages/stable/core/${arch}/manjaro-keyring${version}-any.pkg.tar.xz"
+			wget "${url}" && sudo pacman -U "manjaro-keyring${version}-any.pkg.tar.xz" && sudo rm "manjaro-keyring${version}-any.pkg.tar.xz"
+			unset arch version url
+			
+			sudo dirmngr </dev/null
+			sudo pacman-key --init && sudo pacman-key --populate archlinux manjaro
+
+			sudo pacman -Sc
+            sudo pacman -Syyuu --color always
+			
+            echo -e "\n$NC Most common Pacman errors fixed and system updated. To return to pacli press [Enter] $NC"
+            read
+            ;;
+        14)
+            echo
+			sudo $EDITOR /etc/pacman.conf
+            echo
+            ;;
+        15)
+            echo
+            sudo pacman -Syu --force --color always
+            echo
+            echo -e "$NC Your system is updated in force mode. To return to pacli press [Enter] $NC"
+            read
+            ;;
         16)
             echo
-            help_text
+            yaourt -Scc
             echo
+            echo -e "$NC Entire package cache emptied. To return to pacli press [Enter] $NC"
+            read
             ;;
         17)
             echo
@@ -338,27 +385,17 @@ NC='\e[0m'
             echo -e "$NC Package installation in force mode is finished. To return to pacli press [Enter] $NC"
             read
             ;;
+
         18)
             echo
-            sudo pacman -Syu --force --color always
-            echo
-            echo -e "$NC Your system is updated in force mode. To return to pacli press [Enter] $NC"
-            read
-            ;;
-        19)
-            echo
-            sudo pacman -Rdd $(pacman -Qq | fzf-tmux -e -m --reverse --prompt='Select packages to remove >') --color always
+            sudo pacman -Rdd $(pacman -Qq | fzf -e -m --reverse --prompt='Select packages to remove >') --color always
             echo
             echo -e "$NC Dependency in force mode removed. To return to pacli press [Enter] $NC"
             read
             ;;
-        20)
-            echo
-            yaourt -Scc
-            echo
-            echo -e "$NC Entire package cache emptied. To return to pacli press [Enter] $NC"
-            read
-            ;;
+
+
+
         21)
             echo
             yaourt -Syua
@@ -385,7 +422,7 @@ NC='\e[0m'
             ;;
         24)
             echo
-            yaourt -S $(cat /tmp/packages | fzf-tmux -e -m --reverse --prompt='Select packages to install (toggle selection with TAB) >')
+            yaourt -S $(cat /tmp/packages | fzf -e -m --reverse --prompt='Select packages to install (toggle selection with TAB) >')
             echo
             echo -e "$NC Installation from AUR finished. To return to pacli press [Enter] $NC"
             read
@@ -397,11 +434,14 @@ NC='\e[0m'
             echo -e "$NC All locally installed packages listed. To return to pacli press [Enter] $NC"
             read
             ;;
+
+
         0)
             echo
             clear && exit
             read
             ;;
+
         *)
             echo -e "$RED Wrong option $NC"
             echo "Wait and try again later..."
@@ -409,6 +449,5 @@ NC='\e[0m'
             sleep 2
             clear
             ;;
-    esac
-    done
-fi
+esac
+done
