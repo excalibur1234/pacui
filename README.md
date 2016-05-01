@@ -1,11 +1,12 @@
-# pacli
+# pacli-simple
 A simple and interactive Bash Frontend for Pacman/Yaourt
 
 pacli is a CLI tool, which provides simple and advanced Pacman and Yaourt commands in an easy to use text interface. Additionally, it offers some Manjaro exclusive commands.
 
 pacli is meant for experienced/intermediate/advanced users, who have basic knowledge of the structure of their Linux system and how Pacman and Yaourt work. Absolute beginners are probably overwhelmed by the amount of choices pacli provides.
 
-This version of pacli follows the KISS principle: The whole program is contained within one file, which contains easy to read bash code.
+This fork of pacli called pacli-simple follows the KISS principle: The whole program is contained within one file, which contains easy to read bash code.
+
 
 It is highly recommended to use an utility, which notifies the user about available updates alongside of pacli. Such a lightweight utility is for example [update-notifier](https://github.com/Chrysostomus/update-notifier).
 
