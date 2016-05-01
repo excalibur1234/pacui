@@ -80,12 +80,13 @@ Please note that folders created by the program <PACKAGE NAME> will not get remo
 
 5 - PACKAGE INFORMATION
 "yaourt -Sii <PACKAGE NAME>" or "yaourt -Qii <PACKAGE NAME>"
-This command displays a lot of information about <PACKAGE NAME>. Different pieces of information get displayed depending on package source (Manjaro Repository or AUR) and package state (installed or not installed).
+This command displays a lot of information about <PACKAGE NAME>. Different pieces of information get displayed depending on package source (Manjaro repository or AUR) and package state (installed or not installed).
 
 6 - LIST LOCAL PACKAGE FILES
-"pacman -Ql <PACKAGE NAME>"
+"pacman -Qlq <PACKAGE NAME>"
 This command lists all files contained in <PACKAGE NAME> and their install directory. <PACKAGE NAME> must be installed on your system.
 Have you ever installed a program and did not know with which command it can be started/executed? Just look for files (and their names) in your /usr/bin/ directory using LIST LOCAL PACKAGE FILES.
+If you only want to display the files in /usr/bin/ use this command: "pacman -Qlq <PACKAGE NAME> | grep /usr/bin/"
 
 7 - DEPENDENCIES TREE
 "pactree -s <PACKAGE NAME>"
@@ -263,21 +264,21 @@ do
 			fi
 			unset disk
 			echo
-            echo -e "$NC Package installation is finished. To return to pacli press [Enter] $NC"
+            echo -e "$NC Fast Mirror chosen, orphans removed, and old packages deleted from cache. To return to pacli press [Enter] $NC"
             read
             ;;
         3)
             echo
-            sudo pacman -S $(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -e -m +s --reverse --prompt='Select packages to install (use TAB to toggle selection) >' | awk '{print $1}') --color always
+            sudo pacman -S $(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -e -m +s --reverse --prompt='Select packages to install (use TAB to toggle selection) > ' | awk '{print $1}') --color always
             echo
             echo -e "$NC Package installation is finished. To return to pacli press [Enter] $NC"
             read
             ;;
         4)
             echo
-            sudo pacman -Rsn $(pacman -Qq | fzf -e -m +s --reverse --prompt='Select packages to remove (use TAB to toggle selection) >') --color always
+            sudo pacman -Rsn $(pacman -Qq | fzf -e -m +s --reverse --prompt='Select packages to remove (use TAB to toggle selection) > ') --color always
             echo
-            echo -e "$NC Package and all unneeded dependencies removed. To return to pacli press [Enter] $NC"
+            echo -e "$NC Packages and all unneeded dependencies removed. To return to pacli press [Enter] $NC"
             read
             ;;
         5)
@@ -300,21 +301,21 @@ do
             ;;
         6)
             echo
-            pacman -Ql $(pacman -Qq | fzf -e -m +s --reverse --prompt='Select a packages of which to list all files (use TAB to toggle selection)  >') --color always
+            pacman -Qlq $(pacman -Qq | fzf -e +s --reverse --prompt='Select package to list all local files of > ') --color always
             echo
             echo -e "$NC All local files in package listed. To return to pacli press [Enter] $NC"
             read
             ;;
         7)
             echo
-            pactree -c -s $(pacman -Slq | fzf -e +s --reverse --prompt='Select a package >')
+            pactree -c -s $(pacman -Slq | fzf -e +s --reverse --prompt='Select a package > ')
             echo
             echo -e "$NC Dependency tree displayed. To return to pacli press [Enter] $NC"
             read
             ;;
         8)
             echo
-            pactree -c -r $(pacman -Qq | fzf -e +s --reverse --prompt='Select a package >')
+            pactree -c -r $(pacman -Qq | fzf -e +s --reverse --prompt='Select a package > ')
             echo
             echo -e "$NC Reverse dependency tree displayed. To return to pacli press [Enter] $NC"
             read
@@ -366,7 +367,7 @@ do
             ;;			
         12)
             echo
-            downgrade $(pacman -Qq | fzf -e +s --reverse --prompt='Select package to downgrade >')
+            downgrade $(pacman -Qq | fzf -e +s --reverse --prompt='Select package to downgrade > ')
             echo
             echo -e "$NC Downgrade process finished. To return to pacli press [Enter] $NC"
             read
@@ -375,7 +376,7 @@ do
             echo
             sudo pacman -Syu --force --color always
             echo
-            echo -e "$NC Your system is updated in force mode. To return to pacli press [Enter] $NC"
+            echo -e "$NC Your system was updated in force mode. To return to pacli press [Enter] $NC"
             read
             ;;
         14)
@@ -387,7 +388,7 @@ do
             ;;
         15)
             echo
-            sudo pacman -S --force $(pacman -Slq | fzf -e +s --reverse --prompt='Select package to install >') --color always
+            sudo pacman -S --force $(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -e -m +s --reverse --prompt='Select packages to install (use TAB to toggle selection) > ' | awk '{print $1}') --color always
             echo
             echo -e "$NC Package installation in force mode is finished. To return to pacli press [Enter] $NC"
             read
@@ -395,7 +396,7 @@ do
 
         16)
             echo
-            sudo pacman -Rdd $(pacman -Qq | fzf -e -m +s --reverse --prompt='Select packages to remove >') --color always
+            sudo pacman -Rdd $(pacman -Qq | fzf -e -m +s --reverse --prompt='Select packages to remove (use TAB to toggle selection) > ') --color always
             echo
             echo -e "$NC Dependency in force mode removed. To return to pacli press [Enter] $NC"
             read
@@ -429,7 +430,7 @@ do
             ;;
         20)
             echo
-            yaourt -S $(cat /tmp/packages | sort | fzf -e -m +s --reverse --prompt='Select packages to install (toggle selection with TAB) >')
+            yaourt -S $(cat /tmp/packages | sort | fzf -e -m +s --reverse --prompt='Select packages to install (toggle selection with TAB) > ')
             echo
             echo -e "$NC Installation from AUR finished. To return to pacli press [Enter] $NC"
             read
