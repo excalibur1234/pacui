@@ -254,7 +254,8 @@ do
             yaourt -Qdt
             paccache -ruvk0
             paccache -rvk2
-				# check, whether / is installed on HDD, then execute "sudo pacman-optimize"
+
+            # check, whether / is installed on HDD, then execute "sudo pacman-optimize"
             disk=$(lsblk -o "name,mountpoint" -pa | sed -n '/^\//h;/\/$/{g;p}' | cut -d/ -f3)
             disk="${disk:0:3}"
             if [[ -n "$disk" && -e "/dev/$disk" ]]
@@ -265,6 +266,7 @@ do
                 fi
             fi
             unset disk
+
             echo
             echo -e "$NC Fast Mirror chosen, orphans removed, and old packages deleted from cache. To return to pacli press [Enter] $NC"
             read
@@ -337,7 +339,7 @@ do
 
             sudo rm -r /etc/pacman.d/gnupg &>/dev/null
 
-				# manually download and install these packages: gnupg, archlinux-keyring, manjaro-keyring
+            # manually download and install these packages: gnupg, archlinux-keyring, manjaro-keyring
             arch=$(uname -m)
             version="$(lang=C pacman -Si gnupg | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
             url="http://mirror.netzspielplatz.de/manjaro/packages/stable/core/${arch}/gnupg${version}-${arch}.pkg.tar.xz"
@@ -461,5 +463,5 @@ do
             sleep 2
             clear
             ;;
-	esac
+    esac
 done
