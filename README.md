@@ -46,7 +46,7 @@ First, make sure all dependencies of pacli are installed on your system:
 
 Then, clone this Github repository to your system with the command:
 ```
-git clone https://github.com/Manjaro-Pek/pacli
+git clone https://github.com/excalibur1234/pacli-simple.git
 ```
 and execute pacli:
 ```
