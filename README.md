@@ -52,6 +52,13 @@ cd pacli && chmod +x pacli && ./pacli
 ```
 
 
+## Start pacli
+In order to start pacli, you need to execute the "pacli" file in your pacli directory. When you followed the installation instructions above, just go to your home directory and execute:
+```
+./pacli/pacli
+```
+
+
 ## Help
 
 ### pacli Help
