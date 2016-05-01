@@ -50,19 +50,19 @@ git clone https://github.com/excalibur1234/pacli-simple.git
 ```
 and execute pacli:
 ```
-cd pacli && chmod +x pacli && ./pacli
+cd pacli-simple && chmod +x pacli && ./pacli
 ```
 
 
 ## Start pacli
 In order to start pacli, you need to execute the "pacli" file in your pacli directory. When you followed the installation instructions above, just go to your home directory and execute:
 ```
-./pacli/pacli
+./pacli-simple/pacli
 ```
 
 If you want to start pacli with a simple "pacli" command from anywhere in your terminal, you have to copy or move the "pacli" file into your /usr/bin/ directory. A command for doing this could be (when the above installation was followed):
 ```
-sudo cp ~/pacli/pacli /usr/bin/
+sudo cp ~/pacli-simple/pacli /usr/bin/
 ```
 Now, you type "pacli" into your terminal and pacli will start.
 
