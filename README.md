@@ -35,6 +35,7 @@ First, make sure all dependencies of pacli are installed on your system:
 - [yaourt](https://wiki.archlinux.org/index.php/Yaourt)
 - [fzf](https://aur.archlinux.org/packages/fzf/)
 - [downgrade](https://aur.archlinux.org/packages/downgrade/)
+- pacman-mirrorlist
 - bash
 - sudo
 - gzip
