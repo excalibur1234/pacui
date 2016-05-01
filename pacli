@@ -250,21 +250,21 @@ do
             ;;
         2)
             echo
-			sudo pacman-mirrors -g && sudo pacman -Syy --color always
+            sudo pacman-mirrors -g && sudo pacman -Syy --color always
             yaourt -Qdt
             paccache -ruvk0
             paccache -rvk2
-			disk=$(lsblk -o "name,mountpoint" -pa | sed -n '/^\//h;/\/$/{g;p}' | cut -d/ -f3)
-			disk="${disk:0:3}"
-			if [[ -n "$disk" && -e "/dev/$disk" ]]
-			then
+            disk=$(lsblk -o "name,mountpoint" -pa | sed -n '/^\//h;/\/$/{g;p}' | cut -d/ -f3)
+            disk="${disk:0:3}"
+            if [[ -n "$disk" && -e "/dev/$disk" ]]
+            then
                 if [[ $(cat $(find /sys -name 'rotational' 2>/dev/null | grep "$disk/queue")) == "1" ]]
-				then
-				sudo pacman-optimize
-				fi
-			fi
-			unset disk
-			echo
+                then
+                sudo pacman-optimize
+                fi
+            fi
+            unset disk
+            echo
             echo -e "$NC Fast Mirror chosen, orphans removed, and old packages deleted from cache. To return to pacli press [Enter] $NC"
             read
             ;;
@@ -290,7 +290,7 @@ do
             #cat /tmp/packages /tmp/local_packages | sort | uniq > /tmp/packages
             pkg=$(cat /tmp/packages | fzf -e +s --reverse --prompt='Select a package to display information about >')
             if (yaourt -Qq "${pkg}" &>/dev/null)
-			then
+            then
                 out=$(yaourt -Qii "${pkg}")
             else
                 out=$(yaourt -Sii "${pkg}")
@@ -334,26 +334,26 @@ do
             sudo rm -f /var/lib/pacman/db.lck
             sudo pacman-mirrors -g && sudo pacman -Syy
 
-			sudo rm -r /etc/pacman.d/gnupg &>/dev/null
+            sudo rm -r /etc/pacman.d/gnupg &>/dev/null
 			
-			arch=$(uname -m)
-			version="$(lang=C pacman -Si gnupg | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
-			url="http://mirror.netzspielplatz.de/manjaro/packages/stable/core/${arch}/gnupg${version}-${arch}.pkg.tar.xz"
-			wget "${url}" && sudo pacman -U "gnupg${version}-${arch}.pkg.tar.xz" --noconfirm && sudo rm "gnupg${version}-${arch}.pkg.tar.xz"
+            arch=$(uname -m)
+            version="$(lang=C pacman -Si gnupg | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
+            url="http://mirror.netzspielplatz.de/manjaro/packages/stable/core/${arch}/gnupg${version}-${arch}.pkg.tar.xz"
+            wget "${url}" && sudo pacman -U "gnupg${version}-${arch}.pkg.tar.xz" --noconfirm && sudo rm "gnupg${version}-${arch}.pkg.tar.xz"
 
-			version="$(lang=C pacman -Si archlinux-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
-			url="http://mirror.netzspielplatz.de/manjaro/packages/stable/core/${arch}/archlinux-keyring${version}-any.pkg.tar.xz"
-			wget "${url}" && sudo pacman -U "archlinux-keyring${version}-any.pkg.tar.xz" --noconfirm && sudo rm "archlinux-keyring${version}-any.pkg.tar.xz"
+            version="$(lang=C pacman -Si archlinux-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
+            url="http://mirror.netzspielplatz.de/manjaro/packages/stable/core/${arch}/archlinux-keyring${version}-any.pkg.tar.xz"
+            wget "${url}" && sudo pacman -U "archlinux-keyring${version}-any.pkg.tar.xz" --noconfirm && sudo rm "archlinux-keyring${version}-any.pkg.tar.xz"
 
-			version="$(lang=C pacman -Si manjaro-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
-			url="http://mirror.netzspielplatz.de/manjaro/packages/stable/core/${arch}/manjaro-keyring${version}-any.pkg.tar.xz"
-			wget "${url}" && sudo pacman -U "manjaro-keyring${version}-any.pkg.tar.xz" --noconfirm && sudo rm "manjaro-keyring${version}-any.pkg.tar.xz"
-			unset arch version url
+            version="$(lang=C pacman -Si manjaro-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
+            url="http://mirror.netzspielplatz.de/manjaro/packages/stable/core/${arch}/manjaro-keyring${version}-any.pkg.tar.xz"
+            wget "${url}" && sudo pacman -U "manjaro-keyring${version}-any.pkg.tar.xz" --noconfirm && sudo rm "manjaro-keyring${version}-any.pkg.tar.xz"
+            unset arch version url
 			
-			sudo dirmngr </dev/null
-			sudo pacman-key --init && sudo pacman-key --populate archlinux manjaro
+            sudo dirmngr </dev/null
+            sudo pacman-key --init && sudo pacman-key --populate archlinux manjaro
 
-			sudo pacman -Sc --noconfirm
+            sudo pacman -Sc --noconfirm
             sudo pacman -Syyuu --color always --noconfirm
 			
             echo -e "\n$NC Most common Pacman errors fixed and system updated. To return to pacli press [Enter] $NC"
