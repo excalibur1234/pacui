@@ -361,22 +361,22 @@ do
 			arch=$(uname -m)
 			version="$(lang=C pacman -Si gnupg | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
 			url="http://mirror.netzspielplatz.de/manjaro/packages/stable/core/${arch}/gnupg${version}-${arch}.pkg.tar.xz"
-			wget "${url}" && sudo pacman -U "gnupg${version}-${arch}.pkg.tar.xz" && sudo rm "gnupg${version}-${arch}.pkg.tar.xz"
+			wget "${url}" && sudo pacman -U "gnupg${version}-${arch}.pkg.tar.xz" --noconfirm && sudo rm "gnupg${version}-${arch}.pkg.tar.xz"
 
 			version="$(lang=C pacman -Si archlinux-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
 			url="http://mirror.netzspielplatz.de/manjaro/packages/stable/core/${arch}/archlinux-keyring${version}-any.pkg.tar.xz"
-			wget "${url}" && sudo pacman -U "archlinux-keyring${version}-any.pkg.tar.xz" && sudo rm "archlinux-keyring${version}-any.pkg.tar.xz"
+			wget "${url}" && sudo pacman -U "archlinux-keyring${version}-any.pkg.tar.xz" --noconfirm && sudo rm "archlinux-keyring${version}-any.pkg.tar.xz"
 
 			version="$(lang=C pacman -Si manjaro-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
 			url="http://mirror.netzspielplatz.de/manjaro/packages/stable/core/${arch}/manjaro-keyring${version}-any.pkg.tar.xz"
-			wget "${url}" && sudo pacman -U "manjaro-keyring${version}-any.pkg.tar.xz" && sudo rm "manjaro-keyring${version}-any.pkg.tar.xz"
+			wget "${url}" && sudo pacman -U "manjaro-keyring${version}-any.pkg.tar.xz" --noconfirm && sudo rm "manjaro-keyring${version}-any.pkg.tar.xz"
 			unset arch version url
 			
 			sudo dirmngr </dev/null
 			sudo pacman-key --init && sudo pacman-key --populate archlinux manjaro
 
-			sudo pacman -Sc
-            sudo pacman -Syyuu --color always
+			sudo pacman -Sc --noconfirm
+            sudo pacman -Syyuu --color always --noconfirm
 			
             echo -e "\n$NC Most common Pacman errors fixed and system updated. To return to pacli press [Enter] $NC"
             read
