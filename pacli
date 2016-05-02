@@ -314,9 +314,17 @@ do
             ;;
         7)
             echo
-            pactree -c -s $(pacman -Slq | fzf -e +s --reverse --prompt='Select a package > ')
-            echo
-            echo -e "$NC Dependency tree displayed. To return to pacli press [Enter] $NC"
+            pkg=$(cat /tmp/packages | fzf -e +s --reverse --prompt='Select a package to display information about >')
+            if (pacman -Qq "${pkg}" &>/dev/null)
+            then
+                out=$(pactree -c "${pkg}")	# do this when pkg is already installed on system
+            else
+                out=$(pactree -c -s "${pkg}")	# do this when package is not installed on system
+            fi
+            echo -e "$out"
+            unset pkg out
+
+            echo -e "\n$NC Dependency tree displayed. To return to pacli press [Enter] $NC"
             read
             ;;
         8)
@@ -343,16 +351,17 @@ do
 
             # manually download and install these packages: gnupg, archlinux-keyring, manjaro-keyring
             arch=$(uname -m)
+			mybranch=$(awk -F'=' '/^Branch/ {print $2}' /etc/pacman-mirrors.conf)
             version="$(lang=C pacman -Si gnupg | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
-            url="http://mirror.netzspielplatz.de/manjaro/packages/stable/core/${arch}/gnupg${version}-${arch}.pkg.tar.xz"
+            url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/gnupg${version}-${arch}.pkg.tar.xz"
             wget "${url}" && sudo pacman -U "gnupg${version}-${arch}.pkg.tar.xz" --noconfirm && sudo rm "gnupg${version}-${arch}.pkg.tar.xz"
 
             version="$(lang=C pacman -Si archlinux-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
-            url="http://mirror.netzspielplatz.de/manjaro/packages/stable/core/${arch}/archlinux-keyring${version}-any.pkg.tar.xz"
+            url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/archlinux-keyring${version}-any.pkg.tar.xz"
             wget "${url}" && sudo pacman -U "archlinux-keyring${version}-any.pkg.tar.xz" --noconfirm && sudo rm "archlinux-keyring${version}-any.pkg.tar.xz"
 
             version="$(lang=C pacman -Si manjaro-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
-            url="http://mirror.netzspielplatz.de/manjaro/packages/stable/core/${arch}/manjaro-keyring${version}-any.pkg.tar.xz"
+            url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/manjaro-keyring${version}-any.pkg.tar.xz"
             wget "${url}" && sudo pacman -U "manjaro-keyring${version}-any.pkg.tar.xz" --noconfirm && sudo rm "manjaro-keyring${version}-any.pkg.tar.xz"
             unset arch version url
 
