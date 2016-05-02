@@ -100,7 +100,7 @@ This command will display a tree of installed packages, which depend on <PACKAGE
 Use this command when you want to know why you cannot remove <PACKAGE NAME> from your system.
 
 9 - HELP
-Display this extended help page.
+Display this help page.
 
 10 - FIX ERRORS
 Multiple commands attempt to fix the most common issues Manjaro users have with Pacman:
@@ -281,7 +281,7 @@ do
             ;;
         4)
             echo
-            sudo pacman -Rsn $(pacman -Qq | fzf -e -m +s --reverse --prompt='Select packages to remove (use TAB to toggle selection) > ') --color always
+            sudo pacman -Rsn $(pacman -Qq | sort | fzf -e -m +s --reverse --prompt='Select packages to remove (use TAB to toggle selection) > ') --color always
             echo
             echo -e "$NC Packages and all unneeded dependencies removed. To return to pacli press [Enter] $NC"
             read
@@ -292,7 +292,7 @@ do
             # the following 2 lines add all package to /tmp/packages, which are neither in the manjaro repository nor the AUR
             #yaourt -Qq > /tmp/local_packages
             #cat /tmp/packages /tmp/local_packages | sort | uniq > /tmp/packages
-            pkg=$(cat /tmp/packages | fzf -e +s --reverse --prompt='Select a package to display information about >')
+            pkg=$(cat /tmp/packages | sort | fzf -e +s --reverse --prompt='Select a package to display information about >')
             if (yaourt -Qq "${pkg}" &>/dev/null)
             then
                 out=$(yaourt -Qii "${pkg}")	# do this when pkg is already installed on system
@@ -316,7 +316,7 @@ do
         7)
             echo
 			
-            pkg=$(cat /tmp/packages | fzf -e +s --reverse --prompt='Select a package to display information about >')
+            pkg=$(cat /tmp/packages | sort | fzf -e +s --reverse --prompt='Select a package to display information about >')
             if (yaourt -Qq "${pkg}" &>/dev/null)
             then
                 out=$(pactree -c "${pkg}")	# do this when pkg is already installed on system
