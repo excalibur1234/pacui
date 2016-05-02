@@ -211,26 +211,26 @@ while true
 do
     clear
     echo
-    echo -e "                     $NC ::Pacli - Package manager:: $NC "
+    echo -e "                     $NC ::Pacli - Package manager:: "
     echo
     echo -e " ┌────────────────────────────────────────────────────────────────────┐"
-    echo -e " │  $NC  1 $NC  Update System               $NC  2 $NC  Clean System              │"
-    echo -e " │  $NC  3 $NC  Install Package             $NC  4 $NC  Remove Package + Deps     │"
+    echo -e " │  $NC  1   Update System               $NC  2   Clean System              │"
+    echo -e " │  $NC  3   Install Package             $NC  4   Remove Package + Deps     │"
     echo -e " │────────────────────────────────────────────────────────────────────│"
-    echo -e " │  $NC  5 $NC  Package Information         $NC  6 $NC  List Local Package Files  │"
-    echo -e " │  $NC  7 $NC  Dependency Tree             $NC  8 $NC  Reverse Dependency Tree   │"
+    echo -e " │  $NC  5   Package Information         $NC  6   List Local Package Files  │"
+    echo -e " │  $NC  7   Dependency Tree             $NC  8   Reverse Dependency Tree   │"
     echo -e " └────────────────────────────────────────────────────────────────────┘"
     echo -e " ┌────────────────────────────────────────────────────────────────────┐"
-    echo -e " │  $NC  9 $NC  Help                        $NC 10 $NC  Fix Errors                │"
-    echo -e " │  $NC 11 $NC  Pacman Log                  $NC 12 $NC  Downgrade Packages        │"
+    echo -e " │  $NC  9   Help                        $NC 10   Fix Errors                │"
+    echo -e " │  $NC 11   Pacman Log                  $NC 12   Downgrade Packages        │"
     echo -e " │ $RED  13   Force Update System          14   Empty Package Cache      $NC │"
     echo -e " │ $RED  15   Force Install Package        16   Force Remove Package     $NC │"
     echo -e " └────────────────────────────────────────────────────────────────────┘"
     echo
     echo -e " ┌────────────────────────────────────────────────────────────────────┐"
-    echo -e " │  $NC 17 $NC  Update AUR                  $NC 18 $NC  Force Update AUR          │"
-    echo -e " │  $NC 19 $NC  Search + Install from AUR   $NC 20 $NC  Install from AUR          │"
-    echo -e " │  $NC 21 $NC  List Installed from AUR                                     │"
+    echo -e " │  $NC 17   Update AUR                  $NC 18   Force Update AUR          │"
+    echo -e " │  $NC 19   Search + Install from AUR   $NC 20   Install from AUR          │"
+    echo -e " │  $NC 21   List Installed from AUR                                     │"
     echo -e " └────────────────────────────────────────────────────────────────────┘"
     echo
     echo -e " $NC Enter a number between 0 .. 21 and press [Enter]$NC $NC - 0 Exit Pacli$NC"
