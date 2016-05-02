@@ -90,9 +90,9 @@ Have you ever installed a program and did not know with which command it can be 
 If you only want to display the files in /usr/bin/ use this command: "pacman -Qlq <PACKAGE NAME> | grep /usr/bin/"
 
 7 - DEPENDENCIES TREE
-"pactree -s <PACKAGE NAME>"
+"pactree -s <PACKAGE NAME>" or "pactree <PACKAGE NAME>"
 This command will display a complete tree of all dependencies of <PACKAGE NAME>. <PACKAGE NAME> can be an installed package or a package from the Manjaro repositories. Dependencies are packages required by <PACKAGE NAME> in order to function. When you install <PACKAGE NAME>, all its dependencies get installed, too.
-Attention: The dependency tree can be long and complex for higher level packages such as "firefox".
+Depending whether <PACKAGE NAME> is installed on your local system, a different command gets used.
 
 8 - REVERSE DEPENDENCIES TREE
 "pactree -r <PACKAGE NAME>"
