@@ -106,7 +106,7 @@ Display this extended help page.
 Multiple commands attempt to fix the most common issues Manjaro users have with Pacman:
 
 "sudo rm -f /var/lib/pacman/db.lck" 
-This command removes Pacman's database lock.
+This command removes Pacman's database lock. The database lock prevents multiple Pacman instances from running at the same time and interfering with each other.
 Attention: Only run this command when no other Pacman instance (e.g. Pacman, Yaourt, Pamac, Octopi, PacmanXG4, ...) is running.
 
 "sudo pacman-mirrors -g && sudo pacman -Syy"
