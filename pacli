@@ -210,9 +210,9 @@ NC="\e[0m"
 while true
 do
     clear
-    echo ""
+    echo
     echo -e "                     $NC ::Pacli - Package manager:: $NC "
-    echo ""
+    echo
     echo -e " ┌────────────────────────────────────────────────────────────────────┐"
     echo -e " │  $NC  1 $NC  Update System               $NC  2 $NC  Clean System              │"
     echo -e " │  $NC  3 $NC  Install Package             $NC  4 $NC  Remove Package + Deps     │"
@@ -226,15 +226,15 @@ do
     echo -e " │ $RED  13   Force Update System          14   Empty Package Cache      $NC │"
     echo -e " │ $RED  15   Force Install Package        16   Force Remove Package     $NC │"
     echo -e " └────────────────────────────────────────────────────────────────────┘"
-    echo ""
+    echo
     echo -e " ┌────────────────────────────────────────────────────────────────────┐"
     echo -e " │  $NC 17 $NC  Update AUR                  $NC 18 $NC  Force Update AUR          │"
     echo -e " │  $NC 19 $NC  Search + Install from AUR   $NC 20 $NC  Install from AUR          │"
     echo -e " │  $NC 21 $NC  List Installed from AUR                                     │"
     echo -e " └────────────────────────────────────────────────────────────────────┘"
-    echo ""
+    echo
     echo -e " $NC Enter a number between 0 .. 21 and press [Enter]$NC $NC - 0 Exit Pacli$NC"
-    echo ""
+    echo
 
     # save entered number in varialbe "choice"
     read choice
@@ -302,7 +302,8 @@ do
             echo -e "$out" | grep -v "\-\-$" | sed 's/ : \(.*\)/ \x1b[0m: \x1b[1m\1\x1b[0m/; s/  \(.*\)/  \x1b[1m\1\x1b[0m/'
             unset pkg out
 
-            echo -e "\n$NC Package information displayed. To return to pacli press [Enter] $NC"
+            echo
+            echo -e "$NC Package information displayed. To return to pacli press [Enter] $NC"
             read
             ;;
         6)
@@ -314,8 +315,9 @@ do
             ;;
         7)
             echo
+			
             pkg=$(cat /tmp/packages | fzf -e +s --reverse --prompt='Select a package to display information about >')
-            if (pacman -Qq "${pkg}" &>/dev/null)
+            if (yaourt -Qq "${pkg}" &>/dev/null)
             then
                 out=$(pactree -c "${pkg}")	# do this when pkg is already installed on system
             else
@@ -324,7 +326,8 @@ do
             echo -e "$out"
             unset pkg out
 
-            echo -e "\n$NC Dependency tree displayed. To return to pacli press [Enter] $NC"
+            echo
+            echo -e "$NC Dependency tree displayed. To return to pacli press [Enter] $NC"
             read
             ;;
         8)
@@ -371,8 +374,9 @@ do
 
             sudo pacman -Sc --noconfirm
             sudo pacman -Syyuu --color always --noconfirm
-			
-            echo -e "\n$NC Most common Pacman errors fixed and system updated. To return to pacli press [Enter] $NC"
+
+            echo
+            echo -e "$NC Most common Pacman errors fixed and system updated. To return to pacli press [Enter] $NC"
             read
             ;;
         11)
