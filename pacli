@@ -1,0 +1,469 @@
+#!/bin/bash
+
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+#  MA 02110-1301, USA.
+#################################################################
+#  Design based on IceFox script
+#  Modified, adapted and improved by pekman and excalibur1234
+#  fzf and Downgrade support added by Chrysostomus
+#  Contact and suggestions: pekman@openmailbox.org
+#  Freenode: #manjaro-geek #manjaro
+#  Discussion in the Manjaro forum: http://polr.me/pacli1
+
+
+# function with help text
+help_text() {
+	less 	<<-EOF
+Welcome to Pacli's Help Page.
+
+Pacli is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Yaourt as back ends. Additionally, it uses some Manjaro exclusive commands. Pacli offers you the most common and useful features for managing your packages. Options, which can break your system, are marked in red.
+Navigate this help page with your Arrow Keys, PageUp/PageDown Keys, SpaceBar, or your Mouse Wheel.
+If you ever want to abort any of Pacli's actions or any action in your terminal, simply press CTRL+C.
+On the following Help Page all options Pacli offers are described in detail:
+
+HOME SCREEN
+Pacli's home screen is split into three parts:
+The first part focuses on updates, maintenance, installations, and removals of packages from Manjaro's repositories. It includes useful tools for these actions, too.
+The second part includes advanced options for fixing your system. Options, which can break your system, are marked in red.
+The last part offers Arch User Repository (AUR) management options.
+
+0 - EXIT PACLI
+"clear && exit"
+This will clear your terminal and exit Pacli.
+
+1 - UPDATE SYSTEM
+"sudo pacman -Syu"
+This command compares a list of all installed packages with package database on your Manjaro repository mirror/server. If an updated package is available from the Manjaro repositories, it will get downloaded and installed on your system.
+
+2 - CLEAN SYSTEM
+"sudo pacman-mirrors -g && sudo pacman -Syy"
+This command tests your connection to all available Manjaro repository mirrors/servers. The mirror with the best connection is automatically chosen for you. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror.
+If you want to speed up this command: Only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -g -c Germany,France"
+
+"yaourt -Qdt"
+This option lists all orphaned packages on your system. Orphaned packages are old dependencies (packages not explicitly installed by you), which were never removed from your system.
+Answer with "y" to remove all listed orphaned packages. Simply pressing [ENTER] will not remove the listed orphaned packages.
+
+"paccache -ruvk0"
+"paccache -rvk2"
+By default Pacman uses this cache directory for downloading packages: /var/cache/pacman/pkg/... . No cached packages get deleted automatically. This enables you to DOWNGRADE PACKAGES, which are broken, without a working internet connection. The package cache of an old and actively used Manjaro installation can become quite large. Clean it to regain space on your root partition.
+The first command removes all packages from cache, which are not installed (anymore) on your system. The second command removes all old packages from your cache except the 2 latest versions: The version you have currently installed on your system and the previous version.
+
+"sudo pacman-optimize" (only when Manjaro is installed on a HDD)
+This command effectively defragments your Pacman database.
+On traditional hard drives (HDD) this command can speed up all actions related to Pacman. 
+Attention: It is NOT recommended to use this command on modern solid state hard drives (SSD)!
+
+3 - INSTALL PACKAGE
+"sudo pacman -S <PACKAGE NAME>"
+This option downloads and installs <PACKAGE NAME> on your system. <PACKAGE NAME> must be a package from the Manjaro repositories.
+This option uses fzf, which means you can search for packages and/or their description, too.
+
+4 - REMOVE PACKAGE + DEPS
+"sudo pacman -Rsn <PACKAGE NAME>"
+This command removes <PACKAGE NAME> including all dependencies, which are no longer needed by other packages, from your system. A copy of <PACKAGE NAME> will be kept in your package cache: Run CLEAN SYSTEM to remove it.
+Please note that folders created by the program <PACKAGE NAME> will not get removed from your system. Look for such folders in these places and remove them manually:
+~/
+~/.config/
+~/.local/share/
+
+5 - PACKAGE INFORMATION
+"yaourt -Sii <PACKAGE NAME>" or "yaourt -Qii <PACKAGE NAME>"
+This command displays a lot of information about <PACKAGE NAME>. Different pieces of information get displayed depending on package source (Manjaro repository or AUR) and package state (installed or not installed).
+
+6 - LIST LOCAL PACKAGE FILES
+"pacman -Qlq <PACKAGE NAME>"
+This command lists all files contained in <PACKAGE NAME> and their install directory. <PACKAGE NAME> must be installed on your system.
+Have you ever installed a program and did not know with which command it can be started/executed? Just look for files (and their names) in your /usr/bin/ directory using LIST LOCAL PACKAGE FILES.
+If you only want to display the files in /usr/bin/ use this command: "pacman -Qlq <PACKAGE NAME> | grep /usr/bin/"
+
+7 - DEPENDENCIES TREE
+"pactree -s <PACKAGE NAME>"
+This command will display a complete tree of all dependencies of <PACKAGE NAME>. <PACKAGE NAME> can be an installed package or a package from the Manjaro repositories. Dependencies are packages required by <PACKAGE NAME> in order to function. When you install <PACKAGE NAME>, all its dependencies get installed, too.
+Attention: The dependency tree can be long and complex for higher level packages such as "firefox".
+
+8 - REVERSE DEPENDENCIES TREE
+"pactree -r <PACKAGE NAME>"
+This command will display a tree of installed packages, which depend on <PACKAGE NAME>. In other words: All displayed packages require <PACKAGE NAME> in order to function (properly). 
+Use this command when you want to know why you cannot remove <PACKAGE NAME> from your system.
+
+9 - HELP
+Display this extended help page.
+
+10 - FIX ERRORS
+Multiple commands attempt to fix the most common issues Manjaro users have with Pacman:
+
+"sudo rm -f /var/lib/pacman/db.lck" 
+This command removes Pacman's database lock.
+Attention: Only run this command when no other Pacman instance (e.g. Pacman, Yaourt, Pamac, Octopi, PacmanXG4, ...) is running.
+
+"sudo pacman-mirrors -g && sudo pacman -Syy"
+This command searches for working and good Manjaro repository mirrors/servers. It will automatically choose the closest server for you. The second command forces a redownload of the latest package database from the best Manjaro repository mirror. 
+
+"sudo rm -r /etc/pacman.d/gnupg &>/dev/null"
+"sudo pacman -Sy gnupg archlinux-keyring manjaro-keyring 
+"sudo dirmngr </dev/null"
+"sudo pacman-key --init && sudo pacman-key --populate archlinux manjaro"
+This series of commands resets and deletes your Pacman, Manjaro, and Arch key database and installs all keys again. This will solve problems with your local key database and Manjaro's and Arch's key database. Such problems can occur when new new packagers get added, for example.
+Attention: This command only works, when your system time is set correctly! Checking and importing keys or fingerprints is time sensitive.
+Attention: This command might take a long time to complete. If your system appears to stop or hang, it searches for entropy in order to generate a new key for you. In this case, it might help to do file operations with a lot of reads and/or writes per minute (such as searching for files, copying large directories, etc.). Alternatively, you can open a browser and do some heavy surfing (with a lot of mouse movements, mouse klicks, and keyboard key presses): This can help to generate entropy much faster.
+Attention: If you want to execute these commands manually on a system with key database problems, the command "pacman -Sy gnupg archlinux-keyring manjaro-keyring" will not work for you! In this case, connect manually (via your browser) to your Manjaro repository server, download these packages, and install these packages manually.
+
+"sudo pacman -Sc"
+After an unseccessful attempt to update your system (which quit with a key error), you might have already downloaded unsigned packages to your pacman cache. These packages cannot be installed anymore.
+This command removes all packages from your pacman cache, which are not installed on your system. Afterwards, you need to download all previously downloaded but unsuccessfully installed packages again.
+
+"sudo pacman -Syyuu"
+This last command forces a redownload of the latest package database from the best Manjaro repository mirror. Then, all your installed packages are checked against this latest package database. If an updated package is available from the Manjaro repositories, it will get downloaded and installed on your system. If an installed package is newer than the same package in the Manjaro repositories, the installed package will get downgraded. This behavior ensures your packages are always in sync with the Manajro repositories, even if you have just switched the Manjaro mirror or switched from unstable to stable branch.
+
+11 - PACMAN LOG
+"tail -2000 /var/log/pacman.log"
+This command displays the last 2000 lines of your Pacman Log.
+The Pacman Log contains all updates, installations, and removals (also in the AUR) you have done. Whenever something breaks on your system (e.g. after an udpate), but you do not remember anymore which packages were changed recently (e.g. during the update), take a look at your Pacman Log and find out. Then, DOWNGRADE PACKAGES, which you think might be broken.
+Navigate the list with your Mouse Wheel or SHIFT + PageUp.
+
+12 - DOWNGRADE PACKAGES
+"downgrade <PACKAGE NAME>"
+Manjaro uses a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. If the latest version of a packages does not work on your system, you can downgrade that package to an earlier, working version.
+This command downgrades <PACKAGE NAME> and offers you a list of old <PACKAGE NAME> versions to choose from. This list includes all old <PACKAGE NAME> versions from your package cache and online sources (if you have a working internet connection).
+After a successful downgrade, you can add <PACKAGE NAME> to your ignore list. This will prevent Pacman from showing any available updates for <PACKAGE NAME>. Remove <PACKAGE NAME> from your ignore list with CONFIGURE PACMAN.
+Alternatively, you can run future updates with the command "sudo pacman -Syu --ignore <PACKAGE NAME>" until a fixed version of <PACKAGE NAME> gets released.
+
+13 - FORCE UPDATE SYSTEM
+"sudo pacman -Syu --force"
+This command does the same as UPDATE SYSTEM, but it bypasses file conflict tests and overwrites conflicting files. All files will be overwritten. 
+
+14 - EMPTY PACKAGE CACHE
+"yaourt -Scc"
+This command will empty your entire package cache by deleting ALL packages.
+Attention: This will make it impossible to reinstall or DOWNGRADE PACKAGES without a working internet connection.
+
+15 - FORCE INSTALL PACKAGE
+"sudo pacman -S --force <PACKAGE NAME>"
+This command does the same as INSTALL PACKAGE, but it forces the installation of <PACKAGE NAME>.
+
+16 - FORCE REMOVE PACKAGE
+"pacman -Rdd <PACKAGE NAME>"
+This command removes <PACKAGE NAME> without checking the dependencies of <PACKAGE NAME> first. This enables experienced users to remove packages and dependencies of packages. This command only removes <PACKAGE NAME> from your system. All dependencies and orphans are left: run CLEAN SYSTEM afterwards to remove them, too.
+Attention: This command can break pacakges on your system or even your entire system.
+
+17 - UPDATE AUR
+"yaourt -Syua"
+This command does the same as UPDATE SYSTEM, but with one exception: It also updates all packages from Arch User Repository (AUR), which have an updated PKGBUILD file.
+Attention: When a new version of an AUR package is available, often the PKGBUILD file is not updated. If you want to install the latest version of an AUR package, (re-)install it with INSTALL FROM AUR. If you want to install the latest versions of all AUR packages use option FORCE UPDATE AUR.
+
+18 - FORCE UPDATE AUR
+"yaourt -Syua && yaourt -Syua --devel --noconfirm"
+The Arch User Repository (AUR) is a repository of (mostly) PKGBUILD files. Everybody can create such a PKGBUILD file and upload it to the AUR. A PKGBUILD file contains simple and human readable instructions like where to download the source code from, what dependencies are needed, where to copy files for installation, etc. Yaourt is a so called AUR Helper: It can interpret PKGBUILD files and download the source code, install dependencies, build files on your system, and copy these files to the right location (a.k.a. installing a program).
+By checking a PKGBUILD file (and .INSTALL file) you can make sure the source code is loaded from an official download server, no harmful dependencies get installed, and the installation instructions do not contain harmful code.
+A lot of PKGBUILD files contain variables (e.g. program version) in download addresses; this makes them download always the latest source code (e.g. from Github). Some PKGBUILD files contain no variables: These PKGBUILD files need to be changed manually every time a new program version is released.
+The first command of FORCE UPDATE AUR does the same as UPDATE AUR: Only AUR packages with updated/changed PKGBUILD files will get updated. This gives you the chance to check these updated/changed PKGBUILD files. 
+The second command of FORCE UPDATE AUR forces a reinstall of ALL your AUR packages. The "--noconfirm" flag is used in a secure way, because no PKGBUILD files have changed since the first command got executed.
+Attention: This might take a long time!
+Attention: By default, after every 15min this command will pause and ask again for your password.
+
+19 - SEARCH + INSTALL FROM AUR
+"yaourt <PACKAGE NAME>"
+This command searches for <PACKAGE NAME> in all Manjaro repositories and the Arch User Repository (AUR). It searches in all package names and package descriptions. 
+Example: You can search for "web browser" and you will find Firefox and other web browsers. One or multiple search results can be installed on your system.
+If you want to exit this mode without installing any packages, simply press [Enter].
+
+20 - INSTALL FROM AUR
+"yaourt -S <PACKAGE NAME>"
+This command does the same as INSTALL PACKAGE. Additionally, Arch User Repository (AUR) packages can be installed.
+Attention: Experienced users can install packages from the AUR without the need to answer questions all the time by using the command "yaourt -S <PACKAGE NAME> --noconfirm". The "--noconfirm" flag is great for quick and dirty installations of AUR packages on non-secure systems. Please keep always in mind that the AUR can contain any sort of package - including malicious and destructive (parts of) packages. Therefore, it is recommended to always check the PKGBUILD and .INSTALL file manually before installing a package from the AUR.
+
+21 - LIST INSTALLED FROM AUR
+"pacman -Qem"
+This command lists all installed packages, which are from the AUR or which were manually installed.
+
+To exit this Help Page, press "q".
+	EOF
+}
+
+
+# "yaourt -Sl" downloads a list of packages EVERY TIME it is called. this is unacceptable.
+# write package list of repositories to /tmp/packages. then, download AUR package list, unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/packages.
+pacman -Slq > /tmp/packages &
+wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzip -f /tmp/aur/packages.gz && cat /tmp/aur/packages >> /tmp/packages &
+
+
+# set colors
+#RED="\e[31m"	# red text
+RED="\e[41m"	# red background
+NC="\e[0m"
+
+
+# pacli bash script
+while true
+do
+    clear
+    echo ""
+    echo -e "                     $NC ::Pacli - Package manager:: $NC "
+    echo ""
+    echo -e " ┌────────────────────────────────────────────────────────────────────┐"
+    echo -e " │  $NC  1 $NC  Update System               $NC  2 $NC  Clean System              │"
+    echo -e " │  $NC  3 $NC  Install Package             $NC  4 $NC  Remove Package + Deps     │"
+    echo -e " │────────────────────────────────────────────────────────────────────│"
+    echo -e " │  $NC  5 $NC  Package Information         $NC  6 $NC  List Local Package Files  │"
+    echo -e " │  $NC  7 $NC  Dependency Tree             $NC  8 $NC  Reverse Dependency Tree   │"
+    echo -e " └────────────────────────────────────────────────────────────────────┘"
+    echo -e " ┌────────────────────────────────────────────────────────────────────┐"
+    echo -e " │  $NC  9 $NC  Help                        $NC 10 $NC  Fix Errors                │"
+    echo -e " │  $NC 11 $NC  Pacman Log                  $NC 12 $NC  Downgrade Packages        │"
+    echo -e " │ $RED  13   Force Update System          14   Empty Package Cache      $NC │"
+    echo -e " │ $RED  15   Force Install Package        16   Force Remove Package     $NC │"
+    echo -e " └────────────────────────────────────────────────────────────────────┘"
+    echo ""
+    echo -e " ┌────────────────────────────────────────────────────────────────────┐"
+    echo -e " │  $NC 17 $NC  Update AUR                  $NC 18 $NC  Force Update AUR          │"
+    echo -e " │  $NC 19 $NC  Search + Install from AUR   $NC 20 $NC  Install from AUR          │"
+    echo -e " │  $NC 21 $NC  List Installed from AUR                                     │"
+    echo -e " └────────────────────────────────────────────────────────────────────┘"
+    echo ""
+    echo -e " $NC Enter a number between 0 .. 21 and press [Enter]$NC $NC - 0 Exit Pacli$NC"
+    echo ""
+
+    # save entered number in varialbe "choice"
+    read choice
+    case $choice in
+
+
+        1)
+            echo			
+            sudo pacman -Syu --color always
+            echo
+            echo -e "$NC Your system is updated. To return to pacli press [Enter] $NC"
+            read
+            ;;
+        2)
+            echo
+
+            sudo pacman-mirrors -g && sudo pacman -Syy --color always
+            yaourt -Qdt
+            paccache -ruvk0
+            paccache -rvk2
+
+            # check, whether / is installed on HDD, then execute "sudo pacman-optimize"
+            disk=$(lsblk -o "name,mountpoint" -pa | sed -n '/^\//h;/\/$/{g;p}' | cut -d/ -f3)
+            disk="${disk:0:3}"
+            if [[ -n "$disk" && -e "/dev/$disk" ]]
+            then
+                if [[ $(cat $(find /sys -name 'rotational' 2>/dev/null | grep "$disk/queue")) == "1" ]]
+                then
+                sudo pacman-optimize
+                fi
+            fi
+            unset disk
+
+            echo
+            echo -e "$NC Fast Mirror chosen, orphans removed, and old packages deleted from cache. To return to pacli press [Enter] $NC"
+            read
+            ;;
+        3)
+            echo
+            sudo pacman -S $(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -e -m +s --reverse --prompt='Select packages to install (use TAB to toggle selection) > ' | awk '{print $1}') --color always
+            echo
+            echo -e "$NC Package installation is finished. To return to pacli press [Enter] $NC"
+            read
+            ;;
+        4)
+            echo
+            sudo pacman -Rsn $(pacman -Qq | fzf -e -m +s --reverse --prompt='Select packages to remove (use TAB to toggle selection) > ') --color always
+            echo
+            echo -e "$NC Packages and all unneeded dependencies removed. To return to pacli press [Enter] $NC"
+            read
+            ;;
+        5)
+            echo
+			
+            # the following 2 lines add all package to /tmp/packages, which are neither in the manjaro repository nor the AUR
+            #yaourt -Qq > /tmp/local_packages
+            #cat /tmp/packages /tmp/local_packages | sort | uniq > /tmp/packages
+            pkg=$(cat /tmp/packages | fzf -e +s --reverse --prompt='Select a package to display information about >')
+            if (yaourt -Qq "${pkg}" &>/dev/null)
+            then
+                out=$(yaourt -Qii "${pkg}")	# do this when pkg is already installed on system
+            else
+                out=$(yaourt -Sii "${pkg}")	# do this when package is not installed on system
+            fi
+            echo -e "$out" | grep -v "\-\-$" | sed 's/ : \(.*\)/ \x1b[0m: \x1b[1m\1\x1b[0m/; s/  \(.*\)/  \x1b[1m\1\x1b[0m/'
+            unset pkg out
+
+            echo -e "\n$NC Package information displayed. To return to pacli press [Enter] $NC"
+            read
+            ;;
+        6)
+            echo
+            pacman -Qlq $(pacman -Qq | fzf -e +s --reverse --prompt='Select package to list all local files of > ') --color always
+            echo
+            echo -e "$NC All local files in package listed. To return to pacli press [Enter] $NC"
+            read
+            ;;
+        7)
+            echo
+            pactree -c -s $(pacman -Slq | fzf -e +s --reverse --prompt='Select a package > ')
+            echo
+            echo -e "$NC Dependency tree displayed. To return to pacli press [Enter] $NC"
+            read
+            ;;
+        8)
+            echo
+            pactree -c -r $(pacman -Qq | fzf -e +s --reverse --prompt='Select a package > ')
+            echo
+            echo -e "$NC Reverse dependency tree displayed. To return to pacli press [Enter] $NC"
+            read
+            ;;
+
+
+        9|h|H|help|Help|HELP)
+            echo
+            help_text
+            echo
+            ;;
+        10)
+            echo
+			
+            sudo rm -f /var/lib/pacman/db.lck
+            sudo pacman-mirrors -g && sudo pacman -Syy
+
+            sudo rm -r /etc/pacman.d/gnupg &>/dev/null
+
+            # manually download and install these packages: gnupg, archlinux-keyring, manjaro-keyring
+            arch=$(uname -m)
+            version="$(lang=C pacman -Si gnupg | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
+            url="http://mirror.netzspielplatz.de/manjaro/packages/stable/core/${arch}/gnupg${version}-${arch}.pkg.tar.xz"
+            wget "${url}" && sudo pacman -U "gnupg${version}-${arch}.pkg.tar.xz" --noconfirm && sudo rm "gnupg${version}-${arch}.pkg.tar.xz"
+
+            version="$(lang=C pacman -Si archlinux-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
+            url="http://mirror.netzspielplatz.de/manjaro/packages/stable/core/${arch}/archlinux-keyring${version}-any.pkg.tar.xz"
+            wget "${url}" && sudo pacman -U "archlinux-keyring${version}-any.pkg.tar.xz" --noconfirm && sudo rm "archlinux-keyring${version}-any.pkg.tar.xz"
+
+            version="$(lang=C pacman -Si manjaro-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
+            url="http://mirror.netzspielplatz.de/manjaro/packages/stable/core/${arch}/manjaro-keyring${version}-any.pkg.tar.xz"
+            wget "${url}" && sudo pacman -U "manjaro-keyring${version}-any.pkg.tar.xz" --noconfirm && sudo rm "manjaro-keyring${version}-any.pkg.tar.xz"
+            unset arch version url
+
+            # the following command sometimes prevents an error connecting to the key server		
+            sudo dirmngr </dev/null
+            sudo pacman-key --init && sudo pacman-key --populate archlinux manjaro
+
+            sudo pacman -Sc --noconfirm
+            sudo pacman -Syyuu --color always --noconfirm
+			
+            echo -e "\n$NC Most common Pacman errors fixed and system updated. To return to pacli press [Enter] $NC"
+            read
+            ;;
+        11)
+            echo
+            tail -2000 /var/log/pacman.log
+            echo
+            echo -e "$NC Last 2000 lines of Pacman Log displayed. Navigate with SHIFT+PageUp. To return to pacli press [Enter] $NC"
+            read
+            ;;			
+        12)
+            echo
+            downgrade $(pacman -Qq | fzf -e +s --reverse --prompt='Select package to downgrade > ')
+            echo
+            echo -e "$NC Downgrade process finished. To return to pacli press [Enter] $NC"
+            read
+            ;;
+        13)
+            echo
+            sudo pacman -Syu --force --color always
+            echo
+            echo -e "$NC Your system was updated in force mode. To return to pacli press [Enter] $NC"
+            read
+            ;;
+        14)
+            echo
+            yaourt -Scc
+            echo
+            echo -e "$NC Entire package cache emptied. To return to pacli press [Enter] $NC"
+            read
+            ;;
+        15)
+            echo
+            sudo pacman -S --force $(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -e -m +s --reverse --prompt='Select packages to install (use TAB to toggle selection) > ' | awk '{print $1}') --color always
+            echo
+            echo -e "$NC Package installation in force mode is finished. To return to pacli press [Enter] $NC"
+            read
+            ;;
+
+        16)
+            echo
+            sudo pacman -Rdd $(pacman -Qq | fzf -e -m +s --reverse --prompt='Select packages to remove (use TAB to toggle selection) > ') --color always
+            echo
+            echo -e "$NC Dependency in force mode removed. To return to pacli press [Enter] $NC"
+            read
+            ;;
+
+
+
+        17)
+            echo
+            yaourt -Syua
+            echo
+            echo -e "$NC Your system is updated. To return to pacli press [Enter] $NC"
+            read
+            ;;
+        18)
+            echo
+            yaourt -Syua && yaourt -Syua --devel --noconfirm
+            echo
+            echo -e "$NC All AUR packages reinstalled. To return to pacli press [Enter] $NC"
+            read
+            ;;
+        19)
+            echo
+            echo "Enter name of package to be searched and installed from AUR and press [Enter] to continue"
+            echo
+            read Packcage
+            yaourt $Packcage
+            echo
+            echo -e "$NC Yaourt finished. To return to pacli press [Enter] $NC"
+            read
+            ;;
+        20)
+            echo
+            yaourt -S $(cat /tmp/packages | sort | fzf -e -m +s --reverse --prompt='Select packages to install (toggle selection with TAB) > ')
+            echo
+            echo -e "$NC Installation from AUR finished. To return to pacli press [Enter] $NC"
+            read
+            ;;
+        21)
+            echo
+            pacman -Qem --color always
+            echo
+            echo -e "$NC All locally installed packages listed. To return to pacli press [Enter] $NC"
+            read
+            ;;
+
+
+        0)
+            echo
+            clear && exit
+            read
+            ;;
+
+        *)
+            echo -e "$RED Wrong option $NC"
+            echo "Wait and try again later..."
+            echo
+            sleep 2
+            clear
+            ;;
+    esac
+done
