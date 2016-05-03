@@ -260,16 +260,16 @@ do
             paccache -ruvk0
             paccache -rvk2
 
-			# 1. extract the name of hard drive the / partition is installed on and write it to the "disk" variatble"
+            # 1. extract the name of hard drive the / partition is installed on and write it to the "disk" variatble"
             disk=$(lsblk -o "name,mountpoint" -pa | sed -n '/^\//h;/\/$/{g;p}' | cut -d/ -f3)
             disk="${disk:0:3}"
-			# 2. check, whether "disk" is not empty and whether the path to "disk" exists
+            # 2. check, whether "disk" is not empty and whether the path to "disk" exists
             if [[ -n "$disk" && -e "/dev/$disk" ]]
             then
                 # open the "rotational" file belonging to your "disk" and checking, whether it contains a "1" - this means your "disk" is a traditional hard drive and no SSD.
                 if [[ $(cat $(find /sys -name 'rotational' 2>/dev/null | grep "$disk/queue")) == "1" ]]
                 then
-				# only execute the following line when your / parition is installed on a hard drive.
+                # only execute the following line when your / parition is installed on a hard drive.
                 sudo pacman-optimize
                 fi
             fi
@@ -281,8 +281,8 @@ do
             ;;
         3|i|I|install|Install|INSTALL)
             echo
-			# for a comment about the fzf command see below
-			# the "package-query -Sl -f '%n  %v  -  %d' " displays a list of all packages from the Manjaro repositories and formats them like "NAME  VERSION  -  DESCRIPTION".
+            # for a comment about the fzf command see below
+            # the "package-query -Sl -f '%n  %v  -  %d' " displays a list of all packages from the Manjaro repositories and formats them like "NAME  VERSION  -  DESCRIPTION".
             sudo pacman -S $(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -e -m +s --reverse --prompt='Select packages to install (use TAB to toggle selection) > ' | awk '{print $1}') --color always
             echo
             echo -e " Package installation is finished. To return to pacli press [Enter] "
@@ -290,9 +290,9 @@ do
             ;;
         4|r|R|remove|Remove|REMOVE)
             echo
-			# $(pacman -Qq | sort | fzf -e -m +s --reverse --prompt='Select packages to remove (use TAB to toggle selection) > ')
-			# takes the package list from "pacman -Qq", then sorts it alphabetically, then make the resulting list available to fzf.
-			# fzf lets you search the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
+            # $(pacman -Qq | sort | fzf -e -m +s --reverse --prompt='Select packages to remove (use TAB to toggle selection) > ')
+            # takes the package list from "pacman -Qq", then sorts it alphabetically, then make the resulting list available to fzf.
+            # fzf lets you search the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
             sudo pacman -Rsn $(pacman -Qq | sort | fzf -e -m +s --reverse --prompt='Select packages to remove (use TAB to toggle selection) > ') --color always
             echo
             echo -e " Packages and all unneeded dependencies removed. To return to pacli press [Enter] "
@@ -301,16 +301,16 @@ do
         5|info|Info|INFO|information|Information|INFORMATION)
             echo
 			
-			# the following command lets you search through the file "/tmp/packages" with fzf and save your selection in "pkg"
+            # the following command lets you search through the file "/tmp/packages" with fzf and save your selection in "pkg"
             pkg=$(cat /tmp/packages | sort | fzf -e +s --reverse --prompt='Select a package to display information about >')
-			# next, it is checked, whether "pkg" is part of a list of all installed packages (yaourt -Qq).
+            # next, it is checked, whether "pkg" is part of a list of all installed packages (yaourt -Qq).
             if (yaourt -Qq "${pkg}" &>/dev/null)
             then
                 out=$(yaourt -Qii "${pkg}")		# write this command to the "out" variable when "pkg" is already installed on system
             else
                 out=$(yaourt -Sii "${pkg}")		# write this command to the "out" variable when "pkd" is not installed on system
             fi
-			# execute the "out" variable and format its output nicely
+            # execute the "out" variable and format its output nicely
             echo -e "$out" | grep -v "\-\-$" | sed 's/ : \(.*\)/ \x1b[0m: \x1b[1m\1\x1b[0m/; s/  \(.*\)/  \x1b[1m\1\x1b[0m/'
             unset pkg out
 
@@ -331,9 +331,9 @@ do
             pkg=$(cat /tmp/packages | sort | fzf -e +s --reverse --prompt='Select a package to display information about >')
             if (yaourt -Qq "${pkg}" &>/dev/null)
             then
-                out=$(pactree -c "${pkg}")	# do this when pkg is already installed on system
+                out=$(pactree -c "${pkg}")
             else
-                out=$(pactree -c -s "${pkg}")	# do this when package is not installed on system
+                out=$(pactree -c -s "${pkg}")
             fi
             echo -e "$out"
             unset pkg out
@@ -366,7 +366,7 @@ do
             ;;
         11|00|33|44|55|66|77|88|99|100|111|122|133|144|155|166|177|188|199|200|211|h|H|help|Help|HELP)
             echo
-			# the following command calls the "help_text" function defined at the beginning of this bash script
+            # the following command calls the "help_text" function defined at the beginning of this bash script
             help_text
             echo
             ;;
@@ -380,11 +380,11 @@ do
 
             # manually download and install these packages: gnupg, archlinux-keyring, manjaro-keyring
             arch=$(uname -m)
-			# extract the name of your used branch from your "/etc/pacman-mirrors.conf" file and store it in "mybranch" variable
-			mybranch=$(awk -F'=' '/^Branch/ {print $2}' /etc/pacman-mirrors.conf)
-			# extract the version number of gnupg in the Manjaro repositories and save it in "version" variable
+            # extract the name of your used branch from your "/etc/pacman-mirrors.conf" file and store it in "mybranch" variable
+            mybranch=$(awk -F'=' '/^Branch/ {print $2}' /etc/pacman-mirrors.conf)
+            # extract the version number of gnupg in the Manjaro repositories and save it in "version" variable
             version="$(lang=C pacman -Si gnupg | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
-			# save the address of the latest gnupg package on a reliable Manjaro mirror to "url" variable
+            # save the address of the latest gnupg package on a reliable Manjaro mirror to "url" variable
             url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/gnupg${version}-${arch}.pkg.tar.xz"
             wget "${url}" && sudo pacman -U "gnupg${version}-${arch}.pkg.tar.xz" --noconfirm && sudo rm "gnupg${version}-${arch}.pkg.tar.xz"
 
