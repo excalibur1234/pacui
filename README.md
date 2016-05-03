@@ -70,7 +70,7 @@ Now, you type "pacli" into your terminal and pacli will start.
 ## Help
 
 ### pacli Help
-Choose the "Help" option within pacli by entering "9" or "h" or "help" and pressing "ENTER". 
+Choose the "Help" option within pacli by entering "11" or "h" or "help" and pressing "ENTER". 
 
 This help page explains a little bit about pacli. It also explains every pacli option in detail. If you want to look up which commands pacli uses and understand them, this is the right place for you!
 
