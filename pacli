@@ -132,7 +132,7 @@ This command searches for working and good Manjaro repository mirrors/servers. I
 This series of commands resets and deletes your Pacman, Manjaro, and Arch key database and installs all keys again. This will solve problems with your local key database and Manjaro's and Arch's key database. Such problems can occur when new new packagers get added, for example.
 Attention: This command only works, when your system time is set correctly! Checking and importing keys or fingerprints is time sensitive.
 Attention: This command might take a long time to complete. If your system appears to stop or hang, it searches for entropy in order to generate a new key for you. In this case, it might help to do file operations with a lot of reads and/or writes per minute (such as searching for files, copying large directories, etc.). Alternatively, you can open a browser and do some heavy surfing (with a lot of mouse movements, mouse klicks, and keyboard key presses): This can help to generate entropy much faster.
-Attention: If you want to execute these commands manually on a system with key database problems, the command "pacman -Sy gnupg archlinux-keyring manjaro-keyring" will not work for you! In this case, connect manually (via your browser) to your Manjaro repository server, download these packages, and install these packages manually.
+Attention: If you want to execute these commands manually on a system with key database problems, the command "pacman -Sy gnupg archlinux-keyring manjaro-keyring" will not work for you! In this case, connect manually (via your browser) to your Manjaro repository server, download these packages, and install these packages manually. Pacli will do all of this automatically for you. If this part of Pacli fails, please wait a couple of hours until your Manjaro mirror has synchronized and offers the latest version of these 3 packages: gnupg, archlinux-keyring, manjaro-keyring.
 Attention: The first command will remove all keys on your system, including manually installed keys (with "sudo pacman-key --lsign-key <KEY>"). Please remember to reinstall those keys again!
 
 "sudo pacman -Sc"
@@ -150,7 +150,7 @@ This command does the same as UPDATE SYSTEM, but it bypasses file conflict tests
 14 - EMPTY PACKAGE CACHE
 "yaourt -Scc"
 This command will empty your entire package cache by deleting ALL packages.
-Attention: This will make it impossible to reinstall or DOWNGRADE PACKAGES without a working internet connection.
+Attention: This will make it impossible to reinstall old packages or DOWNGRADE PACKAGES without a working internet connection.
 
 15 - FORCE INSTALL PACKAGE
 "sudo pacman -S --force <PACKAGE NAME>"
@@ -202,7 +202,6 @@ pacman -Slq > /tmp/packages &
 wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzip -f /tmp/aur/packages.gz && cat /tmp/aur/packages >> /tmp/packages &
 
 
-# set colors
 #RED="\e[31m"	# red text
 R="\e[41m"		# red background
 N="\e[0m"		# no-colored text without background color
@@ -212,6 +211,7 @@ B="\e[1m"		# bold text
 # pacli bash script
 while true
 do
+# display menu. please note the use of ANSI Escape sequences mentioned above. The text could be hard to read...
     clear
     echo
     echo -e "                     \e[0m ::Pacli - Package manager:: "
@@ -236,19 +236,20 @@ do
     echo -e " │   21   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR                                     │"
     echo -e " └────────────────────────────────────────────────────────────────────┘"
     echo
-    echo -e " \e[0m Enter a number between 0...21 and press [Enter] \e[0m   -  0   \e[1mE\e[0mxit Pacli"
+    echo -e "  Enter a number between 0...21 and press [Enter] \e[0m   -  0   \e[1mE\e[0mxit Pacli "
     echo
 
-    # save entered number in varialbe "choice" and test, whether "chioce" fits any of the following numbers
+    # save entered number in varialbe "choice" and test, whether "chioce" fits any of the following numbers, letters, or words
     read choice
     case $choice in
 
 
         1|u|U|update|Update|UPDATE)
+            # the line above means: 1 OR u OR U OR update OR ...
             echo			
             sudo pacman -Syu --color always
             echo
-            echo -e "\e[0m Your system is updated. To return to pacli press [Enter] \e[0m"
+            echo -e " Your system is updated. To return to pacli press [Enter] "
             read
             ;;
         2|c|C|clean|Clean|CLEAN)
@@ -259,61 +260,69 @@ do
             paccache -ruvk0
             paccache -rvk2
 
-            # check, whether / is installed on HDD, then execute "sudo pacman-optimize"
+			# 1. extract the name of hard drive the / partition is installed on and write it to the "disk" variatble"
             disk=$(lsblk -o "name,mountpoint" -pa | sed -n '/^\//h;/\/$/{g;p}' | cut -d/ -f3)
             disk="${disk:0:3}"
+			# 2. check, whether "disk" is not empty and whether the path to "disk" exists
             if [[ -n "$disk" && -e "/dev/$disk" ]]
             then
+                # open the "rotational" file belonging to your "disk" and checking, whether it contains a "1" - this means your "disk" is a traditional hard drive and no SSD.
                 if [[ $(cat $(find /sys -name 'rotational' 2>/dev/null | grep "$disk/queue")) == "1" ]]
                 then
+				# only execute the following line when your / parition is installed on a hard drive.
                 sudo pacman-optimize
                 fi
             fi
             unset disk
 
             echo
-            echo -e "\e[0m Fast Mirror chosen, orphans removed, and old packages deleted from cache. To return to pacli press [Enter] \e[0m"
+            echo -e " Fast Mirror chosen, orphans removed, and old packages deleted from cache. To return to pacli press [Enter] "
             read
             ;;
         3|i|I|install|Install|INSTALL)
             echo
+			# for a comment about the fzf command see below
+			# the "package-query -Sl -f '%n  %v  -  %d' " displays a list of all packages from the Manjaro repositories and formats them like "NAME  VERSION  -  DESCRIPTION".
             sudo pacman -S $(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -e -m +s --reverse --prompt='Select packages to install (use TAB to toggle selection) > ' | awk '{print $1}') --color always
             echo
-            echo -e "\e[0m Package installation is finished. To return to pacli press [Enter] \e[0m"
+            echo -e " Package installation is finished. To return to pacli press [Enter] "
             read
             ;;
         4|r|R|remove|Remove|REMOVE)
             echo
+			# $(pacman -Qq | sort | fzf -e -m +s --reverse --prompt='Select packages to remove (use TAB to toggle selection) > ')
+			# takes the package list from "pacman -Qq", then sorts it alphabetically, then make the resulting list available to fzf.
+			# fzf lets you search the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
             sudo pacman -Rsn $(pacman -Qq | sort | fzf -e -m +s --reverse --prompt='Select packages to remove (use TAB to toggle selection) > ') --color always
             echo
-            echo -e "\e[0m Packages and all unneeded dependencies removed. To return to pacli press [Enter] \e[0m"
+            echo -e " Packages and all unneeded dependencies removed. To return to pacli press [Enter] "
             read
             ;;
         5|info|Info|INFO|information|Information|INFORMATION)
             echo
 			
-            # the following 2 lines add all package to /tmp/packages, which are neither in the manjaro repository nor the AUR
-            #yaourt -Qq > /tmp/local_packages
-            #cat /tmp/packages /tmp/local_packages | sort | uniq > /tmp/packages
+			# the following command lets you search through the file "/tmp/packages" with fzf and save your selection in "pkg"
             pkg=$(cat /tmp/packages | sort | fzf -e +s --reverse --prompt='Select a package to display information about >')
+			# next, it is checked, whether "pkg" is part of a list of all installed packages (yaourt -Qq).
             if (yaourt -Qq "${pkg}" &>/dev/null)
             then
-                out=$(yaourt -Qii "${pkg}")	# do this when pkg is already installed on system
+                out=$(yaourt -Qii "${pkg}")		# write this command to the "out" variable when "pkg" is already installed on system
             else
-                out=$(yaourt -Sii "${pkg}")	# do this when package is not installed on system
+                out=$(yaourt -Sii "${pkg}")		# write this command to the "out" variable when "pkd" is not installed on system
             fi
+			# execute the "out" variable and format its output nicely
             echo -e "$out" | grep -v "\-\-$" | sed 's/ : \(.*\)/ \x1b[0m: \x1b[1m\1\x1b[0m/; s/  \(.*\)/  \x1b[1m\1\x1b[0m/'
             unset pkg out
 
             echo
-            echo -e "\e[0m Package information displayed. To return to pacli press [Enter] \e[0m"
+            echo -e " Package information displayed. To return to pacli press [Enter] "
             read
             ;;
         6|l|L|list|List|LIST)
             echo
             pacman -Qlq $(pacman -Qq | fzf -e +s --reverse --prompt='Select package to list all local files of > ') --color always
             echo
-            echo -e "\e[0m All local files in package listed. To return to pacli press [Enter] \e[0m"
+            echo -e " All local files in package listed. To return to pacli press [Enter] "
             read
             ;;
         7|t|T|tree|Tree|TREE)
@@ -330,14 +339,14 @@ do
             unset pkg out
 
             echo
-            echo -e "\e[0m Dependency tree displayed. To return to pacli press [Enter] \e[0m"
+            echo -e " Dependency tree displayed. To return to pacli press [Enter] "
             read
             ;;
         8|rt|RT|rT|Rt|reversetree|ReverseTree|REVERSETREE)
             echo
             pactree -c -r $(pacman -Qq | fzf -e +s --reverse --prompt='Select a package > ')
             echo
-            echo -e "\e[0m Reverse dependency tree displayed. To return to pacli press [Enter] \e[0m"
+            echo -e " Reverse dependency tree displayed. To return to pacli press [Enter] "
             read
             ;;
 
@@ -345,18 +354,19 @@ do
             echo
             tail -2000 /var/log/pacman.log
             echo
-            echo -e "\e[0m Last 2000 lines of Pacman Log displayed. Navigate with SHIFT+PageUp. To return to pacli press [Enter] \e[0m"
+            echo -e " Last 2000 lines of Pacman Log displayed. Navigate with SHIFT+PageUp. To return to pacli press [Enter] "
             read
             ;;			
         10|d|D|down|Down|DOWN|downgrade|Downgrade|DOWNGRADE)
             echo
             downgrade $(pacman -Qq | fzf -e +s --reverse --prompt='Select package to downgrade > ')
             echo
-            echo -e "\e[0m Downgrade process finished. To return to pacli press [Enter] \e[0m"
+            echo -e " Downgrade process finished. To return to pacli press [Enter] "
             read
             ;;
         11|00|33|44|55|66|77|88|99|100|111|122|133|144|155|166|177|188|199|200|211|h|H|help|Help|HELP)
             echo
+			# the following command calls the "help_text" function defined at the beginning of this bash script
             help_text
             echo
             ;;
@@ -370,8 +380,11 @@ do
 
             # manually download and install these packages: gnupg, archlinux-keyring, manjaro-keyring
             arch=$(uname -m)
+			# extract the name of your used branch from your "/etc/pacman-mirrors.conf" file and store it in "mybranch" variable
 			mybranch=$(awk -F'=' '/^Branch/ {print $2}' /etc/pacman-mirrors.conf)
+			# extract the version number of gnupg in the Manjaro repositories and save it in "version" variable
             version="$(lang=C pacman -Si gnupg | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
+			# save the address of the latest gnupg package on a reliable Manjaro mirror to "url" variable
             url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/gnupg${version}-${arch}.pkg.tar.xz"
             wget "${url}" && sudo pacman -U "gnupg${version}-${arch}.pkg.tar.xz" --noconfirm && sudo rm "gnupg${version}-${arch}.pkg.tar.xz"
 
@@ -392,28 +405,28 @@ do
             sudo pacman -Syyuu --color always --noconfirm
 
             echo
-            echo -e "\e[0m Most common Pacman errors fixed and system updated. To return to pacli press [Enter] \e[0m"
+            echo -e " Most common Pacman errors fixed and system updated. To return to pacli press [Enter] "
             read
             ;;
         13|fu|Fu|fU|FU|forceupdate|ForceUpdate|FORCEUPDATE)
             echo
             sudo pacman -Syu --force --color always
             echo
-            echo -e "\e[0m Your system was updated in force mode. To return to pacli press [Enter] \e[0m"
+            echo -e " Your system was updated in force mode. To return to pacli press [Enter] "
             read
             ;;
         14|empty|Empty|EMPTY)
             echo
             yaourt -Scc
             echo
-            echo -e "\e[0m Entire package cache emptied. To return to pacli press [Enter] \e[0m"
+            echo -e " Entire package cache emptied. To return to pacli press [Enter] "
             read
             ;;
         15|fi|Fi|fI|FI|forceinstall|ForceInstall|FORCEINSTALL)
             echo
             sudo pacman -S --force $(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -e -m +s --reverse --prompt='Select packages to install (use TAB to toggle selection) > ' | awk '{print $1}') --color always
             echo
-            echo -e "\e[0m Package installation in force mode is finished. To return to pacli press [Enter] \e[0m"
+            echo -e " Package installation in force mode is finished. To return to pacli press [Enter] "
             read
             ;;
 
@@ -421,7 +434,7 @@ do
             echo
             sudo pacman -Rdd $(pacman -Qq | fzf -e -m +s --reverse --prompt='Select packages to remove (use TAB to toggle selection) > ') --color always
             echo
-            echo -e "\e[0m Dependency in force mode removed. To return to pacli press [Enter] \e[0m"
+            echo -e " Dependency in force mode removed. To return to pacli press [Enter] "
             read
             ;;
 
@@ -431,14 +444,14 @@ do
             echo
             yaourt -Syua
             echo
-            echo -e "\e[0m Your system is updated. To return to pacli press [Enter] \e[0m"
+            echo -e " Your system is updated. To return to pacli press [Enter] "
             read
             ;;
         18|fua|FUA|forceupdateaur|forceupdateAUR|ForceUpdateAur|ForceUpdateAUR|FORCEUPDATEAUR)
             echo
             yaourt -Syua && yaourt -Syua --devel --noconfirm
             echo
-            echo -e "\e[0m All AUR packages reinstalled. To return to pacli press [Enter] \e[0m"
+            echo -e " All AUR packages reinstalled. To return to pacli press [Enter] "
             read
             ;;
         19|a|A|aur|AUR)
@@ -448,21 +461,21 @@ do
             read Packcage
             yaourt $Packcage
             echo
-            echo -e "\e[0m Yaourt finished. To return to pacli press [Enter] \e[0m"
+            echo -e " Yaourt finished. To return to pacli press [Enter] "
             read
             ;;
         20|ia|Ia|iA|IA|installaur|InstallAur|InstallAUR|INSTALLAUR)
             echo
             yaourt -S $(cat /tmp/packages | sort | fzf -e -m +s --reverse --prompt='Select packages to install (toggle selection with TAB) > ')
             echo
-            echo -e "\e[0m Installation from AUR finished. To return to pacli press [Enter] \e[0m"
+            echo -e " Installation from AUR finished. To return to pacli press [Enter] "
             read
             ;;
         21|la|La|lA|LA|listaur|listAUR|ListAur|ListAUR|LISTAUR)
             echo
             pacman -Qem --color always
             echo
-            echo -e "\e[0m All locally installed packages listed. To return to pacli press [Enter] \e[0m"
+            echo -e " All locally installed packages listed. To return to pacli press [Enter] "
             read
             ;;
 
