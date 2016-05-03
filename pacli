@@ -202,8 +202,9 @@ wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzi
 
 # set colors
 #RED="\e[31m"	# red text
-RED="\e[41m"	# red background
-NC="\e[0m"
+R="\e[41m"		# red background
+N="\e[0m"		# no-colored text without background color
+B="\e[1m"		# bold text
 
 
 # pacli bash script
@@ -211,29 +212,29 @@ while true
 do
     clear
     echo
-    echo -e "                     $NC ::Pacli - Package manager:: "
+    echo -e "                     \e[0m ::Pacli - Package manager:: "
     echo
     echo -e " ┌────────────────────────────────────────────────────────────────────┐"
-    echo -e " │  $NC  1   Update System               $NC  2   Clean System              │"
-    echo -e " │  $NC  3   Install Package             $NC  4   Remove Package + Deps     │"
+    echo -e " │    1   \e[1mU\e[0mpdate System                 2   \e[1mC\e[0mlean System              │"
+    echo -e " │    3   \e[1mI\e[0mnstall Package               4   \e[1mR\e[0memove Package + Deps     │"
     echo -e " │────────────────────────────────────────────────────────────────────│"
-    echo -e " │  $NC  5   Package Information         $NC  6   List Local Package Files  │"
-    echo -e " │  $NC  7   Dependency Tree             $NC  8   Reverse Dependency Tree   │"
+    echo -e " │    5   Package \e[1mInfo\e[0mrmation           6   \e[1mL\e[0mist Local Package Files  │"
+    echo -e " │    7   Dependency \e[1mT\e[0mree               8   \e[1mR\e[0meverse Dependency \e[1mT\e[0mree   │"
     echo -e " └────────────────────────────────────────────────────────────────────┘"
     echo -e " ┌────────────────────────────────────────────────────────────────────┐"
-    echo -e " │  $NC  9   Help                        $NC 10   Fix Errors                │"
-    echo -e " │  $NC 11   Pacman Log                  $NC 12   Downgrade Packages        │"
-    echo -e " │ $RED  13   Force Update System          14   Empty Package Cache      $NC │"
-    echo -e " │ $RED  15   Force Install Package        16   Force Remove Package     $NC │"
+    echo -e " │    9   \e[1mH\e[0melp                         10   \e[1mFix\e[0m Errors                │"
+    echo -e " │   11   Pacman \e[1mLog\e[0m                   12   \e[1mD\e[0mowngrade Packages        │"
+    echo -e " │ \e[41m  13   \e[1mF\e[0m\e[41morce \e[1mU\e[0m\e[41mpdate System          14   \e[1mEmpty\e[0m\e[41m Package Cache      \e[0m │"
+    echo -e " │ \e[41m  15   \e[1mF\e[0m\e[41morce \e[1mI\e[0m\e[41mnstall Package        16   \e[1mF\e[0m\e[41morce \e[1mR\e[0m\e[41memove Package     \e[0m │"
     echo -e " └────────────────────────────────────────────────────────────────────┘"
     echo
     echo -e " ┌────────────────────────────────────────────────────────────────────┐"
-    echo -e " │  $NC 17   Update AUR                  $NC 18   Force Update AUR          │"
-    echo -e " │  $NC 19   Search + Install from AUR   $NC 20   Install from AUR          │"
-    echo -e " │  $NC 21   List Installed from AUR                                     │"
+    echo -e " │   17   \e[1mU\e[0mpdate \e[1mA\e[0mUR                   18   \e[1mF\e[0morce \e[1mU\e[0mpdate \e[1mA\e[0mUR          │"
+    echo -e " │   19   Search + Install from \e[1mA\e[0mUR    20   \e[1mI\e[0mnstall from \e[1mA\e[0mUR          │"
+    echo -e " │   21   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR                                     │"
     echo -e " └────────────────────────────────────────────────────────────────────┘"
     echo
-    echo -e " $NC Enter a number between 0...21 and press [Enter] $NC - 0 Exit Pacli"
+    echo -e " \e[0m Enter a number between 0...21 and press [Enter] \e[0m   -  0   \e[1mE\e[0mxit Pacli"
     echo
 
     # save entered number in varialbe "choice" and test, whether "chioce" fits any of the following numbers
@@ -241,14 +242,14 @@ do
     case $choice in
 
 
-        1)
+        1|u|U|update|Update|UPDATE)
             echo			
             sudo pacman -Syu --color always
             echo
-            echo -e "$NC Your system is updated. To return to pacli press [Enter] $NC"
+            echo -e "\e[0m Your system is updated. To return to pacli press [Enter] \e[0m"
             read
             ;;
-        2)
+        2|c|C|clean|Clean|CLEAN)
             echo
 
             sudo pacman-mirrors -g && sudo pacman -Syy --color always
@@ -269,24 +270,24 @@ do
             unset disk
 
             echo
-            echo -e "$NC Fast Mirror chosen, orphans removed, and old packages deleted from cache. To return to pacli press [Enter] $NC"
+            echo -e "\e[0m Fast Mirror chosen, orphans removed, and old packages deleted from cache. To return to pacli press [Enter] \e[0m"
             read
             ;;
-        3)
+        3|i|I|install|Install|INSTALL)
             echo
             sudo pacman -S $(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -e -m +s --reverse --prompt='Select packages to install (use TAB to toggle selection) > ' | awk '{print $1}') --color always
             echo
-            echo -e "$NC Package installation is finished. To return to pacli press [Enter] $NC"
+            echo -e "\e[0m Package installation is finished. To return to pacli press [Enter] \e[0m"
             read
             ;;
-        4)
+        4|r|R|remove|Remove|REMOVE)
             echo
             sudo pacman -Rsn $(pacman -Qq | sort | fzf -e -m +s --reverse --prompt='Select packages to remove (use TAB to toggle selection) > ') --color always
             echo
-            echo -e "$NC Packages and all unneeded dependencies removed. To return to pacli press [Enter] $NC"
+            echo -e "\e[0m Packages and all unneeded dependencies removed. To return to pacli press [Enter] \e[0m"
             read
             ;;
-        5)
+        5|info|Info|INFO|information|Information|INFORMATION)
             echo
 			
             # the following 2 lines add all package to /tmp/packages, which are neither in the manjaro repository nor the AUR
@@ -303,17 +304,17 @@ do
             unset pkg out
 
             echo
-            echo -e "$NC Package information displayed. To return to pacli press [Enter] $NC"
+            echo -e "\e[0m Package information displayed. To return to pacli press [Enter] \e[0m"
             read
             ;;
-        6)
+        6|l|L|list|List|LIST)
             echo
             pacman -Qlq $(pacman -Qq | fzf -e +s --reverse --prompt='Select package to list all local files of > ') --color always
             echo
-            echo -e "$NC All local files in package listed. To return to pacli press [Enter] $NC"
+            echo -e "\e[0m All local files in package listed. To return to pacli press [Enter] \e[0m"
             read
             ;;
-        7)
+        7|t|T|tree|Tree|TREE)
             echo
 			
             pkg=$(cat /tmp/packages | sort | fzf -e +s --reverse --prompt='Select a package to display information about >')
@@ -327,14 +328,14 @@ do
             unset pkg out
 
             echo
-            echo -e "$NC Dependency tree displayed. To return to pacli press [Enter] $NC"
+            echo -e "\e[0m Dependency tree displayed. To return to pacli press [Enter] \e[0m"
             read
             ;;
-        8)
+        8|rt|RT|rT|Rt|reversetree|ReverseTree|REVERSETREE)
             echo
             pactree -c -r $(pacman -Qq | fzf -e +s --reverse --prompt='Select a package > ')
             echo
-            echo -e "$NC Reverse dependency tree displayed. To return to pacli press [Enter] $NC"
+            echo -e "\e[0m Reverse dependency tree displayed. To return to pacli press [Enter] \e[0m"
             read
             ;;
 
@@ -344,7 +345,7 @@ do
             help_text
             echo
             ;;
-        10)
+        10|fix|Fix|FIX)
             echo
 			
             sudo rm -f /var/lib/pacman/db.lck
@@ -376,103 +377,103 @@ do
             sudo pacman -Syyuu --color always --noconfirm
 
             echo
-            echo -e "$NC Most common Pacman errors fixed and system updated. To return to pacli press [Enter] $NC"
+            echo -e "\e[0m Most common Pacman errors fixed and system updated. To return to pacli press [Enter] \e[0m"
             read
             ;;
-        11)
+        11|log|Log|LOG)
             echo
             tail -2000 /var/log/pacman.log
             echo
-            echo -e "$NC Last 2000 lines of Pacman Log displayed. Navigate with SHIFT+PageUp. To return to pacli press [Enter] $NC"
+            echo -e "\e[0m Last 2000 lines of Pacman Log displayed. Navigate with SHIFT+PageUp. To return to pacli press [Enter] \e[0m"
             read
             ;;			
-        12)
+        12|d|D|down|Down|DOWN|downgrade|Downgrade|DOWNGRADE)
             echo
             downgrade $(pacman -Qq | fzf -e +s --reverse --prompt='Select package to downgrade > ')
             echo
-            echo -e "$NC Downgrade process finished. To return to pacli press [Enter] $NC"
+            echo -e "\e[0m Downgrade process finished. To return to pacli press [Enter] \e[0m"
             read
             ;;
-        13)
+        13|fu|Fu|fU|FU|forceupdate|ForceUpdate|FORCEUPDATE)
             echo
             sudo pacman -Syu --force --color always
             echo
-            echo -e "$NC Your system was updated in force mode. To return to pacli press [Enter] $NC"
+            echo -e "\e[0m Your system was updated in force mode. To return to pacli press [Enter] \e[0m"
             read
             ;;
-        14)
+        14|empty|Empty|EMPTY)
             echo
             yaourt -Scc
             echo
-            echo -e "$NC Entire package cache emptied. To return to pacli press [Enter] $NC"
+            echo -e "\e[0m Entire package cache emptied. To return to pacli press [Enter] \e[0m"
             read
             ;;
-        15)
+        15|fi|Fi|fI|FI|forceinstall|ForceInstall|FORCEINSTALL)
             echo
             sudo pacman -S --force $(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -e -m +s --reverse --prompt='Select packages to install (use TAB to toggle selection) > ' | awk '{print $1}') --color always
             echo
-            echo -e "$NC Package installation in force mode is finished. To return to pacli press [Enter] $NC"
+            echo -e "\e[0m Package installation in force mode is finished. To return to pacli press [Enter] \e[0m"
             read
             ;;
 
-        16)
+        16|fr|Fr|fR|FR|forceremove|ForceRemove|FORCEREMOVE)
             echo
             sudo pacman -Rdd $(pacman -Qq | fzf -e -m +s --reverse --prompt='Select packages to remove (use TAB to toggle selection) > ') --color always
             echo
-            echo -e "$NC Dependency in force mode removed. To return to pacli press [Enter] $NC"
+            echo -e "\e[0m Dependency in force mode removed. To return to pacli press [Enter] \e[0m"
             read
             ;;
 
 
 
-        17)
+        17|ua|Ua|uA|UA|updateaur|updateAUR|UpdateAur|UpdateAUR|UPDATEAUR)
             echo
             yaourt -Syua
             echo
-            echo -e "$NC Your system is updated. To return to pacli press [Enter] $NC"
+            echo -e "\e[0m Your system is updated. To return to pacli press [Enter] \e[0m"
             read
             ;;
-        18)
+        18|fua|FUA|forceupdateaur|forceupdateAUR|ForceUpdateAur|ForceUpdateAUR|FORCEUPDATEAUR)
             echo
             yaourt -Syua && yaourt -Syua --devel --noconfirm
             echo
-            echo -e "$NC All AUR packages reinstalled. To return to pacli press [Enter] $NC"
+            echo -e "\e[0m All AUR packages reinstalled. To return to pacli press [Enter] \e[0m"
             read
             ;;
-        19)
+        19|a|A|aur|AUR)
             echo
             echo "Enter name of package to be searched and installed from AUR and press [Enter] to continue"
             echo
             read Packcage
             yaourt $Packcage
             echo
-            echo -e "$NC Yaourt finished. To return to pacli press [Enter] $NC"
+            echo -e "\e[0m Yaourt finished. To return to pacli press [Enter] \e[0m"
             read
             ;;
-        20)
+        20|ia|Ia|iA|IA|installaur|InstallAur|InstallAUR|INSTALLAUR)
             echo
             yaourt -S $(cat /tmp/packages | sort | fzf -e -m +s --reverse --prompt='Select packages to install (toggle selection with TAB) > ')
             echo
-            echo -e "$NC Installation from AUR finished. To return to pacli press [Enter] $NC"
+            echo -e "\e[0m Installation from AUR finished. To return to pacli press [Enter] \e[0m"
             read
             ;;
-        21)
+        21|la|La|lA|LA|listaur|listAUR|ListAur|ListAUR|LISTAUR)
             echo
             pacman -Qem --color always
             echo
-            echo -e "$NC All locally installed packages listed. To return to pacli press [Enter] $NC"
+            echo -e "\e[0m All locally installed packages listed. To return to pacli press [Enter] \e[0m"
             read
             ;;
 
 
-        0)
+        0|e|E|exit|Exit|EXIT)
             echo
             clear && exit
             read
             ;;
 
         *)
-            echo -e "$RED Wrong option $NC"
+            echo -e "\e[41m Wrong option \e[0m"
             echo "Wait and try again later..."
             echo
             sleep 1
