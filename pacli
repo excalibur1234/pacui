@@ -202,13 +202,14 @@ pacman -Slq > /tmp/packages &
 wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzip -f /tmp/aur/packages.gz && cat /tmp/aur/packages >> /tmp/packages &
 
 
-#RED="\e[31m"	# red text
-R="\e[41m"		# red background
-N="\e[0m"		# no-colored text without background color
-B="\e[1m"		# bold text
+# ANSI Escape sequences:
+#  \e[31m		# red text
+#  \e[41m		# red background
+#  \e[0m		# no-colored text without background color
+#  \e[1m		# bold text
 
 
-# pacli bash script
+# pacli bash script starts here
 while true
 do
 # display menu. please note the use of ANSI Escape sequences mentioned above. The text could be hard to read...
