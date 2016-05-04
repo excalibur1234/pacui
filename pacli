@@ -73,8 +73,8 @@ This option uses fzf, which means you can search for packages and/or their descr
 
 4 - REMOVE PACKAGE + DEPS
 "sudo pacman -Rsn <PACKAGE NAME>"
-This command removes <PACKAGE NAME> including all dependencies, which are no longer needed by other packages, from your system. A copy of <PACKAGE NAME> will be kept in your package cache: Run CLEAN SYSTEM to remove it.
-Please note that folders created by the program <PACKAGE NAME> will not get removed from your system. Look for such folders in these places and remove them manually:
+This command removes <PACKAGE NAME> from your system including all dependencies, which are no longer needed by other packages. A copy of <PACKAGE NAME> will be kept in your package cache: Run CLEAN SYSTEM to remove it.
+Please note that folders in your home (~) directory and created by the program <PACKAGE NAME> will not get removed from your system. Look for such folders in these places and remove them manually:
 ~/
 ~/.config/
 ~/.local/share/
@@ -292,8 +292,8 @@ do
         4|r|R|remove|Remove|REMOVE)
             echo
             # $(pacman -Qq | sort | fzf -e -m +s --reverse --prompt='Select packages to remove (use TAB to toggle selection) > ')
-            # takes the package list from "pacman -Qq", then sorts it alphabetically, then make the resulting list available to fzf.
-            # fzf lets you search the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
+            # takes a package list from "pacman -Qq", then sorts it alphabetically, then make the resulting list available to fzf.
+            # fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
             sudo pacman -Rsn $(pacman -Qq | sort | fzf -e -m +s --reverse --prompt='Select packages to remove (use TAB to toggle selection) > ') --color always
             echo
             echo -e " Packages and all unneeded dependencies removed. To return to pacli press [Enter] "
@@ -304,8 +304,8 @@ do
 			
             # the following command lets you search through the file "/tmp/packages" with fzf and save your selection in "pkg"
             pkg=$(cat /tmp/packages | sort | fzf -e +s --reverse --prompt='Select a package to display information about >')
-            # next, it is checked, whether "pkg" is part of a list of all installed packages (yaourt -Qq).
-            if (yaourt -Qq "${pkg}" &>/dev/null)
+            # next, it is checked, whether "pkg" is part of a list of all installed packages (pacman -Qq).
+            if (pacman -Qq "${pkg}" &>/dev/null)
             then
                 out=$(yaourt -Qii "${pkg}")		# write this command to the "out" variable when "pkg" is already installed on system
             else
@@ -330,7 +330,7 @@ do
             echo
 			
             pkg=$(cat /tmp/packages | sort | fzf -e +s --reverse --prompt='Select a package to display information about >')
-            if (yaourt -Qq "${pkg}" &>/dev/null)
+            if (pacman -Qq "${pkg}" &>/dev/null)
             then
                 out=$(pactree -c "${pkg}")
             else
@@ -481,7 +481,7 @@ do
             ;;
 
 
-        0|e|E|exit|Exit|EXIT)
+        0|e|E|exit|Exit|EXIT|q|Q|quit|Quit|QUIT)
             echo
             clear && exit
             read
