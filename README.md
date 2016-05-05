@@ -66,7 +66,7 @@ sudo cp ~/pacli-simple/pacli /usr/bin/
 ```
 Now, you type "pacli" into your terminal and pacli will start.
 
-You can also type "pacli i" (note that "i" is marked in pacli's option no. 3) into your terminal and pacli's option 3 will execute without pacli being started. This command can be used with all marked options in pacli, for example: "pacli fua", "pacli l", "pacli log", etc.
+After you added pacli bash file to your /usr/bin/ directory, you can also type "pacli i" (note that "i" is marked in pacli's option 3) into your terminal and pacli's option 3 will execute without pacli being started. This command can be used with all marked options in pacli, for example: "pacli fua", "pacli l", "pacli log", etc.
 
 
 ## Help
