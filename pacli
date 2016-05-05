@@ -64,7 +64,7 @@ The first command removes all packages from cache, which are not installed (anym
 "sudo pacman-optimize" (only when Manjaro is installed on a HDD)
 This command effectively defragments your Pacman database.
 On traditional hard drives (HDD) this command can speed up all actions related to Pacman. 
-Attention: It is NOT recommended to use this command on modern solid state hard drives (SSD)!
+ATTENTION: It is NOT recommended to use this command on modern solid state hard drives (SSD)!
 
 3 - INSTALL PACKAGE
 "sudo pacman -S <PACKAGE NAME>"
@@ -87,7 +87,7 @@ This command displays a lot of information about <PACKAGE NAME>. Different piece
 "pacman -Qlq <PACKAGE NAME>"
 This command lists all files contained in <PACKAGE NAME> and their install directory. <PACKAGE NAME> must be installed on your system.
 Have you ever installed a program and did not know with which command it can be started/executed? Just look for files (and their names) in your /usr/bin/ directory using LIST LOCAL PACKAGE FILES.
-If you only want to display the files in /usr/bin/ use this command: "pacman -Qlq <PACKAGE NAME> | grep /usr/bin/"
+By default all files are filtered for files located in /usr/bin/, but you can enter any filter term you want to. Delete the default filter term with BACKSPACE to see a complete list of files of <PACKAGE NAME>. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacli/list.
 
 7 - DEPENDENCIES TREE
 "pactree -s <PACKAGE NAME>" or "pactree <PACKAGE NAME>"
@@ -101,8 +101,8 @@ Use this command when you want to know why you cannot remove <PACKAGE NAME> from
 
 9 - PACMAN LOG
 "tail -5000 /var/log/pacman.log"
-This command displays the last 5000 lines of your Pacman Log and makes it searchable with fzf. Please note that nothing will happen to selected packages.
 The Pacman Log contains all updates, installations, and removals (also in the AUR) you have done. Whenever something breaks on your system (e.g. after an udpate), but you do not remember anymore which packages were changed recently (e.g. during the update), take a look at your Pacman Log and find out. Then, DOWNGRADE PACKAGES, which you think might be broken.
+This command displays the last 5000 lines of your Pacman Log and makes it searchable with fzf. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacli/log.
 
 10 - DOWNGRADE PACKAGES
 "downgrade <PACKAGE NAME>"
@@ -119,7 +119,7 @@ Multiple commands attempt to fix the most common issues Manjaro users have with 
 
 "sudo rm -f /var/lib/pacman/db.lck" 
 This command removes Pacman's database lock. The database lock prevents multiple Pacman instances from running at the same time and interfering with each other.
-Attention: Only run this command when no other Pacman instance (e.g. Pacman, Yaourt, Pamac, Octopi, PacmanXG4, ...) is running.
+ATTENTION: Only run this command when no other Pacman instance (e.g. Pacman, Yaourt, Pamac, Octopi, PacmanXG4, ...) is running.
 
 "sudo pacman-mirrors -g && sudo pacman -Syy"
 This command searches for working and good Manjaro repository mirrors/servers. It will automatically choose the closest server for you. The second command forces a redownload of the latest package database from the best Manjaro repository mirror. 
@@ -129,15 +129,15 @@ This command searches for working and good Manjaro repository mirrors/servers. I
 "sudo dirmngr </dev/null"
 "sudo pacman-key --init && sudo pacman-key --populate archlinux manjaro"
 This series of commands resets and deletes your Pacman, Manjaro, and Arch key database and installs all keys again. This will solve problems with your local key database and Manjaro's and Arch's key database. Such problems can occur when new new packagers get added, for example.
-Attention: This command only works, when your system time is set correctly! Checking and importing keys or fingerprints is time sensitive.
-Attention: This command might take a long time to complete. If your system appears to stop or hang, it searches for entropy in order to generate a new key for you. In this case, it might help to do file operations with a lot of reads and/or writes per minute (such as searching for files, copying large directories, etc.). Alternatively, you can open a browser and do some heavy surfing (with a lot of mouse movements, mouse klicks, and keyboard key presses): This can help to generate entropy much faster.
-Attention: If you want to execute these commands manually on a system with key database problems, the command "pacman -Sy gnupg archlinux-keyring manjaro-keyring" will not work for you! In this case, connect manually (via your browser) to your Manjaro repository server, download these packages, and install these packages manually. Pacli will do all of this automatically for you. If this part of Pacli fails, please wait a couple of hours until your Manjaro mirror has synchronized and offers the latest version of these 3 packages: gnupg, archlinux-keyring, manjaro-keyring.
-Attention: The first command will remove all keys on your system, including manually installed keys (with "sudo pacman-key --lsign-key <KEY>"). Please remember to reinstall those keys again!
+ATTENTION: This command only works, when your system time is set correctly! Checking and importing keys or fingerprints is time sensitive.
+ATTENTION: This command might take a long time to complete. If your system appears to stop or hang, it searches for entropy in order to generate a new key for you. In this case, it might help to do file operations with a lot of reads and/or writes per minute (such as searching for files, copying large directories, etc.). Alternatively, you can open a browser and do some heavy surfing (with a lot of mouse movements, mouse klicks, and keyboard key presses): This can help to generate entropy much faster.
+ATTENTION: If you want to execute these commands manually on a system with key database problems, the command "pacman -Sy gnupg archlinux-keyring manjaro-keyring" will not work for you! In this case, connect manually (via your browser) to your Manjaro repository server, download these packages, and install these packages manually. Pacli will do all of this automatically for you. If this part of Pacli fails, please wait a couple of hours until your Manjaro mirror has synchronized and offers the latest version of these 3 packages: gnupg, archlinux-keyring, manjaro-keyring.
+ATTENTION: The first command will remove all keys on your system, including manually installed keys (with "sudo pacman-key --lsign-key <KEY>"). Please remember to reinstall those keys again!
 
 "sudo pacman -Sc"
 After an unseccessful attempt to update your system (which quit with a key error), you might have already downloaded unsigned packages to your pacman cache. These packages cannot be installed anymore.
 This command removes all packages from your pacman cache, which are not installed on your system. Afterwards, you need to download all previously downloaded but unsuccessfully installed packages again.
-Attention: This command will prevent you on a system without an active internet connection to DOWNGRADE PACKAGES.
+ATTENTION: This command will prevent you on a system without an active internet connection to DOWNGRADE PACKAGES.
 
 "sudo pacman -Syyuu"
 This last command forces a redownload of the latest package database from the best Manjaro repository mirror. Then, all your installed packages are checked against this latest package database. If an updated package is available from the Manjaro repositories, it will get downloaded and installed on your system. If an installed package is newer than the same package in the Manjaro repositories, the installed package will get downgraded. This behavior ensures your packages are always in sync with the Manajro repositories, even if you have just switched the Manjaro mirror or switched from unstable to stable branch.
@@ -149,7 +149,7 @@ This command does the same as UPDATE SYSTEM, but it bypasses file conflict tests
 14 - EMPTY PACKAGE CACHE
 "yaourt -Scc"
 This command will empty your entire package cache by deleting ALL packages.
-Attention: This will make it impossible to reinstall old packages or DOWNGRADE PACKAGES without a working internet connection.
+ATTENTION: This will make it impossible to reinstall old packages or DOWNGRADE PACKAGES without a working internet connection.
 
 15 - FORCE INSTALL PACKAGE
 "sudo pacman -S --force <PACKAGE NAME>"
@@ -158,12 +158,12 @@ This command does the same as INSTALL PACKAGE, but it forces the installation of
 16 - FORCE REMOVE PACKAGE
 "pacman -Rdd <PACKAGE NAME>"
 This command removes <PACKAGE NAME> without checking the dependencies of <PACKAGE NAME> first. This enables experienced users to remove packages and dependencies of packages. This command only removes <PACKAGE NAME> from your system. All dependencies and orphans are left: run CLEAN SYSTEM afterwards to remove them, too.
-Attention: This command can break pacakges on your system or even your entire system.
+ATTENTION: This command can break pacakges on your system or even your entire system.
 
 17 - UPDATE AUR
 "yaourt -Syua"
 This command does the same as UPDATE SYSTEM, but with one exception: It also updates all packages from Arch User Repository (AUR), which have an updated PKGBUILD file.
-Attention: When a new version of an AUR package is available, often the PKGBUILD file is not updated. If you want to install the latest version of an AUR package, (re-)install it with INSTALL FROM AUR. If you want to install the latest versions of all AUR packages use option FORCE UPDATE AUR.
+ATTENTION: When a new version of an AUR package is available, often the PKGBUILD file is not updated. If you want to install the latest version of an AUR package, (re-)install it with INSTALL FROM AUR. If you want to install the latest versions of all AUR packages use option FORCE UPDATE AUR.
 
 18 - FORCE UPDATE AUR
 "yaourt -Syua && yaourt -Syua --devel --noconfirm"
@@ -172,8 +172,8 @@ By checking a PKGBUILD file (and .INSTALL file) you can make sure the source cod
 A lot of PKGBUILD files contain variables (e.g. program version) in download addresses; this makes them download always the latest source code (e.g. from Github). Some PKGBUILD files contain no variables: These PKGBUILD files need to be changed manually every time a new program version is released.
 The first command of FORCE UPDATE AUR does the same as UPDATE AUR: Only AUR packages with updated/changed PKGBUILD files will get updated. This gives you the chance to check these updated/changed PKGBUILD files. 
 The second command of FORCE UPDATE AUR forces a reinstall of ALL your AUR packages. The "--noconfirm" flag is used in a secure way, because no PKGBUILD files have changed since the first command got executed.
-Attention: This might take a long time!
-Attention: By default, after every 15min this command will pause and ask again for your password.
+ATTENTION: This might take a long time!
+ATTENTION: By default, after every 15min this command will pause and ask again for your password.
 
 19 - SEARCH + INSTALL FROM AUR
 "yaourt <PACKAGE NAME>"
@@ -184,7 +184,7 @@ If you want to exit this mode without installing any packages, simply press [Ent
 20 - INSTALL FROM AUR
 "yaourt -S <PACKAGE NAME>"
 This command does the same as INSTALL PACKAGE. Additionally, Arch User Repository (AUR) packages can be installed.
-Attention: Experienced users can install packages from the AUR without the need to answer questions all the time by using the command "yaourt -S <PACKAGE NAME> --noconfirm". The "--noconfirm" flag is great for quick and dirty installations of AUR packages on non-secure systems. Please keep always in mind that the AUR can contain any sort of package - including malicious and destructive (parts of) packages. Therefore, it is recommended to always check the PKGBUILD and .INSTALL file manually before installing a package from the AUR.
+ATTENTION: Experienced users can install packages from the AUR without the need to answer questions all the time by using the command "yaourt -S <PACKAGE NAME> --noconfirm". The "--noconfirm" flag is great for quick and dirty installations of AUR packages on non-secure systems. Please keep always in mind that the AUR can contain any sort of package - including malicious and destructive (parts of) packages. Therefore, it is recommended to always check the PKGBUILD and .INSTALL file manually before installing a package from the AUR.
 
 21 - LIST INSTALLED FROM AUR
 "pacman -Qem"
@@ -196,9 +196,9 @@ To exit this Help Page, press "q".
 
 
 # "yaourt -Sl" downloads a list of packages EVERY TIME it is called. this is unacceptable.
-# write package list of repositories to /tmp/packages. then, download AUR package list, unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/packages.
-pacman -Slq > /tmp/packages &
-wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzip -f /tmp/aur/packages.gz && cat /tmp/aur/packages >> /tmp/packages &
+# write package list of repositories to /tmp/pacli/packages. then, download AUR package list, unzip it to /tmp/pacli/aur/packages, and add it to the bottom of /tmp/pacli/packages.
+pacman -Slq > /tmp/pacli/packages &
+wget -P /tmp/pacli/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzip -f /tmp/pacli/aur/packages.gz && cat /tmp/pacli/aur/packages >> /tmp/pacli/packages &
 
 
 # ANSI Escape sequences:
@@ -301,8 +301,8 @@ do
         5|info|Info|INFO|information|Information|INFORMATION)
             echo
 			
-            # the following command lets you search through the file "/tmp/packages" with fzf and save your selection in "pkg"
-            pkg=$(cat /tmp/packages | sort | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
+            # the following command lets you search through the file "/tmp/pacli/packages" with fzf and save your selection in "pkg"
+            pkg=$(cat /tmp/pacli/packages | sort | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
             # next, it is checked, whether "pkg" is part of a list of all installed packages (pacman -Qq).
             if (pacman -Qq "${pkg}" &>/dev/null)
             then
@@ -320,15 +320,20 @@ do
             ;;
         6|l|L|list|List|LIST)
             echo
-            pacman -Qlq $(pacman -Qq | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ') --color always
+			
+            # use fzf to ask the user to select an installed package. the package name gets save in variable "pkg"
+			pkg=$(pacman -Qq | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
+			
+			# take the output of command "pacman -Qlq ${pkg}" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacli/list.
+			pacman -Qlq ${pkg} --color always | fzf -m -e +s -i -q /usr/bin/ --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Cancel lists selection with CTRL+C or ESC." --prompt='Enter one or more filter terms > ' >> /tmp/pacli/list
+			
+			unset pkg 
             echo
-            echo -e " All local files in package listed. To return to pacli press [Enter] "
-            read
             ;;
         7|t|T|tree|Tree|TREE)
             echo
 			
-            pkg=$(cat /tmp/packages | sort | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
+            pkg=$(cat /tmp/pacli/packages | sort | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
             if (pacman -Qq "${pkg}" &>/dev/null)
             then
                 out=$(pactree -c "${pkg}")
@@ -352,7 +357,7 @@ do
 
         9|log|Log|LOG)
             echo
-            tail -5000 /var/log/pacman.log | fzf -m +s -i -0 -q alpm --tac --cycle --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Cancel lists selection with CTRL+C or ESC." --prompt='Enter one or more filter terms > '
+            tail -5000 /var/log/pacman.log | fzf -m -e +s -i -0 -q alpm --tac --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Cancel lists selection with CTRL+C or ESC." --prompt='Enter one or more filter terms > ' >> /tmp/pacli/log
             echo
             ;;			
         10|d|D|down|Down|DOWN|downgrade|Downgrade|DOWNGRADE)
@@ -464,7 +469,7 @@ do
             ;;
         20|ia|Ia|iA|IA|installaur|InstallAur|InstallAUR|INSTALLAUR)
             echo
-            yaourt -S $(cat /tmp/packages | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ')
+            yaourt -S $(cat /tmp/pacli/packages | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ')
             echo
             echo -e " Installation from AUR finished. To return to pacli press [Enter] "
             read
