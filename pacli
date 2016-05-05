@@ -322,12 +322,12 @@ do
             echo
 			
             # use fzf to ask the user to select an installed package. the package name gets save in variable "pkg"
-			pkg=$(pacman -Qq | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
+            pkg=$(pacman -Qq | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
 			
-			# take the output of command "pacman -Qlq ${pkg}" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacli/list.
-			pacman -Qlq ${pkg} --color always | fzf -m -e +s -i -q /usr/bin/ --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Cancel lists selection with CTRL+C or ESC." --prompt='Enter one or more filter terms > ' >> /tmp/pacli/list
+            # take the output of command "pacman -Qlq ${pkg}" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacli/list.
+            pacman -Qlq ${pkg} --color always | fzf -m -e +s -i -q /usr/bin/ --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Cancel lists selection with CTRL+C or ESC." --prompt='Enter one or more filter terms > ' >> /tmp/pacli/list
 			
-			unset pkg 
+            unset pkg 
             echo
             ;;
         7|t|T|tree|Tree|TREE)
@@ -350,7 +350,7 @@ do
             echo
             pactree -c -r $(pacman -Qq | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
             echo
-            echo -e " Reverse dependency tree displayed. To return to pacli press [Enter] "
+            echo -e " Reverse dependency tree displayed. Navigate with CTRL+PageUp. To return to pacli press [Enter] "
             read
             ;;
 
