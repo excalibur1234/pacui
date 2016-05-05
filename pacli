@@ -202,10 +202,10 @@ wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzi
 
 
 # ANSI Escape sequences:
-#  \e[31m		# red text
-#  \e[41m		# red background
-#  \e[0m		# no-colored text without background color
-#  \e[1m		# bold text
+#  \e[31m	# red text
+#  \e[41m	# red background
+#  \e[0m	# no-colored text without background color
+#  \e[1m	# bold text
 
 
 # pacli bash script starts here
@@ -236,7 +236,7 @@ do
     echo -e " │   21   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR                                     │"
     echo -e " └────────────────────────────────────────────────────────────────────┘"
     echo
-    echo -e "  Enter a number between 0...21 and press [Enter] \e[0m   -  0   \e[1mE\e[0mxit Pacli "
+    echo -e "  Enter a number, letter, or word and press [Enter] \e[0m  -  0  \e[1mE\e[0mxit Pacli "
     echo
 
     # save entered number in varialbe "choice" and test, whether "chioce" fits any of the following numbers, letters, or words
@@ -352,7 +352,7 @@ do
 
         9|log|Log|LOG)
             echo
-			tail -5000 /var/log/pacman.log | fzf -m +s -i -0 -q alpm --tac --cycle --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Cancel lists selection with CTRL+C or ESC." --prompt='Enter one or more filter terms > '
+            tail -5000 /var/log/pacman.log | fzf -m +s -i -0 -q alpm --tac --cycle --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Cancel lists selection with CTRL+C or ESC." --prompt='Enter one or more filter terms > '
             echo
             ;;			
         10|d|D|down|Down|DOWN|downgrade|Downgrade|DOWNGRADE)
