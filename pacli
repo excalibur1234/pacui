@@ -23,14 +23,127 @@
 #  Discussion in the Manjaro forum: http://polr.me/pacli1
 
 
-# function with help text
-help_text() {
+
+update_function(){
+		sudo pacman -Syu --color always
+}
+
+
+clean_function(){
+		sudo pacman-mirrors -g && sudo pacman -Syy --color always
+		yaourt -Qdt
+		paccache -ruvk0
+		paccache -rvk2
+
+		# 1. extract the name of hard drive the / partition is installed on and write it to the "disk" variatble"
+		disk=$(lsblk -o "name,mountpoint" -pa | sed -n '/^\//h;/\/$/{g;p}' | cut -d/ -f3)
+		disk="${disk:0:3}"
+		# 2. check, whether "disk" is not empty and whether the path to "disk" exists
+		if [[ -n "$disk" && -e "/dev/$disk" ]]
+		then
+			# open the "rotational" file belonging to your "disk" and checking, whether it contains a "1" - this means your "disk" is a traditional hard drive and no SSD.
+			if [[ $(cat $(find /sys -name 'rotational' 2>/dev/null | grep "$disk/queue")) == "1" ]]
+			then
+			# only execute the following line when your / parition is installed on a hard drive.
+			sudo pacman-optimize
+			fi
+		fi
+		unset disk
+}
+
+
+install_function(){
+		# the "package-query -Sl -f '%n  %v  -  %d' " displays a list of all packages from the Manjaro repositories and formats them like "NAME  VERSION  -  DESCRIPTION".
+		sudo pacman -S $(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ' | awk '{print $1}') --color always
+}
+
+
+remove_function(){
+		# $(pacman -Qq | sort | fzf -e -m +s --reverse --prompt='Select packages to remove (use TAB to toggle selection) > ')
+		# takes a package list from "pacman -Qq", then sorts it alphabetically, then make the resulting list available to fzf.
+		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
+		sudo pacman -Rsn $(pacman -Qq | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search installed packages and select to remove > ') --color always
+
+}
+
+
+information_function(){
+		# check, whether file /tmp/pacli/packages already exists (the ! negates the result)
+		if ! [ -e /tmp/pacli/packages ]
+		then
+			# write package list of repositories to /tmp/pacli/packages. then, download AUR package list, unzip it to /tmp/pacli/aur/packages, and add it to the bottom of /tmp/pacli/packages.
+			pacman -Slq > /tmp/pacli/packages
+			wget -P /tmp/pacli/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzip -f /tmp/pacli/aur/packages.gz && cat /tmp/pacli/aur/packages >> /tmp/pacli/packages
+		fi
+			
+		# the following command lets you search through the file "/tmp/pacli/packages" with fzf and save your selection in "pkg"
+		pkg=$(cat /tmp/pacli/packages | sort | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
+		# next, it is checked, whether "pkg" is part of a list of all installed packages (pacman -Qq).
+		if (pacman -Qq "${pkg}" &>/dev/null)
+		then
+			out=$(yaourt -Qii "${pkg}")		# write this command to the "out" variable when "pkg" is already installed on system
+		else
+			out=$(yaourt -Sii "${pkg}")		# write this command to the "out" variable when "pkd" is not installed on system
+		fi
+		# execute the "out" variable and format its output nicely
+		echo -e "$out" | grep -v "\-\-$" | sed 's/ : \(.*\)/ \x1b[0m: \x1b[1m\1\x1b[0m/; s/  \(.*\)/  \x1b[1m\1\x1b[0m/'
+		unset pkg out
+}
+
+
+list_files_function(){
+		# use fzf to ask the user to select an installed package. the package name gets save in variable "pkg"
+		pkg=$(pacman -Qq | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
+			
+		# take the output of command "pacman -Qlq ${pkg}" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacli/list.
+		pacman -Qlq ${pkg} --color always | fzf -m -e +s -i -q /usr/bin/ --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Cancel lists selection with CTRL+C or ESC." --prompt='Enter one or more filter terms > ' >> /tmp/pacli/list
+			
+		unset pkg 
+}
+
+
+tree_function(){
+		# check, whether file /tmp/pacli/packages already exists (the ! negates the result)
+		if ! [ -e /tmp/pacli/packages ]
+		then
+			# write package list of repositories to /tmp/pacli/packages. then, download AUR package list, unzip it to /tmp/pacli/aur/packages, and add it to the bottom of /tmp/pacli/packages.
+			pacman -Slq > /tmp/pacli/packages
+			wget -P /tmp/pacli/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzip -f /tmp/pacli/aur/packages.gz && cat /tmp/pacli/aur/packages >> /tmp/pacli/packages
+		fi
+
+		pkg=$(cat /tmp/pacli/packages | sort | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
+		if (pacman -Qq "${pkg}" &>/dev/null)
+		then
+			pactree -c ${pkg}
+		else
+			pactree -c -s ${pkg}
+		fi
+		unset pkg
+}
+
+
+reverse_tree_function(){
+		pactree -c -r $(pacman -Qq | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
+}
+
+
+log_function(){
+		tail -5000 /var/log/pacman.log | fzf -m -e +s -i -0 -q alpm --tac --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Cancel lists selection with CTRL+C or ESC." --prompt='Enter one or more filter terms > ' >> /tmp/pacli/log
+}
+
+
+downgrade_function(){
+		downgrade $(pacman -Qq | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package to downgrade > ')
+}
+
+
+
+help_function() {
 	less 	<<-EOF
 Welcome to Pacli's Help Page.
 
 Pacli is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Yaourt as back ends. Additionally, it uses some Manjaro exclusive commands. Pacli offers you the most common and useful features for managing your packages. Options, which can break your system, are marked in red.
 Navigate this help page with your Arrow Keys, PageUp/PageDown Keys, SpaceBar, or your Mouse Wheel.
-If you ever want to abort any of Pacli's actions or any action in your terminal, simply press CTRL+C.
 On the following Help Page all options Pacli offers are described in detail:
 
 HOME SCREEN
@@ -195,10 +308,310 @@ To exit this Help Page, press "q".
 }
 
 
-# "yaourt -Sl" downloads a list of packages EVERY TIME it is called. this is unacceptable.
-# write package list of repositories to /tmp/pacli/packages. then, download AUR package list, unzip it to /tmp/pacli/aur/packages, and add it to the bottom of /tmp/pacli/packages.
-pacman -Slq > /tmp/pacli/packages &
-wget -P /tmp/pacli/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzip -f /tmp/pacli/aur/packages.gz && cat /tmp/pacli/aur/packages >> /tmp/pacli/packages &
+
+fix_function(){
+		sudo rm -f /var/lib/pacman/db.lck
+		sudo pacman-mirrors -g && sudo pacman -Syy
+
+		sudo rm -r /etc/pacman.d/gnupg &>/dev/null
+
+		# manually download and install these packages: gnupg, archlinux-keyring, manjaro-keyring
+		arch=$(uname -m)
+		# extract the name of your used branch from your "/etc/pacman-mirrors.conf" file and store it in "mybranch" variable
+		mybranch=$(awk -F'=' '/^Branch/ {print $2}' /etc/pacman-mirrors.conf)
+		# extract the version number of gnupg in the Manjaro repositories and save it in "version" variable
+		version="$(lang=C pacman -Si gnupg | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
+		# save the address of the latest gnupg package on a reliable Manjaro mirror to "url" variable
+		url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/gnupg${version}-${arch}.pkg.tar.xz"
+		wget "${url}" && sudo pacman -U "gnupg${version}-${arch}.pkg.tar.xz" --noconfirm && sudo rm "gnupg${version}-${arch}.pkg.tar.xz"
+
+		version="$(lang=C pacman -Si archlinux-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
+		url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/archlinux-keyring${version}-any.pkg.tar.xz"
+		wget "${url}" && sudo pacman -U "archlinux-keyring${version}-any.pkg.tar.xz" --noconfirm && sudo rm "archlinux-keyring${version}-any.pkg.tar.xz"
+
+		version="$(lang=C pacman -Si manjaro-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
+		url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/manjaro-keyring${version}-any.pkg.tar.xz"
+		wget "${url}" && sudo pacman -U "manjaro-keyring${version}-any.pkg.tar.xz" --noconfirm && sudo rm "manjaro-keyring${version}-any.pkg.tar.xz"
+		unset arch version url
+
+		# the following command sometimes prevents an error connecting to the key server		
+		sudo dirmngr </dev/null
+		sudo pacman-key --init && sudo pacman-key --populate archlinux manjaro
+
+		sudo pacman -Sc --noconfirm
+		sudo pacman -Syyuu --color always --noconfirm
+}
+
+
+force_update_function(){
+		sudo pacman -Syu --force --color always
+}
+
+
+empty_cache_function(){
+		yaourt -Scc
+}
+
+
+force_install_function(){
+		sudo pacman -S --force $(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ' | awk '{print $1}') --color always
+}
+
+
+force_remove_function(){
+		sudo pacman -Rdd $(pacman -Qq | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search installed packages and select to remove > ') --color always
+}
+
+
+update_aur_function(){
+		yaourt -Syua
+}
+
+
+force_update_aur_function(){
+		yaourt -Syua && yaourt -Syua --devel --noconfirm
+}
+
+
+search_install_aur_function(){
+		echo "Enter name of package to be searched and installed from AUR and press [Enter] to continue"
+		read Packcage
+		yaourt $Packcage
+}
+
+
+install_aur_function(){
+		# check, whether file /tmp/pacli/packages already exists (the ! negates the result)
+		if ! [ -e /tmp/pacli/packages ]
+		then
+			# write package list of repositories to /tmp/pacli/packages. then, download AUR package list, unzip it to /tmp/pacli/aur/packages, and add it to the bottom of /tmp/pacli/packages.
+			pacman -Slq > /tmp/pacli/packages
+			wget -P /tmp/pacli/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzip -f /tmp/pacli/aur/packages.gz && cat /tmp/pacli/aur/packages >> /tmp/pacli/packages
+		fi
+			
+		yaourt -S $(cat /tmp/pacli/packages | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ')
+}
+
+
+list_aur_function(){
+		pacman -Qem --color always
+}
+
+
+
+# =========================================================
+# The following functions can be called from your terminal (when the pacli bash script was placed in your /usr/bin/ directory before)
+# example: "pacli i" or "pacli install" will call the same "install_function" function used in pacli
+
+
+u(){ 
+# the following line checks, whether file /tmp/pacli/test does not exist. then, the code is executed.
+if ! [ -e /tmp/pacli/pacli_is_running ]
+then
+	update_function
+	exit
+fi
+}
+
+
+c(){ 
+# the following line checks, whether file /tmp/pacli/test does not exist. then, the code is executed.
+if ! [ -e /tmp/pacli/pacli_is_running ]
+then
+	clean_function
+	exit
+fi
+}
+
+
+i(){ 
+# the following line checks, whether file /tmp/pacli/test does not exist. then, the code is executed.
+if ! [ -e /tmp/pacli/pacli_is_running ]
+then
+	install_function
+	exit
+fi
+}
+
+
+r(){ 
+# the following line checks, whether file /tmp/pacli/test does not exist. then, the code is executed.
+if ! [ -e /tmp/pacli/pacli_is_running ]
+then
+	remove_function
+	exit
+fi
+}
+
+
+info(){ 
+# the following line checks, whether file /tmp/pacli/test does not exist. then, the code is executed.
+if ! [ -e /tmp/pacli/pacli_is_running ]
+then
+	information_function
+	exit
+fi
+}
+
+
+l(){ 
+# the following line checks, whether file /tmp/pacli/test does not exist. then, the code is executed.
+if ! [ -e /tmp/pacli/pacli_is_running ]
+then
+	list_files_function
+	exit
+fi
+}
+
+
+t(){ 
+# the following line checks, whether file /tmp/pacli/test does not exist. then, the code is executed.
+if ! [ -e /tmp/pacli/pacli_is_running ]
+then
+	tree_function
+	exit
+fi
+}
+
+
+rt(){ 
+# the following line checks, whether file /tmp/pacli/test does not exist. then, the code is executed.
+if ! [ -e /tmp/pacli/pacli_is_running ]
+then
+	reverse_tree_function
+	exit
+fi
+}
+
+
+log(){ 
+# the following line checks, whether file /tmp/pacli/test does not exist. then, the code is executed.
+if ! [ -e /tmp/pacli/pacli_is_running ]
+then
+	log_function
+	exit
+fi
+}
+
+
+d(){ 
+# the following line checks, whether file /tmp/pacli/test does not exist. then, the code is executed.
+if ! [ -e /tmp/pacli/pacli_is_running ]
+then
+	downgrade_function
+	exit
+fi
+}
+
+
+h(){ 
+# the following line checks, whether file /tmp/pacli/test does not exist. then, the code is executed.
+if ! [ -e /tmp/pacli/pacli_is_running ]
+then
+	help_function
+	exit
+fi
+}
+
+
+fix(){ 
+# the following line checks, whether file /tmp/pacli/test does not exist. then, the code is executed.
+if ! [ -e /tmp/pacli/pacli_is_running ]
+then
+	fix_function
+	exit
+fi
+}
+
+
+fu(){ 
+# the following line checks, whether file /tmp/pacli/test does not exist. then, the code is executed.
+if ! [ -e /tmp/pacli/pacli_is_running ]
+then
+	force_update_function
+	exit
+fi
+}
+
+
+empty(){ 
+# the following line checks, whether file /tmp/pacli/test does not exist. then, the code is executed.
+if ! [ -e /tmp/pacli/pacli_is_running ]
+then
+	empty_cache_function
+	exit
+fi
+}
+
+
+fr(){ 
+# the following line checks, whether file /tmp/pacli/test does not exist. then, the code is executed.
+if ! [ -e /tmp/pacli/pacli_is_running ]
+then
+	force_remove_function
+	exit
+fi
+}
+
+
+ua(){ 
+# the following line checks, whether file /tmp/pacli/test does not exist. then, the code is executed.
+if ! [ -e /tmp/pacli/pacli_is_running ]
+then
+	update_aur_function
+	exit
+fi
+}
+
+
+fua(){ 
+# the following line checks, whether file /tmp/pacli/test does not exist. then, the code is executed.
+if ! [ -e /tmp/pacli/pacli_is_running ]
+then
+	force_update_aur_function
+	exit
+fi
+}
+
+
+a(){ 
+# the following line checks, whether file /tmp/pacli/test does not exist. then, the code is executed.
+if ! [ -e /tmp/pacli/pacli_is_running ]
+then
+	search_install_aur_function
+	exit
+fi
+}
+
+
+ia(){ 
+# the following line checks, whether file /tmp/pacli/test does not exist. then, the code is executed.
+if ! [ -e /tmp/pacli/pacli_is_running ]
+then
+	install_aur_function
+	exit
+fi
+}
+
+
+la(){ 
+# the following line checks, whether file /tmp/pacli/test does not exist. then, the code is executed.
+if ! [ -e /tmp/pacli/pacli_is_running ]
+then
+	list_aur_function
+	exit
+fi
+}
+
+
+
+# =========================================================
+# the following line is placed at the end of all function definitions. then, all functions can be called directly in your terminal.
+$@
+
+
+# the file /tmp/pacli/pacli_is_running is being created before the main pacli bash script starts and the same file is removed again when the pacli bash script finishes. functions check, whether this file exists in order to be comfortably run in your terminal.
+touch /tmp/pacli/pacli_is_running
 
 
 # ANSI Escape sequences:
@@ -246,187 +659,102 @@ do
 
         1|u|U|update|Update|UPDATE)
             # the line above means: 1 OR u OR U OR update OR ...
-            echo			
-            sudo pacman -Syu --color always
+            echo
+            update_function
             echo
             echo -e " Your system is updated. To return to pacli press [Enter] "
             read
             ;;
         2|c|C|clean|Clean|CLEAN)
             echo
-
-            sudo pacman-mirrors -g && sudo pacman -Syy --color always
-            yaourt -Qdt
-            paccache -ruvk0
-            paccache -rvk2
-
-            # 1. extract the name of hard drive the / partition is installed on and write it to the "disk" variatble"
-            disk=$(lsblk -o "name,mountpoint" -pa | sed -n '/^\//h;/\/$/{g;p}' | cut -d/ -f3)
-            disk="${disk:0:3}"
-            # 2. check, whether "disk" is not empty and whether the path to "disk" exists
-            if [[ -n "$disk" && -e "/dev/$disk" ]]
-            then
-                # open the "rotational" file belonging to your "disk" and checking, whether it contains a "1" - this means your "disk" is a traditional hard drive and no SSD.
-                if [[ $(cat $(find /sys -name 'rotational' 2>/dev/null | grep "$disk/queue")) == "1" ]]
-                then
-                # only execute the following line when your / parition is installed on a hard drive.
-                sudo pacman-optimize
-                fi
-            fi
-            unset disk
-
+			clean_function
             echo
             echo -e " Fast Mirror chosen, orphans removed, and old packages deleted from cache. To return to pacli press [Enter] "
             read
             ;;
         3|i|I|install|Install|INSTALL)
             echo
-            # for a comment about the fzf command see below
-            # the "package-query -Sl -f '%n  %v  -  %d' " displays a list of all packages from the Manjaro repositories and formats them like "NAME  VERSION  -  DESCRIPTION".
-            sudo pacman -S $(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ' | awk '{print $1}') --color always
+			install_function
             echo
             echo -e " Package installation is finished. To return to pacli press [Enter] "
             read
             ;;
         4|r|R|remove|Remove|REMOVE)
             echo
-            # $(pacman -Qq | sort | fzf -e -m +s --reverse --prompt='Select packages to remove (use TAB to toggle selection) > ')
-            # takes a package list from "pacman -Qq", then sorts it alphabetically, then make the resulting list available to fzf.
-            # fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
-            sudo pacman -Rsn $(pacman -Qq | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search installed packages and select to remove > ') --color always
-            echo
+			remove_function
+			echo
             echo -e " Packages and all unneeded dependencies removed. To return to pacli press [Enter] "
             read
             ;;
         5|info|Info|INFO|information|Information|INFORMATION)
             echo
-			
-            # the following command lets you search through the file "/tmp/pacli/packages" with fzf and save your selection in "pkg"
-            pkg=$(cat /tmp/pacli/packages | sort | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
-            # next, it is checked, whether "pkg" is part of a list of all installed packages (pacman -Qq).
-            if (pacman -Qq "${pkg}" &>/dev/null)
-            then
-                out=$(yaourt -Qii "${pkg}")		# write this command to the "out" variable when "pkg" is already installed on system
-            else
-                out=$(yaourt -Sii "${pkg}")		# write this command to the "out" variable when "pkd" is not installed on system
-            fi
-            # execute the "out" variable and format its output nicely
-            echo -e "$out" | grep -v "\-\-$" | sed 's/ : \(.*\)/ \x1b[0m: \x1b[1m\1\x1b[0m/; s/  \(.*\)/  \x1b[1m\1\x1b[0m/'
-            unset pkg out
-
+			information_function
             echo
             echo -e " Package information displayed. To return to pacli press [Enter] "
             read
             ;;
         6|l|L|list|List|LIST)
             echo
-			
-            # use fzf to ask the user to select an installed package. the package name gets save in variable "pkg"
-            pkg=$(pacman -Qq | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
-			
-            # take the output of command "pacman -Qlq ${pkg}" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacli/list.
-            pacman -Qlq ${pkg} --color always | fzf -m -e +s -i -q /usr/bin/ --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Cancel lists selection with CTRL+C or ESC." --prompt='Enter one or more filter terms > ' >> /tmp/pacli/list
-			
-            unset pkg 
+			list_files_function
             echo
             ;;
         7|t|T|tree|Tree|TREE)
             echo
-			
-            pkg=$(cat /tmp/pacli/packages | sort | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
-            if (pacman -Qq "${pkg}" &>/dev/null)
-            then
-                pactree -c ${pkg}
-            else
-                pactree -c -s ${pkg}
-            fi
-            unset pkg
-
+			tree_function
             echo
             echo -e " Dependency tree displayed. Navigate with CTRL+PageUp. To return to pacli press [Enter] "
             read
             ;;
         8|rt|RT|rT|Rt|reversetree|ReverseTree|REVERSETREE)
             echo
-            pactree -c -r $(pacman -Qq | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
+			reverse_tree_function
             echo
             echo -e " Reverse dependency tree displayed. Navigate with CTRL+PageUp. To return to pacli press [Enter] "
             read
             ;;
 
+
         9|log|Log|LOG)
             echo
-            tail -5000 /var/log/pacman.log | fzf -m -e +s -i -0 -q alpm --tac --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Cancel lists selection with CTRL+C or ESC." --prompt='Enter one or more filter terms > ' >> /tmp/pacli/log
+			log_function
             echo
             ;;			
         10|d|D|down|Down|DOWN|downgrade|Downgrade|DOWNGRADE)
             echo
-            downgrade $(pacman -Qq | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package to downgrade > ')
+			downgrade_function
             echo
             echo -e " Downgrade process finished. To return to pacli press [Enter] "
             read
             ;;
         11|00|33|44|55|66|77|88|99|100|111|122|133|144|155|166|177|188|199|200|211|h|H|help|Help|HELP)
             echo
-            # the following command calls the "help_text" function defined at the beginning of this bash script
-            help_text
+            help_function
             echo
             ;;
         12|fix|Fix|FIX)
             echo
-			
-            sudo rm -f /var/lib/pacman/db.lck
-            sudo pacman-mirrors -g && sudo pacman -Syy
-
-            sudo rm -r /etc/pacman.d/gnupg &>/dev/null
-
-            # manually download and install these packages: gnupg, archlinux-keyring, manjaro-keyring
-            arch=$(uname -m)
-            # extract the name of your used branch from your "/etc/pacman-mirrors.conf" file and store it in "mybranch" variable
-            mybranch=$(awk -F'=' '/^Branch/ {print $2}' /etc/pacman-mirrors.conf)
-            # extract the version number of gnupg in the Manjaro repositories and save it in "version" variable
-            version="$(lang=C pacman -Si gnupg | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
-            # save the address of the latest gnupg package on a reliable Manjaro mirror to "url" variable
-            url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/gnupg${version}-${arch}.pkg.tar.xz"
-            wget "${url}" && sudo pacman -U "gnupg${version}-${arch}.pkg.tar.xz" --noconfirm && sudo rm "gnupg${version}-${arch}.pkg.tar.xz"
-
-            version="$(lang=C pacman -Si archlinux-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
-            url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/archlinux-keyring${version}-any.pkg.tar.xz"
-            wget "${url}" && sudo pacman -U "archlinux-keyring${version}-any.pkg.tar.xz" --noconfirm && sudo rm "archlinux-keyring${version}-any.pkg.tar.xz"
-
-            version="$(lang=C pacman -Si manjaro-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
-            url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/manjaro-keyring${version}-any.pkg.tar.xz"
-            wget "${url}" && sudo pacman -U "manjaro-keyring${version}-any.pkg.tar.xz" --noconfirm && sudo rm "manjaro-keyring${version}-any.pkg.tar.xz"
-            unset arch version url
-
-            # the following command sometimes prevents an error connecting to the key server		
-            sudo dirmngr </dev/null
-            sudo pacman-key --init && sudo pacman-key --populate archlinux manjaro
-
-            sudo pacman -Sc --noconfirm
-            sudo pacman -Syyuu --color always --noconfirm
-
+			fix_function
             echo
             echo -e " Most common Pacman errors fixed and system updated. To return to pacli press [Enter] "
             read
             ;;
         13|fu|Fu|fU|FU|forceupdate|ForceUpdate|FORCEUPDATE)
             echo
-            sudo pacman -Syu --force --color always
+			force_update_function
             echo
             echo -e " Your system was updated in force mode. To return to pacli press [Enter] "
             read
             ;;
         14|empty|Empty|EMPTY)
             echo
-            yaourt -Scc
+			empty_cache_function
             echo
             echo -e " Entire package cache emptied. To return to pacli press [Enter] "
             read
             ;;
         15|fi|Fi|fI|FI|forceinstall|ForceInstall|FORCEINSTALL)
             echo
-            sudo pacman -S --force $(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ' | awk '{print $1}') --color always
+			force_install_function
             echo
             echo -e " Package installation in force mode is finished. To return to pacli press [Enter] "
             read
@@ -434,48 +762,44 @@ do
 
         16|fr|Fr|fR|FR|forceremove|ForceRemove|FORCEREMOVE)
             echo
-            sudo pacman -Rdd $(pacman -Qq | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search installed packages and select to remove > ') --color always
-            echo
+			force_remove_function
+			echo
             echo -e " Dependency in force mode removed. To return to pacli press [Enter] "
             read
             ;;
 
 
-
         17|ua|Ua|uA|UA|updateaur|updateAUR|UpdateAur|UpdateAUR|UPDATEAUR)
             echo
-            yaourt -Syua
+			update_aur_function
             echo
             echo -e " Your system is updated. To return to pacli press [Enter] "
             read
             ;;
         18|fua|FUA|forceupdateaur|forceupdateAUR|ForceUpdateAur|ForceUpdateAUR|FORCEUPDATEAUR)
             echo
-            yaourt -Syua && yaourt -Syua --devel --noconfirm
+			force_update_aur_function
             echo
             echo -e " All AUR packages reinstalled. To return to pacli press [Enter] "
             read
             ;;
         19|a|A|aur|AUR)
             echo
-            echo "Enter name of package to be searched and installed from AUR and press [Enter] to continue"
-            echo
-            read Packcage
-            yaourt $Packcage
+			search_install_aur_function
             echo
             echo -e " Yaourt finished. To return to pacli press [Enter] "
             read
             ;;
         20|ia|Ia|iA|IA|installaur|InstallAur|InstallAUR|INSTALLAUR)
             echo
-            yaourt -S $(cat /tmp/pacli/packages | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ')
+			install_aur_function
             echo
             echo -e " Installation from AUR finished. To return to pacli press [Enter] "
             read
             ;;
         21|la|La|lA|LA|listaur|listAUR|ListAur|ListAUR|LISTAUR)
             echo
-            pacman -Qem --color always
+			list_aur_function
             echo
             echo -e " All locally installed packages listed. To return to pacli press [Enter] "
             read
@@ -484,6 +808,7 @@ do
 
         0|e|E|exit|Exit|EXIT|q|Q|quit|Quit|QUIT)
             echo
+			rm /tmp/pacli/pacli_is_running
             clear && exit
             read
             ;;
@@ -497,3 +822,5 @@ do
             ;;
     esac
 done
+
+rm /tmp/pacli/pacli_is_running

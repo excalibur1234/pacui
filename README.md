@@ -17,7 +17,7 @@ Home Screen of pacli:
 ![Screenshot 01](http://imagizer.imageshack.com/img924/7457/zoU5u2.png)
 
 Installing the package "cantata" from the Manjaro repositories:
-![Screenshot 02](http://i.imgur.com/m1Kzp8U.png)
+![Screenshot 02](http://imagizer.imageshack.com/img923/4341/rlbOYN.png)
 
 Removing "qt4" and another package from my system:
 ![Screenshot 03](http://i.imgur.com/jJKrdp5.png)
@@ -54,7 +54,7 @@ cd pacli-simple && chmod +x pacli && ./pacli
 ```
 
 
-## Start pacli
+## Use pacli
 In order to start pacli, you need to execute the "pacli" file in your pacli directory. When you followed the installation instructions above, just go to your home directory and execute:
 ```
 ./pacli-simple/pacli
@@ -65,6 +65,8 @@ If you want to start pacli with a simple "pacli" command from anywhere in your t
 sudo cp ~/pacli-simple/pacli /usr/bin/
 ```
 Now, you type "pacli" into your terminal and pacli will start.
+
+You can also type "pacli i" (note that "i" is marked in pacli's option no. 3) into your terminal and pacli's option 3 will execute without pacli being started. This command can be used with all marked options in pacli, for example: "pacli fua", "pacli l", "pacli log", etc.
 
 
 ## Help
