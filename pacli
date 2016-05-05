@@ -100,10 +100,9 @@ This command will display a tree of installed packages, which depend on <PACKAGE
 Use this command when you want to know why you cannot remove <PACKAGE NAME> from your system.
 
 9 - PACMAN LOG
-"tail -2000 /var/log/pacman.log"
-This command displays the last 2000 lines of your Pacman Log.
+"tail -5000 /var/log/pacman.log"
+This command displays the last 5000 lines of your Pacman Log and makes it searchable with fzf. Please note that nothing will happen to selected packages.
 The Pacman Log contains all updates, installations, and removals (also in the AUR) you have done. Whenever something breaks on your system (e.g. after an udpate), but you do not remember anymore which packages were changed recently (e.g. during the update), take a look at your Pacman Log and find out. Then, DOWNGRADE PACKAGES, which you think might be broken.
-Navigate the list with your Mouse Wheel or SHIFT + PageUp.
 
 10 - DOWNGRADE PACKAGES
 "downgrade <PACKAGE NAME>"
@@ -353,10 +352,8 @@ do
 
         9|log|Log|LOG)
             echo
-            tail -2000 /var/log/pacman.log
+			tail -5000 /var/log/pacman.log | fzf -m +s -i -0 -q alpm --tac --cycle --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Cancel lists selection with CTRL+C or ESC." --prompt='Enter one or more filter terms > '
             echo
-            echo -e " Last 2000 lines of Pacman Log displayed. Navigate with SHIFT+PageUp. To return to pacli press [Enter] "
-            read
             ;;			
         10|d|D|down|Down|DOWN|downgrade|Downgrade|DOWNGRADE)
             echo
