@@ -225,7 +225,7 @@ do
     echo -e " └────────────────────────────────────────────────────────────────────┘"
     echo -e " ┌────────────────────────────────────────────────────────────────────┐"
     echo -e " │    9   Pacman \e[1mLog\e[0m                   10   \e[1mD\e[0mowngrade Packages        │"
-    echo -e " │   11   \e[1mH\e[0melp                       \e[41m  12   \e[1mFix\e[0m\e[41m Errors               \e[0m │"
+    echo -e " │   11   \e[1mH\e[0melp                      \e[41m   12   \e[1mFix\e[0m\e[41m Errors               \e[0m │"
     echo -e " │ \e[41m  13   \e[1mF\e[0m\e[41morce \e[1mU\e[0m\e[41mpdate System          14   \e[1mEmpty\e[0m\e[41m Package Cache      \e[0m │"
     echo -e " │ \e[41m  15   \e[1mF\e[0m\e[41morce \e[1mI\e[0m\e[41mnstall Package        16   \e[1mF\e[0m\e[41morce \e[1mR\e[0m\e[41memove Package     \e[0m │"
     echo -e " └────────────────────────────────────────────────────────────────────┘"
