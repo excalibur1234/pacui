@@ -336,15 +336,14 @@ do
             pkg=$(cat /tmp/pacli/packages | sort | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
             if (pacman -Qq "${pkg}" &>/dev/null)
             then
-                out=$(pactree -c "${pkg}")
+                pactree -c ${pkg}
             else
-                out=$(pactree -c -s "${pkg}")
+                pactree -c -s ${pkg}
             fi
-            echo -e "$out"
-            unset pkg out
+            unset pkg
 
             echo
-            echo -e " Dependency tree displayed. To return to pacli press [Enter] "
+            echo -e " Dependency tree displayed. Navigate with CTRL+PageUp. To return to pacli press [Enter] "
             read
             ;;
         8|rt|RT|rT|Rt|reversetree|ReverseTree|REVERSETREE)
