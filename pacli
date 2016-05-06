@@ -103,15 +103,11 @@ list_files_function(){
 
 
 tree_function(){
-		# check, whether file /tmp/pacli/packages already exists (the ! negates the result)
-		if ! [ -e /tmp/pacli/packages ]
-		then
-			# write package list of repositories to /tmp/pacli/packages. then, download AUR package list, unzip it to /tmp/pacli/aur/packages, and add it to the bottom of /tmp/pacli/packages.
-			pacman -Slq > /tmp/pacli/packages
-			wget -P /tmp/pacli/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzip -f /tmp/pacli/aur/packages.gz && cat /tmp/pacli/aur/packages >> /tmp/pacli/packages
-		fi
+		# write package list of Manjaro repositories to /tmp/pacli/packages-local. then add all instaled packages to the bottom of /tmp/pacli/packages-local.
+		pacman -Slq > /tmp/pacli/packages-local
+		pacman -Qq >> /tmp/pacli/packages-local
 
-		pkg=$(cat /tmp/pacli/packages | sort | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
+		pkg=$(cat /tmp/pacli/packages-local | sort | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
 		if (pacman -Qq "${pkg}" &>/dev/null)
 		then
 			pactree -c ${pkg}
