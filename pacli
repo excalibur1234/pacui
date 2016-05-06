@@ -18,16 +18,15 @@
 #  Design based on IceFox script
 #  Modified, adapted and improved by pekman and excalibur1234
 #  fzf and Downgrade support added by Chrysostomus
-#  Contact and suggestions: pekman@openmailbox.org
-#  Freenode: #manjaro-geek #manjaro
-#  Discussion in the Manjaro forum: http://polr.me/pacli1
+#  Contact and suggestions: http://polr.me/pacli1
 
 
 
 # all functions of pacli are defined here:
 
 
-function u {
+function u 
+{
 		sudo pacman -Syu --color always
 		
 		# the following line checks, whether file /tmp/pacli/pacli_is_running does not exist. then, the code is executed (exit). this prevents pacli's GUI to be shown when this function gets called directly from your terminal
@@ -38,7 +37,8 @@ function u {
 }
 
 
-function c {
+function c 
+{
 		sudo pacman-mirrors -g && sudo pacman -Syy --color always
 		yaourt -Qdt
 		paccache -ruvk0
@@ -66,7 +66,8 @@ function c {
 }
 
 
-function i {
+function i 
+{
 		# the "package-query -Sl -f '%n  %v  -  %d' " displays a list of all packages from the Manjaro repositories and formats them like "NAME  VERSION  -  DESCRIPTION".
 		sudo pacman -S $(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ' | awk '{print $1}') --color always
 
@@ -77,7 +78,8 @@ function i {
 }
 
 
-function r {
+function r 
+{
 		# $(pacman -Qq | sort | fzf -e -m +s --reverse --prompt='Select packages to remove (use TAB to toggle selection) > ')
 		# takes a package list from "pacman -Qq", then sorts it alphabetically, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
@@ -90,7 +92,8 @@ function r {
 }
 
 
-function info {
+function info 
+{
 		# check, whether file /tmp/pacli/packages already exists (the ! negates the result)
 		if ! [ -e /tmp/pacli/packages ]
 		then
@@ -119,7 +122,8 @@ function info {
 }
 
 
-function l {
+function l 
+{
 		# use fzf to ask the user to select an installed package. the package name gets save in variable "pkg"
 		pkg=$(pacman -Qq | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
 			
@@ -135,7 +139,8 @@ function l {
 }
 
 
-function t {
+function t 
+{
 		# write package list of Manjaro repositories to /tmp/pacli/packages-local. then add all instaled packages to the bottom of /tmp/pacli/packages-local.
 		pacman -Slq > /tmp/pacli/packages-local
 		pacman -Qq >> /tmp/pacli/packages-local
@@ -156,7 +161,8 @@ function t {
 }
 
 
-function rt {
+function rt 
+{
 		pactree -c -r $(pacman -Qq | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
 
 		if ! [ -e /tmp/pacli/pacli_is_running ]
@@ -169,7 +175,8 @@ function rt {
 # =======================
 
 
-function log {
+function log 
+{
 		tail -5000 /var/log/pacman.log | fzf -m -e +s -i -0 -q alpm --tac --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Cancel lists selection with CTRL+C or ESC." --prompt='Enter one or more filter terms > ' >> /tmp/pacli/log
 
 		if ! [ -e /tmp/pacli/pacli_is_running ]
@@ -179,7 +186,8 @@ function log {
 }
 
 
-function d {
+function d 
+{
 		downgrade $(pacman -Qq | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package to downgrade > ')
 
 		if ! [ -e /tmp/pacli/pacli_is_running ]
@@ -189,7 +197,8 @@ function d {
 }
 
 
-function h {
+function h 
+{
 		less 	<<-EOF
 Welcome to Pacli's Help Page.
 
@@ -364,7 +373,8 @@ To exit this Help Page, press "q".
 }
 
 
-function fix {
+function fix 
+{
 		sudo rm -f /var/lib/pacman/db.lck
 		sudo pacman-mirrors -g && sudo pacman -Syy
 
@@ -403,7 +413,8 @@ function fix {
 }
 
 
-function fu {
+function fu 
+{
 		sudo pacman -Syu --force --color always
 
 		if ! [ -e /tmp/pacli/pacli_is_running ]
@@ -413,7 +424,8 @@ function fu {
 }
 
 
-function empty {
+function empty 
+{
 		yaourt -Scc
 
 		if ! [ -e /tmp/pacli/pacli_is_running ]
@@ -423,7 +435,8 @@ function empty {
 }
 
 
-function force_install {
+function force_install 
+{
 		sudo pacman -S --force $(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ' | awk '{print $1}') --color always
 
 		if ! [ -e /tmp/pacli/pacli_is_running ]
@@ -433,7 +446,8 @@ function force_install {
 }
 
 
-function fr {
+function fr 
+{
 		sudo pacman -Rdd $(pacman -Qq | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search installed packages and select to remove > ') --color always
 
 		if ! [ -e /tmp/pacli/pacli_is_running ]
@@ -446,7 +460,8 @@ function fr {
 # =======================
 
 
-function ua {
+function ua 
+{
 		yaourt -Syua
 
 		if ! [ -e /tmp/pacli/pacli_is_running ]
@@ -456,7 +471,8 @@ function ua {
 }
 
 
-function fua {
+function fua 
+{
 		yaourt -Syua && yaourt -Syua --devel --noconfirm
 
 		if ! [ -e /tmp/pacli/pacli_is_running ]
@@ -466,7 +482,8 @@ function fua {
 }
 
 
-function a {
+function a 
+{
 		echo "Enter name of package to be searched and installed from AUR and press [Enter] to continue"
 		read Packcage
 		yaourt $Packcage
@@ -478,11 +495,12 @@ function a {
 }
 
 
-function ia {
+function ia 
+{
 		# check, whether file /tmp/pacli/packages already exists (the ! negates the result)
 		if ! [ -e /tmp/pacli/packages ]
 		then
-			# write package list of repositories to /tmp/pacli/packages. then, download AUR package list, unzip it to /tmp/pacli/aur/packages, and add it to the bottom of /tmp/pacli/packages.
+			# write package list of manjaro repositories to /tmp/pacli/packages. then, download AUR package list, unzip it to /tmp/pacli/aur/packages, and add it to the bottom of /tmp/pacli/packages.
 			pacman -Slq > /tmp/pacli/packages
 			wget -P /tmp/pacli/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzip -f /tmp/pacli/aur/packages.gz && cat /tmp/pacli/aur/packages >> /tmp/pacli/packages
 		fi
@@ -496,7 +514,8 @@ function ia {
 }
 
 
-function la {
+function la 
+{
 		pacman -Qem --color always
 
 		if ! [ -e /tmp/pacli/pacli_is_running ]
@@ -520,8 +539,8 @@ touch /tmp/pacli/pacli_is_running
 
 # ANSI Escape sequences:
 #  \e[31m	# red text
-#  \e[41m	# red background
-#  \e[0m	# no-colored text without background color
+#  \e[31m	# red background
+#  \e[0m	# no-colored, non-bold text without background color
 #  \e[1m	# bold text
 
 
@@ -536,15 +555,15 @@ do
     echo -e " ┌────────────────────────────────────────────────────────────────────┐"
     echo -e " │    1   \e[1mU\e[0mpdate System                 2   \e[1mC\e[0mlean System              │"
     echo -e " │    3   \e[1mI\e[0mnstall Package               4   \e[1mR\e[0memove Package + Deps     │"
-    echo -e " │────────────────────────────────────────────────────────────────────│"
+    echo -e " │--------------------------------------------------------------------│"
     echo -e " │    5   Package \e[1mInfo\e[0mrmation           6   \e[1mL\e[0mist Local Package Files  │"
     echo -e " │    7   Dependency \e[1mT\e[0mree               8   \e[1mR\e[0meverse Dependency \e[1mT\e[0mree   │"
     echo -e " └────────────────────────────────────────────────────────────────────┘"
     echo -e " ┌────────────────────────────────────────────────────────────────────┐"
     echo -e " │    9   Pacman \e[1mLog\e[0m                   10   \e[1mD\e[0mowngrade Packages        │"
-    echo -e " │   11   \e[1mH\e[0melp                      \e[41m   12   \e[1mFix\e[0m\e[41m Errors               \e[0m │"
-    echo -e " │ \e[41m  13   \e[1mF\e[0m\e[41morce \e[1mU\e[0m\e[41mpdate System          14   \e[1mEmpty\e[0m\e[41m Package Cache      \e[0m │"
-    echo -e " │ \e[41m  15   \e[1mF\e[0m\e[41morce \e[1mI\e[0m\e[41mnstall Package        16   \e[1mF\e[0m\e[41morce \e[1mR\e[0m\e[41memove Package     \e[0m │"
+    echo -e " │   11   \e[1mH\e[0melp                      \e[31m   12   \e[1mFix\e[0m\e[31m Errors               \e[0m │"
+    echo -e " │ \e[31m  13   \e[1mF\e[0m\e[31morce \e[1mU\e[0m\e[31mpdate System          14   \e[1mEmpty\e[0m\e[31m Package Cache      \e[0m │"
+    echo -e " │ \e[31m  15   \e[1mF\e[0m\e[31morce \e[1mI\e[0m\e[31mnstall Package        16   \e[1mF\e[0m\e[31morce \e[1mR\e[0m\e[31memove Package     \e[0m │"
     echo -e " └────────────────────────────────────────────────────────────────────┘"
     echo
     echo -e " ┌────────────────────────────────────────────────────────────────────┐"
@@ -553,7 +572,7 @@ do
     echo -e " │   21   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR                                     │"
     echo -e " └────────────────────────────────────────────────────────────────────┘"
     echo
-    echo -e "  Enter a number, letter, or word and press [Enter]   -  0  \e[1mE\e[0mxit Pacli "
+    echo -e "  Enter a number or marked letters and press [Enter]   -  0  \e[1mE\e[0mxit Pacli "
     echo
 
     # save entered number in varialbe "choice" and test, whether "chioce" fits any of the following numbers, letters, or words
@@ -562,7 +581,7 @@ do
 
 
         1|u|U|update|Update|UPDATE)
-            # the line above means: 1 OR u OR U OR update OR ...
+            # the line above means: the following commands will get executed if $choice is "1" or "u" or "U" or "update" or ...
             echo
             u
             echo
@@ -717,7 +736,7 @@ do
             ;;
 
         *)
-            echo -e "\e[41m Wrong option \e[0m"
+            echo -e "\e[31m Wrong option \e[0m"
             echo "Wait and try again later..."
             echo
             sleep 1
