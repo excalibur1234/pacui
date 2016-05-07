@@ -335,18 +335,17 @@ ATTENTION: This command can break pacakges on your system or even your entire sy
 
 17 - UPDATE AUR
 "yaourt -Syua"
-This command does the same as UPDATE SYSTEM, but with one exception: It also updates all packages from Arch User Repository (AUR), which have an updated PKGBUILD file.
-ATTENTION: When a new version of an AUR package is available, often the PKGBUILD file is not updated. If you want to install the latest version of an AUR package, (re-)install it with INSTALL FROM AUR. If you want to install the latest versions of all AUR packages use option FORCE UPDATE AUR.
+This command does the same as UPDATE SYSTEM, but with one exception: It also downloads, compiles, and installs all packages from Arch User Repository (AUR), which have an updated PKGBUILD file.
+ATTENTION: When a new version of an AUR package is available, often the PKGBUILD file is not updated. If you want to install the latest version of a single AUR package, (re-)install it with INSTALL FROM AUR. If you want to install the latest versions of all AUR packages use option FORCE UPDATE AUR.
 
 18 - FORCE UPDATE AUR
-"yaourt -Syua && yaourt -Syua --devel --noconfirm"
+"yaourt -Syua && yaourt -Syua --devel --needed --noconfirm"
 The Arch User Repository (AUR) is a repository of (mostly) PKGBUILD files. Everybody can create such a PKGBUILD file and upload it to the AUR. A PKGBUILD file contains simple and human readable instructions like where to download the source code from, what dependencies are needed, where to copy files for installation, etc. Yaourt is a so called AUR Helper: It can interpret PKGBUILD files and download the source code, install dependencies, build files on your system, and copy these files to the right location (a.k.a. installing a program).
 By checking a PKGBUILD file (and .INSTALL file) you can make sure the source code is loaded from an official download server, no harmful dependencies get installed, and the installation instructions do not contain harmful code.
 A lot of PKGBUILD files contain variables (e.g. program version) in download addresses; this makes them download always the latest source code (e.g. from Github). Some PKGBUILD files contain no variables: These PKGBUILD files need to be changed manually every time a new program version is released.
 The first command of FORCE UPDATE AUR does the same as UPDATE AUR: Only AUR packages with updated/changed PKGBUILD files will get updated. This gives you the chance to check these updated/changed PKGBUILD files. 
-The second command of FORCE UPDATE AUR forces a reinstall of ALL your AUR packages. The "--noconfirm" flag is used in a secure way, because no PKGBUILD files have changed since the first command got executed.
-ATTENTION: This might take a long time!
-ATTENTION: By default, after every 15min this command will pause and ask again for your password.
+The second command of FORCE UPDATE AUR forces a reinstall of all your AUR packages, which have an updated source package available (e.g. a new commit on github). The "--noconfirm" flag is used in a secure way, because no PKGBUILD files have changed since the first command got executed.
+ATTENTION: This might take a long time! By default, after every 15min this command will pause and ask again for your password.
 
 19 - SEARCH + INSTALL FROM AUR
 "yaourt <PACKAGE NAME>"
@@ -473,7 +472,7 @@ function ua
 
 function fua 
 {
-		yaourt -Syua && yaourt -Syua --devel --noconfirm
+		yaourt -Syua && yaourt -Syua --devel --needed --noconfirm
 
 		if ! [ -e /tmp/pacli_is_running ]
 		then
