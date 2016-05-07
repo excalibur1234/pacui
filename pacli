@@ -29,8 +29,8 @@ function u
 {
 		sudo pacman -Syu --color always
 		
-		# the following line checks, whether file /tmp/pacli/pacli_is_running does not exist. then, the code is executed (exit). this prevents pacli's GUI to be shown when this function gets called directly from your terminal
-		if ! [ -e /tmp/pacli/pacli_is_running ]
+		# the following line checks, whether file /tmp/pacli_is_running does not exist. then, the code is executed (exit). this prevents pacli's GUI to be shown when this function gets called directly from your terminal
+		if ! [ -e /tmp/pacli_is_running ]
 		then
 			exit
 		fi
@@ -59,7 +59,7 @@ function c
 		fi
 		unset disk
 		
-		if ! [ -e /tmp/pacli/pacli_is_running ]
+		if ! [ -e /tmp/pacli_is_running ]
 		then
 			exit
 		fi
@@ -71,7 +71,7 @@ function i
 		# the "package-query -Sl -f '%n  %v  -  %d' " displays a list of all packages from the Manjaro repositories and formats them like "NAME  VERSION  -  DESCRIPTION".
 		sudo pacman -S $(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ' | awk '{print $1}') --color always
 
-		if ! [ -e /tmp/pacli/pacli_is_running ]
+		if ! [ -e /tmp/pacli_is_running ]
 		then
 			exit
 		fi
@@ -85,7 +85,7 @@ function r
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		sudo pacman -Rsn $(pacman -Qq | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search installed packages and select to remove > ') --color always
 
-		if ! [ -e /tmp/pacli/pacli_is_running ]
+		if ! [ -e /tmp/pacli_is_running ]
 		then
 			exit
 		fi
@@ -94,16 +94,16 @@ function r
 
 function info 
 {
-		# check, whether file /tmp/pacli/packages already exists (the ! negates the result)
-		if ! [ -e /tmp/pacli/packages ]
+		# check, whether file /tmp/pacli-packages already exists (the ! negates the result)
+		if ! [ -e /tmp/pacli-packages ]
 		then
-			# write package list of repositories to /tmp/pacli/packages. then, download AUR package list, unzip it to /tmp/pacli/aur/packages, and add it to the bottom of /tmp/pacli/packages.
-			pacman -Slq > /tmp/pacli/packages
-			wget -P /tmp/pacli/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzip -f /tmp/pacli/aur/packages.gz && cat /tmp/pacli/aur/packages >> /tmp/pacli/packages
+			# write package list of repositories to /tmp/pacli-packages. then, download AUR package list, unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacli-packages.
+			pacman -Slq > /tmp/pacli-packages
+			wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzip -f /tmp/aur/packages.gz && cat /tmp/aur/packages >> /tmp/pacli-packages
 		fi
 			
-		# the following command lets you search through the file "/tmp/pacli/packages" with fzf and save your selection in "pkg"
-		pkg=$(cat /tmp/pacli/packages | sort | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
+		# the following command lets you search through the file "/tmp/pacli-packages" with fzf and save your selection in "pkg"
+		pkg=$(cat /tmp/pacli-packages | sort | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
 		# next, it is checked, whether "pkg" is part of a list of all installed packages (pacman -Qq).
 		if (pacman -Qq "${pkg}" &>/dev/null)
 		then
@@ -115,7 +115,7 @@ function info
 		echo -e "$out" | grep -v "\-\-$" | sed 's/ : \(.*\)/ \x1b[0m: \x1b[1m\1\x1b[0m/; s/  \(.*\)/  \x1b[1m\1\x1b[0m/'
 		unset pkg out
 
-		if ! [ -e /tmp/pacli/pacli_is_running ]
+		if ! [ -e /tmp/pacli_is_running ]
 		then
 			exit
 		fi
@@ -127,12 +127,12 @@ function l
 		# use fzf to ask the user to select an installed package. the package name gets save in variable "pkg"
 		pkg=$(pacman -Qq | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
 			
-		# take the output of command "pacman -Qlq ${pkg}" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacli/list.
-		pacman -Qlq ${pkg} --color always | fzf -m -e +s -i -q /usr/bin/ --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Cancel lists selection with CTRL+C or ESC." --prompt='Enter one or more filter terms > ' >> /tmp/pacli/list
+		# take the output of command "pacman -Qlq ${pkg}" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacli-list.
+		pacman -Qlq ${pkg} --color always | fzf -m -e +s -i -q /usr/bin/ --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Cancel lists selection with CTRL+C or ESC." --prompt='Enter one or more filter terms > ' >> /tmp/pacli-list
 			
 		unset pkg
 
-		if ! [ -e /tmp/pacli/pacli_is_running ]
+		if ! [ -e /tmp/pacli_is_running ]
 		then
 			exit
 		fi
@@ -141,11 +141,11 @@ function l
 
 function t 
 {
-		# write package list of Manjaro repositories to /tmp/pacli/packages-local. then add all instaled packages to the bottom of /tmp/pacli/packages-local.
-		pacman -Slq > /tmp/pacli/packages-local
-		pacman -Qq >> /tmp/pacli/packages-local
+		# write package list of Manjaro repositories to /tmp/pacli-packages-local. then add all instaled packages to the bottom of /tmp/pacli-packages-local.
+		pacman -Slq > /tmp/pacli-packages-local
+		pacman -Qq >> /tmp/pacli-packages-local
 
-		pkg=$(cat /tmp/pacli/packages-local | sort | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
+		pkg=$(cat /tmp/pacli-packages-local | sort | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
 		if (pacman -Qq "${pkg}" &>/dev/null)
 		then
 			pactree -c ${pkg}
@@ -154,7 +154,7 @@ function t
 		fi
 		unset pkg
 
-		if ! [ -e /tmp/pacli/pacli_is_running ]
+		if ! [ -e /tmp/pacli_is_running ]
 		then
 			exit
 		fi
@@ -165,7 +165,7 @@ function rt
 {
 		pactree -c -r $(pacman -Qq | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
 
-		if ! [ -e /tmp/pacli/pacli_is_running ]
+		if ! [ -e /tmp/pacli_is_running ]
 		then
 			exit
 		fi
@@ -177,9 +177,9 @@ function rt
 
 function log 
 {
-		tail -5000 /var/log/pacman.log | fzf -m -e +s -i -0 -q alpm --tac --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Cancel lists selection with CTRL+C or ESC." --prompt='Enter one or more filter terms > ' >> /tmp/pacli/log
+		tail -5000 /var/log/pacman.log | fzf -m -e +s -i -0 -q alpm --tac --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Cancel lists selection with CTRL+C or ESC." --prompt='Enter one or more filter terms > ' >> /tmp/pacli-log
 
-		if ! [ -e /tmp/pacli/pacli_is_running ]
+		if ! [ -e /tmp/pacli_is_running ]
 		then
 			exit
 		fi
@@ -190,7 +190,7 @@ function d
 {
 		downgrade $(pacman -Qq | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package to downgrade > ')
 
-		if ! [ -e /tmp/pacli/pacli_is_running ]
+		if ! [ -e /tmp/pacli_is_running ]
 		then
 			exit
 		fi
@@ -260,7 +260,7 @@ This command displays a lot of information about <PACKAGE NAME>. Different piece
 "pacman -Qlq <PACKAGE NAME>"
 This command lists all files contained in <PACKAGE NAME> and their install directory. <PACKAGE NAME> must be installed on your system.
 Have you ever installed a program and did not know with which command it can be started/executed? Just look for files (and their names) in your /usr/bin/ directory using LIST LOCAL PACKAGE FILES.
-By default all files are filtered for files located in /usr/bin/, but you can enter any filter term you want to. Delete the default filter term with BACKSPACE to see a complete list of files of <PACKAGE NAME>. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacli/list.
+By default all files are filtered for files located in /usr/bin/, but you can enter any filter term you want to. Delete the default filter term with BACKSPACE to see a complete list of files of <PACKAGE NAME>. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacli-list.
 
 7 - DEPENDENCIES TREE
 "pactree -s <PACKAGE NAME>" or "pactree <PACKAGE NAME>"
@@ -275,7 +275,7 @@ Use this command when you want to know why you cannot remove <PACKAGE NAME> from
 9 - PACMAN LOG
 "tail -5000 /var/log/pacman.log"
 The Pacman Log contains all updates, installations, and removals (also in the AUR) you have done. Whenever something breaks on your system (e.g. after an udpate), but you do not remember anymore which packages were changed recently (e.g. during the update), take a look at your Pacman Log and find out. Then, DOWNGRADE PACKAGES, which you think might be broken.
-This command displays the last 5000 lines of your Pacman Log and makes it searchable with fzf. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacli/log.
+This command displays the last 5000 lines of your Pacman Log and makes it searchable with fzf. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacli-log.
 
 10 - DOWNGRADE PACKAGES
 "downgrade <PACKAGE NAME>"
@@ -366,7 +366,7 @@ This command lists all installed packages, which are from the AUR or which were 
 To exit this Help Page, press "q".
 		EOF
 
-		if ! [ -e /tmp/pacli/pacli_is_running ]
+		if ! [ -e /tmp/pacli_is_running ]
 		then
 			exit
 		fi
@@ -406,7 +406,7 @@ function fix
 		sudo pacman -Sc --noconfirm
 		sudo pacman -Syyuu --color always --noconfirm
 
-		if ! [ -e /tmp/pacli/pacli_is_running ]
+		if ! [ -e /tmp/pacli_is_running ]
 		then
 			exit
 		fi
@@ -417,7 +417,7 @@ function fu
 {
 		sudo pacman -Syu --force --color always
 
-		if ! [ -e /tmp/pacli/pacli_is_running ]
+		if ! [ -e /tmp/pacli_is_running ]
 		then
 			exit
 		fi
@@ -428,7 +428,7 @@ function empty
 {
 		yaourt -Scc
 
-		if ! [ -e /tmp/pacli/pacli_is_running ]
+		if ! [ -e /tmp/pacli_is_running ]
 		then
 			exit
 		fi
@@ -439,7 +439,7 @@ function force_install
 {
 		sudo pacman -S --force $(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ' | awk '{print $1}') --color always
 
-		if ! [ -e /tmp/pacli/pacli_is_running ]
+		if ! [ -e /tmp/pacli_is_running ]
 		then
 			exit
 		fi
@@ -450,7 +450,7 @@ function fr
 {
 		sudo pacman -Rdd $(pacman -Qq | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search installed packages and select to remove > ') --color always
 
-		if ! [ -e /tmp/pacli/pacli_is_running ]
+		if ! [ -e /tmp/pacli_is_running ]
 		then
 			exit
 		fi
@@ -464,7 +464,7 @@ function ua
 {
 		yaourt -Syua
 
-		if ! [ -e /tmp/pacli/pacli_is_running ]
+		if ! [ -e /tmp/pacli_is_running ]
 		then
 			exit
 		fi
@@ -475,7 +475,7 @@ function fua
 {
 		yaourt -Syua && yaourt -Syua --devel --noconfirm
 
-		if ! [ -e /tmp/pacli/pacli_is_running ]
+		if ! [ -e /tmp/pacli_is_running ]
 		then
 			exit
 		fi
@@ -488,7 +488,7 @@ function a
 		read Packcage
 		yaourt $Packcage
 
-		if ! [ -e /tmp/pacli/pacli_is_running ]
+		if ! [ -e /tmp/pacli_is_running ]
 		then
 			exit
 		fi
@@ -497,17 +497,17 @@ function a
 
 function ia 
 {
-		# check, whether file /tmp/pacli/packages already exists (the ! negates the result)
-		if ! [ -e /tmp/pacli/packages ]
+		# check, whether file /tmp/pacli-packages already exists (the ! negates the result)
+		if ! [ -e /tmp/pacli-packages ]
 		then
-			# write package list of manjaro repositories to /tmp/pacli/packages. then, download AUR package list, unzip it to /tmp/pacli/aur/packages, and add it to the bottom of /tmp/pacli/packages.
-			pacman -Slq > /tmp/pacli/packages
-			wget -P /tmp/pacli/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzip -f /tmp/pacli/aur/packages.gz && cat /tmp/pacli/aur/packages >> /tmp/pacli/packages
+			# write package list of manjaro repositories to /tmp/pacli-packages. then, download AUR package list, unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacli-packages.
+			pacman -Slq > /tmp/pacli-packages
+			wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzip -f /tmp/aur/packages.gz && cat /tmp/aur/packages >> /tmp/pacli-packages
 		fi
 			
-		yaourt -S $(cat /tmp/pacli/packages | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ')
+		yaourt -S $(cat /tmp/pacli-packages | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ')
 
-		if ! [ -e /tmp/pacli/pacli_is_running ]
+		if ! [ -e /tmp/pacli_is_running ]
 		then
 			exit
 		fi
@@ -518,7 +518,7 @@ function la
 {
 		pacman -Qem --color always
 
-		if ! [ -e /tmp/pacli/pacli_is_running ]
+		if ! [ -e /tmp/pacli_is_running ]
 		then
 			exit
 		fi
@@ -532,14 +532,14 @@ $@
 # =======================
 
 
-# the file /tmp/pacli/pacli_is_running is being created before the main pacli bash script starts and the same file is removed again when the pacli bash script finishes. functions check, whether this file exists in order to be comfortably run directly from your terminal.
-touch /tmp/pacli/pacli_is_running
+# the file /tmp/pacli_is_running is being created before the main pacli bash script starts and the same file is removed again when the pacli bash script finishes. functions check, whether this file exists in order to be comfortably run directly from your terminal.
+touch /tmp/pacli_is_running
 
 
 
 # ANSI Escape sequences:
 #  \e[31m	# red text
-#  \e[31m	# red background
+#  \e[41m	# red background
 #  \e[0m	# no-colored, non-bold text without background color
 #  \e[1m	# bold text
 
@@ -731,12 +731,12 @@ do
 
         0|e|E|exit|Exit|EXIT|q|Q|quit|Quit|QUIT)
             echo
-			rm /tmp/pacli/pacli_is_running
+			rm /tmp/pacli_is_running
             clear && exit
             ;;
 
         *)
-            echo -e "\e[31m Wrong option \e[0m"
+            echo -e "\e[41m Wrong option \e[0m"
             echo "Wait and try again later..."
             echo
             sleep 1
@@ -745,4 +745,4 @@ do
     esac
 done
 
-rm /tmp/pacli/pacli_is_running
+rm /tmp/pacli_is_running
