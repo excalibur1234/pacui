@@ -188,7 +188,10 @@ function log
 
 function d 
 {
-		downgrade $(pacman -Qq | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package to downgrade > ')
+		pacman -Slq > /tmp/pacli-packages-local
+		pacman -Qq >> /tmp/pacli-packages-local
+		
+		downgrade $(cat /tmp/pacli-packages-local | sort | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package to downgrade > ')
 
 		if ! [ -e /tmp/pacli_is_running ]
 		then
@@ -344,7 +347,7 @@ The Arch User Repository (AUR) is a repository of (mostly) PKGBUILD files. Every
 By checking a PKGBUILD file (and .INSTALL file) you can make sure the source code is loaded from an official download server, no harmful dependencies get installed, and the installation instructions do not contain harmful code.
 A lot of PKGBUILD files contain variables (e.g. program version) in download addresses; this makes them download always the latest source code (e.g. from Github). Some PKGBUILD files contain no variables: These PKGBUILD files need to be changed manually every time a new program version is released.
 The first command of FORCE UPDATE AUR does the same as UPDATE AUR: Only AUR packages with updated/changed PKGBUILD files will get updated. This gives you the chance to check these updated/changed PKGBUILD files. 
-The second command of FORCE UPDATE AUR forces a reinstall of all your AUR packages, which have an updated source package available (e.g. a new commit on github). The "--noconfirm" flag is used in a secure way, because no PKGBUILD files have changed since the first command got executed.
+The second command of FORCE UPDATE AUR forces a reinstall of ALL your developmental AUR packages (i.e. all git, svn, and cvs-packages). The "--noconfirm" flag is used in a secure way, because no PKGBUILD files have changed since the first command got executed.
 ATTENTION: This might take a long time! By default, after every 15min this command will pause and ask again for your password.
 
 19 - SEARCH + INSTALL FROM AUR
@@ -702,7 +705,7 @@ do
             echo
 			fua
             echo
-            echo -e " All AUR packages reinstalled. To return to pacli press [Enter] "
+            echo -e " All AUR packages with available updates reinstalled. To return to pacli press [Enter] "
             read
             ;;
         19|a|A|aur|AUR)
