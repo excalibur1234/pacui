@@ -28,8 +28,6 @@
 function func_u 
 {
 		sudo pacman -Syu --color always
-		
-		clear
 }
 
 
@@ -55,7 +53,6 @@ function func_c
 		fi
 		
 		unset disk
-		clear
 }
 
 
@@ -80,7 +77,6 @@ function func_r
 		sudo pacman -Rsn ${pkg} --color always
 		
 		unset pkg
-		clear
 }
 
 
@@ -152,8 +148,6 @@ function func_rt
 function func_log 
 {
 		tail -5000 /var/log/pacman.log | fzf -m -e +s -i -0 -q alpm --tac --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Cancel lists selection with CTRL+C or ESC." --prompt='Enter one or more filter terms > ' >> /tmp/pacli-log
-		
-		clear
 }
 
 
@@ -333,8 +327,6 @@ This command lists all installed packages, which are from the AUR or which were 
 
 To exit this Help Page, press "q".
 		EOF
-
-		clear
 }
 
 
@@ -411,7 +403,6 @@ function func_fr
 function func_ua 
 {
 		yaourt -Syua
-		clear
 }
 
 
@@ -454,15 +445,23 @@ function func_la
 
 
 
+# if this function gets removed, the "Bad console command..." error text is shown for every "pacli" command in your terminal!
+function func_
+{
+pacli
+}
+
+
 # the following function checks, whether a prefix (func_) + the input ($1) is a valid function. after the function is done an "exit" command is needed to prevent the UI from loading.
 if [[ $(type -t "func_$1") == 'function' ]] 
 then
-    # pass one param (1), if you want in future specific actions for console or menu
+    # pass one parameter (1), if you want in future specific actions for console or menu
     "func_$1" 1
-    exit $?      # exit here, no write in all functions and return error code if present
+    exit $?			# exit here, no write in all functions and return error code if present
 else
-    echo "Bad console command. Press ENTER to start the UI ..."
+    echo "Bad console command. Press ENTER to start the UI or CTRL+C to abort."
 	read
+	# now, continue with this script without exiting.
 fi
 
 
