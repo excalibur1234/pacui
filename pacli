@@ -445,23 +445,16 @@ function func_la
 
 
 
-# if this function gets removed, the "Bad console command..." error text is shown for every "pacli" command in your terminal!
-function func_
-{
-pacli
-}
-
-
 # the following function checks, whether a prefix (func_) + the input ($1) is a valid function. after the function is done an "exit" command is needed to prevent the UI from loading.
 if [[ $(type -t "func_$1") == 'function' ]] 
 then
-    # pass one parameter (1), if you want in future specific actions for console or menu
-    "func_$1" 1
+    "func_$1" 1		# pass one parameter (1) when the funciton got called directly, if you want in future specific actions for console or menu
     exit $?			# exit here, no write in all functions and return error code if present
-else
+elif (($# > 0))		# if one or more parameter
+then  			
     echo "Bad console command. Press ENTER to start the UI or CTRL+C to abort."
-	read
-	# now, continue with this script without exiting.
+    read
+    # now, continue with this script without exiting.	
 fi
 
 
