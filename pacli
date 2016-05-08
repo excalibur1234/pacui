@@ -25,19 +25,15 @@
 # all functions of pacli are defined here:
 
 
-function u 
+function func_u 
 {
 		sudo pacman -Syu --color always
 		
-		# the following line checks, whether file /tmp/pacli_is_running does not exist. then, the code is executed (exit). this prevents pacli's GUI to be shown when this function gets called directly from your terminal
-		if ! [ -e /tmp/pacli_is_running ]
-		then
-			exit
-		fi
+		clear
 }
 
 
-function c 
+function func_c 
 {
 		sudo pacman-mirrors -g && sudo pacman -Syy --color always
 		yaourt -Qdt
@@ -57,42 +53,38 @@ function c
 			sudo pacman-optimize
 			fi
 		fi
-		unset disk
 		
-		if ! [ -e /tmp/pacli_is_running ]
-		then
-			exit
-		fi
+		unset disk
+		clear
 }
 
 
-function i 
+function func_i 
 {
 		# the "package-query -Sl -f '%n  %v  -  %d' " displays a list of all packages from the Manjaro repositories and formats them like "NAME  VERSION  -  DESCRIPTION".
-		sudo pacman -S $(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ' | awk '{print $1}') --color always
-
-		if ! [ -e /tmp/pacli_is_running ]
-		then
-			exit
-		fi
+		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ' | awk '{print $1}')
+		
+		sudo pacman -S ${pkg} --color always
+		
+		unset pkg
 }
 
 
-function r 
+function func_r 
 {
 		# $(pacman -Qq | sort | fzf -e -m +s --reverse --prompt='Select packages to remove (use TAB to toggle selection) > ')
 		# takes a package list from "pacman -Qq", then sorts it alphabetically, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
-		sudo pacman -Rsn $(pacman -Qq | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search installed packages and select to remove > ') --color always
+		pkg=$(pacman -Qq | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search installed packages and select to remove > ')
 
-		if ! [ -e /tmp/pacli_is_running ]
-		then
-			exit
-		fi
+		sudo pacman -Rsn ${pkg} --color always
+		
+		unset pkg
+		clear
 }
 
 
-function info 
+function func_info 
 {
 		# check, whether file /tmp/pacli-packages already exists (the ! negates the result)
 		if ! [ -e /tmp/pacli-packages ]
@@ -113,16 +105,12 @@ function info
 		fi
 		# execute the "out" variable and format its output nicely
 		echo -e "$out" | grep -v "\-\-$" | sed 's/ : \(.*\)/ \x1b[0m: \x1b[1m\1\x1b[0m/; s/  \(.*\)/  \x1b[1m\1\x1b[0m/'
+		
 		unset pkg out
-
-		if ! [ -e /tmp/pacli_is_running ]
-		then
-			exit
-		fi
 }
 
 
-function l 
+function func_l 
 {
 		# use fzf to ask the user to select an installed package. the package name gets save in variable "pkg"
 		pkg=$(pacman -Qq | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
@@ -131,15 +119,10 @@ function l
 		pacman -Qlq ${pkg} --color always | fzf -m -e +s -i -q /usr/bin/ --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Cancel lists selection with CTRL+C or ESC." --prompt='Enter one or more filter terms > ' >> /tmp/pacli-list
 			
 		unset pkg
-
-		if ! [ -e /tmp/pacli_is_running ]
-		then
-			exit
-		fi
 }
 
 
-function t 
+function func_t 
 {
 		# write package list of Manjaro repositories to /tmp/pacli-packages-local. then add all instaled packages to the bottom of /tmp/pacli-packages-local.
 		pacman -Slq > /tmp/pacli-packages-local
@@ -152,55 +135,38 @@ function t
 		else
 			pactree -c -s ${pkg}
 		fi
+		
 		unset pkg
-
-		if ! [ -e /tmp/pacli_is_running ]
-		then
-			exit
-		fi
 }
 
 
-function rt 
+function func_rt 
 {
 		pactree -c -r $(pacman -Qq | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
-
-		if ! [ -e /tmp/pacli_is_running ]
-		then
-			exit
-		fi
 }
 
 
 # =======================
 
 
-function log 
+function func_log 
 {
 		tail -5000 /var/log/pacman.log | fzf -m -e +s -i -0 -q alpm --tac --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Cancel lists selection with CTRL+C or ESC." --prompt='Enter one or more filter terms > ' >> /tmp/pacli-log
-
-		if ! [ -e /tmp/pacli_is_running ]
-		then
-			exit
-		fi
+		
+		clear
 }
 
 
-function d 
+function func_d 
 {
 		pacman -Slq > /tmp/pacli-packages-local
 		pacman -Qq >> /tmp/pacli-packages-local
 		
 		downgrade $(cat /tmp/pacli-packages-local | sort | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package to downgrade > ')
-
-		if ! [ -e /tmp/pacli_is_running ]
-		then
-			exit
-		fi
 }
 
 
-function h 
+function func_h 
 {
 		less 	<<-EOF
 Welcome to Pacli's Help Page.
@@ -368,14 +334,11 @@ This command lists all installed packages, which are from the AUR or which were 
 To exit this Help Page, press "q".
 		EOF
 
-		if ! [ -e /tmp/pacli_is_running ]
-		then
-			exit
-		fi
+		clear
 }
 
 
-function fix 
+function func_fix 
 {
 		sudo rm -f /var/lib/pacman/db.lck
 		sudo pacman-mirrors -g && sudo pacman -Syy
@@ -407,97 +370,66 @@ function fix
 
 		sudo pacman -Sc --noconfirm
 		sudo pacman -Syyuu --color always --noconfirm
-
-		if ! [ -e /tmp/pacli_is_running ]
-		then
-			exit
-		fi
 }
 
 
-function fu 
+function func_fu 
 {
 		sudo pacman -Syu --force --color always
-
-		if ! [ -e /tmp/pacli_is_running ]
-		then
-			exit
-		fi
 }
 
 
-function empty 
+function func_empty 
 {
 		yaourt -Scc
-
-		if ! [ -e /tmp/pacli_is_running ]
-		then
-			exit
-		fi
 }
 
 
-function force_install 
+function func_fi 
 {
-		sudo pacman -S --force $(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ' | awk '{print $1}') --color always
-
-		if ! [ -e /tmp/pacli_is_running ]
-		then
-			exit
-		fi
+		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ' | awk '{print $1}')
+		
+		sudo pacman -S --force ${pkg} --color always
+		
+		unset pkg
 }
 
 
-function fr 
+function func_fr 
 {
-		sudo pacman -Rdd $(pacman -Qq | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search installed packages and select to remove > ') --color always
-
-		if ! [ -e /tmp/pacli_is_running ]
-		then
-			exit
-		fi
+		pkg=$(pacman -Qq | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search installed packages and select to remove > ')
+		
+		sudo pacman -Rdd ${pkg} --color always
+		
+		unset pkg
 }
 
 
 # =======================
 
 
-function ua 
+function func_ua 
 {
 		yaourt -Syua
-
-		if ! [ -e /tmp/pacli_is_running ]
-		then
-			exit
-		fi
+		clear
 }
 
 
-function fua 
+function func_fua 
 {
 		yaourt -Syua && yaourt -Syua --devel --needed --noconfirm
-
-		if ! [ -e /tmp/pacli_is_running ]
-		then
-			exit
-		fi
 }
 
 
-function a 
+function func_a 
 {
 		echo "Enter name of package to be searched and installed from AUR and press [Enter] to continue"
 		read Packcage
 		yaourt $Packcage
-
-		if ! [ -e /tmp/pacli_is_running ]
-		then
-			exit
-		fi
 }
 
 
-function ia 
+function func_ia 
 {
 		# check, whether file /tmp/pacli-packages already exists (the ! negates the result)
 		if ! [ -e /tmp/pacli-packages ]
@@ -507,35 +439,35 @@ function ia
 			wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzip -f /tmp/aur/packages.gz && cat /tmp/aur/packages >> /tmp/pacli-packages
 		fi
 			
-		yaourt -S $(cat /tmp/pacli-packages | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ')
-
-		if ! [ -e /tmp/pacli_is_running ]
-		then
-			exit
-		fi
+		pkg=$(cat /tmp/pacli-packages | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ')
+		
+		yaourt -S ${pkg} --color always
+		
+		unset pkg
 }
 
 
-function la 
+function func_la 
 {
 		pacman -Qem --color always
-
-		if ! [ -e /tmp/pacli_is_running ]
-		then
-			exit
-		fi
 }
 
 
-# the following line is placed at the end of all function definitions. then, all functions can be called directly in your terminal.
-$@
+
+# the following function checks, whether a prefix (func_) + the input ($1) is a valid function. after the function is done an "exit" command is needed to prevent the UI from loading.
+if [[ $(type -t "func_$1") == 'function' ]] 
+then
+    # pass one param (1), if you want in future specific actions for console or menu
+    "func_$1" 1
+    exit $?      # exit here, no write in all functions and return error code if present
+else
+    echo "Bad console command. Press ENTER to start the UI ..."
+	read
+fi
+
 
 
 # =======================
-
-
-# the file /tmp/pacli_is_running is being created before the main pacli bash script starts and the same file is removed again when the pacli bash script finishes. functions check, whether this file exists in order to be comfortably run directly from your terminal.
-touch /tmp/pacli_is_running
 
 
 
@@ -585,54 +517,54 @@ do
         1|u|U|update|Update|UPDATE)
             # the line above means: the following commands will get executed if $choice is "1" or "u" or "U" or "update" or ...
             echo
-            u
+            func_u
             echo
             echo -e " Your system is updated. To return to pacli press [Enter] "
             read
             ;;
         2|c|C|clean|Clean|CLEAN)
             echo
-			c
+			func_c
             echo
             echo -e " Fast Mirror chosen, orphans removed, and old packages deleted from cache. To return to pacli press [Enter] "
             read
             ;;
         3|i|I|install|Install|INSTALL)
             echo
-			i
+			func_i
             echo
             echo -e " Package installation is finished. To return to pacli press [Enter] "
             read
             ;;
         4|r|R|remove|Remove|REMOVE)
             echo
-			r
+			func_r
 			echo
             echo -e " Packages and all unneeded dependencies removed. To return to pacli press [Enter] "
             read
             ;;
         5|info|Info|INFO|information|Information|INFORMATION)
             echo
-			info
+			func_info
             echo
             echo -e " Package information displayed. To return to pacli press [Enter] "
             read
             ;;
         6|l|L|list|List|LIST)
             echo
-			l
+			func_l
             echo
             ;;
         7|t|T|tree|Tree|TREE)
             echo
-			t
+			func_t
             echo
             echo -e " Dependency tree displayed. Navigate with CTRL+PageUp. To return to pacli press [Enter] "
             read
             ;;
         8|rt|RT|rT|Rt|reversetree|ReverseTree|REVERSETREE)
             echo
-			rt
+			func_rt
             echo
             echo -e " Reverse dependency tree displayed. Navigate with CTRL+PageUp. To return to pacli press [Enter] "
             read
@@ -641,45 +573,45 @@ do
 
         9|log|Log|LOG)
             echo
-			log
+			func_log
             echo
             ;;			
         10|d|D|down|Down|DOWN|downgrade|Downgrade|DOWNGRADE)
             echo
-			d
+			func_d
             echo
             echo -e " Downgrade process finished. To return to pacli press [Enter] "
             read
             ;;
         11|00|33|44|55|66|77|88|99|100|111|122|133|144|155|166|177|188|199|200|211|h|H|help|Help|HELP)
             echo
-            h
+            func_h
             echo
             ;;
         12|fix|Fix|FIX)
             echo
-			fix
+			func_fix
             echo
             echo -e " Most common Pacman errors fixed and system updated. To return to pacli press [Enter] "
             read
             ;;
         13|fu|Fu|fU|FU|forceupdate|ForceUpdate|FORCEUPDATE)
             echo
-			fu
+			func_fu
             echo
             echo -e " Your system was updated in force mode. To return to pacli press [Enter] "
             read
             ;;
         14|empty|Empty|EMPTY)
             echo
-			empty
+			func_empty
             echo
             echo -e " Entire package cache emptied. To return to pacli press [Enter] "
             read
             ;;
         15|fi|Fi|fI|FI|forceinstall|ForceInstall|FORCEINSTALL)
             echo
-			force_install
+			func_fi
             echo
             echo -e " Package installation in force mode is finished. To return to pacli press [Enter] "
             read
@@ -687,7 +619,7 @@ do
 
         16|fr|Fr|fR|FR|forceremove|ForceRemove|FORCEREMOVE)
             echo
-			fr
+			func_fr
 			echo
             echo -e " Dependency in force mode removed. To return to pacli press [Enter] "
             read
@@ -696,35 +628,35 @@ do
 
         17|ua|Ua|uA|UA|updateaur|updateAUR|UpdateAur|UpdateAUR|UPDATEAUR)
             echo
-			ua
+			func_ua
             echo
             echo -e " Your system is updated. To return to pacli press [Enter] "
             read
             ;;
         18|fua|FUA|forceupdateaur|forceupdateAUR|ForceUpdateAur|ForceUpdateAUR|FORCEUPDATEAUR)
             echo
-			fua
+			func_fua
             echo
             echo -e " All AUR packages with available updates reinstalled. To return to pacli press [Enter] "
             read
             ;;
         19|a|A|aur|AUR)
             echo
-			a
+			func_a
             echo
             echo -e " Yaourt finished. To return to pacli press [Enter] "
             read
             ;;
         20|ia|Ia|iA|IA|installaur|InstallAur|InstallAUR|INSTALLAUR)
             echo
-			ia
+			func_ia
             echo
             echo -e " Installation from AUR finished. To return to pacli press [Enter] "
             read
             ;;
         21|la|La|lA|LA|listaur|listAUR|ListAur|ListAUR|LISTAUR)
             echo
-			la
+			func_la
             echo
             echo -e " All locally installed packages listed. To return to pacli press [Enter] "
             read
@@ -733,7 +665,6 @@ do
 
         0|e|E|exit|Exit|EXIT|q|Q|quit|Quit|QUIT)
             echo
-			rm /tmp/pacli_is_running
             clear && exit
             ;;
 
@@ -746,5 +677,3 @@ do
             ;;
     esac
 done
-
-rm /tmp/pacli_is_running
