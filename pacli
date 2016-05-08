@@ -162,7 +162,42 @@ function func_d
 
 function func_h 
 {
-		less 	<<-EOF
+		# the "then" part is displayed, when started from terminal (the last function adds the "1" parameter). the "else" part gets displayed when started from UI.
+		if [[ "$1" == '1' ]]
+		then
+
+			echo
+			echo -e "  pacli	   - Pacli with User Interface"
+			echo
+			echo -e "  pacli	u  - Update System"
+			echo -e "  pacli	c  - Clean System"
+			echo -e "  pacli	i  - Install Package"
+			echo -e "  pacli	r  - Remove Package + Deps"
+			echo -e "  pacli	info  - Package Information"
+			echo -e "  pacli	l  - List Local Package Files"
+			echo -e "  pacli	t  - Dependency Tree"
+			echo -e "  pacli	rt  - Reverse Dependency Tree"
+			echo
+			echo -e "  pacli	log  - Pacman Log"
+			echo -e "  pacli	d  - Downgrade Packages"
+			echo -e "  pacli	h  - Help. If you want to see detailed help, please start User Interface first."
+			echo -e "  \e[31mpacli	fix  \e[0m- Fix Errors"
+			echo -e "  \e[31mpacli	fu  \e[0m- Force Update System"
+			echo -e "  \e[31mpacli	empty  \e[0m- Empty Package Cache"
+			echo -e "  \e[31mpacli	fi  \e[0m- Force Install Package"
+			echo -e "  \e[31mpacli	fr  \e[0m- Force Remove Package"
+			echo
+			echo -e "  pacli	ua  - Update AUR"
+			echo -e "  pacli	fua  - Force Update AUR"
+			echo -e "  pacli	a  - Search + Install from AUR"
+			echo -e "  pacli	ia  - Install from AUR"
+			echo -e "  pacli	la  - List Installed from AUR"
+			echo
+			
+		else
+		
+			less 	<<-EOF
+
 Welcome to Pacli's Help Page.
 
 Pacli is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Yaourt as back ends. Additionally, it uses some Manjaro exclusive commands. Pacli offers you the most common and useful features for managing your packages. Options, which can break your system, are marked in red.
@@ -326,7 +361,10 @@ ATTENTION: Experienced users can install packages from the AUR without the need 
 This command lists all installed packages, which are from the AUR or which were manually installed.
 
 To exit this Help Page, press "q".
-		EOF
+
+			EOF
+			
+		fi
 }
 
 
