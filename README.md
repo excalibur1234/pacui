@@ -17,7 +17,7 @@ Home Screen of pacli:
 ![Screenshot 01](http://imagizer.imageshack.com/img924/8197/bPKppR.png)
 
 Installing the package "cantata" from the Manjaro repositories:
-![Screenshot 02](http://postimg.org/delete/wbct8qmt2/)
+![Screenshot 02](http://s32.postimg.org/p84xt4hdf/screen.gif)
 
 Downgrading the package "file-roller":
 ![Screenshot 03](http://i.imgur.com/kKzqbSl.png)
