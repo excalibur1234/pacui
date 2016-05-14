@@ -99,15 +99,14 @@ function func_info
 			
 		# the following command lets you search through the file "/tmp/pacli-packages" with fzf and save your selection in "pkg"
 		pkg=$(cat /tmp/pacli-packages | sort | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
+		
 		# next, it is checked, whether "pkg" is part of a list of all installed packages (pacman -Qq).
 		if ( pacman -Qq "${pkg}" &>/dev/null )
 		then
-			out=$(yaourt -Qii "${pkg}")		# write this command to the "out" variable when "pkg" is already installed on system
+			yaourt -Qii "${pkg}"		# execute this command when "pkg" is already installed on system
 		else
-			out=$(yaourt -Sii "${pkg}")		# write this command to the "out" variable when "pkd" is not installed on system
+			yaourt -Sii "${pkg}"		# execute this command when "pkg" is not installed on system
 		fi
-		# execute the "out" variable and format its output nicely
-		echo -e "$out" | grep -v "\-\-$" | sed 's/ : \(.*\)/ \x1b[0m: \x1b[1m\1\x1b[0m/; s/  \(.*\)/  \x1b[1m\1\x1b[0m/'
 		
 		unset pkg out
 }
