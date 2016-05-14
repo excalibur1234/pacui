@@ -17,13 +17,13 @@ Home Screen of pacli:
 ![Screenshot 01](http://imagizer.imageshack.com/img924/8197/bPKppR.png)
 
 Installing the package "cantata" from the Manjaro repositories:
-![Screenshot 02](http://imagizer.imageshack.com/img923/4341/rlbOYN.png)
+![Screenshot 02](http://postimg.org/delete/wbct8qmt2/)
 
 Downgrading the package "file-roller":
-![Screenshot 04](http://i.imgur.com/kKzqbSl.png)
+![Screenshot 03](http://i.imgur.com/kKzqbSl.png)
 
 Looking up what packages on my system depend on "gtk2":
-![Screenshot 05](http://i.imgur.com/dVfXdLj.png)
+![Screenshot 04](http://i.imgur.com/dVfXdLj.png)
 
 
 ## Installation / Git Clone
