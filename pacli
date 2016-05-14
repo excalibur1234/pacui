@@ -59,7 +59,7 @@ function func_c
 function func_i 
 {
 		# the "package-query -Sl -f '%n  %v  -  %d' " displays a list of all packages from the Manjaro repositories and formats them like "NAME  VERSION  -  DESCRIPTION".
-		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ' | awk '{print $1}')
+		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ' )
 		
 		sudo pacman -S ${pkg} --color always
 		
@@ -209,7 +209,7 @@ function func_empty
 
 function func_fi 
 {
-		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ' | awk '{print $1}')
+		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ' )
 		
 		sudo pacman -S --force ${pkg} --color always
 		
@@ -230,7 +230,7 @@ function func_fr
 # =======================
 
 
-function func_fua 
+function func_ua 
 {
 		yaourt -Syua && yaourt -Syua --devel --needed --noconfirm
 }
@@ -238,7 +238,7 @@ function func_fua
 
 function func_a 
 {
-		echo "Enter name of package to be searched and installed from AUR and press [Enter] to continue"
+		echo "Enter name of package to be searched in the AUR and press [Enter] to continue"
 		read Packcage
 		yaourt $Packcage
 }
@@ -295,7 +295,7 @@ function func_h
 			echo -e "  \e[31mpacli	fi  \e[0m- Force Install Package"
 			echo -e "  \e[31mpacli	fr  \e[0m- Force Remove Package"
 			echo
-			echo -e "  pacli	fua  - Force Update AUR"
+			echo -e "  pacli	ua  - Force Update AUR"
 			echo -e "  pacli	la  - List Installed from AUR"
 			echo -e "  pacli	a  - Search + Install from AUR"
 			echo -e "  pacli	ia  - Install from AUR"
@@ -307,9 +307,10 @@ function func_h
 
 Welcome to Pacli's Help Page.
 
-Pacli is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Yaourt as back ends. Additionally, it uses some Manjaro exclusive commands. Pacli offers you the most common and useful features for managing your packages. Options, which can break your system, are marked in red.
+Pacli is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Yaourt as back ends. Additionally, it uses some Manjaro exclusive commands. Pacli offers you the most common and useful features for managing your packages.
 Navigate this help page with your Arrow Keys, PageUp/PageDown Keys, SpaceBar, or your Mouse Wheel.
-On the following Help Page all options Pacli offers are described in detail:
+Most options in Pacli use fzf, which means by starting to type you can search the displayed list. Use your TAB key to select multiple items from the list and your ENTER key to choose your selection. Navigate fzf's list the same way you navigate this help page.
+
 
 HOME SCREEN
 Pacli's home screen is split into three parts:
@@ -349,7 +350,6 @@ ATTENTION: It is NOT recommended to use this command on modern solid state hard 
 3 - INSTALL PACKAGE
 "sudo pacman -S <PACKAGE NAME>"
 This option downloads and installs <PACKAGE NAME> on your system. <PACKAGE NAME> must be a package from the Manjaro repositories.
-This option uses fzf, which means you can search for packages and/or their description, too.
 
 4 - REMOVE PACKAGE + DEPS
 "sudo pacman -Rsn <PACKAGE NAME>"
@@ -409,10 +409,10 @@ This command searches for working and good Manjaro repository mirrors/servers. I
 "sudo dirmngr </dev/null"
 "sudo pacman-key --init && sudo pacman-key --populate archlinux manjaro"
 This series of commands resets and deletes your Pacman, Manjaro, and Arch key database and installs all keys again. This will solve problems with your local key database and Manjaro's and Arch's key database. Such problems can occur when new new packagers get added, for example.
-ATTENTION: This command only works, when your system time is set correctly! Checking and importing keys or fingerprints is time sensitive.
+ATTENTION: This command only works, when your system time is set correctly, becasue checking and importing keys or fingerprints is time sensitive! Please make sure of that before you run FIX ERRORS.
 ATTENTION: This command might take a long time to complete. If your system appears to stop or hang, it searches for entropy in order to generate a new key for you. In this case, it might help to do file operations with a lot of reads and/or writes per minute (such as searching for files, copying large directories, etc.). Alternatively, you can open a browser and do some heavy surfing (with a lot of mouse movements, mouse klicks, and keyboard key presses): This can help to generate entropy much faster.
 ATTENTION: If you want to execute these commands manually on a system with key database problems, the command "pacman -Sy gnupg archlinux-keyring manjaro-keyring" will not work for you! In this case, connect manually (via your browser) to your Manjaro repository server, download these packages, and install these packages manually. Pacli will do all of this automatically for you. If this part of Pacli fails, please wait a couple of hours until your Manjaro mirror has synchronized and offers the latest version of these 3 packages: gnupg, archlinux-keyring, manjaro-keyring.
-ATTENTION: The first command will remove all keys on your system, including manually installed keys (with "sudo pacman-key --lsign-key <KEY>"). Please remember to reinstall those keys again!
+ATTENTION: The first command will remove all keys on your system, including manually installed keys (with "sudo pacman-key --lsign-key <KEY>"). Please remember to reinstall those keys again after FIX ERRORS has completed!
 
 "sudo pacman -Sc"
 After an unseccessful attempt to update your system (which quit with a key error), you might have already downloaded unsigned packages to your pacman cache. These packages cannot be installed anymore.
@@ -515,12 +515,12 @@ do
     echo -e " └───────────────────────────────────────────────────────────────────┘"
     echo -e " ┌───────────────────────────────────────────────────────────────────┐"
     echo -e " │   9   Pacman \e[1mLog\e[0m                   10   \e[1mD\e[0mowngrade Packages        │"
-    echo -e " │  11   \e[1mH\e[0melp                      \e[31m   12   \e[1mFix\e[0m\e[31m Errors               \e[0m │"
+    echo -e " │  11   \e[1mH\e[0melp                     \e[31m    12   \e[1mFix\e[0m\e[31m Errors               \e[0m │"
     echo -e " │ \e[31m 13   \e[1mF\e[0m\e[31morce \e[1mU\e[0m\e[31mpdate System          14   \e[1mEmpty\e[0m\e[31m Package Cache      \e[0m │"
     echo -e " │ \e[31m 15   \e[1mF\e[0m\e[31morce \e[1mI\e[0m\e[31mnstall Package        16   \e[1mF\e[0m\e[31morce \e[1mR\e[0m\e[31memove Package     \e[0m │"
     echo -e " └───────────────────────────────────────────────────────────────────┘"
     echo -e " ┌───────────────────────────────────────────────────────────────────┐"
-    echo -e " │  17   \e[1mF\e[0morce \e[1mU\e[0mpdate \e[1mA\e[0mUR             18   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR   │"
+    echo -e " │  17   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR             18   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR   │"
     echo -e " │  19   Search + Install from \e[1mA\e[0mUR    20   \e[1mI\e[0mnstall from \e[1mA\e[0mUR          │"
     echo -e " └───────────────────────────────────────────────────────────────────┘"
     echo
@@ -643,14 +643,14 @@ do
             ;;
 
 
-        17|fua|FUA|forceupdateaur|forceupdateAUR|ForceUpdateAur|ForceUpdateAUR|FORCEUPDATEAUR)
+        17|ua|UA|fua|FUA|forceupdateaur|forceupdateAUR|ForceUpdateAur|ForceUpdateAUR|FORCEUPDATEAUR|updateaur|updateAUR|UPDATEAUR)
             echo
-			func_fua
+			func_ua
             echo
             echo -e " All AUR packages with available updates reinstalled. To return to pacli press [Enter] "
             read
             ;;
-        21|la|La|lA|LA|listaur|listAUR|ListAur|ListAUR|LISTAUR)
+        18|la|La|lA|LA|listaur|listAUR|ListAur|ListAUR|LISTAUR)
             echo
 			func_la
             echo
