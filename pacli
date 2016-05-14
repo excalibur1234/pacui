@@ -27,7 +27,7 @@
 
 function func_u 
 {
-		sudo pacman -Syu --color always
+		sudo pacman -Syu --color always && yaourt -Syua
 }
 
 
@@ -160,6 +160,114 @@ function func_d
 }
 
 
+function func_fix 
+{
+		sudo rm -f /var/lib/pacman/db.lck
+		sudo pacman-mirrors -g && sudo pacman -Syy
+
+		sudo rm -r /etc/pacman.d/gnupg &>/dev/null
+
+		# manually download and install these packages: gnupg, archlinux-keyring, manjaro-keyring
+		arch=$(uname -m)
+		# extract the name of your used branch from your "/etc/pacman-mirrors.conf" file and store it in "mybranch" variable
+		mybranch=$(awk -F'=' '/^Branch/ {print $2}' /etc/pacman-mirrors.conf)
+		# extract the version number of gnupg in the Manjaro repositories and save it in "version" variable
+		version="$(lang=C pacman -Si gnupg | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
+		# save the address of the latest gnupg package on a reliable Manjaro mirror to "url" variable
+		url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/gnupg${version}-${arch}.pkg.tar.xz"
+		wget "${url}" && sudo pacman -U "gnupg${version}-${arch}.pkg.tar.xz" --noconfirm && sudo rm "gnupg${version}-${arch}.pkg.tar.xz"
+
+		version="$(lang=C pacman -Si archlinux-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
+		url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/archlinux-keyring${version}-any.pkg.tar.xz"
+		wget "${url}" && sudo pacman -U "archlinux-keyring${version}-any.pkg.tar.xz" --noconfirm && sudo rm "archlinux-keyring${version}-any.pkg.tar.xz"
+
+		version="$(lang=C pacman -Si manjaro-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
+		url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/manjaro-keyring${version}-any.pkg.tar.xz"
+		wget "${url}" && sudo pacman -U "manjaro-keyring${version}-any.pkg.tar.xz" --noconfirm && sudo rm "manjaro-keyring${version}-any.pkg.tar.xz"
+		unset arch version url
+
+		# the following command sometimes prevents an error connecting to the key server		
+		sudo dirmngr </dev/null
+		sudo pacman-key --init && sudo pacman-key --populate archlinux manjaro
+
+		sudo pacman -Sc --noconfirm
+		sudo pacman -Syyuu --color always --noconfirm
+}
+
+
+function func_fu 
+{
+		sudo pacman -Syu --force --color always
+}
+
+
+function func_empty 
+{
+		yaourt -Scc
+}
+
+
+function func_fi 
+{
+		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ' | awk '{print $1}')
+		
+		sudo pacman -S --force ${pkg} --color always
+		
+		unset pkg
+}
+
+
+function func_fr 
+{
+		pkg=$(pacman -Qq | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search installed packages and select to remove > ')
+		
+		sudo pacman -Rdd ${pkg} --color always
+		
+		unset pkg
+}
+
+
+# =======================
+
+
+function func_fua 
+{
+		yaourt -Syua && yaourt -Syua --devel --needed --noconfirm
+}
+
+
+function func_a 
+{
+		echo "Enter name of package to be searched and installed from AUR and press [Enter] to continue"
+		read Packcage
+		yaourt $Packcage
+}
+
+
+function func_ia 
+{
+		# check, whether file /tmp/pacli-packages already exists (the ! negates the result)
+		if ! [ -e /tmp/pacli-packages ]
+		then
+			# write package list of manjaro repositories to /tmp/pacli-packages. then, download AUR package list, unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacli-packages.
+			pacman -Slq > /tmp/pacli-packages
+			wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzip -f /tmp/aur/packages.gz && cat /tmp/aur/packages >> /tmp/pacli-packages
+		fi
+			
+		pkg=$(cat /tmp/pacli-packages | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ')
+		
+		yaourt -S ${pkg} --color always
+		
+		unset pkg
+}
+
+
+function func_la 
+{
+		pacman -Qem --color always
+}
+
+
 function func_h 
 {
 		# the "then" part is displayed, when started from terminal (the last function adds the "1" parameter). the "else" part gets displayed when started from UI.
@@ -187,11 +295,10 @@ function func_h
 			echo -e "  \e[31mpacli	fi  \e[0m- Force Install Package"
 			echo -e "  \e[31mpacli	fr  \e[0m- Force Remove Package"
 			echo
-			echo -e "  pacli	ua  - Update AUR"
 			echo -e "  pacli	fua  - Force Update AUR"
+			echo -e "  pacli	la  - List Installed from AUR"
 			echo -e "  pacli	a  - Search + Install from AUR"
 			echo -e "  pacli	ia  - Install from AUR"
-			echo -e "  pacli	la  - List Installed from AUR"
 			echo
 			
 		else
@@ -215,8 +322,10 @@ The last part offers Arch User Repository (AUR) management options.
 This will clear your terminal and exit Pacli.
 
 1 - UPDATE SYSTEM
-"sudo pacman -Syu"
-This command compares a list of all installed packages with package database on your Manjaro repository mirror/server. If an updated package is available from the Manjaro repositories, it will get downloaded and installed on your system.
+"sudo pacman -Syu && yaourt -Syua"
+The first command compares a list of all installed packages with package database on your Manjaro repository mirror/server. If an updated package is available from the Manjaro repositories, it will get downloaded and installed on your system.
+The second command does the same as the first, but with one exception: It also downloads, compiles, and installs all packages from the Arch User Repository (AUR), which have an updated PKGBUILD file.
+ATTENTION: When a new version of an AUR package is available, often the PKGBUILD file is not updated. If you want to install the latest version of a single AUR package, (re-)install it with INSTALL FROM AUR. If you want to install the latest versions of ALL AUR packages FORCE UPDATE AUR.
 
 2 - CLEAN SYSTEM
 "sudo pacman-mirrors -g && sudo pacman -Syy"
@@ -331,19 +440,18 @@ This command does the same as INSTALL PACKAGE, but it forces the installation of
 This command removes <PACKAGE NAME> without checking the dependencies of <PACKAGE NAME> first. This enables experienced users to remove packages and dependencies of packages. This command only removes <PACKAGE NAME> from your system. All dependencies and orphans are left: run CLEAN SYSTEM afterwards to remove them, too.
 ATTENTION: This command can break pacakges on your system or even your entire system.
 
-17 - UPDATE AUR
-"yaourt -Syua"
-This command does the same as UPDATE SYSTEM, but with one exception: It also downloads, compiles, and installs all packages from Arch User Repository (AUR), which have an updated PKGBUILD file.
-ATTENTION: When a new version of an AUR package is available, often the PKGBUILD file is not updated. If you want to install the latest version of a single AUR package, (re-)install it with INSTALL FROM AUR. If you want to install the latest versions of all AUR packages use option FORCE UPDATE AUR.
-
-18 - FORCE UPDATE AUR
+17 - FORCE UPDATE AUR
 "yaourt -Syua && yaourt -Syua --devel --needed --noconfirm"
 The Arch User Repository (AUR) is a repository of (mostly) PKGBUILD files. Everybody can create such a PKGBUILD file and upload it to the AUR. A PKGBUILD file contains simple and human readable instructions like where to download the source code from, what dependencies are needed, where to copy files for installation, etc. Yaourt is a so called AUR Helper: It can interpret PKGBUILD files and download the source code, install dependencies, build files on your system, and copy these files to the right location (a.k.a. installing a program).
 By checking a PKGBUILD file (and .INSTALL file) you can make sure the source code is loaded from an official download server, no harmful dependencies get installed, and the installation instructions do not contain harmful code.
 A lot of PKGBUILD files contain variables (e.g. program version) in download addresses; this makes them download always the latest source code (e.g. from Github). Some PKGBUILD files contain no variables: These PKGBUILD files need to be changed manually every time a new program version is released.
-The first command of FORCE UPDATE AUR does the same as UPDATE AUR: Only AUR packages with updated/changed PKGBUILD files will get updated. This gives you the chance to check these updated/changed PKGBUILD files. 
+The first command of FORCE UPDATE AUR does the same as the second command of UPDATE SYSTEM: Only AUR packages with updated/changed PKGBUILD files will get updated. This gives you the chance to check these updated/changed PKGBUILD files. 
 The second command of FORCE UPDATE AUR forces a reinstall of ALL your developmental AUR packages (i.e. all git, svn, and cvs-packages). The "--noconfirm" flag is used in a secure way, because no PKGBUILD files have changed since the first command got executed.
 ATTENTION: This might take a long time! By default, after every 15min this command will pause and ask again for your password.
+
+18 - LIST INSTALLED FROM AUR
+"pacman -Qem"
+This command lists all installed packages, which are from the AUR or which were manually installed.
 
 19 - SEARCH + INSTALL FROM AUR
 "yaourt <PACKAGE NAME>"
@@ -356,129 +464,12 @@ If you want to exit this mode without installing any packages, simply press [Ent
 This command does the same as INSTALL PACKAGE. Additionally, Arch User Repository (AUR) packages can be installed.
 ATTENTION: Experienced users can install packages from the AUR without the need to answer questions all the time by using the command "yaourt -S <PACKAGE NAME> --noconfirm". The "--noconfirm" flag is great for quick and dirty installations of AUR packages on non-secure systems. Please keep always in mind that the AUR can contain any sort of package - including malicious and destructive (parts of) packages. Therefore, it is recommended to always check the PKGBUILD and .INSTALL file manually before installing a package from the AUR.
 
-21 - LIST INSTALLED FROM AUR
-"pacman -Qem"
-This command lists all installed packages, which are from the AUR or which were manually installed.
 
 To exit this Help Page, press "q".
 
 			EOF
 			
 		fi
-}
-
-
-function func_fix 
-{
-		sudo rm -f /var/lib/pacman/db.lck
-		sudo pacman-mirrors -g && sudo pacman -Syy
-
-		sudo rm -r /etc/pacman.d/gnupg &>/dev/null
-
-		# manually download and install these packages: gnupg, archlinux-keyring, manjaro-keyring
-		arch=$(uname -m)
-		# extract the name of your used branch from your "/etc/pacman-mirrors.conf" file and store it in "mybranch" variable
-		mybranch=$(awk -F'=' '/^Branch/ {print $2}' /etc/pacman-mirrors.conf)
-		# extract the version number of gnupg in the Manjaro repositories and save it in "version" variable
-		version="$(lang=C pacman -Si gnupg | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
-		# save the address of the latest gnupg package on a reliable Manjaro mirror to "url" variable
-		url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/gnupg${version}-${arch}.pkg.tar.xz"
-		wget "${url}" && sudo pacman -U "gnupg${version}-${arch}.pkg.tar.xz" --noconfirm && sudo rm "gnupg${version}-${arch}.pkg.tar.xz"
-
-		version="$(lang=C pacman -Si archlinux-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
-		url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/archlinux-keyring${version}-any.pkg.tar.xz"
-		wget "${url}" && sudo pacman -U "archlinux-keyring${version}-any.pkg.tar.xz" --noconfirm && sudo rm "archlinux-keyring${version}-any.pkg.tar.xz"
-
-		version="$(lang=C pacman -Si manjaro-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
-		url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/manjaro-keyring${version}-any.pkg.tar.xz"
-		wget "${url}" && sudo pacman -U "manjaro-keyring${version}-any.pkg.tar.xz" --noconfirm && sudo rm "manjaro-keyring${version}-any.pkg.tar.xz"
-		unset arch version url
-
-		# the following command sometimes prevents an error connecting to the key server		
-		sudo dirmngr </dev/null
-		sudo pacman-key --init && sudo pacman-key --populate archlinux manjaro
-
-		sudo pacman -Sc --noconfirm
-		sudo pacman -Syyuu --color always --noconfirm
-}
-
-
-function func_fu 
-{
-		sudo pacman -Syu --force --color always
-}
-
-
-function func_empty 
-{
-		yaourt -Scc
-}
-
-
-function func_fi 
-{
-		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ' | awk '{print $1}')
-		
-		sudo pacman -S --force ${pkg} --color always
-		
-		unset pkg
-}
-
-
-function func_fr 
-{
-		pkg=$(pacman -Qq | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search installed packages and select to remove > ')
-		
-		sudo pacman -Rdd ${pkg} --color always
-		
-		unset pkg
-}
-
-
-# =======================
-
-
-function func_ua 
-{
-		yaourt -Syua
-}
-
-
-function func_fua 
-{
-		yaourt -Syua && yaourt -Syua --devel --needed --noconfirm
-}
-
-
-function func_a 
-{
-		echo "Enter name of package to be searched and installed from AUR and press [Enter] to continue"
-		read Packcage
-		yaourt $Packcage
-}
-
-
-function func_ia 
-{
-		# check, whether file /tmp/pacli-packages already exists (the ! negates the result)
-		if ! [ -e /tmp/pacli-packages ]
-		then
-			# write package list of manjaro repositories to /tmp/pacli-packages. then, download AUR package list, unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacli-packages.
-			pacman -Slq > /tmp/pacli-packages
-			wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzip -f /tmp/aur/packages.gz && cat /tmp/aur/packages >> /tmp/pacli-packages
-		fi
-			
-		pkg=$(cat /tmp/pacli-packages | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ')
-		
-		yaourt -S ${pkg} --color always
-		
-		unset pkg
-}
-
-
-function func_la 
-{
-		pacman -Qem --color always
 }
 
 
@@ -529,9 +520,8 @@ do
     echo -e " │ \e[31m 15   \e[1mF\e[0m\e[31morce \e[1mI\e[0m\e[31mnstall Package        16   \e[1mF\e[0m\e[31morce \e[1mR\e[0m\e[31memove Package     \e[0m │"
     echo -e " └───────────────────────────────────────────────────────────────────┘"
     echo -e " ┌───────────────────────────────────────────────────────────────────┐"
-    echo -e " │  17   \e[1mU\e[0mpdate \e[1mA\e[0mUR                   18   \e[1mF\e[0morce \e[1mU\e[0mpdate \e[1mA\e[0mUR          │"
+    echo -e " │  17   \e[1mF\e[0morce \e[1mU\e[0mpdate \e[1mA\e[0mUR             18   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR   │"
     echo -e " │  19   Search + Install from \e[1mA\e[0mUR    20   \e[1mI\e[0mnstall from \e[1mA\e[0mUR          │"
-    echo -e " │  21   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR                                     │"
     echo -e " └───────────────────────────────────────────────────────────────────┘"
     echo
     echo -e "  Enter a number or marked letters and press [Enter]  -  0  \e[1mE\e[0mxit Pacli "
@@ -653,18 +643,18 @@ do
             ;;
 
 
-        17|ua|Ua|uA|UA|updateaur|updateAUR|UpdateAur|UpdateAUR|UPDATEAUR)
-            echo
-			func_ua
-            echo
-            echo -e " Your system is updated. To return to pacli press [Enter] "
-            read
-            ;;
-        18|fua|FUA|forceupdateaur|forceupdateAUR|ForceUpdateAur|ForceUpdateAUR|FORCEUPDATEAUR)
+        17|fua|FUA|forceupdateaur|forceupdateAUR|ForceUpdateAur|ForceUpdateAUR|FORCEUPDATEAUR)
             echo
 			func_fua
             echo
             echo -e " All AUR packages with available updates reinstalled. To return to pacli press [Enter] "
+            read
+            ;;
+        21|la|La|lA|LA|listaur|listAUR|ListAur|ListAUR|LISTAUR)
+            echo
+			func_la
+            echo
+            echo -e " All locally installed packages listed. To return to pacli press [Enter] "
             read
             ;;
         19|a|A|aur|AUR)
@@ -679,13 +669,6 @@ do
 			func_ia
             echo
             echo -e " Installation from AUR finished. To return to pacli press [Enter] "
-            read
-            ;;
-        21|la|La|lA|LA|listaur|listAUR|ListAur|ListAUR|LISTAUR)
-            echo
-			func_la
-            echo
-            echo -e " All locally installed packages listed. To return to pacli press [Enter] "
             read
             ;;
 
