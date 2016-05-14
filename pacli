@@ -431,15 +431,21 @@ ATTENTION: Only run this command when no other Pacman instance (e.g. Pacman, Yao
 "sudo pacman-mirrors -g && sudo pacman -Syy"
 This command searches for working and good Manjaro repository mirrors/servers. It will automatically choose the closest server for you. The second command forces a redownload of the latest package database from the best Manjaro repository mirror. 
 
-"sudo rm -r /etc/pacman.d/gnupg &>/dev/null"
-"sudo pacman -Sy gnupg archlinux-keyring manjaro-keyring 
 "sudo dirmngr </dev/null"
+Sometimes during key management the package "dirmngr" outputs error messages, which interrupt the key management. This command shuts up "dirmngr".
+
+"sudo rm -r /etc/pacman.d/gnupg &>/dev/null"
+This command deletes your Pacman, Manjaro, and Arch key database. It does not output an error in case the package "gnupg" is not installed on your system.
+ATTENTION: The first command will remove all keys on your system, including manually installed keys (with "sudo pacman-key --lsign-key <KEY>"). Please remember to reinstall those keys again after FIX ERRORS has completed!
+
+"sudo pacman -Sy gnupg archlinux-keyring manjaro-keyring"
+This command (re-)installs the "gnupg" package and keyrings for Arch Linux and Manjaro. Pacli actually does not use this command but instead downloads and installs these packages manually. This makes it possible to install these packages even if no other packages can be installed on your system due to key database errors.
+ATTENTION: If you want to execute these commands manually on a system with key database problems, the command "pacman -Sy gnupg archlinux-keyring manjaro-keyring" will not work for you! In this case, connect manually (via your browser) to your Manjaro repository server, download these packages, and install these packages manually. Pacli will do all of this automatically for you. If this part of Pacli fails, please wait a couple of hours until your Manjaro mirror has synchronized with the main Manjaro repository and offers the latest version of these 3 packages: gnupg, archlinux-keyring, manjaro-keyring.
+
 "sudo pacman-key --init && sudo pacman-key --populate archlinux manjaro"
-This series of commands resets and deletes your Pacman, Manjaro, and Arch key database and installs all keys again. This will solve problems with your local key database and Manjaro's and Arch's key database. Such problems can occur when new new packagers get added, for example.
+These two commands create a fresh key for you and (re-)install all keys from Arch Linux and Manjaro. This will solve problems with your local key database and Manjaro's and Arch's key database. Such problems can occur when new new Arch Linux or Manjaro packagers get added, for example.
 ATTENTION: This command only works, when your system time is set correctly, becasue checking and importing keys or fingerprints is time sensitive! Please make sure of that before you run FIX ERRORS.
 ATTENTION: This command might take a long time to complete. If your system appears to stop or hang, it searches for entropy in order to generate a new key for you. In this case, it might help to do file operations with a lot of reads and/or writes per minute (such as searching for files, copying large directories, etc.). Alternatively, you can open a browser and do some heavy surfing (with a lot of mouse movements, mouse klicks, and keyboard key presses): This can help to generate entropy much faster.
-ATTENTION: If you want to execute these commands manually on a system with key database problems, the command "pacman -Sy gnupg archlinux-keyring manjaro-keyring" will not work for you! In this case, connect manually (via your browser) to your Manjaro repository server, download these packages, and install these packages manually. Pacli will do all of this automatically for you. If this part of Pacli fails, please wait a couple of hours until your Manjaro mirror has synchronized and offers the latest version of these 3 packages: gnupg, archlinux-keyring, manjaro-keyring.
-ATTENTION: The first command will remove all keys on your system, including manually installed keys (with "sudo pacman-key --lsign-key <KEY>"). Please remember to reinstall those keys again after FIX ERRORS has completed!
 
 "sudo pacman -Sc"
 After an unseccessful attempt to update your system (which quit with a key error), you might have already downloaded unsigned packages to your pacman cache. These packages cannot be installed anymore.
