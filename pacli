@@ -59,7 +59,7 @@ function func_c
 function func_i 
 {
 		# the "package-query -Sl -f '%n  %v  -  %d' " displays a list of all packages from the Manjaro repositories and formats them like "NAME  VERSION  -  DESCRIPTION".
-		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ' )
+		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ' | awk '{print $1}' )
 		
 		sudo pacman -S ${pkg} --color always
 		
@@ -209,7 +209,7 @@ function func_empty
 
 function func_fi 
 {
-		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ' )
+		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ' | awk '{print $1}' )
 		
 		sudo pacman -S --force ${pkg} --color always
 		

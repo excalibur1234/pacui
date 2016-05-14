@@ -19,9 +19,6 @@ Home Screen of pacli:
 Installing the package "cantata" from the Manjaro repositories:
 ![Screenshot 02](http://imagizer.imageshack.com/img923/4341/rlbOYN.png)
 
-Removing "qt4" and another package from my system:
-![Screenshot 03](http://i.imgur.com/jJKrdp5.png)
-
 Downgrading the package "file-roller":
 ![Screenshot 04](http://i.imgur.com/kKzqbSl.png)
 
