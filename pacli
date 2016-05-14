@@ -100,12 +100,16 @@ function func_info
 		# the following command lets you search through the file "/tmp/pacli-packages" with fzf and save your selection in "pkg"
 		pkg=$(cat /tmp/pacli-packages | sort | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
 		
-		# next, it is checked, whether "pkg" is part of a list of all installed packages (pacman -Qq).
-		if ( pacman -Qq "${pkg}" &>/dev/null )
+		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
+		if [[ -n "$pkg" ]]
 		then
-			yaourt -Qii "${pkg}"		# execute this command when "pkg" is already installed on system
-		else
-			yaourt -Sii "${pkg}"		# execute this command when "pkg" is not installed on system
+			# next, it is checked, whether "pkg" is part of a list of all installed packages (pacman -Qq).
+			if ( pacman -Qq "${pkg}" &>/dev/null )
+			then
+				yaourt -Qii "${pkg}"		# execute this command when "pkg" is already installed on system
+			else
+				yaourt -Sii "${pkg}"		# execute this command when "pkg" is not installed on system
+			fi
 		fi
 		
 		unset pkg out
@@ -134,11 +138,16 @@ function func_t
 		pacman -Qq >> /tmp/pacli-packages-local
 
 		pkg=$(cat /tmp/pacli-packages-local | sort | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
-		if (pacman -Qq "${pkg}" &>/dev/null)
+		
+		# look in func_info for explanations
+		if [[ -n "$pkg" ]]
 		then
-			pactree -c "${pkg}"
-		else
-			pactree -c -s "${pkg}"
+			if (pacman -Qq "${pkg}" &>/dev/null)
+			then
+				pactree -c "${pkg}"
+			else
+				pactree -c -s "${pkg}"
+			fi
 		fi
 		
 		unset pkg
@@ -524,23 +533,23 @@ do
     clear
     echo
     echo -e "                    \e[0m ::Pacli - Package manager:: "
-    echo -e " ┌───────────────────────────────────────────────────────────────────┐"
-    echo -e " │   1   \e[1mU\e[0mpdate System                 2   \e[1mC\e[0mlean System              │"
-    echo -e " │   3   \e[1mI\e[0mnstall Package               4   \e[1mR\e[0memove Package + Deps     │"
-    echo -e " │-------------------------------------------------------------------│"
-    echo -e " │   5   Package \e[1mInfo\e[0mrmation           6   \e[1mL\e[0mist Local Package Files  │"
-    echo -e " │   7   Dependency \e[1mT\e[0mree               8   \e[1mR\e[0meverse Dependency \e[1mT\e[0mree   │"
-    echo -e " └───────────────────────────────────────────────────────────────────┘"
-    echo -e " ┌───────────────────────────────────────────────────────────────────┐"
-    echo -e " │   9   Pacman \e[1mLog\e[0m                   10   \e[1mD\e[0mowngrade Packages        │"
-    echo -e " │  11   \e[1mH\e[0melp                     \e[31m    12   \e[1mFix\e[0m\e[31m Errors               \e[0m │"
-    echo -e " │ \e[31m 13   \e[1mF\e[0m\e[31morce \e[1mU\e[0m\e[31mpdate System          14   \e[1mEmpty\e[0m\e[31m Package Cache      \e[0m │"
-    echo -e " │ \e[31m 15   \e[1mF\e[0m\e[31morce \e[1mI\e[0m\e[31mnstall Package        16   \e[1mF\e[0m\e[31morce \e[1mR\e[0m\e[31memove Package     \e[0m │"
-    echo -e " └───────────────────────────────────────────────────────────────────┘"
-    echo -e " ┌───────────────────────────────────────────────────────────────────┐"
-    echo -e " │  17   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR             18   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR   │"
-    echo -e " │  19   Search + Install from \e[1mA\e[0mUR    20   \e[1mI\e[0mnstall from \e[1mA\e[0mUR          │"
-    echo -e " └───────────────────────────────────────────────────────────────────┘"
+    echo -e " ┌────────────────────────────────────────────────────────────────────┐"
+    echo -e " │   1   \e[1mU\e[0mpdate System                 2   \e[1mC\e[0mlean System               │"
+    echo -e " │   3   \e[1mI\e[0mnstall Package               4   \e[1mR\e[0memove Package + Deps      │"
+    echo -e " │--------------------------------------------------------------------│"
+    echo -e " │   5   Package \e[1mInfo\e[0mrmation           6   \e[1mL\e[0mist Local Package Files   │"
+    echo -e " │   7   Dependency \e[1mT\e[0mree               8   \e[1mR\e[0meverse Dependency \e[1mT\e[0mree    │"
+    echo -e " └────────────────────────────────────────────────────────────────────┘"
+    echo -e " ┌────────────────────────────────────────────────────────────────────┐"
+    echo -e " │   9   Pacman \e[1mLog\e[0m                   10   \e[1mD\e[0mowngrade Packages         │"
+    echo -e " │  11   \e[1mH\e[0melp                     \e[31m    12   \e[1mFix\e[0m\e[31m Errors                \e[0m │"
+    echo -e " │ \e[31m 13   \e[1mF\e[0m\e[31morce \e[1mU\e[0m\e[31mpdate System          14   \e[1mEmpty\e[0m\e[31m Package Cache       \e[0m │"
+    echo -e " │ \e[31m 15   \e[1mF\e[0m\e[31morce \e[1mI\e[0m\e[31mnstall Package        16   \e[1mF\e[0m\e[31morce \e[1mR\e[0m\e[31memove Package      \e[0m │"
+    echo -e " └────────────────────────────────────────────────────────────────────┘"
+    echo -e " ┌────────────────────────────────────────────────────────────────────┐"
+    echo -e " │  17   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR             18   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
+    echo -e " │  19   Search + Install from \e[1mA\e[0mUR    20   \e[1mI\e[0mnstall from \e[1mA\e[0mUR           │"
+    echo -e " └────────────────────────────────────────────────────────────────────┘"
     echo
     echo -e "  Enter a number or marked letters and press [Enter]  -  0  \e[1mE\e[0mxit Pacli "
 
