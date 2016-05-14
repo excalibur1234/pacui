@@ -61,7 +61,11 @@ function func_i
 		# the "package-query -Sl -f '%n  %v  -  %d' " displays a list of all packages from the Manjaro repositories and formats them like "NAME  VERSION  -  DESCRIPTION".
 		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ' | awk '{print $1}' )
 		
-		sudo pacman -S ${pkg} --color always
+		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
+		if [[ -n "$pkg" ]]
+		then
+			sudo pacman -S "${pkg}" --color always
+		fi		
 		
 		unset pkg
 }
@@ -74,7 +78,10 @@ function func_r
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		pkg=$(pacman -Qq | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search installed packages and select to remove > ')
 
-		sudo pacman -Rsn ${pkg} --color always
+		if [[ -n "$pkg" ]]
+		then
+			sudo pacman -Rsn "${pkg}" --color always
+		fi
 		
 		unset pkg
 }
@@ -93,7 +100,7 @@ function func_info
 		# the following command lets you search through the file "/tmp/pacli-packages" with fzf and save your selection in "pkg"
 		pkg=$(cat /tmp/pacli-packages | sort | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
 		# next, it is checked, whether "pkg" is part of a list of all installed packages (pacman -Qq).
-		if (pacman -Qq "${pkg}" &>/dev/null)
+		if ( pacman -Qq "${pkg}" &>/dev/null )
 		then
 			out=$(yaourt -Qii "${pkg}")		# write this command to the "out" variable when "pkg" is already installed on system
 		else
@@ -110,10 +117,13 @@ function func_l
 {
 		# use fzf to ask the user to select an installed package. the package name gets save in variable "pkg"
 		pkg=$(pacman -Qq | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
-			
-		# take the output of command "pacman -Qlq ${pkg}" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacli-list.
-		pacman -Qlq ${pkg} --color always | fzf -m -e +s -i -q /usr/bin/ --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Cancel lists selection with CTRL+C or ESC." --prompt='Enter one or more filter terms > ' >> /tmp/pacli-list
-			
+		
+		if [[ -n "$pkg" ]]
+		then
+			# take the output of command "pacman -Qlq "${pkg}"" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacli-list.
+			pacman -Qlq "${pkg}" --color always | fzf -m -e +s -i -q /usr/bin/ --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Cancel lists selection with CTRL+C or ESC." --prompt='Enter one or more filter terms > ' >> /tmp/pacli-list
+		fi
+		
 		unset pkg
 }
 
@@ -127,9 +137,9 @@ function func_t
 		pkg=$(cat /tmp/pacli-packages-local | sort | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
 		if (pacman -Qq "${pkg}" &>/dev/null)
 		then
-			pactree -c ${pkg}
+			pactree -c "${pkg}"
 		else
-			pactree -c -s ${pkg}
+			pactree -c -s "${pkg}"
 		fi
 		
 		unset pkg
@@ -211,7 +221,10 @@ function func_fi
 {
 		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ' | awk '{print $1}' )
 		
-		sudo pacman -S --force ${pkg} --color always
+		if [[ -n "$pkg" ]]
+		then
+			sudo pacman -S --force "${pkg}" --color always
+		fi
 		
 		unset pkg
 }
@@ -221,7 +234,10 @@ function func_fr
 {
 		pkg=$(pacman -Qq | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search installed packages and select to remove > ')
 		
-		sudo pacman -Rdd ${pkg} --color always
+		if [[ -n "$pkg" ]]
+		then
+			sudo pacman -Rdd "${pkg}" --color always
+		fi
 		
 		unset pkg
 }
@@ -256,7 +272,10 @@ function func_ia
 			
 		pkg=$(cat /tmp/pacli-packages | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ')
 		
-		yaourt -S ${pkg} --color always
+		if [[ -n "$pkg" ]]
+		then
+			yaourt -S "${pkg}" --color always
+		fi
 		
 		unset pkg
 }
