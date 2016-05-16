@@ -352,7 +352,7 @@ This will clear your terminal and exit Pacli.
 1 - UPDATE SYSTEM
 "sudo pacman -Syu && yaourt -Syua"
 The first command compares a list of all installed packages with package database on your Manjaro repository mirror/server. If an updated package is available from the Manjaro repositories, it will get downloaded and installed on your system.
-The second command does the same as the first, but with one exception: It also downloads, compiles, and installs all packages from the Arch User Repository (AUR), which have an updated PKGBUILD file.
+The second command does the same as the first, but with one exception: It also downloads, compiles, and installs all packages from the Arch User Repository (AUR), which have an updated PKGBUILD file. The reason the first command is still needed is: Major Pacman and Yaourt updates require Pacman and will fail when executed with Yaourt.
 ATTENTION: When a new version of an AUR package is available, often the PKGBUILD file is not updated. If you want to install the latest version of a single AUR package, (re-)install it with INSTALL FROM AUR. If you want to install the latest versions of ALL AUR packages FORCE UPDATE AUR.
 
 2 - CLEAN SYSTEM
