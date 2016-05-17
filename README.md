@@ -79,6 +79,6 @@ Choose the "Help" option within pacli by entering "11" or "h" or "help" inside p
 This help page explains a little bit about pacli. It also explains every pacli option in detail. If you want to look up which commands pacli uses and understand them, this is the right place for you!
 
 ### Manjaro Forum
-There are 2 threads in the Manjaro forum. Most of the discussion between the developers is going on there:
- - [Main Thread](https://forum.manjaro.org/index.php?topic=21399.0)
- - [Additional Thread](https://forum.manjaro.org/index.php?topic=28563.0)
+There is a new and old thread in the Manjaro forums. Most of the discussion between the developers is going on there:
+ - [New Forum](https://forum.manjaro.org/t/pacli-simple-a-simple-bash-frontend-for-pacman-and-yaourt/677)
+ - [Old Forum - Inactive Thread](https://old.forum.manjaro.org/index.php?topic=21399.0)
