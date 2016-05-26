@@ -202,7 +202,7 @@ function func_fix
 		version="$(lang=C pacman -Si manjaro-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
 		url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/manjaro-keyring${version}-any.pkg.tar.xz"
 		wget "${url}" && sudo pacman -U "manjaro-keyring${version}-any.pkg.tar.xz" --noconfirm && sudo rm "manjaro-keyring${version}-any.pkg.tar.xz"
-		unset arch version url
+		unset arch version url mybranch
 
 		# the following command sometimes prevents an error connecting to the key server		
 		sudo dirmngr </dev/null
@@ -352,7 +352,7 @@ This will clear your terminal and exit Pacli.
 1 - UPDATE SYSTEM
 "sudo pacman -Syu && yaourt -Syua"
 The first command compares a list of all installed packages with package database on your Manjaro repository mirror/server. If an updated package is available from the Manjaro repositories, it will get downloaded and installed on your system.
-The second command does the same as the first, but with one exception: It also downloads, compiles, and installs all packages from the Arch User Repository (AUR), which have an updated PKGBUILD file. The reason the first command is still needed is: Major Pacman and Yaourt updates require Pacman and will fail when executed with Yaourt.
+The second command (only runs, if the first command was completed successfully and) does the same as the first, but with one exception: It also downloads, compiles, and installs all packages from the Arch User Repository (AUR), which have an updated PKGBUILD file. The reason the first command is still needed is: Major Pacman and Yaourt updates require Pacman and will fail when executed with Yaourt.
 ATTENTION: When a new version of an AUR package is available, often the PKGBUILD file is not updated. If you want to install the latest version of a single AUR package, (re-)install it with INSTALL FROM AUR. If you want to install the latest versions of ALL AUR packages FORCE UPDATE AUR.
 
 2 - CLEAN SYSTEM
@@ -432,7 +432,7 @@ ATTENTION: Only run this command when no other Pacman instance (e.g. Pacman, Yao
 This command searches for working and good Manjaro repository mirrors/servers. It will automatically choose the closest server for you. The second command forces a redownload of the latest package database from the best Manjaro repository mirror. 
 
 "sudo dirmngr </dev/null"
-Sometimes during key management the package "dirmngr" outputs error messages, which interrupt the key management. This command shuts up "dirmngr".
+Sometimes during key management the package "dirmngr" outputs error messages, which interrupt key management processes (such as the following commands). This command prevents any output from "dirmngr".
 
 "sudo rm -r /etc/pacman.d/gnupg &>/dev/null"
 This command deletes your Pacman, Manjaro, and Arch key database. It does not output an error in case the package "gnupg" is not installed on your system.
@@ -450,7 +450,7 @@ ATTENTION: This command might take a long time to complete. If your system appea
 "sudo pacman -Sc"
 After an unseccessful attempt to update your system (which quit with a key error), you might have already downloaded unsigned packages to your pacman cache. These packages cannot be installed anymore.
 This command removes all packages from your pacman cache, which are not installed on your system. Afterwards, you need to download all previously downloaded but unsuccessfully installed packages again.
-ATTENTION: This command will prevent you on a system without an active internet connection to DOWNGRADE PACKAGES.
+ATTENTION: This command makes it impossible to DOWNGRADE PACKAGES on systems without an active internet connection.
 
 "sudo pacman -Syyuu"
 This last command forces a redownload of the latest package database from the best Manjaro repository mirror. Then, all your installed packages are checked against this latest package database. If an updated package is available from the Manjaro repositories, it will get downloaded and installed on your system. If an installed package is newer than the same package in the Manjaro repositories, the installed package will get downgraded. This behavior ensures your packages are always in sync with the Manajro repositories, even if you have just switched the Manjaro mirror or switched from unstable to stable branch.
@@ -510,7 +510,7 @@ To exit this Help Page, press "q".
 # write argument of "pacli $1" to "input" variable
 input=$1
 
-# if "input" starts with a "-" or "--" symbol, the "-" symbol(s) gets removed from "input" variable
+# if "input" starts with a "-" or "--" symbol, the "-" symbol(s) gets removed from the beginnig of "input" variable
 input=${input#-}
 input=${input#-} 
 
