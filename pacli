@@ -302,30 +302,30 @@ function func_h
 		then
 
 			echo
-			echo -e "  pacli	   - Pacli with User Interface"
+			echo -e "  pacli	       - \e[1mPacli\e[0m with User Interface"
 			echo
-			echo -e "  pacli	u  - Update System"
-			echo -e "  pacli	c  - Clean System"
-			echo -e "  pacli	i  - Install Package"
-			echo -e "  pacli	r  - Remove Package + Deps"
-			echo -e "  pacli	info  - Package Information"
-			echo -e "  pacli	l  - List Local Package Files"
-			echo -e "  pacli	t  - Dependency Tree"
-			echo -e "  pacli	rt  - Reverse Dependency Tree"
+			echo -e "  pacli	u      - \e[1mU\e[0mpdate System"
+			echo -e "  pacli	c      - \e[1mC\e[0mlean System"
+			echo -e "  pacli	i      - \e[1mI\e[0mnstall Package"
+			echo -e "  pacli	r      - \e[1mR\e[0memove Package + Deps"
+			echo -e "  pacli	info   - Package \e[1mInfo\e[0mrmation"
+			echo -e "  pacli	l      - \e[1mL\e[0mist Local Package Files"
+			echo -e "  pacli	t      - Dependency \e[1mT\e[0mree"
+			echo -e "  pacli	rt     - \e[1mR\e[0meverse Dependency \e[1mT\e[0mree"
 			echo
-			echo -e "  pacli	log  - Pacman Log"
-			echo -e "  pacli	d  - Downgrade Packages"
-			echo -e "  pacli	h  - Help. If you want to see detailed help, please start User Interface first."
-			echo -e "  \e[31mpacli	fix  \e[0m- Fix Errors"
-			echo -e "  \e[31mpacli	fu  \e[0m- Force Update System"
-			echo -e "  \e[31mpacli	empty  \e[0m- Empty Package Cache"
-			echo -e "  \e[31mpacli	fi  \e[0m- Force Install Package"
-			echo -e "  \e[31mpacli	fr  \e[0m- Force Remove Package"
+			echo -e "  pacli	log    - Pacman \e[1mLog\e[0m"
+			echo -e "  pacli	d      - \e[1mD\e[0mowngrade Packages"
+			echo -e "  pacli	h      - \e[1mH\e[0melp. For detailed help, please start User Interface first."
+			echo -e "  \e[31mpacli	fix    \e[0m- \e[1mFix\e[0m Errors"
+			echo -e "  \e[31mpacli	fu     \e[0m- \e[1mF\e[0morce \e[1mU\e[0mpdate System"
+			echo -e "  \e[31mpacli	empty  \e[0m- \e[1mEmpty\e[0m Package Cache"
+			echo -e "  \e[31mpacli	fi     \e[0m- \e[1mF\e[0morce \e[1mI\e[0mnstall Package"
+			echo -e "  \e[31mpacli	fr     \e[0m- \e[1mF\e[0morce \e[1mR\e[0memove Package"
 			echo
-			echo -e "  pacli	ua  - Force Update AUR"
-			echo -e "  pacli	la  - List Installed from AUR"
-			echo -e "  pacli	a  - Search + Install from AUR"
-			echo -e "  pacli	ia  - Install from AUR"
+			echo -e "  pacli	ua     - Force \e[1mU\e[0mpdate \e[1mA\e[0mUR"
+			echo -e "  pacli	la     - \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
+			echo -e "  pacli	a      - Search + Install from \e[1mA\e[0mUR"
+			echo -e "  pacli	ia     - \e[1mI\e[0mnstall from \e[1mA\e[0mUR"
 			echo
 			
 		else
@@ -507,10 +507,18 @@ To exit this Help Page, press "q".
 
 
 
-# the following function checks, whether a prefix (func_) + the input ($1) is a valid function. after the function is done an "exit" command is needed to prevent the UI from loading.
-if [[ $(type -t "func_$1") == 'function' ]] 
+# write argument of "pacli $1" to "input" variable
+input=$1
+
+# if "input" starts with a "-" symbol, the "-" symbol gets removed from "input" variable
+input=${input#-}
+input=${input#-}
+
+
+# the following function checks, whether a prefix (func_) + varialbe "input" is a valid function. after the function is done an "exit" command is needed to prevent the UI from loading.
+if [[ $(type -t "func_$input") == 'function' ]] 
 then
-    "func_$1" 1		# pass one parameter (1) when the funciton got called directly, if you want in future specific actions for console or menu
+    "func_$input" 1		# pass one parameter (1) when the funciton got called directly, if you want in future specific actions for console or menu
     exit $?			# exit here, no write in all functions and return error code if present
 elif (($# > 0))		# if one or more parameter
 then  			
@@ -518,6 +526,8 @@ then
     read
     # now, continue with this script without exiting.	
 fi
+
+unset input
 
 
 

@@ -28,11 +28,6 @@ Downgrading the package "file-roller":
 ![Screenshot 03](http://i.imgur.com/kKzqbSl.png)
 
 
-Looking up what packages on my system depend on "gtk2":
-
-![Screenshot 04](http://i.imgur.com/dVfXdLj.png)
-
-
 ## Download / Git Clone
 
 First, make sure all dependencies of pacli are installed on your system:
@@ -75,13 +70,13 @@ Now, you type "pacli" into your terminal and pacli will start with a GUI.
 
 ### Start pacli without a GUI
 After you manually installed pacli's bash file as described above, you can also type "pacli i" (note that "i" is marked in pacli's install option) into your terminal and pacli's install option will execute without pacli being started. This sort of command can be used with all options in pacli, for example: "pacli info", "pacli l", "pacli log", etc.
-Only "pacli h" works differently when called from the command line instead of pacli's GUI: "pacli h" will show an overview of all available commands.
+Only "pacli h" works differently when called from the command line instead of pacli's GUI: "pacli h" will show a very short overview of all available commands.
 
 
 ## Help
 
 ### pacli Help
-Choose the "Help" option within pacli by entering "11" or "h" or "help" inside pacli's GUI and pressing "ENTER". 
+Choose the "Help" option within pacli's GUI by entering "11" or "h" or "help" inside pacli's GUI and pressing "ENTER". 
 
 This help page explains a little bit about pacli. It also explains every pacli option in detail. If you want to look up which commands pacli uses and understand them, this is the right place for you!
 
