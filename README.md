@@ -75,6 +75,7 @@ For example, you want to display the reverse dependency tree of a package, just 
 - `pacli rt`
 - `pacli -rt`
 - `pacli --rt`
+
 This principle can be used with all options in pacli. Here are some random examples:
 - `pacli --info`
 - `pacli info`
@@ -84,6 +85,7 @@ This principle can be used with all options in pacli. Here are some random examp
 - `pacli --log`
 - `pacli -log`
 - `pacli -ua`
+
 Only "pacli h" works differently when called from the command line instead of pacli's GUI: "pacli h" will show a very short overview of all available commands.
 
 

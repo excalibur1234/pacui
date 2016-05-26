@@ -510,9 +510,9 @@ To exit this Help Page, press "q".
 # write argument of "pacli $1" to "input" variable
 input=$1
 
-# if "input" starts with a "-" symbol, the "-" symbol gets removed from "input" variable
+# if "input" starts with a "-" or "--" symbol, the "-" symbol(s) gets removed from "input" variable
 input=${input#-}
-input=${input#-}
+input=${input#-} 
 
 
 # the following function checks, whether a prefix (func_) + varialbe "input" is a valid function. after the function is done an "exit" command is needed to prevent the UI from loading.
