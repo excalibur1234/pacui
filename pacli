@@ -62,9 +62,9 @@ function func_i
 		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ' | awk '{print $1}' )
 		
 		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
-		if [[ -n "$pkg" ]]
+		if [[ -n $pkg ]]
 		then
-			sudo pacman -S "${pkg}" --color always
+			sudo pacman -S $pkg --color always
 		fi		
 		
 		unset pkg
@@ -78,9 +78,9 @@ function func_r
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		pkg=$(pacman -Qq | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search installed packages and select to remove > ')
 
-		if [[ -n "$pkg" ]]
+		if [[ -n $pkg ]]
 		then
-			sudo pacman -Rsn "${pkg}" --color always
+			sudo pacman -Rsn $pkg --color always
 		fi
 		
 		unset pkg
@@ -101,14 +101,14 @@ function func_info
 		pkg=$(cat /tmp/pacli-packages | sort | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
 		
 		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
-		if [[ -n "$pkg" ]]
+		if [[ -n $pkg ]]
 		then
 			# next, it is checked, whether "pkg" is part of a list of all installed packages (pacman -Qq).
-			if ( pacman -Qq "${pkg}" &>/dev/null )
+			if ( pacman -Qq $pkg &>/dev/null )
 			then
-				yaourt -Qii "${pkg}"		# execute this command when "pkg" is already installed on system
+				yaourt -Qii $pkg		# execute this command when "pkg" is already installed on system
 			else
-				yaourt -Sii "${pkg}"		# execute this command when "pkg" is not installed on system
+				yaourt -Sii $pkg		# execute this command when "pkg" is not installed on system
 			fi
 		fi
 		
@@ -121,10 +121,10 @@ function func_l
 		# use fzf to ask the user to select an installed package. the package name gets save in variable "pkg"
 		pkg=$(pacman -Qq | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
 		
-		if [[ -n "$pkg" ]]
+		if [[ -n $pkg ]]
 		then
-			# take the output of command "pacman -Qlq "${pkg}"" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacli-list.
-			pacman -Qlq "${pkg}" --color always | fzf -m -e +s -i -q /usr/bin/ --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Cancel lists selection with CTRL+C or ESC." --prompt='Enter one or more filter terms > ' >> /tmp/pacli-list
+			# take the output of command "pacman -Qlq $pkg" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacli-list.
+			pacman -Qlq $pkg --color always | fzf -m -e +s -i -q /usr/bin/ --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Cancel lists selection with CTRL+C or ESC." --prompt='Enter one or more filter terms > ' >> /tmp/pacli-list
 		fi
 		
 		unset pkg
@@ -140,13 +140,13 @@ function func_t
 		pkg=$(cat /tmp/pacli-packages-local | sort | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
 		
 		# look in func_info for explanations
-		if [[ -n "$pkg" ]]
+		if [[ -n $pkg ]]
 		then
-			if (pacman -Qq "${pkg}" &>/dev/null)
+			if (pacman -Qq $pkg &>/dev/null)
 			then
-				pactree -c "${pkg}"
+				pactree -c $pkg
 			else
-				pactree -c -s "${pkg}"
+				pactree -c -s $pkg
 			fi
 		fi
 		
@@ -229,9 +229,9 @@ function func_fi
 {
 		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ' | awk '{print $1}' )
 		
-		if [[ -n "$pkg" ]]
+		if [[ -n $pkg ]]
 		then
-			sudo pacman -S --force "${pkg}" --color always
+			sudo pacman -S --force $pkg --color always
 		fi
 		
 		unset pkg
@@ -242,9 +242,9 @@ function func_fr
 {
 		pkg=$(pacman -Qq | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search installed packages and select to remove > ')
 		
-		if [[ -n "$pkg" ]]
+		if [[ -n $pkg ]]
 		then
-			sudo pacman -Rdd "${pkg}" --color always
+			sudo pacman -Rdd $pkg --color always
 		fi
 		
 		unset pkg
@@ -280,9 +280,9 @@ function func_ia
 			
 		pkg=$(cat /tmp/pacli-packages | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ')
 		
-		if [[ -n "$pkg" ]]
+		if [[ -n $pkg ]]
 		then
-			yaourt -S "${pkg}" --color always
+			yaourt -S $pkg --color always
 		fi
 		
 		unset pkg
@@ -336,7 +336,7 @@ Welcome to Pacli's Help Page.
 
 Pacli is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Yaourt as back ends. Additionally, it uses some Manjaro exclusive commands. Pacli offers you the most common and useful features for managing your packages.
 Navigate this help page with your Arrow Keys, PageUp/PageDown Keys, SpaceBar, or your Mouse Wheel.
-Most options in Pacli use fzf, which means by starting to type you can search the displayed list. Use your TAB key to select multiple items from the list and your ENTER key to choose your selection. Navigate fzf's list the same way you navigate this help page.
+Most options in Pacli use fuzzy finder (fzf), which means by starting to type you can search the displayed list. Use your TAB key to select multiple items from the list and your ENTER key to choose your selection. Navigate fzf's list the same way you navigate this help page.
 
 
 HOME SCREEN

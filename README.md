@@ -14,15 +14,22 @@ It is highly recommended to use an utility, which notifies the user about availa
 ## Screenshots
 
 Home Screen of pacli:
+
 ![Screenshot 01](http://imagizer.imageshack.com/img924/8197/bPKppR.png)
 
+
 Installing the package "cantata" from the Manjaro repositories:
+
 ![Screenshot 02](http://s32.postimg.org/50okof26t/pacli_simple2.gif)
 
+
 Downgrading the package "file-roller":
+
 ![Screenshot 03](http://i.imgur.com/kKzqbSl.png)
 
+
 Looking up what packages on my system depend on "gtk2":
+
 ![Screenshot 04](http://i.imgur.com/dVfXdLj.png)
 
 
@@ -31,7 +38,7 @@ Looking up what packages on my system depend on "gtk2":
 First, make sure all dependencies of pacli are installed on your system:
 - pacman
 - [yaourt](https://wiki.archlinux.org/index.php/Yaourt)
-- [fzf](https://aur.archlinux.org/packages/fzf/)
+- [fzf](https://aur.archlinux.org/packages/fzf/) (fuzzy finder)
 - [downgrade](https://aur.archlinux.org/packages/downgrade/)
 - pacman-mirrorlist
 - bash
