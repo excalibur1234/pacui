@@ -69,14 +69,28 @@ sudo cp ~/pacli-simple/pacli /usr/bin/
 Now, you type "pacli" into your terminal and pacli will start with a GUI.
 
 ### Start pacli without a GUI
-After you manually installed pacli's bash file as described above, you can also type "pacli i" (note that "i" is marked in pacli's install option) into your terminal and pacli's install option will execute without pacli being started. This sort of command can be used with all options in pacli, for example: "pacli info", "pacli l", "pacli log", etc.
+After you manually installed pacli's bash file as described above, you can call pacli's options from your terminal without the need to start pacli's GUI:
+
+For example, you want to display the reverse dependency tree of a package, just type one of the three following choices into your terminal (note that the letters "R" and "T" are marked in pacli's corresponding option):
+- `pacli rt`
+- `pacli -rt`
+- `pacli --rt`
+This principle can be used with all options in pacli. Here are some random examples:
+- `pacli --info`
+- `pacli info`
+- `pacli -i`
+- `pacli l`
+- `pacli log`
+- `pacli --log`
+- `pacli -log`
+- `pacli -ua`
 Only "pacli h" works differently when called from the command line instead of pacli's GUI: "pacli h" will show a very short overview of all available commands.
 
 
 ## Help
 
 ### pacli Help
-Choose the "Help" option within pacli's GUI by entering "11" or "h" or "help" inside pacli's GUI and pressing "ENTER". 
+Choose the "Help" option within pacli's GUI by entering "11" or "h" or "help" and pressing "ENTER". 
 
 This help page explains a little bit about pacli. It also explains every pacli option in detail. If you want to look up which commands pacli uses and understand them, this is the right place for you!
 
