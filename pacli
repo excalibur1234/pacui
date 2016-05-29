@@ -45,7 +45,7 @@ function func_c
 		if [[ -n "$disk" && -e "/dev/$disk" ]]
 		then
 			# open the "rotational" file belonging to your "disk" and checking, whether it contains a "1" - this means your "disk" is a traditional hard drive and no SSD.
-			if [[ $(cat $(find /sys -name 'rotational' 2>/dev/null | grep "$disk/queue")) == "1" ]]
+			if [[ $(cat $(find "/sys" -name "rotational" 2>/dev/null | grep "$disk/queue")) == "1" ]]
 			then
 			# only execute the following line when your / parition is installed on a hard drive.
 			sudo pacman-optimize
@@ -98,7 +98,7 @@ function func_info
 		fi
 			
 		# the following command lets you search through the file "/tmp/pacli-packages" with fzf and save your selection in "pkg"
-		pkg=$(cat /tmp/pacli-packages | sort | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
+		pkg=$(sort /tmp/pacli-packages | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
 		
 		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $pkg ]]
@@ -137,7 +137,7 @@ function func_t
 		pacman -Slq > /tmp/pacli-packages-local
 		pacman -Qq >> /tmp/pacli-packages-local
 
-		pkg=$(cat /tmp/pacli-packages-local | sort | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
+		pkg=$(sort /tmp/pacli-packages-local | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
 		
 		# look in func_info for explanations
 		if [[ -n $pkg ]]
@@ -156,7 +156,11 @@ function func_t
 
 function func_rt 
 {
-		pactree -c -r $(pacman -Qq | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
+		pkg=$(pacman -Qq | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
+		
+		pactree -c -r $pkg
+		
+		unset pkg
 }
 
 
@@ -174,7 +178,12 @@ function func_d
 		pacman -Slq > /tmp/pacli-packages-local
 		pacman -Qq >> /tmp/pacli-packages-local
 		
-		downgrade $(cat /tmp/pacli-packages-local | sort | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package to downgrade > ')
+		pkg=$(sort /tmp/pacli-packages-local | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package to downgrade > ')
+		
+		downgrade $pkg
+		
+		unset pkg
+
 }
 
 
@@ -263,8 +272,11 @@ function func_ua
 function func_a 
 {
 		echo "Enter name of package to be searched in the AUR and press [Enter] to continue"
-		read Packcage
-		yaourt $Packcage
+		read -r pkg
+		
+		yaourt $pkg
+		
+		unset pkg
 }
 
 
@@ -278,7 +290,7 @@ function func_ia
 			wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzip -f /tmp/aur/packages.gz && cat /tmp/aur/packages >> /tmp/pacli-packages
 		fi
 			
-		pkg=$(cat /tmp/pacli-packages | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ')
+		pkg=$(sort /tmp/pacli-packages | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ')
 		
 		if [[ -n $pkg ]]
 		then
@@ -570,7 +582,7 @@ do
     echo -e "  Enter a number or marked letters and press [Enter]  -  0  \e[1mE\e[0mxit Pacli "
 
     # save entered number in varialbe "choice" and test, whether "chioce" fits any of the following numbers, letters, or words
-    read choice
+    read -r choice
     case $choice in
 
 
