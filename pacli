@@ -294,7 +294,7 @@ function func_ia
 		
 		if [[ -n $pkg ]]
 		then
-			yaourt -S $pkg --color always
+			yaourt -S $pkg
 		fi
 		
 		unset pkg
