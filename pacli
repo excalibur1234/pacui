@@ -524,7 +524,10 @@ input=$1
 
 # if "input" starts with a "-" or "--" symbol, the "-" symbol(s) gets removed from the beginnig of "input" variable
 input=${input#-}
-input=${input#-} 
+input=${input#-}
+
+# convert content of "input" variable to lowercase
+input=$(echo $input | tr '[:upper:]' '[:lower:]' )
 
 
 # the following function checks, whether a prefix (func_) + varialbe "input" is a valid function. after the function is done an "exit" command is needed to prevent the UI from loading.
@@ -583,58 +586,61 @@ do
 
     # save entered number in varialbe "choice" and test, whether "chioce" fits any of the following numbers, letters, or words
     read -r choice
+	# convert "choice" variable to lowercase:
+	choice=$(echo $choice | tr '[:upper:]' '[:lower:]' )
+	
     case $choice in
 
 
-        1|u|U|update|Update|UPDATE)
-            # the line above means: the following commands will get executed if $choice is "1" or "u" or "U" or "update" or ...
-            echo
+        1|u|update)
+            # the line above means: the following commands will get executed if $choice is "1" or "u" or "update" 
+			echo
             func_u
             echo
             echo -e " Your system is updated. To return to pacli press [Enter] "
             read
             ;;
-        2|c|C|clean|Clean|CLEAN)
+        2|c|clean)
             echo
 			func_c
             echo
             echo -e " Fast Mirror chosen, orphans removed, and old packages deleted from cache. To return to pacli press [Enter] "
             read
             ;;
-        3|i|I|install|Install|INSTALL)
+        3|i|install)
             echo
 			func_i
             echo
             echo -e " Package installation is finished. To return to pacli press [Enter] "
             read
             ;;
-        4|r|R|remove|Remove|REMOVE)
+        4|r|remove)
             echo
 			func_r
 			echo
             echo -e " Packages and all unneeded dependencies removed. To return to pacli press [Enter] "
             read
             ;;
-        5|info|Info|INFO|information|Information|INFORMATION)
+        5|info|information)
             echo
 			func_info
             echo
             echo -e " Package information displayed. To return to pacli press [Enter] "
             read
             ;;
-        6|l|L|list|List|LIST)
+        6|l|list)
             echo
 			func_l
             echo
             ;;
-        7|t|T|tree|Tree|TREE)
+        7|t|tree)
             echo
 			func_t
             echo
             echo -e " Dependency tree displayed. Navigate with CTRL+PageUp. To return to pacli press [Enter] "
             read
             ;;
-        8|rt|RT|rT|Rt|reversetree|ReverseTree|REVERSETREE)
+        8|rt|reversetree)
             echo
 			func_rt
             echo
@@ -643,45 +649,45 @@ do
             ;;
 
 
-        9|log|Log|LOG)
+        9|log)
             echo
 			func_log
             echo
             ;;			
-        10|d|D|down|Down|DOWN|downgrade|Downgrade|DOWNGRADE)
+        10|d|down|downgrade)
             echo
 			func_d
             echo
             echo -e " Downgrade process finished. To return to pacli press [Enter] "
             read
             ;;
-        11|00|33|44|55|66|77|88|99|100|111|122|133|144|155|166|177|188|199|200|211|h|H|help|Help|HELP)
+        11|00|111|h|help)
             echo
             func_h
             echo
             ;;
-        12|fix|Fix|FIX)
+        12|fix)
             echo
 			func_fix
             echo
             echo -e " Most common Pacman errors fixed and system updated. To return to pacli press [Enter] "
             read
             ;;
-        13|fu|Fu|fU|FU|forceupdate|ForceUpdate|FORCEUPDATE)
+        13|fu|forceupdate)
             echo
 			func_fu
             echo
             echo -e " Your system was updated in force mode. To return to pacli press [Enter] "
             read
             ;;
-        14|empty|Empty|EMPTY)
+        14|empty)
             echo
 			func_empty
             echo
             echo -e " Entire package cache emptied. To return to pacli press [Enter] "
             read
             ;;
-        15|fi|Fi|fI|FI|forceinstall|ForceInstall|FORCEINSTALL)
+        15|fi|forceinstall)
             echo
 			func_fi
             echo
@@ -689,7 +695,7 @@ do
             read
             ;;
 
-        16|fr|Fr|fR|FR|forceremove|ForceRemove|FORCEREMOVE)
+        16|fr|forceremove)
             echo
 			func_fr
 			echo
@@ -698,28 +704,28 @@ do
             ;;
 
 
-        17|ua|UA|fua|FUA|forceupdateaur|forceupdateAUR|ForceUpdateAur|ForceUpdateAUR|FORCEUPDATEAUR|updateaur|updateAUR|UPDATEAUR)
+        17|ua|fua|forceupdateaur|updateaur)
             echo
 			func_ua
             echo
             echo -e " All AUR packages with available updates reinstalled. To return to pacli press [Enter] "
             read
             ;;
-        18|la|La|lA|LA|listaur|listAUR|ListAur|ListAUR|LISTAUR)
+        18|la|listaur)
             echo
 			func_la
             echo
             echo -e " All locally installed packages listed. To return to pacli press [Enter] "
             read
             ;;
-        19|a|A|aur|AUR)
+        19|a|aur)
             echo
 			func_a
             echo
             echo -e " Yaourt finished. To return to pacli press [Enter] "
             read
             ;;
-        20|ia|Ia|iA|IA|installaur|InstallAur|InstallAUR|INSTALLAUR)
+        20|ia|installaur)
             echo
 			func_ia
             echo
@@ -728,7 +734,7 @@ do
             ;;
 
 
-        0|e|E|exit|Exit|EXIT|q|Q|quit|Quit|QUIT)
+        0|e|exit|q|quit)
             echo
             clear && exit
             ;;
