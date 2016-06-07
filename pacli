@@ -39,6 +39,7 @@ function func_c
 		paccache -rvk2
 
 		# 1. extract the name of hard drive the / partition is installed on and write it to the "disk" variatble"
+		local disk		# declare local variable
 		disk=$(lsblk -o "name,mountpoint" -pa | sed -n '/^\//h;/\/$/{g;p}' | cut -d/ -f3)
 		disk="${disk:0:3}"
 		# 2. check, whether "disk" is not empty and whether the path to "disk" exists
@@ -51,14 +52,13 @@ function func_c
 			sudo pacman-optimize
 			fi
 		fi
-		
-		unset disk
 }
 
 
 function func_i 
 {
 		# the "package-query -Sl -f '%n  %v  -  %d' " displays a list of all packages from the Manjaro repositories and formats them like "NAME  VERSION  -  DESCRIPTION".
+		local pkg
 		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ' | awk '{print $1}' )
 		
 		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
@@ -66,8 +66,6 @@ function func_i
 		then
 			sudo pacman -S $pkg --color always
 		fi		
-		
-		unset pkg
 }
 
 
@@ -76,14 +74,13 @@ function func_r
 		# $(pacman -Qq | sort | fzf -e -m +s --reverse --prompt='Select packages to remove (use TAB to toggle selection) > ')
 		# takes a package list from "pacman -Qq", then sorts it alphabetically, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
+		local pkg
 		pkg=$(pacman -Qq | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search installed packages and select to remove > ')
 
 		if [[ -n $pkg ]]
 		then
 			sudo pacman -Rsn $pkg --color always
 		fi
-		
-		unset pkg
 }
 
 
@@ -98,6 +95,7 @@ function func_info
 		fi
 			
 		# the following command lets you search through the file "/tmp/pacli-packages" with fzf and save your selection in "pkg"
+		local pkg
 		pkg=$(sort /tmp/pacli-packages | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
 		
 		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
@@ -111,14 +109,13 @@ function func_info
 				yaourt -Sii $pkg		# execute this command when "pkg" is not installed on system
 			fi
 		fi
-		
-		unset pkg out
 }
 
 
 function func_l 
 {
 		# use fzf to ask the user to select an installed package. the package name gets save in variable "pkg"
+		local pkg
 		pkg=$(pacman -Qq | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
 		
 		if [[ -n $pkg ]]
@@ -126,8 +123,6 @@ function func_l
 			# take the output of command "pacman -Qlq $pkg" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacli-list.
 			pacman -Qlq $pkg --color always | fzf -m -e +s -i -q /usr/bin/ --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Cancel lists selection with CTRL+C or ESC." --prompt='Enter one or more filter terms > ' >> /tmp/pacli-list
 		fi
-		
-		unset pkg
 }
 
 
@@ -137,6 +132,7 @@ function func_t
 		pacman -Slq > /tmp/pacli-packages-local
 		pacman -Qq >> /tmp/pacli-packages-local
 
+		local pkg
 		pkg=$(sort /tmp/pacli-packages-local | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
 		
 		# look in func_info for explanations
@@ -149,18 +145,15 @@ function func_t
 				pactree -c -s $pkg
 			fi
 		fi
-		
-		unset pkg
 }
 
 
 function func_rt 
 {
+		local pkg
 		pkg=$(pacman -Qq | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package > ')
 		
 		pactree -c -r $pkg
-		
-		unset pkg
 }
 
 
@@ -177,13 +170,11 @@ function func_d
 {
 		pacman -Slq > /tmp/pacli-packages-local
 		pacman -Qq >> /tmp/pacli-packages-local
-		
+				
+		local pkg
 		pkg=$(sort /tmp/pacli-packages-local | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Cancel list selection with CTRL+C or ESC" --prompt='Search and select package to downgrade > ')
 		
 		downgrade $pkg
-		
-		unset pkg
-
 }
 
 
@@ -194,6 +185,9 @@ function func_fix
 
 		sudo rm -r /etc/pacman.d/gnupg &>/dev/null
 
+		#declare local variables
+		local arch version url mybranch
+		
 		# manually download and install these packages: gnupg, archlinux-keyring, manjaro-keyring
 		arch=$(uname -m)
 		# extract the name of your used branch from your "/etc/pacman-mirrors.conf" file and store it in "mybranch" variable
@@ -211,7 +205,6 @@ function func_fix
 		version="$(lang=C pacman -Si manjaro-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
 		url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/manjaro-keyring${version}-any.pkg.tar.xz"
 		wget "${url}" && sudo pacman -U "manjaro-keyring${version}-any.pkg.tar.xz" --noconfirm && sudo rm "manjaro-keyring${version}-any.pkg.tar.xz"
-		unset arch version url mybranch
 
 		# the following command sometimes prevents an error connecting to the key server		
 		sudo dirmngr </dev/null
@@ -236,27 +229,25 @@ function func_empty
 
 function func_fi 
 {
+		local pkg
 		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ' | awk '{print $1}' )
 		
 		if [[ -n $pkg ]]
 		then
 			sudo pacman -S --force $pkg --color always
 		fi
-		
-		unset pkg
 }
 
 
 function func_fr 
 {
+		local pkg
 		pkg=$(pacman -Qq | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search installed packages and select to remove > ')
 		
 		if [[ -n $pkg ]]
 		then
 			sudo pacman -Rdd $pkg --color always
 		fi
-		
-		unset pkg
 }
 
 
@@ -271,12 +262,12 @@ function func_ua
 
 function func_a 
 {
+		local pkg
+
 		echo "Enter name of package to be searched in the AUR and press [Enter] to continue"
 		read -r pkg
 		
 		yaourt $pkg
-		
-		unset pkg
 }
 
 
@@ -289,15 +280,15 @@ function func_ia
 			pacman -Slq > /tmp/pacli-packages
 			wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzip -f /tmp/aur/packages.gz && cat /tmp/aur/packages >> /tmp/pacli-packages
 		fi
-			
+		
+		local pkg
+		
 		pkg=$(sort /tmp/pacli-packages | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Use TAB to toggle Selection. Cancel list selection with CTRL+C or ESC" --prompt='Search and select packages to install > ')
 		
 		if [[ -n $pkg ]]
 		then
 			yaourt -S $pkg
 		fi
-		
-		unset pkg
 }
 
 
