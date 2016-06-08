@@ -183,6 +183,10 @@ function func_fix
 		sudo rm -f /var/lib/pacman/db.lck
 		sudo pacman-mirrors -g && sudo pacman -Syy
 
+		# the following command sometimes prevents an error connecting to the key server		
+		sudo dirmngr </dev/null
+
+		# remove gnupg with all keys
 		sudo rm -r /etc/pacman.d/gnupg &>/dev/null
 
 		#declare local variables
@@ -190,8 +194,8 @@ function func_fix
 		
 		# manually download and install these packages: gnupg, archlinux-keyring, manjaro-keyring
 		arch=$(uname -m)
-		# extract the name of your used branch from your "/etc/pacman-mirrors.conf" file and store it in "mybranch" variable
-		mybranch=$(awk -F'=' '/^Branch/ {print $2}' /etc/pacman-mirrors.conf)
+		# extract the name of your used branch (and remove all spaces) from your "/etc/pacman-mirrors.conf" file and store it in "mybranch" variable
+		mybranch=$(awk -F'=' '/^Branch/{gsub(" ","", $2 ); print $2}' /etc/pacman-mirrors.conf)
 		# extract the version number of gnupg in the Manjaro repositories and save it in "version" variable
 		version="$(lang=C pacman -Si gnupg | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
 		# save the address of the latest gnupg package on a reliable Manjaro mirror to "url" variable
@@ -206,8 +210,6 @@ function func_fix
 		url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/manjaro-keyring${version}-any.pkg.tar.xz"
 		wget "${url}" && sudo pacman -U "manjaro-keyring${version}-any.pkg.tar.xz" --noconfirm && sudo rm "manjaro-keyring${version}-any.pkg.tar.xz"
 
-		# the following command sometimes prevents an error connecting to the key server		
-		sudo dirmngr </dev/null
 		sudo pacman-key --init && sudo pacman-key --populate archlinux manjaro
 
 		sudo pacman -Sc --noconfirm
@@ -685,7 +687,6 @@ do
             echo -e " Package installation in force mode is finished. To return to pacli press [Enter] "
             read
             ;;
-
         16|fr|forceremove)
             echo
 			func_fr
