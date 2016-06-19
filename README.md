@@ -56,9 +56,9 @@ cd pacli-simple && chmod +x pacli && ./pacli
 ## Use pacli
 
 ### Start pacli with a GUI
-In order to start pacli, you need to execute the "pacli" file inside your pacli-simple directory. When you followed the download instructions above, just go to your home directory and execute:
+In order to start pacli, you need to execute the "pacli" file inside your pacli-simple directory. When you followed the download instructions above, just execute:
 ```
-./pacli-simple/pacli
+~/pacli-simple/pacli
 ```
 
 ### Manual Installation
