@@ -302,7 +302,7 @@ function func_la
 
 function func_h 
 {
-		# the "then" part is displayed, when started from terminal (the last function adds the "1" parameter). the "else" part gets displayed when started from UI.
+		# the "then" part is displayed, when started from terminal (the last function adds the "1" parameter). the "else" part gets displayed when started from GUI.
 		if [[ "$1" == '1' ]]
 		then
 
@@ -334,20 +334,21 @@ function func_h
 			echo
 			
 		else
-		
-			less 	<<-EOF
+			
+			less -Ri	<<-EOF
 
 Welcome to Pacli's Help Page.
 
 Pacli is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Yaourt as back ends. Additionally, it uses some Manjaro exclusive commands. Pacli offers you the most common and useful features for managing your packages.
-Navigate this help page with your Arrow Keys, PageUp/PageDown Keys, SpaceBar, or your Mouse Wheel.
+
+Navigate this help page with your Arrow Keys, PageUp/PageDown Keys, SpaceBar, or your Mouse Wheel. To search this Help Page, enter /<SEARCH TERM> and press ENTER. For example, enter the following (without quotes " ") in order to search for update: "/update". Search is not case sensitive. To exit this Help Page, press your "q" key.
 Most options in Pacli use fuzzy finder (fzf), which means by starting to type you can search the displayed list. Use your TAB key to select multiple items from the list and your ENTER key to choose your selection. Navigate fzf's list the same way you navigate this help page.
 
 
 HOME SCREEN
 Pacli's home screen is split into three parts:
 The first part focuses on updates, maintenance, installations, and removals of packages from Manjaro's repositories. It includes useful tools for these actions, too.
-The second part includes advanced options for fixing your system. Options, which can break your system, are marked in red.
+The second part includes options for fixing your system. Options, which can break your system, are marked in red.
 The last part offers Arch User Repository (AUR) management options.
 
 0 - EXIT PACLI
@@ -566,9 +567,9 @@ do
     echo -e " └────────────────────────────────────────────────────────────────────┘"
     echo -e " ┌────────────────────────────────────────────────────────────────────┐"
     echo -e " │   9   Pacman \e[1mLog\e[0m                   10   \e[1mD\e[0mowngrade Packages         │"
-    echo -e " │  11   \e[1mH\e[0melp                     \e[31m    12   \e[1mFix\e[0m\e[31m Errors                \e[0m │"
-    echo -e " │ \e[31m 13   \e[1mF\e[0m\e[31morce \e[1mU\e[0m\e[31mpdate System          14   \e[1mEmpty\e[0m\e[31m Package Cache       \e[0m │"
-    echo -e " │ \e[31m 15   \e[1mF\e[0m\e[31morce \e[1mI\e[0m\e[31mnstall Package        16   \e[1mF\e[0m\e[31morce \e[1mR\e[0m\e[31memove Package      \e[0m │"
+    echo -e " │  11   \e[1mH\e[0melp                     \e[31m    12   \e[1mFix\e[0;31m Errors                \e[0m │"
+    echo -e " │ \e[31m 13   \e[1mF\e[0;31morce \e[1mU\e[0;31mpdate System          14   \e[1mEmpty\e[0;31m Package Cache       \e[0m │"
+    echo -e " │ \e[31m 15   \e[1mF\e[0;31morce \e[1mI\e[0;31mnstall Package        16   \e[1mF\e[0;31morce \e[1mR\e[0;31memove Package      \e[0m │"
     echo -e " └────────────────────────────────────────────────────────────────────┘"
     echo -e " ┌────────────────────────────────────────────────────────────────────┐"
     echo -e " │  17   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR             18   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
