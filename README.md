@@ -55,7 +55,7 @@ cd pacli-simple && chmod +x pacli && ./pacli
 
 ## Use pacli
 
-### Start pacli with a GUI
+### Start pacli with an UI
 In order to start pacli, you need to execute the "pacli" file inside your pacli-simple directory. When you followed the download instructions above, just execute:
 ```
 ~/pacli-simple/pacli
@@ -66,10 +66,10 @@ If you want to start pacli with a simple "pacli" command from anywhere in your t
 ```
 sudo cp ~/pacli-simple/pacli /usr/bin/
 ```
-Now, you type "pacli" into your terminal and pacli will start with a GUI.
+Now, you type "pacli" into your terminal and pacli will start with an UI.
 
-### Start pacli without a GUI
-After you manually installed pacli's bash file as described above, you can call pacli's options from your terminal without the need to start pacli's GUI:
+### Start pacli without an UI
+After you manually installed pacli's bash file as described above, you can call pacli's options from your terminal without the need to start pacli's UI:
 
 For example, you want to display the reverse dependency tree of a package, just type one of the three following choices into your terminal (note that the letters "R" and "T" are marked in pacli's corresponding option):
 - `pacli rt`
@@ -86,13 +86,13 @@ This principle can be used with all options in pacli. Here are some random examp
 - `pacli -log`
 - `pacli -ua`
 
-Only "pacli h" works differently when called from the command line instead of pacli's GUI: "pacli h" will show a very short overview of all available commands.
+Only "pacli h" works differently when called from the command line instead of pacli's UI: "pacli h" will show a very short overview of all available commands.
 
 
 ## Help
 
 ### pacli Help
-Choose the "Help" option within pacli's GUI by entering "11" or "h" or "help" and pressing "ENTER". 
+Choose the "Help" option within pacli's UI by entering "11" or "h" or "help" and pressing "ENTER". 
 
 This help page explains a little bit about pacli. It also explains every pacli option in detail. If you want to look up which commands pacli uses and understand them, this is the right place for you!
 

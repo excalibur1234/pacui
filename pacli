@@ -300,9 +300,13 @@ function func_la
 }
 
 
+# =======================
+
+
+# the help function was put almost at the end of all functions, because it contains too much text. scrolling by it often is pure annoyance!
 function func_h 
 {
-		# the "then" part is displayed, when started from terminal (the last function adds the "1" parameter). the "else" part gets displayed when started from GUI.
+		# the "then" part is displayed, when started from terminal (the last function adds the "1" parameter). the "else" part gets displayed when started from UI.
 		if [[ "$1" == '1' ]]
 		then
 
@@ -524,10 +528,10 @@ input=${input#-}
 input=$(echo $input | tr '[:upper:]' '[:lower:]' )
 
 
-# the following function checks, whether a prefix (func_) + varialbe "input" is a valid function. after the function is done an "exit" command is needed to prevent the UI from loading.
+# the following code checks, whether a prefix (func_) + varialbe "input" is a valid function. after the function is done an "exit" command is needed to prevent the UI from loading.
 if [[ $(type -t "func_$input") == 'function' ]] 
 then
-    "func_$input" 1		# pass one parameter (1) when the funciton got called directly, if you want in future specific actions for console or menu
+    "func_$input" 1		# pass one parameter (1) when the funciton gets called directly. this is important for help function.
     exit $?			# exit here, no write in all functions and return error code if present
 elif (($# > 0))		# if one or more parameter
 then  			
