@@ -580,7 +580,7 @@ do
     echo -e " │  19   Search + Install from \e[1mA\e[0mUR    20   \e[1mI\e[0mnstall from \e[1mA\e[0mUR           │"
     echo -e " └────────────────────────────────────────────────────────────────────┘"
     echo
-    echo -e "  Enter a number or marked letters and press [Enter]  -  0  \e[1mE\e[0mxit Pacli "
+    echo -e "  Enter number or marked letter(s) and press [Enter]  -  0  \e[1mE\e[0mxit Pacli "
 
     # save entered number in varialbe "choice" and test, whether "chioce" fits any of the following numbers, letters, or words
     read -r choice
