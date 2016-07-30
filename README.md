@@ -71,7 +71,7 @@ Now, you type "pacli" into your terminal and pacli will start with an UI.
 ### Start pacli without an UI
 After you manually installed pacli's bash file as described above, you can call pacli's options from your terminal without the need to start pacli's UI:
 
-For example, you want to display the reverse dependency tree of a package, just type one of the three following choices into your terminal (note that the letters "R" and "T" are marked in pacli's corresponding option):
+For example, you want to display the reverse dependency tree of a package, just type one of the three following choices into your terminal (note that the letters "R" and "T" are marked in pacli's corresponding option). It does not matter, whether you use upper or lower case letters for arguments:
 - `pacli rt`
 - `pacli -rt`
 - `pacli --rt`
@@ -99,4 +99,4 @@ This help page explains a little bit about pacli. It also explains every pacli o
 ### Manjaro Forum
 There is a new and old thread in the Manjaro forums. Most of the discussion between the developers is going on there:
  - [New Forum](https://forum.manjaro.org/t/pacli-simple-a-simple-bash-frontend-for-pacman-and-yaourt/677)
- - [Old Forum - Inactive Thread](https://old.forum.manjaro.org/index.php?topic=21399.0)
+ - [Old Forum - Inactive Thread](https://classicforum.manjaro.org/index.php?topic=21399.0)
