@@ -186,29 +186,44 @@ function func_fix
 		# the following command sometimes prevents an error connecting to the key server		
 		sudo dirmngr </dev/null
 
-		# remove gnupg with all keys
-		sudo rm -r /etc/pacman.d/gnupg &>/dev/null
-
-		#declare local variables
+		#declare local variables (needed later)
 		local arch version url mybranch
-		
-		# manually download and install these packages: gnupg, archlinux-keyring, manjaro-keyring
+		# store your architecture in "arch" variable (needed later)
 		arch=$(uname -m)
-		# extract the name of your used branch (and remove all spaces) from your "/etc/pacman-mirrors.conf" file and store it in "mybranch" variable
+		# extract the name of your used branch (and remove all spaces) from your "/etc/pacman-mirrors.conf" file and store it in "mybranch" variable (needed later)
 		mybranch=$(awk -F'=' '/^Branch/{gsub(" ","", $2 ); print $2}' /etc/pacman-mirrors.conf)
-		# extract the version number of gnupg in the Manjaro repositories and save it in "version" variable
-		version="$(lang=C pacman -Si gnupg | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
-		# save the address of the latest gnupg package on a reliable Manjaro mirror to "url" variable
-		url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/gnupg${version}-${arch}.pkg.tar.xz"
-		wget "${url}" && sudo pacman -U "gnupg${version}-${arch}.pkg.tar.xz" --noconfirm && sudo rm "gnupg${version}-${arch}.pkg.tar.xz"
 
-		version="$(lang=C pacman -Si archlinux-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
-		url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/archlinux-keyring${version}-any.pkg.tar.xz"
-		wget "${url}" && sudo pacman -U "archlinux-keyring${version}-any.pkg.tar.xz" --noconfirm && sudo rm "archlinux-keyring${version}-any.pkg.tar.xz"
+			# set almost correct time (while ignoring time zone and daylight saving time):
+			# 1. stop running NTPD service (and ignore output in case NTPD is not installed):
+			sudo systemctl stop ntpd.service &>/dev/null
+			# 2. manually download and install networkmanager-dispatcher-ntpd:
+				# extract the version number of networkmanager-dispatcher-ntpd in the Manjaro repositories and save it in "version" variable
+				version="$(lang=C pacman -Si networkmanager-dispatcher-ntpd | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
+				# save the address of the latest networkmanager-dispatcher-ntpd package on a reliable Manjaro mirror to "url" variable
+				url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/community/${arch}/networkmanager-dispatcher-ntpd${version}-any.pkg.tar.xz"
+				wget "${url}" && sudo pacman -U "networkmanager-dispatcher-ntpd${version}-any.pkg.tar.xz" --noconfirm
+				sudo rm "networkmanager-dispatcher-ntpd${version}-any.pkg.tar.xz"
+			# 3. start NTP daemon, set the system clock, and quit:
+			# 4. write the time from system clock to hardare clock:
+			sudo ntpd -qg && sleep 20 && sudo hwclock -w
+		
+			# remove gnupg including all keys
+			sudo rm -r /etc/pacman.d/gnupg &>/dev/null
+		
+			# manually download and install gnupg:
+			version="$(lang=C pacman -Si gnupg | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
+			url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/gnupg${version}-${arch}.pkg.tar.xz"
+			wget "${url}" && sudo pacman -U "gnupg${version}-${arch}.pkg.tar.xz" --noconfirm && sudo rm "gnupg${version}-${arch}.pkg.tar.xz"
 
-		version="$(lang=C pacman -Si manjaro-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
-		url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/manjaro-keyring${version}-any.pkg.tar.xz"
-		wget "${url}" && sudo pacman -U "manjaro-keyring${version}-any.pkg.tar.xz" --noconfirm && sudo rm "manjaro-keyring${version}-any.pkg.tar.xz"
+			# manually download and install archlinux-keyring:
+			version="$(lang=C pacman -Si archlinux-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
+			url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/archlinux-keyring${version}-any.pkg.tar.xz"
+			wget "${url}" && sudo pacman -U "archlinux-keyring${version}-any.pkg.tar.xz" --noconfirm && sudo rm "archlinux-keyring${version}-any.pkg.tar.xz"
+
+			# manually download and install manjaro-keyring:
+			version="$(lang=C pacman -Si manjaro-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
+			url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/manjaro-keyring${version}-any.pkg.tar.xz"
+			wget "${url}" && sudo pacman -U "manjaro-keyring${version}-any.pkg.tar.xz" --noconfirm && sudo rm "manjaro-keyring${version}-any.pkg.tar.xz"
 
 		sudo pacman-key --init && sudo pacman-key --populate archlinux manjaro
 
@@ -382,7 +397,7 @@ The first command removes all packages from cache, which are not installed (anym
 "sudo pacman-optimize" (only when Manjaro is installed on a HDD)
 This command effectively defragments your Pacman database.
 On traditional hard drives (HDD) this command can speed up all actions related to Pacman. 
-ATTENTION: It is NOT recommended to use this command on modern solid state hard drives (SSD)!
+ATTENTION: It is NOT recommended to use this command on modern solid state hard drives (SSDs)!
 
 3 - INSTALL PACKAGE
 "sudo pacman -S <PACKAGE NAME>"
@@ -444,22 +459,36 @@ This command searches for working and good Manjaro repository mirrors/servers. I
 "sudo dirmngr </dev/null"
 Sometimes during key management the package "dirmngr" outputs error messages, which interrupt key management processes (such as the following commands). This command prevents any output from "dirmngr".
 
+"sudo systemctl stop ntpd.service &>/dev/null"
+This command stops (temporarily) the Network Time Protocol daemon service (if it is installed and running). This is the first command of a series of commands, which try to set the system and hardware clock on your computer (ignoring time zone and daylight saving time). An (almost) correct system time is needed for checking and importing keys or fingerprints later on in the fixing process!
+
+"sudo pacman -Sy networkmanager-dispatcher-ntpd"
+This command (re-)installs the "networkmanager-dispatcher-ntpd" package. Pacli actually does not use this command but instead downloads and installs this package manually in order to bypass key database and key chain errors.
+ATTENTION: Pacli will fail if you cannot install any packages on your system anymore due to key database and key chain errors AND "networkmanager-dispatcher-ntpd" was not installed on your system before. As long as your system clock is set (almost) correct, you do not have to worry about it. But if your system clock is set completely wrong AND you cannot install any packages on your system anymore AND "networkmanager-dispatcher-ntpd" was not installed on your system before, your have to set your system clock manually before you run Pacli's "fix" command. You can do this with the following command:
+sudo timedatectl set-time "yyyy-MM-dd hh:mm:ss"
+( example: sudo timedatectl set-time "2016-05-26 11:13:54" )
+
+"sudo ntpd -qg && sleep 20 && sudo hwclock -w"
+The first command starts the just (re-)installed Network Time Protocol daemon (ntpd.service). Next, your system clock is set. Finally, the ntpd.service is quit.
+The second command makes your system wait for 20 seconds. This is done as precaution to ensure your system has enough time to connect to an internet or network server and set the system clock.
+The third command is only run when the first and second command have been successfully finished. It writes the time from your system clock to your hardware clock.
+ATTENTION: The last command is needed in order to prevent another services on your system to set your system clock according to your hardware clock in regular intervals. This may result in a hardware clock, which is not set to UTC anymore and/or a system clock, which shows the wrong time. If you encounter this problem read the Arch Linux Wiki article about time: "https://wiki.archlinux.org/index.php/Time"
+
 "sudo rm -r /etc/pacman.d/gnupg &>/dev/null"
 This command deletes your Pacman, Manjaro, and Arch key database. It does not output an error in case the package "gnupg" is not installed on your system.
 ATTENTION: This command will remove all keys from your system, including manually installed keys (with "sudo pacman-key --lsign-key <KEY>"). Please remember to reinstall those keys again after FIX ERRORS has completed!
 
 "sudo pacman -Sy gnupg archlinux-keyring manjaro-keyring"
-This command (re-)installs the "gnupg" package and keyrings for Arch Linux and Manjaro. Pacli actually does not use this command but instead downloads and installs these packages manually. This makes it possible to install these packages even if no other packages can be installed on your system due to key database errors.
-ATTENTION: If you want to execute this command on a system with key database problems, it will not work for you! In this case, connect manually (via your browser) to your Manjaro repository server, download these packages, and install these packages manually. Pacli will do all of this automatically for you. If this part of Pacli fails, please wait a couple of hours until your Manjaro mirror has synchronized with the main Manjaro repository and offers the latest version of these 3 packages: gnupg, archlinux-keyring, manjaro-keyring.
+This command (re-)installs the "gnupg", "archlinux-keyring", and "manjaro-keyring" packages and keyrings for Arch Linux and Manjaro. Pacli actually does not use this command but instead downloads and installs this package manually in order to bypass key database and key chain errors.
+ATTENTION: If you want to execute this command on a system with key database problems, it will not work for you! In this case, connect manually (via your browser) to your Manjaro repository server, download these packages, and install these packages manually. Pacli will do all of this automatically for you. If this part of Pacli fails, please wait a couple of hours until your Manjaro mirror has synchronized with the main Manjaro repository and offers the latest version of these 4 packages: networkmanager-dispatcher-ntpd,gnupg, archlinux-keyring, manjaro-keyring.
 
 "sudo pacman-key --init && sudo pacman-key --populate archlinux manjaro"
-These two commands create a fresh key for you and (re-)install all keys from Arch Linux and Manjaro. This will solve problems with your local key database and Manjaro's and Arch's key database. Such problems can occur when new new Arch Linux or Manjaro packagers get added, for example.
-ATTENTION: This command only works, when your system time is set correctly, becasue checking and importing keys or fingerprints is time sensitive! Please make sure of that before you run FIX ERRORS. If you have not set your timezone and/or summer saving time, you should still be able to import keys, though.
+These two commands create a fresh key for you and import and (re-)install all keys from Arch Linux and Manjaro. This will solve problems with your local key database and Manjaro's and Arch's key database. Such problems can occur when new new Arch Linux or Manjaro packagers get added, for example.
 ATTENTION: This command might take a long time to complete. If your system appears to stop or hang, it searches for entropy in order to generate a new key for you. In this case, it might help to do file operations with a lot of reads and/or writes per minute (such as searching for files, copying large directories, etc.). Alternatively, you can open a browser and do some heavy surfing (with a lot of mouse movements, mouse klicks, and keyboard key presses): This can help to generate entropy much faster.
 
 "sudo pacman -Sc"
 After an unseccessful attempt to update your system (which quit with a key error), you might have already downloaded unsigned packages to your pacman cache. These packages cannot be installed anymore.
-This command removes all packages from your pacman cache, which are not installed on your system. Afterwards, you need to download all previously downloaded but unsuccessfully installed packages again.
+This command removes all packages from your pacman cache, which are not installed on your system. Afterwards, you need to download all previously downloaded but not installed packages again.
 ATTENTION: This command makes it impossible to DOWNGRADE PACKAGES on systems without an active internet connection.
 
 "sudo pacman -Syyuu"
