@@ -187,7 +187,7 @@ function func_fix
 		sudo dirmngr </dev/null
 
 		#declare local variables (needed later)
-		local arch version url mybranch
+		local {arch,version,url,mybranch}
 		# store your architecture in "arch" variable (needed later)
 		arch=$(uname -m)
 		# extract the name of your used branch (and remove all spaces) from your "/etc/pacman-mirrors.conf" file and store it in "mybranch" variable (needed later)
