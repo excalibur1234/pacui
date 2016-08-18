@@ -401,7 +401,7 @@ ATTENTION: It is NOT recommended to use this command on modern solid state hard 
 
 3 - INSTALL PACKAGE
 "sudo pacman -S <PACKAGE NAME>"
-This option downloads and installs <PACKAGE NAME> on your system. <PACKAGE NAME> must be a package from the Manjaro repositories.
+This option downloads and installs <PACKAGE NAME> on your system. <PACKAGE NAME> must be a package from the Manjaro repositories. If you want to install a package from the AUR choose INSTALL FROM AUR or SEARCH + INSTALL FROM AUR.
 
 4 - REMOVE PACKAGE + DEPS
 "sudo pacman -Rsn <PACKAGE NAME>"
@@ -410,6 +410,7 @@ Please note that folders in your home (~) directory and created by the program <
 ~/
 ~/.config/
 ~/.local/share/
+ATTENTION: If you want to display a list of all your installed packages (including their version number and description) use this Pacli option. Simply do not select <PACKAGE NAME> to be removed, but quit the list view with ESC or CTRL+C.
 
 5 - PACKAGE INFORMATION
 "yaourt -Sii <PACKAGE NAME>" or "yaourt -Qii <PACKAGE NAME>"
@@ -524,12 +525,13 @@ ATTENTION: This might take a long time! By default, after every 15min this comma
 18 - LIST INSTALLED FROM AUR
 "pacman -Qem"
 This command lists all installed packages, which are from the AUR or which were manually installed.
+If you want a list of all installed packages use REMOVE PACKAGE + DEPS as described in this Help Page.
 
 19 - SEARCH + INSTALL FROM AUR
 "yaourt <PACKAGE NAME>"
 This command searches for <PACKAGE NAME> in all Manjaro repositories and the Arch User Repository (AUR). It searches in all package names and package descriptions. 
 Example: You can search for "web browser" and you will find Firefox and other web browsers. One or multiple search results can be installed on your system.
-If you want to exit this mode without installing any packages, simply press [Enter].
+If you want to exit this mode without installing any packages, simply press CTRL+C or [Enter].
 
 20 - INSTALL FROM AUR
 "yaourt -S <PACKAGE NAME>"
