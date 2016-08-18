@@ -35,7 +35,7 @@ function func_c
 {
 		sudo pacman-mirrors -g && sudo pacman -Syy --color always
 		yaourt -Qdt
-		paccache -ruvk0
+		paccache -ruvk1
 		paccache -rvk2
 
 		# 1. extract the name of hard drive the / partition is installed on and write it to the "disk" variatble"
@@ -389,10 +389,10 @@ If you want to speed up this command: Only test your connection quality to Manja
 This option lists all orphaned packages on your system. Orphaned packages are old dependencies (packages not explicitly installed by you), which were never removed from your system.
 Answer with "y" to remove all listed orphaned packages. Simply pressing [ENTER] will not remove the listed orphaned packages.
 
-"paccache -ruvk0"
+"paccache -ruvk1"
 "paccache -rvk2"
 By default Pacman uses this cache directory for downloading packages: /var/cache/pacman/pkg/... . No cached packages get deleted automatically. This enables you to DOWNGRADE PACKAGES, which are broken, without a working internet connection. The package cache of an old and actively used Manjaro installation can become quite large. Clean it to regain space on your root partition.
-The first command removes all packages from cache, which are not installed (anymore) on your system. The second command removes all old packages from your cache except the 2 latest versions: The version you have currently installed on your system and the previous version.
+The first command removes all packages from cache, which are not installed (anymore) on your system, except the latest version. The second command removes all old packages from your cache except the 2 latest versions: The version you have currently installed on your system and the previous version. Old package versions are kept to enable you to manually DOWNGRADE PACKAGES even without a working internet connection.
 
 "sudo pacman-optimize" (only when Manjaro is installed on a HDD)
 This command effectively defragments your Pacman database.
