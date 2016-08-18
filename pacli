@@ -116,7 +116,7 @@ function func_l
 {
 		# use fzf to ask the user to select an installed package. the package name gets save in variable "pkg"
 		local pkg
-		pkg=$(pacman -Qq | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Search and select package > ')
+		pkg=$(pacman -Qq | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
 		if [[ -n $pkg ]]
 		then
@@ -162,7 +162,7 @@ function func_rt
 
 function func_log 
 {
-		tail -5000 /var/log/pacman.log | fzf -m -e +s -i -0 -q alpm --tac --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Enter one or more filter terms > ' >> /tmp/pacli-log
+		tail -5000 /var/log/pacman.log | fzf -m -e +s -i -0 -q alpm --tac --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' >> /tmp/pacli-log
 }
 
 
