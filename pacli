@@ -281,7 +281,7 @@ function func_a
 {
 		local pkg
 
-		echo "Enter name of package to be searched in the AUR and press [Enter] to continue"
+		echo "Enter (parts of) name and/or description of package to be searched. Press ENTER. Press CTRL+C to quit."
 		read -r pkg
 		
 		yaourt $pkg
