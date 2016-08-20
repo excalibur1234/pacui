@@ -183,52 +183,71 @@ function func_fix
 		sudo rm -f /var/lib/pacman/db.lck
 		sudo pacman-mirrors -g && sudo pacman -Syy
 
-		# the following command sometimes prevents an error connecting to the key server		
-		sudo dirmngr </dev/null
 
-		#declare local variables (needed later)
-		local {arch,version,url,mybranch}
-		# store your architecture in "arch" variable (needed later)
-		arch=$(uname -m)
-		# extract the name of your used branch (and remove all spaces) from your "/etc/pacman-mirrors.conf" file and store it in "mybranch" variable (needed later)
-		mybranch=$(awk -F'=' '/^Branch/{gsub(" ","", $2 ); print $2}' /etc/pacman-mirrors.conf)
-
-			# set almost correct time (while ignoring time zone and daylight saving time):
-			# 1. stop running NTPD service (and ignore output in case NTPD is not installed):
-			sudo systemctl stop ntpd.service &>/dev/null
-			# 2. manually download and install networkmanager-dispatcher-ntpd:
-				# extract the version number of networkmanager-dispatcher-ntpd in the Manjaro repositories and save it in "version" variable
-				version="$(lang=C pacman -Si networkmanager-dispatcher-ntpd | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
-				# save the address of the latest networkmanager-dispatcher-ntpd package on a reliable Manjaro mirror to "url" variable
-				url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/community/${arch}/networkmanager-dispatcher-ntpd${version}-any.pkg.tar.xz"
-				wget "${url}" && sudo pacman -U "networkmanager-dispatcher-ntpd${version}-any.pkg.tar.xz" --noconfirm
-				sudo rm "networkmanager-dispatcher-ntpd${version}-any.pkg.tar.xz"
-			# 3. start NTP daemon, set the system clock, and quit:
-			# 4. write the time from system clock to hardare clock:
-			sudo ntpd -qg && sleep 20 && sudo hwclock -w
+		# check, whether manjaro mirror with the latest packages is reachable
+		wget --spider http://mirror.netzspielplatz.de/manjaro
+		# the "wget" command finishes with a exit status/return code. return code 0 means "wget --spider" has finished successfull, i.e. the manjaro mirror can be reached.
+		if [ "$?" != 0 ]
+		then
 		
-			# remove gnupg including all keys
-			sudo rm -r /etc/pacman.d/gnupg &>/dev/null
+			# if the shell return code is not 0, something went wrong. display error message.
+			echo ""
+			echo ""
+  			echo "Either there is something wrong with your internet connection or http://mirror.netzspielplatz.de/manjaro is down."
+			echo "Please make sure both are ok and rerun this part of Pacli."
+			echo ""
+			
+		else
 		
-			# manually download and install gnupg:
-			version="$(lang=C pacman -Si gnupg | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
-			url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/gnupg${version}-${arch}.pkg.tar.xz"
-			wget "${url}" && sudo pacman -U "gnupg${version}-${arch}.pkg.tar.xz" --noconfirm && sudo rm "gnupg${version}-${arch}.pkg.tar.xz"
+			# the following command sometimes prevents an error connecting to the key server		
+			sudo dirmngr </dev/null
+		
+			#declare local variables (needed later)
+			local {arch,version,url,mybranch}
+			# store your architecture in "arch" variable (needed later)
+			arch=$(uname -m)
+			# extract the name of your used branch from your "/etc/pacman-mirrors.conf" file and store it in "mybranch" variable (needed later)
+			mybranch=$(awk -F'=' '/^Branch/{gsub(" ","", $2 ); print $2}' /etc/pacman-mirrors.conf)
 
-			# manually download and install archlinux-keyring:
-			version="$(lang=C pacman -Si archlinux-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
-			url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/archlinux-keyring${version}-any.pkg.tar.xz"
-			wget "${url}" && sudo pacman -U "archlinux-keyring${version}-any.pkg.tar.xz" --noconfirm && sudo rm "archlinux-keyring${version}-any.pkg.tar.xz"
+				# set almost correct time (while ignoring time zone and daylight saving time):
+				# 1. stop running NTPD service (and ignore output in case NTPD is not installed):
+				sudo systemctl stop ntpd.service &>/dev/null
+				# 2. manually download and install networkmanager-dispatcher-ntpd:
+					# extract the version number of networkmanager-dispatcher-ntpd in the Manjaro repositories and save it in "version" variable
+					version="$(lang=C pacman -Si networkmanager-dispatcher-ntpd | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
+					# save the address of the latest networkmanager-dispatcher-ntpd package on a reliable Manjaro mirror to "url" variable
+					url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/community/${arch}/networkmanager-dispatcher-ntpd${version}-any.pkg.tar.xz"
+					wget "${url}" && sudo pacman -U "networkmanager-dispatcher-ntpd${version}-any.pkg.tar.xz" --noconfirm
+					sudo rm "networkmanager-dispatcher-ntpd${version}-any.pkg.tar.xz"
+				# 3. start NTP daemon, set the system clock, and quit
+				# 4. wait for 20 seconds
+				# 5. write the time from system clock to hardare clock
+				sudo ntpd -qg && sleep 20 && sudo hwclock -w
+		
+				# remove gnupg including all keys
+				sudo rm -r /etc/pacman.d/gnupg &>/dev/null
+		
+				# manually download and install gnupg:
+				version="$(lang=C pacman -Si gnupg | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
+				url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/gnupg${version}-${arch}.pkg.tar.xz"
+				wget "${url}" && sudo pacman -U "gnupg${version}-${arch}.pkg.tar.xz" --noconfirm && sudo rm "gnupg${version}-${arch}.pkg.tar.xz"
 
-			# manually download and install manjaro-keyring:
-			version="$(lang=C pacman -Si manjaro-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
-			url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/manjaro-keyring${version}-any.pkg.tar.xz"
-			wget "${url}" && sudo pacman -U "manjaro-keyring${version}-any.pkg.tar.xz" --noconfirm && sudo rm "manjaro-keyring${version}-any.pkg.tar.xz"
+				# manually download and install archlinux-keyring:
+				version="$(lang=C pacman -Si archlinux-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
+				url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/archlinux-keyring${version}-any.pkg.tar.xz"
+				wget "${url}" && sudo pacman -U "archlinux-keyring${version}-any.pkg.tar.xz" --noconfirm && sudo rm "archlinux-keyring${version}-any.pkg.tar.xz"
 
-		sudo pacman-key --init && sudo pacman-key --populate archlinux manjaro
+				# manually download and install manjaro-keyring:
+				version="$(lang=C pacman -Si manjaro-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
+				url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/manjaro-keyring${version}-any.pkg.tar.xz"
+				wget "${url}" && sudo pacman -U "manjaro-keyring${version}-any.pkg.tar.xz" --noconfirm && sudo rm "manjaro-keyring${version}-any.pkg.tar.xz"
 
-		sudo pacman -Sc --noconfirm
-		sudo pacman -Syyuu --color always --noconfirm
+			sudo pacman-key --init && sudo pacman-key --populate archlinux manjaro
+
+			sudo pacman -Sc --noconfirm
+		fi
+		
+		sudo pacman -Syyuu --color always --noconfirm			
 }
 
 
@@ -448,7 +467,7 @@ Alternatively, you can run future updates with the command "sudo pacman -Syu --i
 Display this help page.
 
 12 - FIX ERRORS
-Multiple commands attempt to fix the most common issues Manjaro users have with Pacman:
+Multiple commands attempt to fix the most common issues Manjaro users have with Pacman. A working internet connection is required.
 
 "sudo rm -f /var/lib/pacman/db.lck" 
 This command removes Pacman's database lock. The database lock prevents multiple Pacman instances from running at the same time and interfering with each other.
