@@ -191,14 +191,16 @@ function func_fix
 
 		# check, whether manjaro mirror with the latest packages is reachable
 		wget --spider http://mirror.netzspielplatz.de/manjaro
-		# the "wget" command finishes with a exit status/return code. return code 0 means "wget --spider" has finished successfull, i.e. the manjaro mirror can be reached.
+		# the "wget" command finishes with a exit status/return code. return code 0 means "wget --spider" has finished successfully, i.e. the manjaro mirror can be reached.
 		if [ "$?" != 0 ]
 		then
 		
-			# if the shell return code is not 0, something went wrong. display error message.
-			echo ""
-  			echo "Either there is something wrong with your internet connection or http://mirror.netzspielplatz.de/manjaro is down."
-			echo "Please make sure both are ok and rerun this part of Pacli."
+			# if the shell return code is not 0, the manjaro mirror cannot be reached.
+			# run the following command in case the internet is working and only the manjaro mirror is down:
+			sudo pacman -Syyuu --color always --noconfirm
+			# display error message (ANSI Escape sequences will be explained later):
+  			echo -e "\e[41m Either there is something wrong with your internet connection or http://mirror.netzspielplatz.de/manjaro is down. \e[0m"
+			echo -e "\e[1;41m Please make sure both are ok and rerun this part of Pacli. \e[0m"
 			echo ""
 			
 		else
@@ -260,9 +262,8 @@ function func_fix
 
 			sudo pacman -Sc --noconfirm
 			echo ""
+			sudo pacman -Syyuu --color always --noconfirm
 		fi
-		
-		sudo pacman -Syyuu --color always --noconfirm			
 }
 
 
