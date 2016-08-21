@@ -125,7 +125,7 @@ function func_l
 		if [[ -n $pkg ]]
 		then
 			# take the output of command "pacman -Qlq $pkg" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacli-list.
-			pacman -Qlq $pkg --color always | fzf -m -e +s -i -q /usr/bin/ --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Enter one or more filter terms > ' >> /tmp/pacli-list
+			pacman -Qlq $pkg --color always | fzf -m -e +s -i -q /usr/bin/ --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed directories and files > ' >> /tmp/pacli-list
 		fi
 }
 
@@ -166,7 +166,7 @@ function func_rt
 
 function func_log 
 {
-		tail -5000 /var/log/pacman.log | fzf -m -e +s -i -0 -q alpm --tac --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' >> /tmp/pacli-log
+		tail -5000 /var/log/pacman.log | fzf -m -e +s -i -0 -q alpm --tac --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed logs > ' >> /tmp/pacli-log
 }
 
 
