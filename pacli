@@ -483,7 +483,8 @@ Alternatively, you can run future updates with the command "sudo pacman -Syu --i
 Display this help page.
 
 12 - FIX ERRORS
-Multiple commands attempt to fix the most common issues Manjaro users have with Pacman. A working internet connection is required.
+Multiple commands attempt to fix the most common issues Manjaro users have with Pacman. Force options (as in FORCE UPDATE SYSTEM) are excluded, even though they are essential in fixing some problems.
+A working internet connection is required.
 
 "sudo rm -f /var/lib/pacman/db.lck" 
 This command removes Pacman's database lock. The database lock prevents multiple Pacman instances from running at the same time and interfering with each other.
@@ -537,7 +538,7 @@ This command does the same as UPDATE SYSTEM, but it bypasses file conflict tests
 14 - EMPTY PACKAGE CACHE
 "yaourt -Scc"
 This command will empty your entire package cache by deleting ALL packages.
-ATTENTION: This will make it impossible to reinstall old packages or DOWNGRADE PACKAGES without a working internet connection.
+ATTENTION: This will make it impossible to reinstall old (or currently installed) packages or DOWNGRADE PACKAGES without a working internet connection.
 
 15 - FORCE INSTALL PACKAGE
 "sudo pacman -S --force <PACKAGE NAME>"
@@ -564,7 +565,7 @@ If you want a list of all installed packages use REMOVE PACKAGE + DEPS as descri
 
 19 - SEARCH + INSTALL FROM AUR
 "yaourt <PACKAGE NAME>"
-This command searches for <PACKAGE NAME> in all Manjaro repositories and the Arch User Repository (AUR). It searches in all package names and package descriptions. 
+This command searches for <PACKAGE NAME> in all Manjaro repositories and the Arch User Repository (AUR). It searches for package names and package descriptions. 
 Example: You can search for "web browser" and you will find Firefox and other web browsers. One or multiple search results can be installed on your system.
 If you want to exit this mode without installing any packages, simply press CTRL+C or [Enter].
 
