@@ -79,7 +79,7 @@ function func_r
 		# takes a package list from "pacman -Qq", then sorts it alphabetically, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		local pkg
-		pkg=$(package-query -Q -f "%n  %v  -  %d"  | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to remove. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
+		pkg=$(package-query -Q -f "%n  %v  -  %d"  | sort | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to remove. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 
 		if [[ -n $pkg ]]
 		then
@@ -294,7 +294,7 @@ function func_fi
 function func_fr 
 {
 		local pkg
-		pkg=$(package-query -Q -f "%n  %v  -  %d" | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to remove. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
+		pkg=$(package-query -Q -f "%n  %v  -  %d" | fzf -m -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to remove. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
 		if [[ -n $pkg ]]
 		then
