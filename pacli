@@ -475,9 +475,10 @@ This command displays the last 5000 lines of your Pacman Log and makes it search
 10 - DOWNGRADE PACKAGES
 "downgrade <PACKAGE NAME>"
 Manjaro uses a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. If the latest version of a packages does not work on your system, you can downgrade that package to an earlier, working version.
-This command downgrades <PACKAGE NAME> and offers you a list of old <PACKAGE NAME> versions to choose from. This list includes all old <PACKAGE NAME> versions from your package cache and online sources (if you have a working internet connection).
-After a successful downgrade, you can add <PACKAGE NAME> to your ignore list. This will prevent Pacman from showing any available updates for <PACKAGE NAME>. Remove <PACKAGE NAME> from your ignore list with CONFIGURE PACMAN.
+This command downgrades <PACKAGE NAME> and offers you a list of old <PACKAGE NAME> versions to choose from. This list includes all old <PACKAGE NAME> versions from your local package cache and online sources (if you have a working internet connection). 
+After a successful downgrade, you can add <PACKAGE NAME> to your Ignore List ( "IgnorePkg" option in /etc/pacman.conf ). This will prevent Pacman from showing any available updates for <PACKAGE NAME>. <PACKAGE NAME> needs to be removed manually from your Ignore List in order to receive automatic updates of <PACKAGE NAME> again.
 Alternatively, you can run future updates with the command "sudo pacman -Syu --ignore <PACKAGE NAME>" until a fixed version of <PACKAGE NAME> gets released.
+ATTENTION: Be careful when downgrading to <PACKAGE NAME> from online sources, because these are old versions from the Arch Linux repositories and not the Manjaro repositories: In the worst case, this can brake your system! Therefore, it is recommended to limit downgrading to (old versions of) local packages, if possible.
 
 11 - HELP
 Display this help page.
