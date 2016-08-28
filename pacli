@@ -27,7 +27,15 @@
 
 function func_u 
 {
-		sudo pacman -Syu --color always && echo "" && yaourt -Syua
+		# this command looks nicer ans works 99% of the time.
+		yaourt -Syua
+				
+		# the command above finishes with a exit status/return code. return code 0 means it has finished successfully, i.e. the system was updated completely and successfully.
+		if [ "$?" != 0 ]      # if return code or last command is not equal to zero
+		then
+			# major pacman updates require pacman and fail with yaourt:
+			sudo pacman -Syu --color always && echo "" && yaourt -Syua
+		fi
 }
 
 
@@ -263,6 +271,8 @@ function func_fix
 			sudo pacman -Sc --noconfirm
 			echo ""
 			sudo pacman -Syyuu --color always --noconfirm
+			echo ""
+			sudo pacman -Suu --color always --noconfirm
 		fi
 }
 
@@ -410,9 +420,10 @@ The last part offers Arch User Repository (AUR) management options.
 This will clear your terminal and exit Pacli.
 
 1 - UPDATE SYSTEM
-"sudo pacman -Syu && yaourt -Syua"
-The first command compares a list of all installed packages with package database on your Manjaro repository mirror/server. If an updated package is available from the Manjaro repositories, it will get downloaded and installed on your system.
-The second command (only runs, if the first command was completed successfully and) does the same as the first, but with one exception: It also downloads, compiles, and installs all packages from the Arch User Repository (AUR), which have an updated PKGBUILD file. The first command is still needed, because major Pacman and Yaourt updates require "pacman -Syu" and will fail when started with Yaourt.
+"yaourt -Syua"
+"sudo pacman -Syu && yaourt -Syua" (only when first command fails)
+The first part of the second command compares a list of all installed packages with package database on your Manjaro repository mirror/server. If an updated package is available from the Manjaro repositories, it will get downloaded and installed on your system.
+The second part of the second command does the same as the first part, but with one exception: It also downloads, compiles, and installs all packages from the Arch User Repository (AUR), which have an updated PKGBUILD file. The first part is still needed, because major Pacman and Yaourt updates require "pacman -Syu" and will fail when started with Yaourt.
 ATTENTION: When a new version of an AUR package is available, often the PKGBUILD file is not updated. If you want to install the latest version of a single AUR package, (re-)install it with INSTALL FROM AUR. If you want to install the latest versions of ALL AUR packages FORCE UPDATE AUR.
 
 2 - CLEAN SYSTEM
@@ -531,6 +542,9 @@ ATTENTION: This command makes it impossible to DOWNGRADE PACKAGES on systems wit
 
 "sudo pacman -Syyuu"
 This last command forces a redownload of the latest package database from the best Manjaro repository mirror. Then, all your installed packages are checked against this latest package database. If an updated package is available from the Manjaro repositories, it will get downloaded and installed on your system. If an installed package is newer than the same package in the Manjaro repositories, the installed package will get downgraded. This behavior ensures your packages are always in sync with the Manajro repositories, even if you have just switched the Manjaro mirror or switched from unstable to stable branch.
+
+"sudo pacman -Suu"
+This command makes sure all downloaded packages get installed and downgraded it necessary. It is only part here as precaution.
 
 13 - FORCE UPDATE SYSTEM
 "sudo pacman -Syu --force"
