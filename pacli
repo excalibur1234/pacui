@@ -544,7 +544,7 @@ ATTENTION: This command makes it impossible to DOWNGRADE PACKAGES on systems wit
 This last command forces a redownload of the latest package database from the best Manjaro repository mirror. Then, all your installed packages are checked against this latest package database. If an updated package is available from the Manjaro repositories, it will get downloaded and installed on your system. If an installed package is newer than the same package in the Manjaro repositories, the installed package will get downgraded. This behavior ensures your packages are always in sync with the Manajro repositories, even if you have just switched the Manjaro mirror or switched from unstable to stable branch.
 
 "sudo pacman -Suu"
-This command makes sure all downloaded packages get installed and downgraded it necessary. It is only part here as precaution.
+This command makes sure all downloaded packages get installed and downgraded if necessary. It is only here as precaution.
 
 13 - FORCE UPDATE SYSTEM
 "sudo pacman -Syu --force"
