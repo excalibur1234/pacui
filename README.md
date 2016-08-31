@@ -86,6 +86,12 @@ This principle can be used with all options in pacli. Here are some random examp
 - `pacli -log`
 - `pacli -ua`
 
+You can also use arguments. For example: You want to install the package "cantata" you should use
+```
+pacli i cant
+```
+Instead of a list of all available packages, it will display a much shorter filtered list. Simply select the "cantata" package and press ENTER.
+
 Only "pacli h" works differently when called from the command line instead of pacli's UI: "pacli h" will show a very short overview of all available commands.
 
 
