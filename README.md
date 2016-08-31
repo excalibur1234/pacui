@@ -90,7 +90,7 @@ You can also use arguments. For example: You want to install the package "cantat
 ```
 pacli i cant
 ```
-Instead of a list of all available packages, it will display a much shorter filtered list. Simply select the "cantata" package and press ENTER.
+Instead of a list of all available packages, a much shorter filtered list is displayed. Simply select the "cantata" package and press ENTER in order to install it.
 
 Only "pacli h" works differently when called from the command line instead of pacli's UI: "pacli h" will show a very short overview of all available commands.
 
