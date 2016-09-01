@@ -386,7 +386,7 @@ function func_h
 			echo -e "  pacli	h      - \e[1mH\e[0melp. For detailed help, please start User Interface first."
 			echo -e "  \e[31mpacli	fix    \e[0m- \e[1mFix\e[0m Errors"
 			echo -e "  \e[31mpacli	fu     \e[0m- \e[1mF\e[0morce \e[1mU\e[0mpdate System"
-			echo -e "  \e[31mpacli	empty  \e[0m- \e[1mE\e[0mmpty Package Cache"
+			echo -e "  \e[31mpacli	e      \e[0m- \e[1mE\e[0mmpty Package Cache"
 			echo -e "  \e[31mpacli	fi     \e[0m- \e[1mF\e[0morce \e[1mI\e[0mnstall Package"
 			echo -e "  \e[31mpacli	fr     \e[0m- \e[1mF\e[0morce \e[1mR\e[0memove Package"
 			echo
