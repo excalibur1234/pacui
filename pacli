@@ -414,9 +414,9 @@ The first part focuses on updates, maintenance, installations, and removals of p
 The second part includes options for fixing your system. Options, which can break your system, are marked in red.
 The last part offers Arch User Repository (AUR) management options.
 
-0 - EXIT PACLI
+0 - QUIT PACLI
 "clear && exit"
-This will clear your terminal and exit Pacli.
+This will clear your terminal an quit Pacli.
 
 1 - UPDATE SYSTEM
 "yaourt -Syua"
@@ -665,7 +665,7 @@ do
     echo -e " │  19   Search + Install from \e[1mA\e[0mUR    20   \e[1mI\e[0mnstall from \e[1mA\e[0mUR           │"
     echo -e " └────────────────────────────────────────────────────────────────────┘"
     echo
-    echo -e "  Enter number or marked letter(s) and press [Enter]  -  0  \e[1mE\e[0mxit Pacli "
+    echo -e "  Enter number or marked letter(s) and press [Enter]  -  0  \e[1mQ\e[0muit Pacli "
 
     # save entered number in varialbe "choice" and test, whether "chioce" fits any of the following numbers, letters, or words
     read -r choice
@@ -816,7 +816,7 @@ do
             ;;
 
 
-        0|e|exit|q|quit)
+        0|q|quit)
             echo
             clear && exit
             ;;
