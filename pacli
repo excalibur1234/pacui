@@ -63,6 +63,9 @@ function func_c
 			sudo pacman-optimize
 			fi
 		fi
+		
+		# limit logs in journalctl to an ageo of 30 days and a combined size of 50mb
+		sudo journalctl --vacuum-size=50M --vacuum-time=30days
 }
 
 
@@ -443,6 +446,9 @@ The second command removes all old packages from your cache except the 2 latest 
 This command effectively defragments your Pacman database.
 On traditional hard drives (HDD) this command can speed up all actions related to Pacman. 
 ATTENTION: It is NOT recommended to use this command on modern solid state hard drives (SSDs)!
+
+"sudo journalctl --vacuum-size=50M --vacuum-time=30days"
+This command limits all log files in journalctl to a combined size of 50 megabytes and a maximum age of 30 days. This leaves plenty of log files behind to analyze systematic and reoccuring errors.
 
 3 - INSTALL PACKAGE
 "sudo pacman -S <PACKAGE NAME>"
