@@ -77,16 +77,15 @@ For example, you want to display the reverse dependency tree of a package, just 
 - `pacli --rt`
 
 This principle can be used with all options in pacli. Here are some random examples:
-- `pacli --info`
-- `pacli info`
-- `pacli -i`
 - `pacli l`
+- `pacli -l`
 - `pacli log`
-- `pacli --log`
 - `pacli -log`
-- `pacli -ua`
+- `pacli --log`
 
-You can also use arguments. For example: You want to install the package "cantata" you should use
+
+
+You can also use arguments. For example, you want to install the package "cantata". Then, you should use a command like
 ```
 pacli i cant
 ```
