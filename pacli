@@ -40,9 +40,14 @@ function func_u
 
 function func_c 
 {
-		sudo pacman-mirrors -g && sudo pacman -Syy --color always
+		sudo pacman-mirrors -g && echo "" && sudo pacman -Syy --color always
 		echo ""
 		yaourt -Qdt
+		echo ""
+		
+		# limit logs in journalctl to an ageo of 30 days and a combined size of 50mb
+		sudo journalctl --vacuum-size=50M --vacuum-time=30days
+		
 		echo ""
 		paccache -ruvk1
 		echo ""
@@ -63,9 +68,6 @@ function func_c
 			sudo pacman-optimize
 			fi
 		fi
-		
-		# limit logs in journalctl to an ageo of 30 days and a combined size of 50mb
-		sudo journalctl --vacuum-size=50M --vacuum-time=30days
 }
 
 
@@ -436,6 +438,9 @@ If you want to speed up this command: Only test your connection quality to Manja
 "yaourt -Qdt"
 This option lists all orphaned packages on your system. Orphaned packages are old and no longer needed dependencies (packages not explicitly installed by you), which were never removed from your system.
 
+"sudo journalctl --vacuum-size=50M --vacuum-time=30days"
+This command limits all log files in journalctl to a combined size of 50 megabytes and a maximum age of 30 days. This leaves plenty of log files behind to analyze systematic and reoccuring errors while preventing excessive amounts of log files.
+
 "paccache -ruvk1"
 "paccache -rvk2"
 By default Pacman uses this cache directory for downloading packages: /var/cache/pacman/pkg/... . No cached packages get deleted automatically. This enables you to DOWNGRADE PACKAGES, which are broken, without a working internet connection. The package cache of an old and actively used Manjaro installation can become quite large. Clean it to regain space on your root partition.
@@ -446,9 +451,6 @@ The second command removes all old packages from your cache except the 2 latest 
 This command effectively defragments your Pacman database.
 On traditional hard drives (HDD) this command can speed up all actions related to Pacman. 
 ATTENTION: It is NOT recommended to use this command on modern solid state hard drives (SSDs)!
-
-"sudo journalctl --vacuum-size=50M --vacuum-time=30days"
-This command limits all log files in journalctl to a combined size of 50 megabytes and a maximum age of 30 days. This leaves plenty of log files behind to analyze systematic and reoccuring errors.
 
 3 - INSTALL PACKAGE
 "sudo pacman -S <PACKAGE NAME>"
