@@ -194,6 +194,38 @@ function func_d
 }
 
 
+function func_conf 
+{
+    
+cat <<EOF > /tmp/pacli-config
+/etc/pacman.conf                # Configure Pacman.
+/etc/pacman-mirrors.conf        # Configure Manjaro's pacman-mirrors.
+/etc/yaourtrc                   # Configure Yaourt.
+/etc/makepkg.conf               # Configure package compilation.
+~/.bashrc                       # Configure bash shell.
+~/.zshrc                        # Configure zsh shell. 
+~/.xinitrc                      # Configure X server startup.
+/etc/fstab                      # Configure files system mounts.
+/etc/sudoers                    # Configure sudo.
+/etc/systemd/logind.conf        # Configure systemd user logins.
+/etc/systemd/journald.conf      # Configure systemd logging.
+/etc/systemd/system.conf        # Configure systemd system.
+/etc/sysctl.d/100-sysctl.conf   # Configure kernel parameters at runtime.
+/etc/mkinitcpio.conf            # Configure initial ramdisk environment. Afterwards, do "sudo mkinitcpio -P && sudo update-grub"
+/etc/default/grub               # Configure GRUB boot loader. Afterwards, do "sudo update-grub"
+EOF
+
+        local file
+		file=$( cat /tmp/pacli-config | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to open file. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of files > ' | awk '{print $1}' )
+		
+		# only run the command inside the if-statement, if $file variable is not empty - this happens when fzf is quit with ESC or CTRL+C
+		if [[ -n $file ]]
+		then
+			sudo $EDITOR $file
+		fi
+}
+
+
 function func_fix 
 {
 		sudo rm -f /var/lib/pacman/db.lck
@@ -389,6 +421,7 @@ function func_h
 			echo -e "  pacli	log    - Pacman \e[1mLog\e[0m"
 			echo -e "  pacli	d      - \e[1mD\e[0mowngrade Packages"
 			echo -e "  pacli	h      - \e[1mH\e[0melp. For detailed help, please start User Interface first."
+			echo -e "  \e[31mpacli	conf   \e[0m- \e[1mConf\e[0migure System"
 			echo -e "  \e[31mpacli	fix    \e[0m- \e[1mFix\e[0m Pacman Errors"
 			echo -e "  \e[31mpacli	fu     \e[0m- \e[1mF\e[0morce \e[1mU\e[0mpdate System"
 			echo -e "  \e[31mpacli	e      \e[0m- \e[1mE\e[0mmpty Package Cache"
@@ -501,7 +534,24 @@ ATTENTION: Be careful when downgrading to <PACKAGE NAME> from online sources, be
 11 - HELP
 Display this help page.
 
-12 - FIX PACMAN ERRORS
+13 - CONFIGURE SYSTEM
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+14 - FIX PACMAN ERRORS
 Multiple commands attempt to fix the most common issues Manjaro users have with Pacman. Force options (as in FORCE UPDATE SYSTEM) are excluded, even though they are essential in fixing some problems.
 A working internet connection is required.
 
@@ -553,25 +603,25 @@ This last command forces a redownload of the latest package database from the be
 "sudo pacman -Suu"
 This command makes sure all downloaded packages get installed and downgraded if necessary. It is only here as precaution.
 
-13 - FORCE UPDATE SYSTEM
+15 - FORCE UPDATE SYSTEM
 "sudo pacman -Syu --force"
 This command does the same as UPDATE SYSTEM, but it bypasses file conflict tests and overwrites conflicting files. All files will be overwritten. 
 
-14 - EMPTY PACKAGE CACHE
+16 - EMPTY PACKAGE CACHE
 "yaourt -Scc"
 This command will empty your entire package cache by deleting ALL packages.
 ATTENTION: This will make it impossible to reinstall old (or currently installed) packages or DOWNGRADE PACKAGES without a working internet connection.
 
-15 - FORCE INSTALL PACKAGE
+17 - FORCE INSTALL PACKAGE
 "sudo pacman -S --force <PACKAGE NAME>"
 This command does the same as INSTALL PACKAGE, but it forces the installation of <PACKAGE NAME>.
 
-16 - FORCE REMOVE PACKAGE
+18 - FORCE REMOVE PACKAGE
 "pacman -Rdd <PACKAGE NAME>"
 This command removes <PACKAGE NAME> without checking the dependencies of <PACKAGE NAME> first. This enables experienced users to remove packages and dependencies of packages. This command only removes <PACKAGE NAME> from your system. All dependencies and orphans are left: run CLEAN SYSTEM afterwards to remove them, too.
 ATTENTION: This command can break pacakges on your system or even your entire system.
 
-17 - FORCE UPDATE AUR
+19 - FORCE UPDATE AUR
 "yaourt -Syua && yaourt -Syua --devel --needed --noconfirm"
 The Arch User Repository (AUR) is a repository of (mostly) PKGBUILD files. Everybody can create such a PKGBUILD file and upload it to the AUR. A PKGBUILD file contains simple and human readable instructions like where to download the source code from, what dependencies are needed, where to copy files for installation, etc. Yaourt is a so called AUR Helper: It can interpret PKGBUILD files and download the source code, install dependencies, build files on your system, and copy these files to the right location (a.k.a. installing a program).
 By checking a PKGBUILD file (and .INSTALL file) you can make sure the source code is loaded from an official download server, no harmful dependencies get installed, and the installation instructions do not contain harmful code.
@@ -580,18 +630,18 @@ The first command of FORCE UPDATE AUR does the same as the second command of UPD
 The second command of FORCE UPDATE AUR forces a reinstall of ALL your developmental AUR packages (i.e. all git, svn, and cvs-packages). These kinds of AUR packages are usually never updated/reinstalled with a simple "yaourt -Syua". The "--noconfirm" flag is used in a secure way, because no PKGBUILD files have changed since the first command got executed.
 ATTENTION: This might take a long time! By default, after every 15min this command will pause and ask again for your password.
 
-18 - LIST INSTALLED FROM AUR
+20 - LIST INSTALLED FROM AUR
 "pacman -Qem"
 This command lists all installed packages, which are from the AUR or which were manually installed.
 If you want a list of all installed packages use REMOVE PACKAGE + DEPS as described in this Help Page.
 
-19 - SEARCH + INSTALL FROM AUR
+21 - SEARCH + INSTALL FROM AUR
 "yaourt <PACKAGE NAME>"
 This command searches for <PACKAGE NAME> in all Manjaro repositories and the Arch User Repository (AUR). It searches for package names and package descriptions. 
 Example: You can search for "web browser" and you will find Firefox and other web browsers. One or multiple search results can be installed on your system.
 If you want to exit this mode without installing any packages, simply press CTRL+C or [Enter].
 
-20 - INSTALL FROM AUR
+22 - INSTALL FROM AUR
 "yaourt -S <PACKAGE NAME>"
 This command does the same as INSTALL PACKAGE. Additionally, Arch User Repository (AUR) packages can be installed.
 ATTENTION: Experienced users can install packages from the AUR without the need to answer questions all the time by using the command "yaourt -S <PACKAGE NAME> --noconfirm". The "--noconfirm" flag is great for quick and dirty installations of AUR packages on non-secure systems. Please keep always in mind that the AUR can contain any sort of package - including malicious and destructive (parts of) packages. Therefore, it is recommended to always check the PKGBUILD and .INSTALL file manually before installing a package from the AUR.
@@ -664,13 +714,15 @@ do
     echo -e " └────────────────────────────────────────────────────────────────────┘"
     echo -e " ┌────────────────────────────────────────────────────────────────────┐"
     echo -e " │   9   Pacman \e[1mLog\e[0m                   10   \e[1mD\e[0mowngrade Packages         │"
-    echo -e " │  11   \e[1mH\e[0melp                     \e[31m    12   \e[1mFix\e[0;31m Pacman Errors                \e[0m │"
-    echo -e " │ \e[31m 13   \e[1mF\e[0;31morce \e[1mU\e[0;31mpdate System          14   \e[1mE\e[0;31mmpty Package Cache       \e[0m │"
-    echo -e " │ \e[31m 15   \e[1mF\e[0;31morce \e[1mI\e[0;31mnstall Package        16   \e[1mF\e[0;31morce \e[1mR\e[0;31memove Package      \e[0m │"
+    echo -e " │  11   \e[1mH\e[0melp                                                         │"
+    echo -e " │  \e[31m13   \e[1mConf\e[0;31migure System             14   \e[1mFix\e[0;31m Pacman Errors         \e[0m │"
+    echo -e " │\e[31m--------------------------------------------------------------------\e[0m│"
+    echo -e " │ \e[31m 15   \e[1mF\e[0;31morce \e[1mU\e[0;31mpdate System          16   \e[1mE\e[0;31mmpty Package Cache       \e[0m │"
+    echo -e " │ \e[31m 17   \e[1mF\e[0;31morce \e[1mI\e[0;31mnstall Package        18   \e[1mF\e[0;31morce \e[1mR\e[0;31memove Package      \e[0m │"
     echo -e " └────────────────────────────────────────────────────────────────────┘"
     echo -e " ┌────────────────────────────────────────────────────────────────────┐"
-    echo -e " │  17   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR             18   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
-    echo -e " │  19   Search + Install from \e[1mA\e[0mUR    20   \e[1mI\e[0mnstall from \e[1mA\e[0mUR           │"
+    echo -e " │  19   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR             20   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
+    echo -e " │  21   Search + Install from \e[1mA\e[0mUR    22   \e[1mI\e[0mnstall from \e[1mA\e[0mUR           │"
     echo -e " └────────────────────────────────────────────────────────────────────┘"
     echo
     echo -e "  Enter number or marked letter(s) and press [Enter]  -  0  \e[1mQ\e[0muit Pacli "
@@ -757,35 +809,40 @@ do
             func_h
             echo
             ;;
-        12|fix)
+        13|conf|config|configure)
+            echo
+            func_conf
+            echo
+            ;;
+        14|fix)
             echo
 			func_fix
             echo
             echo -e " Most common Pacman errors fixed and system updated. To return to pacli press [Enter] "
             read
             ;;
-        13|fu|forceupdate)
+        15|fu|forceupdate)
             echo
 			func_fu
             echo
             echo -e " Your system was updated in force mode. To return to pacli press [Enter] "
             read
             ;;
-        14|e|empty)
+        16|e|empty)
             echo
 			func_e
             echo
             echo -e " Entire package cache emptied. To return to pacli press [Enter] "
             read
             ;;
-        15|fi|forceinstall)
+        17|fi|forceinstall)
             echo
 			func_fi
             echo
             echo -e " Package installation in force mode is finished. To return to pacli press [Enter] "
             read
             ;;
-        16|fr|forceremove)
+        18|fr|forceremove)
             echo
 			func_fr
 			echo
@@ -794,28 +851,28 @@ do
             ;;
 
 
-        17|ua|fua|forceupdateaur|updateaur)
+        19|ua|fua|forceupdateaur|updateaur)
             echo
 			func_ua
             echo
             echo -e " All AUR packages with available updates reinstalled. To return to pacli press [Enter] "
             read
             ;;
-        18|la|listaur)
+        20|la|listaur)
             echo
 			func_la
             echo
             echo -e " All locally installed packages listed. To return to pacli press [Enter] "
             read
             ;;
-        19|a|aur)
+        21|a|aur)
             echo
 			func_a
             echo
             echo -e " Yaourt finished. To return to pacli press [Enter] "
             read
             ;;
-        20|ia|installaur)
+        22|ia|installaur)
             echo
 			func_ia
             echo
