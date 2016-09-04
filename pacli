@@ -45,8 +45,11 @@ function func_c
 		yaourt -Qdt
 		echo ""
 		
-		# limit logs in journalctl to an ageo of 30 days and a combined size of 50mb
-		sudo journalctl --vacuum-size=50M --vacuum-time=30days
+        if [ $(cat /proc/1/comm) = "systemd" ]          # if init system is systemd
+        then
+                # limit logs in journalctl to an ageo of 30 days and a combined size of 50mb
+                sudo journalctl --vacuum-size=50M --vacuum-time=30days
+        fi
 		
 		echo ""
 		paccache -ruvk1
@@ -196,27 +199,30 @@ function func_d
 
 function func_conf 
 {
-    
-		cat <<EOF > /tmp/pacli-config
-/etc/pacman.conf                - Configure Pacman.
-/etc/pacman-mirrors.conf        - Configure Manjaro's pacman-mirrors.
-/etc/yaourtrc                   - Configure Yaourt.
-/etc/makepkg.conf               - Configure package compilation.
-~/.bashrc                       - Configure bash shell.
-~/.zshrc                        - Configure zsh shell. 
-~/.xinitrc                      - Configure X server startup.
-/etc/fstab                      - Configure files system mounts.
-/etc/sudoers                    - Configure sudo.
-/etc/systemd/logind.conf        - Configure systemd user logins.
-/etc/systemd/journald.conf      - Configure systemd logging.
-/etc/systemd/system.conf        - Configure systemd system.
-/etc/sysctl.d/100-sysctl.conf   - Configure kernel parameters at runtime.
-/etc/mkinitcpio.conf            - Configure initial ramdisk environment. Afterwards, do "sudo mkinitcpio -P && sudo update-grub".
-/etc/default/grub               - Configure GRUB boot loader. Afterwards, do "sudo update-grub".
-EOF
+        # create file, which will contain a list of config files
+        sudo rm /tmp/pacli-conf
+        touch /tmp/pacli-conf
+        
+        # if file /etc/pacman.conf exists, push "/etc/pacman.conf                - Configure Pacman." into /tmp/pacli-conf file.
+        [[ -e /etc/pacman.conf ]] && echo "/etc/pacman.conf                - Configure Pacman." >> /tmp/pacli-conf
+        
+        [[ -e /etc/pacman-mirrors.conf ]] && echo "/etc/pacman-mirrors.conf        - Configure Manjaro's pacman-mirrors." >> /tmp/pacli-conf
+        [[ -e /etc/yaourtrc ]] && echo "/etc/yaourtrc                   - Configure Yaourt." >> /tmp/pacli-conf
+        [[ -e /etc/makepkg.conf ]] && echo "/etc/makepkg.conf               - Configure package compilation." >> /tmp/pacli-conf
+        [[ -e $HOME/.bashrc ]] && echo "~/.bashrc                       - Configure bash shell." >> /tmp/pacli-conf
+        [[ -e $HOME/.zshrc ]] && echo "~/.zshrc                        - Configure zsh shell." >> /tmp/pacli-conf
+        [[ -e $HOME/.xinitrc ]] && echo "~/.xinitrc                      - Configure X server startup." >> /tmp/pacli-conf
+        [[ -e /etc/fstab ]] && echo "/etc/fstab                      - Configure files system mounts." >> /tmp/pacli-conf
+        [[ -e /etc/sudoers ]] && echo "/etc/sudoers                    - Configure sudo." >> /tmp/pacli-conf
+        [[ -e /etc/systemd/logind.conf ]] && echo "/etc/systemd/logind.conf        - Configure systemd user logins." >> /tmp/pacli-conf
+        [[ -e /etc/systemd/journald.conf ]] && echo "/etc/systemd/journald.conf      - Configure systemd logging." >> /tmp/pacli-conf
+        [[ -e /etc/systemd/system.conf ]] && echo "/etc/systemd/system.conf        - Configure systemd system." >> /tmp/pacli-conf
+        [[ -e /etc/sysctl.d/100-sysctl.conf ]] && echo "/etc/sysctl.d/100-sysctl.conf   - Configure kernel parameters at runtime." >> /tmp/pacli-conf
+        [[ -e /etc/mkinitcpio.conf ]] && echo "/etc/mkinitcpio.conf            - Configure initial ramdisk environment. Afterwards, do 'sudo mkinitcpio -P && sudo update-grub'." >> /tmp/pacli-conf
+        [[ -e /etc/default/grub ]] && echo "/etc/default/grub               - Configure GRUB boot loader. Afterwards, do 'sudo update-grub'." >> /tmp/pacli-conf
 
         local file
-		file=$( cat /tmp/pacli-config | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to open file. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of files > ' | awk '{print $1}' )
+		file=$( cat /tmp/pacli-conf | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to open file. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of files > ' | awk '{print $1}' )
 		
 		# only run the command inside the if-statement, if $file variable is not empty - this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $file ]]
@@ -225,6 +231,7 @@ EOF
             [[ -z "$EDITOR" ]] && EDITOR='nano'
             # open "file" in "EDITOR"
 			sudo $EDITOR $file
+			sudo rm /tmp/pacli-conf
 		fi
 }
 
@@ -262,25 +269,28 @@ function func_fix
 			arch=$(uname -m)
 			# extract the name of your used branch from your "/etc/pacman-mirrors.conf" file and store it in "mybranch" variable (needed later)
 			mybranch=$(awk -F'=' '/^Branch/{gsub(" ","", $2 ); print $2}' /etc/pacman-mirrors.conf)
-
-				# set almost correct time (while ignoring time zone and daylight saving time):
-				# 1. stop running NTPD service (and ignore output in case NTPD is not installed):
-				sudo systemctl stop ntpd.service &>/dev/null
-				echo ""
-				# 2. manually download and install networkmanager-dispatcher-ntpd:
-					# extract the version number of networkmanager-dispatcher-ntpd in the Manjaro repositories and save it in "version" variable
-					version="$(lang=C pacman -Si networkmanager-dispatcher-ntpd | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
-					# save the address of the latest networkmanager-dispatcher-ntpd package on a reliable Manjaro mirror to "url" variable
-					url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/community/${arch}/networkmanager-dispatcher-ntpd${version}-any.pkg.tar.xz"
-					wget "${url}" && sudo pacman -U "networkmanager-dispatcher-ntpd${version}-any.pkg.tar.xz" --noconfirm
-					echo ""
-					sudo rm "networkmanager-dispatcher-ntpd${version}-any.pkg.tar.xz"
-					echo ""
-				# 3. start NTP daemon, set the system clock, and quit
-				# 4. wait for 20 seconds
-				# 5. write the time from system clock to hardare clock
-				sudo ntpd -qg && sleep 20 && sudo hwclock -w
-				echo ""
+                
+                if [ $(cat /proc/1/comm) = "systemd" ]          # if init system is systemd
+                then
+                    # set almost correct time (while ignoring time zone and daylight saving time):
+                    # 1. stop running NTPD service (and ignore output in case NTPD is not installed):
+                    sudo systemctl stop ntpd.service &>/dev/null
+                    echo ""
+                    # 2. manually download and install networkmanager-dispatcher-ntpd:
+                        # extract the version number of networkmanager-dispatcher-ntpd in the Manjaro repositories and save it in "version" variable
+                        version="$(lang=C pacman -Si networkmanager-dispatcher-ntpd | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
+                        # save the address of the latest networkmanager-dispatcher-ntpd package on a reliable Manjaro mirror to "url" variable
+                        url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/community/${arch}/networkmanager-dispatcher-ntpd${version}-any.pkg.tar.xz"
+                        wget "${url}" && sudo pacman -U "networkmanager-dispatcher-ntpd${version}-any.pkg.tar.xz" --noconfirm
+                        echo ""
+                        sudo rm "networkmanager-dispatcher-ntpd${version}-any.pkg.tar.xz"
+                        echo ""
+                    # 3. start NTP daemon, set the system clock, and quit
+                    # 4. wait for 20 seconds
+                    # 5. write the time from system clock to hardare clock
+                    sudo ntpd -qg && sleep 20 && sudo hwclock -w
+                    echo ""
+                fi
 		
 				# remove gnupg including all keys
 				sudo rm -r /etc/pacman.d/gnupg &>/dev/null
@@ -690,6 +700,7 @@ unset input2
 
 
 # pacli bash script starts here
+# Run infinte loop for menu, till the user quits.
 while true
 do
 # display menu. please note the use of ANSI Escape sequences mentioned above. The code can be hard to read...
