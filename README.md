@@ -36,6 +36,7 @@ First, make sure all dependencies of pacli are installed on your system:
 - [fzf](https://aur.archlinux.org/packages/fzf/) (fuzzy finder)
 - [downgrade](https://aur.archlinux.org/packages/downgrade/)
 - pacman-mirrorlist
+- systemd
 - bash
 - sudo
 - gzip
