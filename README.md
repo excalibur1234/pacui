@@ -15,7 +15,7 @@ It is highly recommended to use an utility, which notifies the user about availa
 
 Home Screen of pacli:
 
-![Screenshot 01](http://s31.postimg.org/sz4d2yhrf/screen.png)
+![Screenshot 01](http://s18.postimg.org/8dz7xjlzt/screen.png)
 
 
 Installing the package "cantata" from the Manjaro repositories:

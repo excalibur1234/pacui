@@ -198,21 +198,21 @@ function func_conf
 {
     
 		cat <<EOF > /tmp/pacli-config
-/etc/pacman.conf                # Configure Pacman.
-/etc/pacman-mirrors.conf        # Configure Manjaro's pacman-mirrors.
-/etc/yaourtrc                   # Configure Yaourt.
-/etc/makepkg.conf               # Configure package compilation.
-~/.bashrc                       # Configure bash shell.
-~/.zshrc                        # Configure zsh shell. 
-~/.xinitrc                      # Configure X server startup.
-/etc/fstab                      # Configure files system mounts.
-/etc/sudoers                    # Configure sudo.
-/etc/systemd/logind.conf        # Configure systemd user logins.
-/etc/systemd/journald.conf      # Configure systemd logging.
-/etc/systemd/system.conf        # Configure systemd system.
-/etc/sysctl.d/100-sysctl.conf   # Configure kernel parameters at runtime.
-/etc/mkinitcpio.conf            # Configure initial ramdisk environment. Afterwards, do "sudo mkinitcpio -P && sudo update-grub"
-/etc/default/grub               # Configure GRUB boot loader. Afterwards, do "sudo update-grub"
+/etc/pacman.conf                - Configure Pacman.
+/etc/pacman-mirrors.conf        - Configure Manjaro's pacman-mirrors.
+/etc/yaourtrc                   - Configure Yaourt.
+/etc/makepkg.conf               - Configure package compilation.
+~/.bashrc                       - Configure bash shell.
+~/.zshrc                        - Configure zsh shell. 
+~/.xinitrc                      - Configure X server startup.
+/etc/fstab                      - Configure files system mounts.
+/etc/sudoers                    - Configure sudo.
+/etc/systemd/logind.conf        - Configure systemd user logins.
+/etc/systemd/journald.conf      - Configure systemd logging.
+/etc/systemd/system.conf        - Configure systemd system.
+/etc/sysctl.d/100-sysctl.conf   - Configure kernel parameters at runtime.
+/etc/mkinitcpio.conf            - Configure initial ramdisk environment. Afterwards, do "sudo mkinitcpio -P && sudo update-grub".
+/etc/default/grub               - Configure GRUB boot loader. Afterwards, do "sudo update-grub".
 EOF
 
         local file
@@ -407,31 +407,31 @@ function func_h
 		then
 
 			echo
-			echo -e "  pacli	       - \e[1mPacli\e[0m with User Interface"
+			echo -e "  pacli	      - \e[1mPacli\e[0m with User Interface"
 			echo
-			echo -e "  pacli	u      - \e[1mU\e[0mpdate System"
-			echo -e "  pacli	c      - \e[1mC\e[0mlean System"
-			echo -e "  pacli	i      - \e[1mI\e[0mnstall Package"
-			echo -e "  pacli	r      - \e[1mR\e[0memove Package + Deps"
-			echo -e "  pacli	info   - Package \e[1mInfo\e[0mrmation"
-			echo -e "  pacli	l      - \e[1mL\e[0mist Local Package Files"
-			echo -e "  pacli	t      - Dependency \e[1mT\e[0mree"
-			echo -e "  pacli	rt     - \e[1mR\e[0meverse Dependency \e[1mT\e[0mree"
+			echo -e "  pacli	u     - \e[1mU\e[0mpdate System"
+			echo -e "  pacli	c     - \e[1mC\e[0mlean System"
+			echo -e "  pacli	i     - \e[1mI\e[0mnstall Package"
+			echo -e "  pacli	r     - \e[1mR\e[0memove Package + Deps"
+			echo -e "  pacli	info  - Package \e[1mInfo\e[0mrmation"
+			echo -e "  pacli	l     - \e[1mL\e[0mist Local Package Files"
+			echo -e "  pacli	t     - Dependency \e[1mT\e[0mree"
+			echo -e "  pacli	rt    - \e[1mR\e[0meverse Dependency \e[1mT\e[0mree"
 			echo
-			echo -e "  pacli	log    - Pacman \e[1mLog\e[0m"
-			echo -e "  pacli	d      - \e[1mD\e[0mowngrade Packages"
-			echo -e "  pacli	h      - \e[1mH\e[0melp. For detailed help, please start User Interface first."
-			echo -e "  \e[31mpacli	conf   \e[0m- \e[1mConf\e[0migure System"
-			echo -e "  \e[31mpacli	fix    \e[0m- \e[1mFix\e[0m Pacman Errors"
-			echo -e "  \e[31mpacli	fu     \e[0m- \e[1mF\e[0morce \e[1mU\e[0mpdate System"
-			echo -e "  \e[31mpacli	e      \e[0m- \e[1mE\e[0mmpty Package Cache"
-			echo -e "  \e[31mpacli	fi     \e[0m- \e[1mF\e[0morce \e[1mI\e[0mnstall Package"
-			echo -e "  \e[31mpacli	fr     \e[0m- \e[1mF\e[0morce \e[1mR\e[0memove Package"
+			echo -e "  pacli	log   - Pacman \e[1mLog\e[0m"
+			echo -e "  pacli	d     - \e[1mD\e[0mowngrade Packages"
+			echo -e "  pacli	h     - \e[1mH\e[0melp. For detailed help, please start User Interface first."
+			echo -e "  \e[31mpacli	conf  \e[0m- \e[1mConf\e[0migure System"
+			echo -e "  \e[31mpacli	fix   \e[0m- \e[1mFix\e[0m Pacman Errors"
+			echo -e "  \e[31mpacli	fu    \e[0m- \e[1mF\e[0morce \e[1mU\e[0mpdate System"
+			echo -e "  \e[31mpacli	e     \e[0m- \e[1mE\e[0mmpty Package Cache"
+			echo -e "  \e[31mpacli	fi    \e[0m- \e[1mF\e[0morce \e[1mI\e[0mnstall Package"
+			echo -e "  \e[31mpacli	fr    \e[0m- \e[1mF\e[0morce \e[1mR\e[0memove Package"
 			echo
-			echo -e "  pacli	ua     - Force \e[1mU\e[0mpdate \e[1mA\e[0mUR"
-			echo -e "  pacli	la     - \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
-			echo -e "  pacli	a      - Search + Install from \e[1mA\e[0mUR"
-			echo -e "  pacli	ia     - \e[1mI\e[0mnstall from \e[1mA\e[0mUR"
+			echo -e "  pacli	ua    - Force \e[1mU\e[0mpdate \e[1mA\e[0mUR"
+			echo -e "  pacli	la    - \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
+			echo -e "  pacli	a     - Search + Install from \e[1mA\e[0mUR"
+			echo -e "  pacli	ia    - \e[1mI\e[0mnstall from \e[1mA\e[0mUR"
 			echo
 			
 		else
