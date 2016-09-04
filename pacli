@@ -389,7 +389,7 @@ function func_h
 			echo -e "  pacli	log    - Pacman \e[1mLog\e[0m"
 			echo -e "  pacli	d      - \e[1mD\e[0mowngrade Packages"
 			echo -e "  pacli	h      - \e[1mH\e[0melp. For detailed help, please start User Interface first."
-			echo -e "  \e[31mpacli	fix    \e[0m- \e[1mFix\e[0m Errors"
+			echo -e "  \e[31mpacli	fix    \e[0m- \e[1mFix\e[0m Pacman Errors"
 			echo -e "  \e[31mpacli	fu     \e[0m- \e[1mF\e[0morce \e[1mU\e[0mpdate System"
 			echo -e "  \e[31mpacli	e      \e[0m- \e[1mE\e[0mmpty Package Cache"
 			echo -e "  \e[31mpacli	fi     \e[0m- \e[1mF\e[0morce \e[1mI\e[0mnstall Package"
@@ -501,7 +501,7 @@ ATTENTION: Be careful when downgrading to <PACKAGE NAME> from online sources, be
 11 - HELP
 Display this help page.
 
-12 - FIX ERRORS
+12 - FIX PACMAN ERRORS
 Multiple commands attempt to fix the most common issues Manjaro users have with Pacman. Force options (as in FORCE UPDATE SYSTEM) are excluded, even though they are essential in fixing some problems.
 A working internet connection is required.
 
@@ -532,7 +532,7 @@ ATTENTION: The last command is needed in order to prevent another services on yo
 
 "sudo rm -r /etc/pacman.d/gnupg &>/dev/null"
 This command deletes your Pacman, Manjaro, and Arch key database. It does not output an error in case the package "gnupg" is not installed on your system.
-ATTENTION: This command will remove all keys from your system, including manually installed keys (with "sudo pacman-key --lsign-key <KEY>"). Please remember to reinstall those keys again after FIX ERRORS has completed!
+ATTENTION: This command will remove all keys from your system, including manually installed keys (with "sudo pacman-key --lsign-key <KEY>"). Please remember to reinstall those keys again after FIX PACMAN ERRORS has completed!
 
 "sudo pacman -Sy gnupg archlinux-keyring manjaro-keyring"
 This command (re-)installs the "gnupg", "archlinux-keyring", and "manjaro-keyring" packages and keyrings for Arch Linux and Manjaro. Pacli actually does not use this command but instead downloads and installs this package manually in order to bypass key database and key chain errors.
@@ -664,7 +664,7 @@ do
     echo -e " └────────────────────────────────────────────────────────────────────┘"
     echo -e " ┌────────────────────────────────────────────────────────────────────┐"
     echo -e " │   9   Pacman \e[1mLog\e[0m                   10   \e[1mD\e[0mowngrade Packages         │"
-    echo -e " │  11   \e[1mH\e[0melp                     \e[31m    12   \e[1mFix\e[0;31m Errors                \e[0m │"
+    echo -e " │  11   \e[1mH\e[0melp                     \e[31m    12   \e[1mFix\e[0;31m Pacman Errors                \e[0m │"
     echo -e " │ \e[31m 13   \e[1mF\e[0;31morce \e[1mU\e[0;31mpdate System          14   \e[1mE\e[0;31mmpty Package Cache       \e[0m │"
     echo -e " │ \e[31m 15   \e[1mF\e[0;31morce \e[1mI\e[0;31mnstall Package        16   \e[1mF\e[0;31morce \e[1mR\e[0;31memove Package      \e[0m │"
     echo -e " └────────────────────────────────────────────────────────────────────┘"
