@@ -221,6 +221,9 @@ EOF
 		# only run the command inside the if-statement, if $file variable is not empty - this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $file ]]
 		then
+			# if $EDITOR variable does not exist, set it to 'nano'
+            [[ -z "$EDITOR" ]] && EDITOR='nano'
+            # open "file" in "EDITOR"
 			sudo $EDITOR $file
 		fi
 }
@@ -537,8 +540,7 @@ Display this help page.
 13 - CONFIGURE SYSTEM
 "sudo $EDITOR <FILE>"
 This command opens <FILE> with root privileges in your default text editor. You can choose between multiple important system configuration files.
-If no default text editor is specified for your system, please add the following line to ~/.bashrc:
-export EDITOR=/usr/bin/nano
+By default the text editor Nano gets used, except a custom $EDITOR variable has been exported. Press CTRL+O to save your changes and CTRL+X to quit Nano.
 
 14 - FIX PACMAN ERRORS
 Multiple commands attempt to fix the most common issues Manjaro users have with Pacman. Force options (as in FORCE UPDATE SYSTEM) are excluded, even though they are essential in fixing some problems.
