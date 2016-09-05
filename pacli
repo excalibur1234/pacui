@@ -45,7 +45,7 @@ function func_c
 		yaourt -Qdt
 		echo ""
 		
-        if [ $(cat /proc/1/comm) = "systemd" ]          # if init system is systemd
+        if [ "$(cat /proc/1/comm)" == "systemd" ]          # if init system is systemd
         then
                 # limit logs in journalctl to an ageo of 30 days and a combined size of 50mb
                 sudo journalctl --vacuum-size=50M --vacuum-time=30days
@@ -62,10 +62,10 @@ function func_c
 		disk=$(lsblk -o "name,mountpoint" -pa | sed -n '/^\//h;/\/$/{g;p}' | cut -d/ -f3)
 		disk="${disk:0:3}"
 		# 2. check, whether "disk" is not empty and whether the path to "disk" exists
-		if [[ -n "$disk" && -e "/dev/$disk" ]]
+		if [ -n "$disk" && -e "/dev/$disk" ]
 		then
 			# open the "rotational" file belonging to your "disk" and checking, whether it contains a "1" - this means your "disk" is a traditional hard drive and no SSD.
-			if [[ $(cat $(find "/sys" -name "rotational" 2>/dev/null | grep "$disk/queue")) == "1" ]]
+			if [ "$(cat $(find "/sys" -name "rotational" 2>/dev/null | grep "$disk/queue"))" == "1" ]
 			then
 			# only execute the following line when your / parition is installed on a hard drive.
 			sudo pacman-optimize
@@ -81,7 +81,7 @@ function func_i
 		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
 		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
-		if [[ -n $pkg ]]
+		if [ -n $pkg ]
 		then
 			sudo pacman -S $pkg --color always
 		fi
@@ -96,7 +96,7 @@ function func_r
 		local pkg
 		pkg=$(package-query -Q -f "%n  %v  -  %d"  | sort | fzf -m -e +s -i -0 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to remove. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
         
-		if [[ -n $pkg ]]
+		if [ -n $pkg ]
 		then
 			sudo pacman -Rsn $pkg --color always
 		fi
@@ -118,7 +118,7 @@ function func_info
 		pkg=$(sort /tmp/pacli-packages | fzf -e +s -i -0 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to display info. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
 		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
-		if [[ -n $pkg ]]
+		if [ -n $pkg ]
 		then
 			# next, it is checked, whether "pkg" is part of a list of all installed packages (pacman -Qq).
 			if ( pacman -Qq $pkg &>/dev/null )
@@ -137,7 +137,7 @@ function func_l
 		local pkg
 		pkg=$(pacman -Qq | fzf -e +s -i -0 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
-		if [[ -n $pkg ]]
+		if [ -n $pkg ]
 		then
 			# take the output of command "pacman -Qlq $pkg" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacli-list.
 			pacman -Qlq $pkg --color always | fzf -m -e +s -i --query="/usr/bin/" --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed directories and files > ' >> /tmp/pacli-list
@@ -155,7 +155,7 @@ function func_t
 		pkg=$(sort /tmp/pacli-packages-local | fzf -e +s -i -0 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
 		# look in func_info for explanations
-		if [[ -n $pkg ]]
+		if [ -n $pkg ]
 		then
 			if (pacman -Qq $pkg &>/dev/null)
 			then
@@ -232,10 +232,10 @@ function func_conf
 		file=$( cat /tmp/pacli-conf | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to open file. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of files > ' | awk '{print $1}' )
 		
 		# only run the command inside the if-statement, if $file variable is not empty <-- this happens when fzf is quit with ESC or CTRL+C
-		if [[ -n $file ]]
+		if [ -n $file ]
 		then
 		
-            if [[ $file=="/etc/sudoers" ]]
+            if [ "$file" == "/etc/sudoers" ]
             then
                 sudo EDITOR=nano visudo
             else
@@ -283,7 +283,7 @@ function func_fix
 			# extract the name of your used branch from your "/etc/pacman-mirrors.conf" file and store it in "mybranch" variable (needed later)
 			mybranch=$(awk -F'=' '/^Branch/{gsub(" ","", $2 ); print $2}' /etc/pacman-mirrors.conf)
                 
-                if [ $(cat /proc/1/comm) = "systemd" ]          # if init system is systemd
+                if [ "$(cat /proc/1/comm)" == "systemd" ]          # if init system is systemd
                 then
                     # set almost correct time (while ignoring time zone and daylight saving time):
                     # 1. stop running NTPD service (and ignore output in case NTPD is not installed):
@@ -356,7 +356,7 @@ function func_fi
 		local pkg
 		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
-		if [[ -n $pkg ]]
+		if [ -n $pkg ]
 		then
 			sudo pacman -S --force $pkg --color always
 		fi
@@ -368,7 +368,7 @@ function func_fr
 		local pkg
 		pkg=$(package-query -Q -f "%n  %v  -  %d" | fzf -m -e +s -i -0 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to remove. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
-		if [[ -n $pkg ]]
+		if [ -n $pkg ]
 		then
 			sudo pacman -Rdd $pkg --color always
 		fi
@@ -429,7 +429,7 @@ function func_la
 function func_h 
 {
 		# the "then" part is displayed, when started from terminal (the last function adds the "1" parameter). the "else" part gets displayed when started from UI.
-		if [[ "$1" == '1' ]]
+		if [ "$1" == "1" ]
 		then
 
 			echo
@@ -686,11 +686,11 @@ input=$(echo $input | tr '[:upper:]' '[:lower:]' )
 
 
 # the following code checks, whether a prefix (func_) + varialbe "input" is a valid function. after the function is done an "exit" command is needed to prevent the UI from loading.
-if [[ $(type -t "func_$input") == 'function' ]] 
+if [ "$(type -t "func_$input")" == "function" ] 
 then
     "func_$input" 1		# pass one parameter (1) when the funciton gets called directly. this is important for help function.
     exit $?			# exit here, no write in all functions and return error code if present
-elif (($# > 0))		# if one or more parameter
+elif (( $# > 0 ))		# if one or more parameter
 then  			
     echo "Bad console command. Press ENTER to start the UI or CTRL+C to abort."
     read
