@@ -30,7 +30,7 @@ function func_u
 		yaourt -Syua
 				
 		# the command above finishes with a exit status/return code. return code 0 means it has finished successfully, i.e. the system was updated completely and successfully.
-		if [ "$?" != 0 ]      # if return code or last command is not equal to zero
+		if [[ "$?" != "0" ]]      # if return code or last command is not equal to zero
 		then
 			# major pacman updates require pacman and fail with yaourt:
 			sudo pacman -Syu --color always && echo "" && yaourt -Syua
@@ -45,7 +45,7 @@ function func_c
 		yaourt -Qdt
 		echo ""
 		
-        if [ "$(cat /proc/1/comm)" == "systemd" ]          # if init system is systemd
+        if [[ $(cat /proc/1/comm) == "systemd" ]]          # if init system is systemd
         then
                 # limit logs in journalctl to an ageo of 30 days and a combined size of 50mb
                 sudo journalctl --vacuum-size=50M --vacuum-time=30days
@@ -62,10 +62,10 @@ function func_c
 		disk=$(lsblk -o "name,mountpoint" -pa | sed -n '/^\//h;/\/$/{g;p}' | cut -d/ -f3)
 		disk="${disk:0:3}"
 		# 2. check, whether "disk" is not empty and whether the path to "disk" exists
-		if [ -n "$disk" && -e "/dev/$disk" ]
+		if [[ -n $disk && -e "/dev/$disk" ]]
 		then
 			# open the "rotational" file belonging to your "disk" and checking, whether it contains a "1" - this means your "disk" is a traditional hard drive and no SSD.
-			if [ "$(cat $(find "/sys" -name "rotational" 2>/dev/null | grep "$disk/queue"))" == "1" ]
+			if [[ $(cat $(find "/sys" -name "rotational" 2>/dev/null | grep "$disk/queue")) == "1" ]]
 			then
 			# only execute the following line when your / parition is installed on a hard drive.
 			sudo pacman-optimize
@@ -81,7 +81,7 @@ function func_i
 		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
 		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
-		if [ -n $pkg ]
+		if [[ -n $pkg ]]
 		then
 			sudo pacman -S $pkg --color always
 		fi
@@ -96,7 +96,7 @@ function func_r
 		local pkg
 		pkg=$(package-query -Q -f "%n  %v  -  %d"  | sort | fzf -m -e +s -i -0 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to remove. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
         
-		if [ -n $pkg ]
+		if [[ -n $pkg ]]
 		then
 			sudo pacman -Rsn $pkg --color always
 		fi
@@ -106,7 +106,7 @@ function func_r
 function func_info 
 {
 		# check, whether file /tmp/pacli-packages already exists (the ! negates the result)
-		if ! [ -e /tmp/pacli-packages ]
+		if ! [[ -e /tmp/pacli-packages ]]
 		then
 			# write package list of repositories to /tmp/pacli-packages. then, download AUR package list, unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacli-packages.
 			pacman -Slq > /tmp/pacli-packages
@@ -118,7 +118,7 @@ function func_info
 		pkg=$(sort /tmp/pacli-packages | fzf -e +s -i -0 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to display info. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
 		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
-		if [ -n $pkg ]
+		if [[ -n $pkg ]]
 		then
 			# next, it is checked, whether "pkg" is part of a list of all installed packages (pacman -Qq).
 			if ( pacman -Qq $pkg &>/dev/null )
@@ -137,7 +137,7 @@ function func_l
 		local pkg
 		pkg=$(pacman -Qq | fzf -e +s -i -0 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
-		if [ -n $pkg ]
+		if [[ -n $pkg ]]
 		then
 			# take the output of command "pacman -Qlq $pkg" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacli-list.
 			pacman -Qlq $pkg --color always | fzf -m -e +s -i --query="/usr/bin/" --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed directories and files > ' >> /tmp/pacli-list
@@ -155,9 +155,9 @@ function func_t
 		pkg=$(sort /tmp/pacli-packages-local | fzf -e +s -i -0 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
 		# look in func_info for explanations
-		if [ -n $pkg ]
+		if [[ -n $pkg ]]
 		then
-			if (pacman -Qq $pkg &>/dev/null)
+			if ( pacman -Qq $pkg &>/dev/null )
 			then
 				pactree -c $pkg
 			else
@@ -200,42 +200,39 @@ function func_d
 function func_conf 
 {
         # create file, which will contain a list of config files
-        rm /tmp/pacli-conf
         touch /tmp/pacli-conf
         
         # if file /etc/pacman.conf exists, push "/etc/pacman.conf                - Configure Pacman." into /tmp/pacli-conf file.
-        [[ -e /etc/pacman.conf ]] && echo "/etc/pacman.conf                - Configure Pacman." >> /tmp/pacli-conf
-        
-        [[ -e /etc/pacman-mirrors.conf ]] && echo "/etc/pacman-mirrors.conf        - Configure Manjaro's pacman-mirrors." >> /tmp/pacli-conf
-        [[ -e /etc/yaourtrc ]] && echo "/etc/yaourtrc                   - Configure Yaourt." >> /tmp/pacli-conf
-        [[ -e /etc/makepkg.conf ]] && echo "/etc/makepkg.conf               - Configure package compilation." >> /tmp/pacli-conf
-        [[ -e /etc/slim.conf ]] && echo "/etc/slim.conf                  - Configure slim display manager." >> /tmp/pacli-conf
-        [[ -e /etc/lightdm.conf ]] && echo "/etc/lightdm.conf               - Configure lightdm display manager." >> /tmp/pacli-conf
-        [[ -e /etc/sddm.conf ]] && echo "/etc/sddm.conf                  - Configure sddm display manager." >> /tmp/pacli-conf
-        [[ -e /etc/mdm/mdm.conf ]] && echo "/etc/mdm/mdm.conf               - Configure mdm display manager." >> /tmp/pacli-conf
-        [[ -e /etc/lxdm/lxdm.conf ]] && echo "/etc/lxdm/lxdm.conf             - Configure lxdm display manager." >> /tmp/pacli-conf
-        [[ -e /etc/gdm/custom.conf ]] && echo "/etc/gdm/custom.conf            - Configure gdm display manager." >> /tmp/pacli-conf
-        [[ -e /etc/entrance/entrance.conf ]] && echo "/etc/entrance/entrance.conf     - Configure entrance display manager." >> /tmp/pacli-conf
-        [[ -e $HOME/.bashrc ]] && echo "~/.bashrc                       - Configure bash shell." >> /tmp/pacli-conf
-        [[ -e $HOME/.zshrc ]] && echo "~/.zshrc                        - Configure zsh shell." >> /tmp/pacli-conf
-        [[ -e $HOME/.xinitrc ]] && echo "~/.xinitrc                      - Configure X server startup." >> /tmp/pacli-conf
-        [[ -e /etc/fstab ]] && echo "/etc/fstab                      - Configure files system mounts." >> /tmp/pacli-conf
-        [[ -e /etc/sudoers ]] && echo "/etc/sudoers                    - Configure sudo." >> /tmp/pacli-conf
-        [[ -e /etc/systemd/logind.conf ]] && echo "/etc/systemd/logind.conf        - Configure systemd user logins." >> /tmp/pacli-conf
-        [[ -e /etc/systemd/journald.conf ]] && echo "/etc/systemd/journald.conf      - Configure systemd logging." >> /tmp/pacli-conf
-        [[ -e /etc/systemd/system.conf ]] && echo "/etc/systemd/system.conf        - Configure systemd system." >> /tmp/pacli-conf
-        [[ -e /etc/sysctl.d ]] && echo "/etc/sysctl.d/*                 - Configure kernel parameters at runtime in multiple files." >> /tmp/pacli-conf
-        [[ -e /etc/mkinitcpio.conf ]] && echo "/etc/mkinitcpio.conf            - Configure initial ramdisk environment. Afterwards, do 'sudo mkinitcpio -P && sudo update-grub'." >> /tmp/pacli-conf
-        [[ -e /etc/default/grub ]] && echo "/etc/default/grub               - Configure GRUB boot loader. Afterwards, do 'sudo update-grub'." >> /tmp/pacli-conf
+        [[ -e /etc/pacman.conf ]] && echo "/etc/pacman.conf             - Configure Pacman." >> /tmp/pacli-conf
+        [[ -e /etc/pacman-mirrors.conf ]] && echo "/etc/pacman-mirrors.conf     - Configure Manjaro's pacman-mirrors." >> /tmp/pacli-conf
+        [[ -e /etc/yaourtrc ]] && echo "/etc/yaourtrc                - Configure Yaourt." >> /tmp/pacli-conf
+        [[ -e /etc/makepkg.conf ]] && echo "/etc/makepkg.conf            - Configure package compilation." >> /tmp/pacli-conf
+        [[ -e /etc/slim.conf ]] && echo "/etc/slim.conf               - Configure slim display manager." >> /tmp/pacli-conf
+        [[ -e /etc/lightdm.conf ]] && echo "/etc/lightdm.conf            - Configure lightdm display manager." >> /tmp/pacli-conf
+        [[ -e /etc/sddm.conf ]] && echo "/etc/sddm.conf               - Configure sddm display manager." >> /tmp/pacli-conf
+        [[ -e /etc/mdm/mdm.conf ]] && echo "/etc/mdm/mdm.conf            - Configure mdm display manager." >> /tmp/pacli-conf
+        [[ -e /etc/lxdm/lxdm.conf ]] && echo "/etc/lxdm/lxdm.conf          - Configure lxdm display manager." >> /tmp/pacli-conf
+        [[ -e /etc/gdm/custom.conf ]] && echo "/etc/gdm/custom.conf         - Configure gdm display manager." >> /tmp/pacli-conf
+        [[ -e /etc/entrance/entrance.conf ]] && echo "/etc/entrance/entrance.conf  - Configure entrance display manager." >> /tmp/pacli-conf
+        [[ -e $HOME/.bashrc ]] && echo "~/.bashrc                    - Configure bash shell." >> /tmp/pacli-conf
+        [[ -e $HOME/.zshrc ]] && echo "~/.zshrc                     - Configure zsh shell." >> /tmp/pacli-conf
+        [[ -e $HOME/.xinitrc ]] && echo "~/.xinitrc                   - Configure X server startup." >> /tmp/pacli-conf
+        [[ -e /etc/fstab ]] && echo "/etc/fstab                   - Configure files system mounts." >> /tmp/pacli-conf
+        [[ -e /etc/sudoers ]] && echo "/etc/sudoers                 - Configure sudo." >> /tmp/pacli-conf
+        [[ -e /etc/systemd/logind.conf ]] && echo "/etc/systemd/logind.conf     - Configure systemd user logins." >> /tmp/pacli-conf
+        [[ -e /etc/systemd/journald.conf ]] && echo "/etc/systemd/journald.conf   - Configure systemd logging." >> /tmp/pacli-conf
+        [[ -e /etc/systemd/system.conf ]] && echo "/etc/systemd/system.conf     - Configure systemd system." >> /tmp/pacli-conf
+        [[ -e /etc/sysctl.d ]] && echo "/etc/sysctl.d/*              - Configure kernel parameters at runtime in multiple files." >> /tmp/pacli-conf
+        [[ -e /etc/mkinitcpio.conf ]] && echo "/etc/mkinitcpio.conf         - Configure initial ramdisk environment. Afterwards, do 'sudo mkinitcpio -P && sudo update-grub'." >> /tmp/pacli-conf
+        [[ -e /etc/default/grub ]] && echo "/etc/default/grub            - Configure GRUB boot loader. Afterwards, do 'sudo update-grub'." >> /tmp/pacli-conf
 
         local file
 		file=$( cat /tmp/pacli-conf | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to open file. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of files > ' | awk '{print $1}' )
 		
 		# only run the command inside the if-statement, if $file variable is not empty <-- this happens when fzf is quit with ESC or CTRL+C
-		if [ -n $file ]
+		if [[ -n $file ]]
 		then
-		
-            if [ "$file" == "/etc/sudoers" ]
+            if [[ $file == "/etc/sudoers" ]]
             then
                 sudo EDITOR=nano visudo
             else
@@ -259,7 +256,7 @@ function func_fix
 		# check, whether manjaro mirror with the latest packages is reachable
 		wget --spider http://mirror.netzspielplatz.de/manjaro
 		# the "wget" command finishes with a exit status/return code. return code 0 means "wget --spider" has finished successfully, i.e. the manjaro mirror can be reached.
-		if [ "$?" != 0 ]
+		if [[ "$?" != "0" ]]
 		then
 		
 			# if the shell return code is not 0, the manjaro mirror cannot be reached.
@@ -283,7 +280,7 @@ function func_fix
 			# extract the name of your used branch from your "/etc/pacman-mirrors.conf" file and store it in "mybranch" variable (needed later)
 			mybranch=$(awk -F'=' '/^Branch/{gsub(" ","", $2 ); print $2}' /etc/pacman-mirrors.conf)
                 
-                if [ "$(cat /proc/1/comm)" == "systemd" ]          # if init system is systemd
+                if [[ $(cat /proc/1/comm) == "systemd" ]]          # if init system is systemd
                 then
                     # set almost correct time (while ignoring time zone and daylight saving time):
                     # 1. stop running NTPD service (and ignore output in case NTPD is not installed):
@@ -356,7 +353,7 @@ function func_fi
 		local pkg
 		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
-		if [ -n $pkg ]
+		if [[ -n $pkg ]]
 		then
 			sudo pacman -S --force $pkg --color always
 		fi
@@ -368,7 +365,7 @@ function func_fr
 		local pkg
 		pkg=$(package-query -Q -f "%n  %v  -  %d" | fzf -m -e +s -i -0 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to remove. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
-		if [ -n $pkg ]
+		if [[ -n $pkg ]]
 		then
 			sudo pacman -Rdd $pkg --color always
 		fi
@@ -398,7 +395,7 @@ function func_a
 function func_ia 
 {
 		# check, whether file /tmp/pacli-packages already exists (the ! negates the result)
-		if ! [ -e /tmp/pacli-packages ]
+		if ! [[ -e /tmp/pacli-packages ]]
 		then
 			# write package list of manjaro repositories to /tmp/pacli-packages. then, download AUR package list, unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacli-packages.
 			pacman -Slq > /tmp/pacli-packages
@@ -429,7 +426,7 @@ function func_la
 function func_h 
 {
 		# the "then" part is displayed, when started from terminal (the last function adds the "1" parameter). the "else" part gets displayed when started from UI.
-		if [ "$1" == "1" ]
+		if [[ "$1" == "1" ]]
 		then
 
 			echo
@@ -686,7 +683,7 @@ input=$(echo $input | tr '[:upper:]' '[:lower:]' )
 
 
 # the following code checks, whether a prefix (func_) + varialbe "input" is a valid function. after the function is done an "exit" command is needed to prevent the UI from loading.
-if [ "$(type -t "func_$input")" == "function" ] 
+if [[ $(type -t "func_$input") == "function" ]] 
 then
     "func_$input" 1		# pass one parameter (1) when the funciton gets called directly. this is important for help function.
     exit $?			# exit here, no write in all functions and return error code if present
