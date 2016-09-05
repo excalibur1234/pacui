@@ -209,6 +209,13 @@ function func_conf
         [[ -e /etc/pacman-mirrors.conf ]] && echo "/etc/pacman-mirrors.conf        - Configure Manjaro's pacman-mirrors." >> /tmp/pacli-conf
         [[ -e /etc/yaourtrc ]] && echo "/etc/yaourtrc                   - Configure Yaourt." >> /tmp/pacli-conf
         [[ -e /etc/makepkg.conf ]] && echo "/etc/makepkg.conf               - Configure package compilation." >> /tmp/pacli-conf
+        [[ -e /etc/slim.conf ]] && echo "/etc/slim.conf                  - Configure slim display manager." >> /tmp/pacli-conf
+        [[ -e /etc/lightdm.conf ]] && echo "/etc/lightdm.conf               - Configure lightdm display manager." >> /tmp/pacli-conf
+        [[ -e /etc/sddm.conf ]] && echo "/etc/sddm.conf                  - Configure sddm display manager." >> /tmp/pacli-conf
+        [[ -e /etc/mdm/mdm.conf ]] && echo "/etc/mdm/mdm.conf               - Configure mdm display manager." >> /tmp/pacli-conf
+        [[ -e /etc/lxdm/lxdm.conf ]] && echo "/etc/lxdm/lxdm.conf             - Configure lxdm display manager." >> /tmp/pacli-conf
+        [[ -e /etc/gdm/custom.conf ]] && echo "/etc/gdm/custom.conf            - Configure gdm display manager." >> /tmp/pacli-conf
+        [[ -e /etc/entrance/entrance.conf ]] && echo "/etc/entrance/entrance.conf     - Configure entrance display manager." >> /tmp/pacli-conf
         [[ -e $HOME/.bashrc ]] && echo "~/.bashrc                       - Configure bash shell." >> /tmp/pacli-conf
         [[ -e $HOME/.zshrc ]] && echo "~/.zshrc                        - Configure zsh shell." >> /tmp/pacli-conf
         [[ -e $HOME/.xinitrc ]] && echo "~/.xinitrc                      - Configure X server startup." >> /tmp/pacli-conf
