@@ -30,7 +30,7 @@ function func_u
 		yaourt -Syua
 				
 		# the command above finishes with a exit status/return code. return code 0 means it has finished successfully, i.e. the system was updated completely and successfully.
-		if [[ "$?" != "0" ]]      # if return code or last command is not equal to zero
+		if (( "$?" != "0" ))      # if return code of last command is not equal to zero
 		then
 			# major pacman updates require pacman and fail with yaourt:
 			sudo pacman -Syu --color always && echo "" && yaourt -Syua
@@ -106,7 +106,7 @@ function func_r
 function func_info 
 {
 		# check, whether file /tmp/pacli-packages already exists (the ! negates the result)
-		if ! [[ -e /tmp/pacli-packages ]]
+		if [[ ! -e /tmp/pacli-packages ]]
 		then
 			# write package list of repositories to /tmp/pacli-packages. then, download AUR package list, unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacli-packages.
 			pacman -Slq > /tmp/pacli-packages
@@ -261,7 +261,7 @@ function func_fix
 		# check, whether manjaro mirror with the latest packages is reachable
 		wget --spider http://mirror.netzspielplatz.de/manjaro
 		# the "wget" command finishes with a exit status/return code. return code 0 means "wget --spider" has finished successfully, i.e. the manjaro mirror can be reached.
-		if [[ "$?" != "0" ]]
+		if (( "$?" != "0" ))
 		then
 		
 			# if the shell return code is not 0, the manjaro mirror cannot be reached.
