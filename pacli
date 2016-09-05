@@ -200,7 +200,7 @@ function func_d
 function func_conf 
 {
         # create file, which will contain a list of config files
-        sudo rm /tmp/pacli-conf
+        rm /tmp/pacli-conf
         touch /tmp/pacli-conf
         
         # if file /etc/pacman.conf exists, push "/etc/pacman.conf                - Configure Pacman." into /tmp/pacli-conf file.
@@ -224,18 +224,18 @@ function func_conf
         [[ -e /etc/systemd/logind.conf ]] && echo "/etc/systemd/logind.conf        - Configure systemd user logins." >> /tmp/pacli-conf
         [[ -e /etc/systemd/journald.conf ]] && echo "/etc/systemd/journald.conf      - Configure systemd logging." >> /tmp/pacli-conf
         [[ -e /etc/systemd/system.conf ]] && echo "/etc/systemd/system.conf        - Configure systemd system." >> /tmp/pacli-conf
-        [[ -e /etc/sysctl.d ]] && echo "/etc/sysctl.d/*   - Configure kernel parameters at runtime in multiple files." >> /tmp/pacli-conf
+        [[ -e /etc/sysctl.d ]] && echo "/etc/sysctl.d/*                 - Configure kernel parameters at runtime in multiple files." >> /tmp/pacli-conf
         [[ -e /etc/mkinitcpio.conf ]] && echo "/etc/mkinitcpio.conf            - Configure initial ramdisk environment. Afterwards, do 'sudo mkinitcpio -P && sudo update-grub'." >> /tmp/pacli-conf
         [[ -e /etc/default/grub ]] && echo "/etc/default/grub               - Configure GRUB boot loader. Afterwards, do 'sudo update-grub'." >> /tmp/pacli-conf
 
         local file
 		file=$( cat /tmp/pacli-conf | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to open file. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of files > ' | awk '{print $1}' )
 		
-		# only run the command inside the if-statement, if $file variable is not empty - this happens when fzf is quit with ESC or CTRL+C
+		# only run the command inside the if-statement, if $file variable is not empty <-- this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $file ]]
 		then
 		
-            if [ $file="/etc/sudoers" ]
+            if [[ $file=="/etc/sudoers" ]]
             then
                 sudo EDITOR=nano visudo
             else
@@ -243,9 +243,9 @@ function func_conf
                 [[ -z "$EDITOR" ]] && EDITOR='nano'
                 # open "file" in "EDITOR"
                 sudo $EDITOR $file
-                sudo rm /tmp/pacli-conf
 			fi
 		fi
+		rm /tmp/pacli-conf
 }
 
 
