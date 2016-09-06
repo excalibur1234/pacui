@@ -226,9 +226,10 @@ function func_conf
         [[ -e /etc/sysctl.d ]] && echo "/etc/sysctl.d/*               - Configure kernel parameters at runtime in multiple files." >> /tmp/pacli-conf
         [[ -e /etc/mkinitcpio.conf ]] && echo "/etc/mkinitcpio.conf          - Configure initial ramdisk environment. Afterwards, do 'sudo mkinitcpio -P && sudo update-grub'." >> /tmp/pacli-conf
         [[ -e /etc/default/grub ]] && echo "/etc/default/grub             - Configure GRUB boot loader. Afterwards, do 'sudo update-grub'." >> /tmp/pacli-conf
-        [[ -e /boot/loader/entries/manjaro.conf ]] && echo "/boot/loader/entries/manjaro.conf  - Configure systemdboot boot loader." >> /tmp/pacli-conf
-        [[ -e /boot/refind_linux.conf ]] && echo "/boot/refind_linux.conf       - Configure refind boot loader." >> /tmp/pacli-conf
-        [[ -e /boot/EFI/refind/refind.conf ]] && echo "/boot/EFI/refind/refind.conf  - Configure refind boot loader." >> /tmp/pacli-conf
+        [[ -e /boot/loader/entries/manjaro.conf ]] && echo "/boot/loader/entries/manjaro.conf  - Configure systemd-boot boot loader." >> /tmp/pacli-conf
+        [[ -e /boot/refind_linux.conf ]] && echo "/boot/refind_linux.conf       - Configure rEFInd boot loader." >> /tmp/pacli-conf
+        [[ -e /boot/EFI/refind/refind.conf ]] && echo "/boot/EFI/refind/refind.conf  - Configure rEFInd boot loader." >> /tmp/pacli-conf
+        [[ -e /boot/EFI/CLOVER/config.plist ]] && echo "/boot/EFI/CLOVER/config.plist - Configure Clover boot loader." >> /tmp/pacli-conf
         [[ -e /boot/syslinux/syslinux.cfg ]] && echo "/boot/syslinux/syslinux.cfg   - Configure syslinux boot loaders." >> /tmp/pacli-conf
 
         local file
