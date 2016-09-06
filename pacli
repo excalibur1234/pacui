@@ -217,6 +217,7 @@ function func_conf
         [[ -e /etc/conf.d/xdm ]] && echo "/etc/conf.d/xdm               - Configure xdm display manager." >> /tmp/pacli-conf
         [[ -e $HOME/.bashrc ]] && echo "~/.bashrc                     - Configure bash shell." >> /tmp/pacli-conf
         [[ -e $HOME/.zshrc ]] && echo "~/.zshrc                      - Configure zsh shell." >> /tmp/pacli-conf
+        [[ -e $HOME/.config/fish ]] && echo "~/.config/fish/*              - Configure fish shell." >> /tmp/pacli-conf
         [[ -e $HOME/.xinitrc ]] && echo "~/.xinitrc                    - Configure X server startup." >> /tmp/pacli-conf
         [[ -e /etc/fstab ]] && echo "/etc/fstab                    - Configure files system mounts." >> /tmp/pacli-conf
         [[ -e /etc/sudoers ]] && echo "/etc/sudoers                  - Configure sudo." >> /tmp/pacli-conf
