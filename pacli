@@ -541,7 +541,7 @@ By default all files are filtered for files located in /usr/bin/, but you can en
 7 - DEPENDENCIES TREE
 "pactree -s <PACKAGE NAME>" or "pactree <PACKAGE NAME>"
 This command will display a complete tree of all dependencies of <PACKAGE NAME>. <PACKAGE NAME> can be an installed package or a package from the Manjaro repositories. Dependencies are packages required by <PACKAGE NAME> in order to function. When you install <PACKAGE NAME>, all its dependencies get installed, too.
-Depending whether <PACKAGE NAME> is installed on your local system, a different command gets used.
+The first command gets used when <PACKAGE NAME> is not installed on your local system.
 
 8 - REVERSE DEPENDENCIES TREE
 "pactree -r <PACKAGE NAME>"
