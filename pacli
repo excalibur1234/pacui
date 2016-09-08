@@ -242,6 +242,7 @@ function func_conf
 		then
             if [[ $file == "/etc/sudoers" ]]
             then
+                # the sudoers file should never be edited directly! if something goes wrong, sudo stops working. instead, visudo should be used. this is much safer.
                 sudo EDITOR=nano visudo
             else
                 # if $EDITOR variable does not exist, set it to 'nano'
