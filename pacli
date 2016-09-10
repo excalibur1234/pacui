@@ -224,7 +224,7 @@ function func_conf
         [[ -e /etc/systemd/logind.conf ]] && echo "/etc/systemd/logind.conf      - Configure systemd user logins." >> /tmp/pacli-conf
         [[ -e /etc/systemd/journald.conf ]] && echo "/etc/systemd/journald.conf    - Configure systemd logging." >> /tmp/pacli-conf
         [[ -e /etc/systemd/system.conf ]] && echo "/etc/systemd/system.conf      - Configure systemd system." >> /tmp/pacli-conf
-        [[ -e /etc/default/tlp ]] && echo "/etc/default/tlp      - Configure power management." >> /tmp/pacli-conf
+        [[ -e /etc/default/tlp ]] && echo "/etc/default/tlp              - Configure power management." >> /tmp/pacli-conf
         [[ -e /etc/sysctl.d ]] && echo "/etc/sysctl.d/*               - Configure kernel parameters at runtime in multiple files." >> /tmp/pacli-conf
         [[ -e /etc/mkinitcpio.conf ]] && echo "/etc/mkinitcpio.conf          - Configure initial ramdisk environment. Afterwards, do 'sudo mkinitcpio -P && sudo update-grub'." >> /tmp/pacli-conf
         [[ -e /etc/default/grub ]] && echo "/etc/default/grub             - Configure GRUB boot loader. Afterwards, do 'sudo update-grub'." >> /tmp/pacli-conf
