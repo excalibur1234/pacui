@@ -28,6 +28,11 @@ Downgrading the package "file-roller":
 ![Screenshot 03](http://i.imgur.com/kKzqbSl.png)
 
 
+New "conf" option, which lets you edit a lot of .conf files on your system:
+
+![Screenshot 04](http://imgur.com/a/uSLqx)
+
+
 ## Download / Git Clone
 
 First, make sure all dependencies of pacli are installed on your system:
