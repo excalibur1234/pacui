@@ -30,7 +30,7 @@ Downgrading the package "file-roller":
 
 New "conf" option, which lets you edit a lot of .conf files on your system:
 
-![Screenshot 04](http://imgur.com/a/uSLqx)
+![Screenshot 04](https://s18.postimg.org/5jgervr7t/conf.png)
 
 
 ## Download / Git Clone
