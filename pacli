@@ -1,4 +1,4 @@
-#!/bin/bash
+-#!/bin/bash
 
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -78,7 +78,7 @@ function func_i
 {
 		# the "package-query -Sl -f '%n  %v  -  %d' " displays a list of all packages from the Manjaro repositories and formats them like "NAME  VERSION  -  DESCRIPTION". the first part (="NAME") gets (printed and) saved to the "pkg" variable.
 		local pkg
-		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
+		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
 		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $pkg ]]
@@ -94,7 +94,7 @@ function func_r
 		# takes a package list from "pacman -Qq", then sorts it alphabetically, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		local pkg
-		pkg=$(package-query -Q -f "%n  %v  -  %d"  | sort | fzf -m -e +s -i -0 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to remove. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
+		pkg=$(package-query -Q -f "%n  %v  -  %d"  | sort | fzf -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to remove. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
         
 		if [[ -n $pkg ]]
 		then
@@ -115,7 +115,7 @@ function func_info
 			
 		# the following command lets you search through the file "/tmp/pacli-packages" with fzf and save your selection in "pkg"
 		local pkg
-		pkg=$(sort /tmp/pacli-packages | fzf -e +s -i -0 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to display info. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
+		pkg=$(sort /tmp/pacli-packages | fzf -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to display info. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
 		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $pkg ]]
@@ -135,7 +135,7 @@ function func_l
 {
 		# use fzf to ask the user to select an installed package. the package name gets save in variable "pkg"
 		local pkg
-		pkg=$(pacman -Qq | fzf -e +s -i -0 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
+		pkg=$(pacman -Qq | fzf -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
 		if [[ -n $pkg ]]
 		then
@@ -152,7 +152,7 @@ function func_t
 		pacman -Qq >> /tmp/pacli-packages-local
 
 		local pkg
-		pkg=$(sort /tmp/pacli-packages-local | fzf -e +s -i -0 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
+		pkg=$(sort /tmp/pacli-packages-local | fzf -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
 		# look in func_info for explanations
 		if [[ -n $pkg ]]
@@ -170,7 +170,7 @@ function func_t
 function func_rt 
 {
 		local pkg
-		pkg=$(pacman -Qq | fzf -e +s -i -0 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to show reverse tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
+		pkg=$(pacman -Qq | fzf -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to show reverse tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
 		pactree -c -r $pkg
 }
@@ -181,7 +181,7 @@ function func_rt
 
 function func_log 
 {
-		tail -5000 /var/log/pacman.log | fzf -m -e +s -i -0 --query="ALPM] " --tac --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed logs > ' >> /tmp/pacli-log
+		tail -5000 /var/log/pacman.log | fzf -m -e +s -i --query="ALPM] " --tac --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed logs > ' >> /tmp/pacli-log
 }
 
 
@@ -191,7 +191,7 @@ function func_d
 		pacman -Qq >> /tmp/pacli-packages-local
 				
 		local pkg
-		pkg=$(sort /tmp/pacli-packages-local | fzf -e +s -i -0 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to downgrade. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
+		pkg=$(sort /tmp/pacli-packages-local | fzf -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to downgrade. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
 		downgrade $pkg
 }
@@ -235,7 +235,7 @@ function func_conf
         [[ -e /boot/syslinux/syslinux.cfg ]] && echo "/boot/syslinux/syslinux.cfg   - Configure syslinux boot loaders." >> /tmp/pacli-conf
 
         local file
-		file=$( cat /tmp/pacli-conf | fzf -e +s -i -0 --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to open file. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of files > ' | awk '{print $1}' )
+		file=$( cat /tmp/pacli-conf | fzf -e +s -i --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to open file. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of files > ' | awk '{print $1}' )
 		
 		# only run the command inside the if-statement, if $file variable is not empty <-- this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $file ]]
@@ -360,7 +360,7 @@ function func_e
 function func_fi 
 {
 		local pkg
-		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -0 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
+		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
 		if [[ -n $pkg ]]
 		then
@@ -372,7 +372,7 @@ function func_fi
 function func_fr 
 {
 		local pkg
-		pkg=$(package-query -Q -f "%n  %v  -  %d" | fzf -m -e +s -i -0 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to remove. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
+		pkg=$(package-query -Q -f "%n  %v  -  %d" | fzf -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to remove. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
 		if [[ -n $pkg ]]
 		then
@@ -413,7 +413,7 @@ function func_ia
 		
 		local pkg
 		
-		pkg=$(sort /tmp/pacli-packages | fzf -m -e +s -i -0 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
+		pkg=$(sort /tmp/pacli-packages | fzf -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
 		if [[ -n $pkg ]]
 		then

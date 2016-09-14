@@ -91,6 +91,12 @@ pacli i cant
 ```
 Instead of a list of all available packages, a much shorter filtered list is displayed. Simply select the "cantata" package and press ENTER in order to install it.
 
+Alternatively, you can also use 
+```
+pacli i cantata
+```
+Since there is only 1 package called "cantata" available, fuzzy finder is skipped and and you are immediately prompted to install "cantata".
+
 Only "pacli h" works differently when called from the command line instead of pacli's UI: "pacli h" will show a very short overview of all available commands.
 
 
