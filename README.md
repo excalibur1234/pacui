@@ -72,9 +72,9 @@ Instead of a list of all available packages, a much shorter already filtered lis
 
 Alternatively, you can use the command
 ```
-pacli i cantata
+pacli i cantat
 ```
-Since there is only one package called "cantata" in the Manjaro repositories available, fuzzy finder is skipped and you are immediately prompted to install "cantata".
+Since there is only one package found in the Manjaro repositories when searching for "cantat", fuzzy finder is skipped and you are immediately prompted to install "cantata".
 
 
 ## Help
