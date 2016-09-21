@@ -6,7 +6,7 @@ pkgrel=1
 pkgdesc="A simple and interative Bash Frontend for Pacman/Yaourt"
 arch=(any)
 url="https://github.com/excalibur1234/$pkgname"
-license=GPL3
+license=('GPL3')
 depends=('fzf'
 	'pacman'
 	'yaourt'
