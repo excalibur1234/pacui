@@ -1,5 +1,4 @@
 # pacli-simple
-A simple and interactive Bash Frontend for Pacman and Yaourt.
 
 pacli is a CLI tool, which provides useful and advanced Pacman and Yaourt commands in an easy to use text interface. 
 
