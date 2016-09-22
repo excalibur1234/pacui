@@ -49,14 +49,16 @@ pacli
 
 ### Start pacli without UI: Using Options
 For example, you want to display the **r**everse dependency **t**ree of a package. Please first note the marked letters "R" and "T" in pacli's corresponding option when starting pacli with UI.
-Now, type one of the three following choices into your terminal and press "ENTER". pacli does not care, whether you use upper or lower case letters as options or whether you use nonw, one or two dashes in front:
+pacli does not care, whether you use upper or lower case letters as options or whether you use none, one or two dashes in front. Now, type one of the four equivalent choices into your terminal and press "ENTER": 
+- `pacli RT`
 - `pacli rt`
 - `pacli -rt`
 - `pacli --rt`
 
-This principle can be used with all of pacli's options. Here are some random examples:
-- `pacli l`
-- `pacli -l`
+This principle can be used with all of pacli's options. Here is another random example (of pacli's "Pacman Log" option):
+- `pacli LOG`
+- `pacli -LOG`
+- `pacli --LOG`
 - `pacli log`
 - `pacli -log`
 - `pacli --log`
@@ -74,13 +76,13 @@ Alternatively, you can use the command
 ```
 pacli i cantat
 ```
-Since there is only one package found in the Manjaro repositories when searching for "cantat", fuzzy finder is skipped and you are immediately prompted to install "cantata".
+Since there is only one package found in the Manjaro repositories when searching for "cantat", the list view is skipped and you are immediately prompted to install "cantata".
 
 
 ## Help
 
 ### Short pacli Help
-For quick and very short help, e.g. when using pacli without UI, use one of the following commands:
+For short help, e.g. when using pacli without UI, use one of the following commands:
 - `pacli h`
 - `pacli -h`
 
