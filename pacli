@@ -905,7 +905,7 @@ do
 
         0|q|quit)
             echo
-            clear && exit
+            clean && exit
             ;;
 
         *)
@@ -913,7 +913,6 @@ do
             echo "Wait and try again later..."
             echo
             sleep 1
-            clear
             ;;
     esac
 done
