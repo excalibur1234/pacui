@@ -905,7 +905,7 @@ do
 
         0|q|quit)
             echo
-            clean && exit
+            clear && exit
             ;;
 
         *)
