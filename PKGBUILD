@@ -7,14 +7,10 @@ pkgdesc="A simple and interative Bash Frontend for Pacman/Yaourt"
 arch=(any)
 url="https://github.com/excalibur1234/$pkgname"
 license=('GPL3')
-depends=('fzf'
-	'pacman'
-	'yaourt'
+depends=('yaourt'
 	'pacman-mirrorlist'
-	'sudo'
-	'gzip'
 	'downgrade'
-	'bash')
+	'fzf')
 makedepends=('git')
 optdepends=('update-notifier: Automatically get notified when updates are available')
 conflicts=('pacli')
