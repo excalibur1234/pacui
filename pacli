@@ -910,9 +910,9 @@ do
             ;;
 
         *)
+            echo
             echo -e "\e[41m Wrong option \e[0m"
             echo "Wait and try again later..."
-            echo
             sleep 1
             ;;
     esac
