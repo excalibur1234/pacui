@@ -719,13 +719,24 @@ unset input2
 #  \e[0m	# no-colored, non-bold text without background color
 #  \e[1m	# bold text
 
+#number of lines of the user's terminal. this variable is needed in multiple places inside the following while-loop.
+lines=$(tput lines)
 
 # pacli bash script starts here
 # Run infinte loop for menu, till the user quits.
 while true
 do
-# display menu. please note the use of ANSI Escape sequences mentioned above. The code can be hard to read...
+
+    #insert $lines number of empty lines and then clear the terminal. this is a strange way of clearing the terminal, but the only way the "clear" command works as intended for Bertie@forum.manjaro.org
+    for (( i=1; i<=$lines; i++ ))
+    do
+        echo
+    done
+    # the "tput clear" command works here as expected. the traditional "clear" command does not work as expected: i do not know why this is the case!
     tput clear
+    
+    
+    # display menu. please note the use of ANSI Escape sequences mentioned above. The text/code can be hard to read...
     echo
     echo -e "                    \e[0m ::Pacli - Package manager:: "
     echo -e " ┌────────────────────────────────────────────────────────────────────┐"
@@ -748,7 +759,7 @@ do
     echo -e " └────────────────────────────────────────────────────────────────────┘"
     echo
     echo -e "  Enter number or marked letter(s) and press [Enter]  -  0  \e[1mQ\e[0muit Pacli "
-
+    
     # save entered number in varialbe "choice" and test, whether "chioce" fits any of the following numbers, letters, or words
     read -r choice
 	# convert "choice" variable to lowercase:
@@ -905,8 +916,16 @@ do
 
         0|q|quit)
             echo
-            # the "tput clear" command works here (and at the top of this which-loop) as expected in contrast to the "clear" command.
-            tput clear && exit
+            
+            # look for an explanation of this code in the beginning of thie while-loop
+            for (( i=1; i<=$lines; i++ ))
+            do
+                echo
+            done
+
+            tput clear
+            
+            exit
             ;;
 
         *)
