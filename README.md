@@ -35,6 +35,7 @@ Simply install pacli-simple from the AUR:
 ```
 yaourt -S pacli-simple
 ```
+This will install pacli including the latest commits on Github. If you ever encounter any bugs, please reinstall pacli with the same command and check whether the bug is still there before reporting it.
 
 It is highly recommended to use an utility, which notifies the user about available updates alongside of pacli. Such a lightweight utility is for example [update-notifier](https://github.com/Chrysostomus/update-notifier).
 
