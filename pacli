@@ -725,7 +725,7 @@ unset input2
 while true
 do
 # display menu. please note the use of ANSI Escape sequences mentioned above. The code can be hard to read...
-    clear
+    tput clear
     echo
     echo -e "                    \e[0m ::Pacli - Package manager:: "
     echo -e " ┌────────────────────────────────────────────────────────────────────┐"
@@ -905,7 +905,8 @@ do
 
         0|q|quit)
             echo
-            clear && exit
+            # the "tput clear" command works here (and at the top of this which-loop) as expected in contrast to the "clear" command.
+            tput clear && exit
             ;;
 
         *)
