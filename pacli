@@ -723,7 +723,8 @@ unset input2
 # Run infinte loop for UI / menu, till the user quits.
 while true
 do
-
+    
+    # the traditional "clear" command does not work as expected. solution: do everything i expect from "clear" manually:
     # number of lines of the user's terminal. this variable is needed in multiple places inside the following while-loop.
     lines=$(tput lines)
     # insert $lines number of empty lines and then clear the terminal. this is a strange way of clearing the terminal, but the only way the "clear" command works as intended for Bertie@forum.manjaro.org
@@ -731,9 +732,8 @@ do
     do
         echo
     done
-    
-    # the "tput clear" command works here as expected. the traditional "clear" command does not work as expected: i do not know why this is the case!
-    tput clear
+    # move cursor to the top left of the terminal
+    tput cup 0 0
     
     
     # draw UI / menu. please note the use of ANSI Escape sequences mentioned above. The text/code can be hard to read...
@@ -918,7 +918,10 @@ do
 
         0|q|quit)
             echo
-            tput clear && exit
+            # the traditional "clear" command does not work here as expected: i do not know why this is the case! instead of doing everything manually (as in the beginning of the while-loop), the "tput clear" command is sufficient (but sometimes a little ugly).
+            tput clear
+            
+            exit
             ;;
 
         *)
