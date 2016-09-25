@@ -719,24 +719,24 @@ unset input2
 #  \e[0m	# no-colored, non-bold text without background color
 #  \e[1m	# bold text
 
-#number of lines of the user's terminal. this variable is needed in multiple places inside the following while-loop.
-lines=$(tput lines)
 
-# pacli bash script starts here
-# Run infinte loop for menu, till the user quits.
+# Run infinte loop for UI / menu, till the user quits.
 while true
 do
 
-    #insert $lines number of empty lines and then clear the terminal. this is a strange way of clearing the terminal, but the only way the "clear" command works as intended for Bertie@forum.manjaro.org
+    # number of lines of the user's terminal. this variable is needed in multiple places inside the following while-loop.
+    lines=$(tput lines)
+    # insert $lines number of empty lines and then clear the terminal. this is a strange way of clearing the terminal, but the only way the "clear" command works as intended for Bertie@forum.manjaro.org
     for (( i=1; i<=$lines; i++ ))
     do
         echo
     done
+    
     # the "tput clear" command works here as expected. the traditional "clear" command does not work as expected: i do not know why this is the case!
     tput clear
     
     
-    # display menu. please note the use of ANSI Escape sequences mentioned above. The text/code can be hard to read...
+    # draw UI / menu. please note the use of ANSI Escape sequences mentioned above. The text/code can be hard to read...
     echo
     echo -e "                    \e[0m ::Pacli - Package manager:: "
     echo -e " ┌────────────────────────────────────────────────────────────────────┐"
@@ -771,9 +771,11 @@ do
         1|u|update)
             # the line above means: the following commands will get executed if $choice is "1" or "u" or "update" 
 			echo
+			# call function "func_u"
             func_u
             echo
             echo -e " Your system is updated. To return to pacli press [Enter] "
+            # wait for input, e.g. by pressing ENTER
             read
             ;;
         2|c|clean)
@@ -916,16 +918,7 @@ do
 
         0|q|quit)
             echo
-            
-            # look for an explanation of this code in the beginning of thie while-loop
-            for (( i=1; i<=$lines; i++ ))
-            do
-                echo
-            done
-
-            tput clear
-            
-            exit
+            tput clear && exit
             ;;
 
         *)
@@ -934,5 +927,6 @@ do
             echo "Wait and try again later..."
             sleep 1
             ;;
-    esac
-done
+            
+    esac    # close case-loop
+done        # close while-loop
