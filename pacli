@@ -203,10 +203,15 @@ function func_conf
         touch /tmp/pacli-conf
         
         # if file /etc/pacman.conf exists, push "/etc/pacman.conf                - Configure Pacman." into /tmp/pacli-conf file.
+        [[ -e /etc/default/tlp ]] && echo "/etc/default/tlp              - Configure power management." >> /tmp/pacli-conf
+        [[ -e /etc/pulse/daemon.conf ]] && echo "/etc/pulse/daemon.conf        - Configure PulseAudio daemon." >> /tmp/pacli-conf
         [[ -e /etc/pacman.conf ]] && echo "/etc/pacman.conf              - Configure Pacman." >> /tmp/pacli-conf
         [[ -e /etc/pacman-mirrors.conf ]] && echo "/etc/pacman-mirrors.conf      - Configure Manjaro's pacman-mirrors." >> /tmp/pacli-conf
         [[ -e /etc/yaourtrc ]] && echo "/etc/yaourtrc                 - Configure Yaourt." >> /tmp/pacli-conf
         [[ -e /etc/makepkg.conf ]] && echo "/etc/makepkg.conf             - Configure package compilation." >> /tmp/pacli-conf
+        [[ -e /etc/resolv.conf ]] && echo "/etc/resolv.conf              - Configure DNS servers." >> /tmp/pacli-conf
+        [[ -e /etc/hostname ]] && echo "/etc/hostname                 - Configure your network hostname" >> /tmp/pacli-conf
+        [[ -e /etc/hosts ]] && echo "/etc/hosts                    - Configure local DNS." >> /tmp/pacli-conf
         [[ -e /etc/slim.conf ]] && echo "/etc/slim.conf                - Configure slim display manager." >> /tmp/pacli-conf
         [[ -e /etc/lightdm.conf ]] && echo "/etc/lightdm.conf             - Configure lightdm display manager." >> /tmp/pacli-conf
         [[ -e /etc/sddm.conf ]] && echo "/etc/sddm.conf                - Configure sddm display manager." >> /tmp/pacli-conf
@@ -224,7 +229,6 @@ function func_conf
         [[ -e /etc/systemd/logind.conf ]] && echo "/etc/systemd/logind.conf      - Configure systemd user logins." >> /tmp/pacli-conf
         [[ -e /etc/systemd/journald.conf ]] && echo "/etc/systemd/journald.conf    - Configure systemd logging." >> /tmp/pacli-conf
         [[ -e /etc/systemd/system.conf ]] && echo "/etc/systemd/system.conf      - Configure systemd system." >> /tmp/pacli-conf
-        [[ -e /etc/default/tlp ]] && echo "/etc/default/tlp              - Configure power management." >> /tmp/pacli-conf
         [[ -e /etc/sysctl.d ]] && echo "/etc/sysctl.d/*               - Configure kernel parameters at runtime in multiple files." >> /tmp/pacli-conf
         [[ -e /etc/mkinitcpio.conf ]] && echo "/etc/mkinitcpio.conf          - Configure initial ramdisk environment. Afterwards, do 'sudo mkinitcpio -P && sudo update-grub'." >> /tmp/pacli-conf
         [[ -e /etc/default/grub ]] && echo "/etc/default/grub             - Configure GRUB boot loader. Afterwards, do 'sudo update-grub'." >> /tmp/pacli-conf
