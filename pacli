@@ -202,7 +202,7 @@ function func_conf
         # create file, which will contain a list of strings
         touch /tmp/pacli-conf
         
-        # if file /etc/pacman.conf exists, push "/etc/pacman.conf                - Configure Pacman." into /tmp/pacli-conf file.
+        # if file /etc/default/tlp exists, push string "/etc/default/tlp              - Configure power management." into /tmp/pacli-conf file.
         [[ -e /etc/default/tlp ]] && echo "/etc/default/tlp              - Configure power management." >> /tmp/pacli-conf
         [[ -e /etc/pulse/daemon.conf ]] && echo "/etc/pulse/daemon.conf        - Configure PulseAudio daemon." >> /tmp/pacli-conf
         [[ -e /etc/pacman.conf ]] && echo "/etc/pacman.conf              - Configure Pacman." >> /tmp/pacli-conf
@@ -728,10 +728,10 @@ unset input2
 while true
 do
     
-    # the traditional "clear" command does not work as expected. solution: do everything i expect from "clear" manually:
+    # the traditional "clear" command does not work as expected. solution: do everything i expect from "clear" manually. this is the only way the "clear" command works as intended for Bertie@forum.manjaro.org :
     # number of lines of the user's terminal. this variable is needed in multiple places inside the following while-loop.
     lines=$(tput lines)
-    # insert $lines number of empty lines and then clear the terminal. this is a strange way of clearing the terminal, but the only way the "clear" command works as intended for Bertie@forum.manjaro.org
+    # insert $lines number of empty lines.
     for (( i=1; i<=$lines; i++ ))
     do
         echo
