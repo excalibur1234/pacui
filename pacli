@@ -778,7 +778,7 @@ do
 			# call function "func_u"
             func_u
             echo
-            echo -e " Your system is updated. To return to pacli press [Enter] "
+            echo -e " System updated. To return to pacli press [Enter] "
             # wait for input, e.g. by pressing ENTER
             read
             ;;
@@ -786,21 +786,21 @@ do
             echo
 			func_c
             echo
-            echo -e " Fast Mirror chosen, orphans removed, and old packages deleted from cache. To return to pacli press [Enter] "
+            echo -e " System cleaned. To return to pacli press [Enter] "
             read
             ;;
         3|i|install)
             echo
 			func_i
             echo
-            echo -e " Package installation is finished. To return to pacli press [Enter] "
+            echo -e " Package installation finished. To return to pacli press [Enter] "
             read
             ;;
         4|r|remove)
             echo
 			func_r
 			echo
-            echo -e " Packages and all unneeded dependencies removed. To return to pacli press [Enter] "
+            echo -e " Packages including all unneeded dependencies removed. To return to pacli press [Enter] "
             read
             ;;
         5|info|information)
@@ -840,7 +840,7 @@ do
             echo
 			func_d
             echo
-            echo -e " Downgrade process finished. To return to pacli press [Enter] "
+            echo -e " Downgrade finished. To return to pacli press [Enter] "
             read
             ;;
         11|00|111|h|help)
@@ -864,7 +864,7 @@ do
             echo
 			func_fu
             echo
-            echo -e " Your system was updated in force mode. To return to pacli press [Enter] "
+            echo -e " System updated in force mode. To return to pacli press [Enter] "
             read
             ;;
         16|e|empty)
@@ -878,14 +878,14 @@ do
             echo
 			func_fi
             echo
-            echo -e " Package installation in force mode is finished. To return to pacli press [Enter] "
+            echo -e " Package installation in force mode finished. To return to pacli press [Enter] "
             read
             ;;
         18|fr|forceremove)
             echo
 			func_fr
 			echo
-            echo -e " Dependency in force mode removed. To return to pacli press [Enter] "
+            echo -e " Package removed in force mode. To return to pacli press [Enter] "
             read
             ;;
 
@@ -894,7 +894,7 @@ do
             echo
 			func_ua
             echo
-            echo -e " All AUR packages with available updates reinstalled. To return to pacli press [Enter] "
+            echo -e " All AUR packages updated and reinstalled. To return to pacli press [Enter] "
             read
             ;;
         20|la|listaur)
