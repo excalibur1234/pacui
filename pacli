@@ -268,11 +268,11 @@ function func_fix
 
 		# check, whether manjaro mirror with the latest packages is reachable
 		wget --spider http://mirror.netzspielplatz.de/manjaro
-		# the "wget" command finishes with a exit status/return code. return code 0 means "wget --spider" has finished successfully, i.e. the manjaro mirror can be reached.
+		# the "wget" command finishes with an exit status/return code. return code 0 means "wget --spider" has finished successfully, i.e. the manjaro mirror can be reached.
 		if (( "$?" != "0" ))
 		then
 		
-			# if the shell return code is not 0, the manjaro mirror cannot be reached.
+			# if the shell return code is not 0, this part of the code runs and the manjaro mirror cannot be reached.
 			# run the following command in case the internet is working and only the manjaro mirror is down:
 			sudo pacman -Syyuu --color always --noconfirm
 			# display error message (ANSI Escape sequences will be explained later):
