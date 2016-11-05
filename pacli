@@ -398,13 +398,12 @@ function func_a
 {
 		local pkg
 		
-		#check, if variable "input2" is not empty:
 		if [[ -n $input2 ]]
 		then
-			pkg=$input2
-			
-			yaourt $pkg
+            # do this if variable "input" is not empty:
+			yaourt $input2
 		else
+            # do this if pacli is used with UI or no argument is specified in "pacli a" command:
             echo "Enter (parts of) name and/or description of package to be searched. Then press ENTER. Press CTRL+C to cancel."
             read -r pkg
             
