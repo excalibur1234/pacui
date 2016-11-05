@@ -521,11 +521,11 @@ This command effectively defragments your Pacman database.
 On traditional hard drives (HDD) this command can speed up all actions related to Pacman. 
 ATTENTION: It is NOT recommended to use this command on modern solid state hard drives (SSDs)!
 
-3 - INSTALL PACKAGE
+3 - INSTALL PACKAGES
 "sudo pacman -S <PACKAGE NAME>"
 This option downloads and installs <PACKAGE NAME> on your system. <PACKAGE NAME> must be a package from the Manjaro repositories. If you want to install a package from the AUR choose INSTALL FROM AUR or SEARCH + INSTALL FROM AUR.
 
-4 - REMOVE PACKAGE + DEPS
+4 - REMOVE PACKAGES + DEPS
 "sudo pacman -Rsn <PACKAGE NAME>"
 This command removes <PACKAGE NAME> from your system including all dependencies, which are no longer needed by other packages. A copy of <PACKAGE NAME> will be kept in your package cache: Run CLEAN SYSTEM to remove it.
 Please note that folders in your home (~) directory and created by the program <PACKAGE NAME> will not get removed from your system. Look for such folders in these places and remove them manually:
@@ -638,11 +638,11 @@ This command does the same as UPDATE SYSTEM, but it bypasses file conflict tests
 This command will empty your entire package cache by deleting ALL packages.
 ATTENTION: This will make it impossible to reinstall old (or currently installed) packages or DOWNGRADE PACKAGES without a working internet connection.
 
-17 - FORCE INSTALL PACKAGE
+17 - FORCE INSTALL PACKAGES
 "sudo pacman -S --force <PACKAGE NAME>"
-This command does the same as INSTALL PACKAGE, but it forces the installation of <PACKAGE NAME>.
+This command does the same as INSTALL PACKAGES, but it forces the installation of <PACKAGE NAME>.
 
-18 - FORCE REMOVE PACKAGE
+18 - FORCE REMOVE PACKAGES
 "pacman -Rdd <PACKAGE NAME>"
 This command removes <PACKAGE NAME> without checking the dependencies of <PACKAGE NAME> first. This enables experienced users to remove packages and dependencies of packages. This command only removes <PACKAGE NAME> from your system. All dependencies and orphans are left: run CLEAN SYSTEM afterwards to remove them, too.
 ATTENTION: This command can break pacakges on your system or even your entire system.
@@ -659,7 +659,7 @@ ATTENTION: This might take a long time! By default, after every 15min this comma
 20 - LIST INSTALLED FROM AUR
 "pacman -Qem"
 This command lists all installed packages, which are from the AUR or which were manually installed.
-If you want a list of all installed packages use REMOVE PACKAGE + DEPS as described in this Help Page.
+If you want a list of all installed packages use REMOVE PACKAGES + DEPS as described in this Help Page.
 
 21 - SEARCH + INSTALL FROM AUR
 "yaourt <PACKAGE NAME>"
@@ -669,7 +669,7 @@ If you want to exit this mode without installing any packages, simply press CTRL
 
 22 - INSTALL FROM AUR
 "yaourt -S <PACKAGE NAME>"
-This command does the same as INSTALL PACKAGE. Additionally, Arch User Repository (AUR) packages can be installed.
+This command does the same as INSTALL PACKAGES. Additionally, Arch User Repository (AUR) packages can be installed.
 ATTENTION: Experienced users can install packages from the AUR without the need to answer questions all the time by using the command "yaourt -S <PACKAGE NAME> --noconfirm". The "--noconfirm" flag is great for quick and dirty installations of AUR packages on non-secure systems. Please keep always in mind that the AUR can contain any sort of package - including malicious and destructive (parts of) packages. Therefore, it is recommended to always check the PKGBUILD and .INSTALL file manually before installing a package from the AUR.
 
 
