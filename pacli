@@ -191,7 +191,7 @@ function func_d
 		pacman -Qq >> /tmp/pacli-packages-local
 				
 		local pkg
-		pkg=$(sort /tmp/pacli-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to downgrade. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
+		pkg=$(sort /tmp/pacli-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to downgrade. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
 		downgrade $pkg
 }
@@ -447,8 +447,8 @@ function func_h
 			echo
 			echo -e "  pacli	u     - \e[1mU\e[0mpdate System"
 			echo -e "  pacli	c     - \e[1mC\e[0mlean System"
-			echo -e "  pacli	i     - \e[1mI\e[0mnstall Package"
-			echo -e "  pacli	r     - \e[1mR\e[0memove Package + Deps"
+			echo -e "  pacli	i     - \e[1mI\e[0mnstall Packages"
+			echo -e "  pacli	r     - \e[1mR\e[0memove Packages + Deps"
 			echo -e "  pacli	info  - Package \e[1mInfo\e[0mrmation"
 			echo -e "  pacli	l     - \e[1mL\e[0mist Local Package Files"
 			echo -e "  pacli	t     - Dependency \e[1mT\e[0mree"
@@ -461,8 +461,8 @@ function func_h
 			echo -e "  \e[31mpacli	fix   \e[0m- \e[1mFix\e[0m Pacman Errors"
 			echo -e "  \e[31mpacli	fu    \e[0m- \e[1mF\e[0morce \e[1mU\e[0mpdate System"
 			echo -e "  \e[31mpacli	e     \e[0m- \e[1mE\e[0mmpty Package Cache"
-			echo -e "  \e[31mpacli	fi    \e[0m- \e[1mF\e[0morce \e[1mI\e[0mnstall Package"
-			echo -e "  \e[31mpacli	fr    \e[0m- \e[1mF\e[0morce \e[1mR\e[0memove Package"
+			echo -e "  \e[31mpacli	fi    \e[0m- \e[1mF\e[0morce \e[1mI\e[0mnstall Packages"
+			echo -e "  \e[31mpacli	fr    \e[0m- \e[1mF\e[0morce \e[1mR\e[0memove Packages"
 			echo
 			echo -e "  pacli	ua    - Force \e[1mU\e[0mpdate \e[1mA\e[0mUR"
 			echo -e "  pacli	la    - \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
@@ -745,7 +745,7 @@ do
     echo -e "                    \e[0m ::Pacli - Package manager:: "
     echo -e " ┌────────────────────────────────────────────────────────────────────┐"
     echo -e " │   1   \e[1mU\e[0mpdate System                 2   \e[1mC\e[0mlean System               │"
-    echo -e " │   3   \e[1mI\e[0mnstall Package               4   \e[1mR\e[0memove Package + Deps      │"
+    echo -e " │   3   \e[1mI\e[0mnstall Packages              4   \e[1mR\e[0memove Packages + Deps     │"
     echo -e " │--------------------------------------------------------------------│"
     echo -e " │   5   Package \e[1mInfo\e[0mrmation           6   \e[1mL\e[0mist Local Package Files   │"
     echo -e " │   7   Dependency \e[1mT\e[0mree               8   \e[1mR\e[0meverse Dependency \e[1mT\e[0mree    │"
@@ -755,7 +755,7 @@ do
     echo -e " │  11   \e[1mH\e[0melp                                                         │"
     echo -e " │  \e[31m13   \e[1mConf\e[0;31migure System             14   \e[1mFix\e[0;31m Pacman Errors         \e[0m │"
     echo -e " │ \e[31m 15   \e[1mF\e[0;31morce \e[1mU\e[0;31mpdate System          16   \e[1mE\e[0;31mmpty Package Cache       \e[0m │"
-    echo -e " │ \e[31m 17   \e[1mF\e[0;31morce \e[1mI\e[0;31mnstall Package        18   \e[1mF\e[0;31morce \e[1mR\e[0;31memove Package      \e[0m │"
+    echo -e " │ \e[31m 17   \e[1mF\e[0;31morce \e[1mI\e[0;31mnstall Packages       18   \e[1mF\e[0;31morce \e[1mR\e[0;31memove Packages     \e[0m │"
     echo -e " └────────────────────────────────────────────────────────────────────┘"
     echo -e " ┌────────────────────────────────────────────────────────────────────┐"
     echo -e " │  19   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR             20   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
@@ -800,7 +800,7 @@ do
             echo
 			func_r
 			echo
-            echo -e " Packages including all unneeded dependencies removed. To return to pacli press [Enter] "
+            echo -e " Package(s) including all unneeded dependencies removed. To return to pacli press [Enter] "
             read
             ;;
         5|info|information)
@@ -885,7 +885,7 @@ do
             echo
 			func_fr
 			echo
-            echo -e " Package removed in force mode. To return to pacli press [Enter] "
+            echo -e " Package(s) removed in force mode. To return to pacli press [Enter] "
             read
             ;;
 
