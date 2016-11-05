@@ -398,7 +398,7 @@ function func_a
 {
 		local pkg
 
-		echo "Enter (parts of) name and/or description of package to be searched. Press ENTER. Press CTRL+C to quit."
+		echo "Enter (parts of) name and/or description of package to be searched. Then press ENTER. Press CTRL+C to cancel."
 		read -r pkg
 		
 		yaourt $pkg
@@ -665,7 +665,7 @@ If you want a list of all installed packages use REMOVE PACKAGES + DEPS as descr
 "yaourt <PACKAGE NAME>"
 This command searches for <PACKAGE NAME> in all Manjaro repositories and the Arch User Repository (AUR). It searches for package names and package descriptions. 
 Example: You can search for "web browser" and you will find Firefox and other web browsers. One or multiple search results can be installed on your system.
-If you want to exit this mode without installing any packages, simply press CTRL+C or [Enter].
+If you want to exit this mode without installing any packages, simply press CTRL+C or ENTER.
 
 22 - INSTALL FROM AUR
 "yaourt -S <PACKAGE NAME>"
@@ -778,7 +778,7 @@ do
 			# call function "func_u"
             func_u
             echo
-            echo -e " System updated. To return to pacli press [Enter] "
+            echo -e " System updated. To return to pacli press ENTER "
             # wait for input, e.g. by pressing ENTER
             read
             ;;
@@ -786,28 +786,28 @@ do
             echo
 			func_c
             echo
-            echo -e " System cleaned. To return to pacli press [Enter] "
+            echo -e " System cleaned. To return to pacli press ENTER "
             read
             ;;
         3|i|install)
             echo
 			func_i
             echo
-            echo -e " Package installation finished. To return to pacli press [Enter] "
+            echo -e " Package installation finished. To return to pacli press ENTER "
             read
             ;;
         4|r|remove)
             echo
 			func_r
 			echo
-            echo -e " Package(s) including all unneeded dependencies removed. To return to pacli press [Enter] "
+            echo -e " Package(s) including all unneeded dependencies removed. To return to pacli press ENTER "
             read
             ;;
         5|info|information)
             echo
 			func_info
             echo
-            echo -e " Package information displayed. To return to pacli press [Enter] "
+            echo -e " Package information displayed. To return to pacli press ENTER "
             read
             ;;
         6|l|list)
@@ -819,14 +819,14 @@ do
             echo
 			func_t
             echo
-            echo -e " Dependency tree displayed. Navigate with CTRL+PageUp. To return to pacli press [Enter] "
+            echo -e " Dependency tree displayed. Navigate with CTRL+PageUp. To return to pacli press ENTER "
             read
             ;;
         8|rt|reversetree)
             echo
 			func_rt
             echo
-            echo -e " Reverse dependency tree displayed. Navigate with CTRL+PageUp. To return to pacli press [Enter] "
+            echo -e " Reverse dependency tree displayed. Navigate with CTRL+PageUp. To return to pacli press ENTER "
             read
             ;;
 
@@ -840,7 +840,7 @@ do
             echo
 			func_d
             echo
-            echo -e " Downgrade finished. To return to pacli press [Enter] "
+            echo -e " Downgrade finished. To return to pacli press ENTER "
             read
             ;;
         11|00|111|h|help)
@@ -857,35 +857,35 @@ do
             echo
 			func_fix
             echo
-            echo -e " Most common Pacman errors fixed and system updated. To return to pacli press [Enter] "
+            echo -e " Most common Pacman errors fixed and system updated. To return to pacli press ENTER "
             read
             ;;
         15|fu|forceupdate)
             echo
 			func_fu
             echo
-            echo -e " System updated in force mode. To return to pacli press [Enter] "
+            echo -e " System updated in force mode. To return to pacli press ENTER "
             read
             ;;
         16|e|empty)
             echo
 			func_e
             echo
-            echo -e " Entire package cache emptied. To return to pacli press [Enter] "
+            echo -e " Entire package cache emptied. To return to pacli press ENTER "
             read
             ;;
         17|fi|forceinstall)
             echo
 			func_fi
             echo
-            echo -e " Package installation in force mode finished. To return to pacli press [Enter] "
+            echo -e " Package installation in force mode finished. To return to pacli press ENTER "
             read
             ;;
         18|fr|forceremove)
             echo
 			func_fr
 			echo
-            echo -e " Package(s) removed in force mode. To return to pacli press [Enter] "
+            echo -e " Package(s) removed in force mode. To return to pacli press ENTER "
             read
             ;;
 
@@ -894,28 +894,28 @@ do
             echo
 			func_ua
             echo
-            echo -e " All AUR packages updated and reinstalled. To return to pacli press [Enter] "
+            echo -e " All AUR packages updated and reinstalled. To return to pacli press ENTER "
             read
             ;;
         20|la|listaur)
             echo
 			func_la
             echo
-            echo -e " All locally installed packages listed. To return to pacli press [Enter] "
+            echo -e " All locally installed packages listed. To return to pacli press ENTER "
             read
             ;;
         21|a|aur)
             echo
 			func_a
             echo
-            echo -e " Yaourt finished. To return to pacli press [Enter] "
+            echo -e " Yaourt finished. To return to pacli press ENTER "
             read
             ;;
         22|ia|installaur)
             echo
 			func_ia
             echo
-            echo -e " Installation from AUR finished. To return to pacli press [Enter] "
+            echo -e " Installation from AUR finished. To return to pacli press ENTER "
             read
             ;;
 
