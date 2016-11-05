@@ -397,11 +397,19 @@ function func_ua
 function func_a 
 {
 		local pkg
-
-		echo "Enter (parts of) name and/or description of package to be searched. Then press ENTER. Press CTRL+C to cancel."
-		read -r pkg
 		
-		yaourt $pkg
+		#check, if variable "input2" is not empty:
+		if [[ -n $input2 ]]
+		then
+			pkg=$input2
+			
+			yaourt $pkg
+		else
+            echo "Enter (parts of) name and/or description of package to be searched. Then press ENTER. Press CTRL+C to cancel."
+            read -r pkg
+            
+            yaourt $pkg
+		fi
 }
 
 
