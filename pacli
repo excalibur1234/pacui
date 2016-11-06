@@ -864,7 +864,7 @@ do
             echo
 			func_fix
             echo
-            echo -e " Most common Pacman errors fixed and system updated. To return to pacli press ENTER "
+            echo -e " Operation finished. To return to pacli press ENTER "
             read
             ;;
         15|fu|forceupdate)
