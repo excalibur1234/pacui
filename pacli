@@ -267,7 +267,7 @@ function func_fix
 		echo ""
 
 		# check, whether manjaro mirror with the latest packages is reachable
-		wget --spider http://mirror.netzspielplatz.de/manjaro
+		wget --spider http://mirror.netzspielplatz.de/manjaro/
 		# the "wget" command finishes with an exit status/return code. return code 0 means "wget --spider" has finished successfully, i.e. the manjaro mirror can be reached.
 		if (( "$?" != "0" ))
 		then
