@@ -26,7 +26,7 @@
 
 function func_u 
 {
-		# this command looks nicer ans works 99% of the time.
+		# this command looks more colorful and works 99% of the time.
 		yaourt -Syua
 				
 		# the command above finishes with a exit status/return code. return code 0 means it has finished successfully, i.e. the system was updated completely and successfully.
@@ -65,7 +65,7 @@ function func_c
 		if [[ -n $disk && -e "/dev/$disk" ]]
 		then
 			# open the "rotational" file belonging to your "disk" and checking, whether it contains a "1" - this means your "disk" is a traditional hard drive and no SSD.
-			if [[ $(cat $(find "/sys" -name "rotational" 2>/dev/null | grep "$disk/queue")) == "1" ]]
+			if [[ $(cat "$( find "/sys" -name "rotational" 2>/dev/null | grep "$disk/queue" )" ) == "1" ]]
 			then
 			# only execute the following line when your / parition is installed on a hard drive.
 			sudo pacman-optimize
@@ -80,10 +80,10 @@ function func_i
 		local pkg
 		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
-		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
-		if [[ -n $pkg ]]
+		# only run the command inside the if-statement, if "$pkg" variable is not empty - this happens when fzf is quit with ESC or CTRL+C
+		if [[ -n "$pkg" ]]
 		then
-			sudo pacman -S $pkg --color always
+			sudo pacman -S "$pkg" --color always
 		fi
 }
 
@@ -96,9 +96,9 @@ function func_r
 		local pkg
 		pkg=$(package-query -Q -f "%n  %v  -  %d"  | sort | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to remove. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
         
-		if [[ -n $pkg ]]
+		if [[ -n "$pkg" ]]
 		then
-			sudo pacman -Rsn $pkg --color always
+			sudo pacman -Rsn "$pkg" --color always
 		fi
 }
 
@@ -117,15 +117,15 @@ function func_info
 		local pkg
 		pkg=$(sort /tmp/pacli-packages | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to display info. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
-		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
-		if [[ -n $pkg ]]
+		# only run the command inside the if-statement, if "$pkg" variable is not empty - this happens when fzf is quit with ESC or CTRL+C
+		if [[ -n "$pkg" ]]
 		then
 			# next, it is checked, whether "pkg" is part of a list of all installed packages (pacman -Qq).
-			if ( pacman -Qq $pkg &>/dev/null )
+			if ( pacman -Qq "$pkg" &>/dev/null )
 			then
-				yaourt -Qii $pkg		# execute this command when "pkg" is already installed on system
+				yaourt -Qii "$pkg"		# execute this command when "pkg" is already installed on system
 			else
-				yaourt -Sii $pkg		# execute this command when "pkg" is not installed on system
+				yaourt -Sii "$pkg"		# execute this command when "pkg" is not installed on system
 			fi
 		fi
 }
@@ -137,10 +137,10 @@ function func_l
 		local pkg
 		pkg=$(pacman -Qq | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
-		if [[ -n $pkg ]]
+		if [[ -n "$pkg" ]]
 		then
-			# take the output of command "pacman -Qlq $pkg" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacli-list.
-			pacman -Qlq $pkg --color always | fzf-tmux -m -e +s -i --query="/usr/bin/" --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed directories and files > ' >> /tmp/pacli-list
+			# take the output of command "pacman -Qlq "$pkg"" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacli-list.
+			pacman -Qlq "$pkg" --color always | fzf-tmux -m -e +s -i --query="/usr/bin/" --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed directories and files > ' >> /tmp/pacli-list
 		fi
 }
 
@@ -155,13 +155,13 @@ function func_t
 		pkg=$(sort /tmp/pacli-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
 		# look in func_info for explanations
-		if [[ -n $pkg ]]
+		if [[ -n "$pkg" ]]
 		then
-			if ( pacman -Qq $pkg &>/dev/null )
+			if ( pacman -Qq "$pkg" &>/dev/null )
 			then
-				pactree -c $pkg
+				pactree -c "$pkg"
 			else
-				pactree -c -s $pkg
+				pactree -c -s "$pkg"
 			fi
 		fi
 }
@@ -172,7 +172,7 @@ function func_rt
 		local pkg
 		pkg=$(pacman -Qq | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to show reverse tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
-		pactree -c -r $pkg
+		pactree -c -r "$pkg"
 }
 
 
@@ -193,7 +193,7 @@ function func_d
 		local pkg
 		pkg=$(sort /tmp/pacli-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to downgrade. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
-		downgrade $pkg
+		downgrade "$pkg"
 }
 
 
@@ -252,7 +252,7 @@ function func_conf
                 # if $EDITOR variable does not exist, set it to 'nano'
                 [[ -z "$EDITOR" ]] && EDITOR='nano'
                 # open "file" in "EDITOR"
-                sudo $EDITOR $file
+                sudo $EDITOR "$file"
 			fi
 		fi
 		rm /tmp/pacli-conf
@@ -268,7 +268,7 @@ function func_fix
 
 		# check, whether manjaro mirror with the latest packages is reachable
 		wget --spider http://mirror.netzspielplatz.de/manjaro/
-		echo ""
+        echo ""
 		# the "wget" command finishes with an exit status/return code. return code 0 means "wget --spider" has finished successfully, i.e. the manjaro mirror can be reached.
 		if (( "$?" != "0" ))
 		then
@@ -277,7 +277,7 @@ function func_fix
 			# run the following command in case the internet is working and only the manjaro mirror is down:
 			sudo pacman -Syyuu --color always --noconfirm
 			# display error message (ANSI Escape sequences will be explained later):
-			echo -e "\e[41m Either there is something wrong with your internet connection or http://mirror.netzspielplatz.de/manjaro is down. \e[0m"
+  			echo -e "\e[41m Either there is something wrong with your internet connection or http://mirror.netzspielplatz.de/manjaro is down. \e[0m"
 			echo -e "\e[1;41m Please make sure both are ok and rerun this part of Pacli, if your Problems persist. \e[0m"
 			echo ""
 			
@@ -367,9 +367,9 @@ function func_fi
 		local pkg
 		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
-		if [[ -n $pkg ]]
+		if [[ -n "$pkg" ]]
 		then
-			sudo pacman -S --force $pkg --color always
+			sudo pacman -S --force "$pkg" --color always
 		fi
 }
 
@@ -379,9 +379,9 @@ function func_fr
 		local pkg
 		pkg=$(package-query -Q -f "%n  %v  -  %d" | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to remove. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
-		if [[ -n $pkg ]]
+		if [[ -n "$pkg" ]]
 		then
-			sudo pacman -Rdd $pkg --color always
+			sudo pacman -Rdd "$pkg" --color always
 		fi
 }
 
@@ -399,16 +399,16 @@ function func_a
 {
 		local pkg
 		
-		if [[ -n $input2 ]]
+		if [[ -n "$input2" ]]
 		then
             # do this if variable "input" is not empty:
-			yaourt $input2
+			yaourt "$input2"
 		else
             # do this if pacli is used with UI or no argument is specified in "pacli a" command:
             echo "Enter (parts of) name and/or description of package to be searched. Then press ENTER. Press CTRL+C to cancel."
             read -r pkg
             
-            yaourt $pkg
+            yaourt "$pkg"
 		fi
 }
 
@@ -427,9 +427,9 @@ function func_ia
 		
 		pkg=$(sort /tmp/pacli-packages | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
-		if [[ -n $pkg ]]
+		if [[ -n "$pkg" ]]
 		then
-			yaourt -S $pkg
+			yaourt -S "$pkg"
 		fi
 }
 
@@ -444,7 +444,7 @@ function func_la
 
 
 # the help function was put almost at the end of all functions, because it contains too much text. scrolling by it often is pure annoyance!
-function func_h 
+function func_h
 {
 		# the "then" part is displayed, when started from terminal (the last function adds the "1" parameter). the "else" part gets displayed when started from UI.
 		if [[ "$1" == "1" ]]
@@ -701,7 +701,7 @@ input=${input#-}
 input=${input#-}
 
 # convert content of "input" variable to lowercase
-input=$(echo $input | tr '[:upper:]' '[:lower:]' )
+input=$(echo "$input" | tr '[:upper:]' '[:lower:]' )
 
 
 # the following code checks, whether a prefix (func_) + varialbe "input" is a valid function. after the function is done an "exit" command is needed to prevent the UI from loading.
@@ -711,7 +711,7 @@ then
     exit $?			# exit here, no write in all functions and return error code if present
 elif (( $# > 0 ))		# if one or more parameter
 then  			
-    echo "Bad console command. Press ENTER to start the UI or CTRL+C to abort."
+    echo -e "Bad console command. Press ENTER to start the UI or CTRL+C to abort."
     read
     # now, continue with this script without exiting.	
 fi
@@ -740,7 +740,7 @@ do
     # number of lines of the user's terminal. this variable is needed in multiple places inside the following while-loop.
     lines=$(tput lines)
     # insert $lines number of empty lines.
-    for (( i=1; i<=$lines; i++ ))
+    for (( i=1; i<=lines; i++ ))
     do
         echo
     done
@@ -775,7 +775,7 @@ do
     # save entered number in varialbe "choice" and test, whether "chioce" fits any of the following numbers, letters, or words
     read -r choice
 	# convert "choice" variable to lowercase:
-	choice=$(echo $choice | tr '[:upper:]' '[:lower:]' )
+	choice=$(echo "$choice" | tr '[:upper:]' '[:lower:]' )
 	
     case $choice in
 
@@ -939,7 +939,7 @@ do
         *)
             echo
             echo -e "\e[41m Wrong option \e[0m"
-            echo "Wait and try again later..."
+            echo -e "Wait and try again later..."
             sleep 1
             ;;
             
