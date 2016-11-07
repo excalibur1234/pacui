@@ -405,7 +405,7 @@ function func_a
 			yaourt "$input2"
 		else
             # do this if pacli is used with UI or no argument is specified in "pacli a" command:
-            echo "Enter (parts of) name and/or description of package to be searched. Then press ENTER. Press CTRL+C to cancel."
+            echo "Enter (parts of) name and/or description of package to be searched. Then press ENTER."
             read -r pkg
             
             yaourt "$pkg"
@@ -827,14 +827,14 @@ do
             echo
 			func_t
             echo
-            echo -e " Dependency tree displayed. Navigate with CTRL+PageUp. To return to pacli press ENTER "
+            echo -e " Dependency tree displayed. Navigate with SHIFT+PageUp. To return to pacli press ENTER "
             read
             ;;
         8|rt|reversetree)
             echo
 			func_rt
             echo
-            echo -e " Reverse dependency tree displayed. Navigate with CTRL+PageUp. To return to pacli press ENTER "
+            echo -e " Reverse dependency tree displayed. Navigate with SHIFT+PageUp. To return to pacli press ENTER "
             read
             ;;
 
@@ -938,8 +938,8 @@ do
 
         *)
             echo
-            echo -e "\e[41m Wrong option \e[0m"
-            echo -e "Wait and try again later..."
+            echo -e " \e[41m Wrong option \e[0m"
+            echo -e "  Wait and try again later..."
             sleep 1
             ;;
             
