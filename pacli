@@ -760,8 +760,8 @@ do
 	lines=$(tput lines)
 	for (( i=1; i<=lines; i++ ))
 	do
-		# insert (lines+1) number of empty lines:
-		echo
+			# insert "lines" number of empty lines:
+			echo
 	done
 	# move cursor to the top left of the terminal
 	tput cup 0 0
