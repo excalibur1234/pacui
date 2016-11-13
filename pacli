@@ -739,8 +739,8 @@ do
 	# the traditional "clear" command does not work as expected. solution: do everything i expect from "clear" manually. this is the only way the "clear" command works as intended for Bertie@forum.manjaro.org :
 	# number of lines of the user's terminal. this variable is needed in multiple places inside the following while-loop.
     lines=$(tput lines)
-	# insert $lines number of empty lines.
-	for (( i=1; i<=lines; i++ ))
+	# insert ($lines+1) number of empty lines.
+	for (( i=1; i<=lines+1; i++ ))
 	do
 		echo
 	done
