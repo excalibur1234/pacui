@@ -14,21 +14,22 @@
 #  along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #  MA 02110-1301, USA.
+#
 #  =======================
+#
 #  Design based on IceFox script
 #  Modified, adapted and improved by pekman, excalibur1234, Chrysostomus, and papajoker
 
 
 
-
-# all functions of pacli are defined here:
+# all functions of pacli are defined here in almost the same order as they appear in pacli's UI:
 
 
 function func_u 
 {
 		# this command looks more colorful and works 99% of the time.
 		yaourt -Syua
-				
+		
 		# the command above finishes with a exit status/return code. return code 0 means it has finished successfully, i.e. the system was updated completely and successfully.
 		if (( "$?" != "0" ))      # if return code of last command is not equal to zero
 		then
@@ -443,10 +444,10 @@ function func_la
 # =======================
 
 
-# the help function was put almost at the end of all functions, because it contains too much text. scrolling by it often is pure annoyance!
+# the help function was put at the end of all functions, because of convenient reasons.
 function func_h
 {
-		# the "then" part is displayed, when started from terminal (the last function adds the "1" parameter). the "else" part gets displayed when started from UI.
+		# the "then" part is displayed, when started directly from terminal (the last function adds the "1" parameter). the "else" part gets displayed when started from UI.
 		if [[ "$1" == "1" ]]
 		then
 
@@ -689,6 +690,13 @@ To exit this Help Page, press "q".
 }
 
 
+# all functions of pacli end here.
+
+# =======================
+
+
+# the following section of code gets executed when this script gets executed directly from a terminal/tty without using the UI:
+
 
 # write first argument of "pacli ..." to "input" variable.
 input=$1
@@ -704,23 +712,34 @@ input=${input#-}
 input=$(echo "$input" | tr '[:upper:]' '[:lower:]' )
 
 
-# the following code checks, whether a prefix (func_) + varialbe "input" is a valid function. after the function is done an "exit" command is needed to prevent the UI from loading.
+# the following code checks, whether a prefix (func_) + varialbe "input" is a valid function defined above. after the function is done an "exit" command is needed to prevent the UI from loading.
 if [[ $(type -t "func_$input") == "function" ]] 
 then
-	"func_$input" 1		# pass one parameter (1) when the funciton gets called directly. this is important for help function.
-	exit $?			# exit here, no write in all functions and return error code if present
-elif (( $# > 0 ))		# if one or more parameter
-then  			
-	echo -e "Bad console command. Press ENTER to start the UI or CTRL+C to abort."
-	read
-	# now, continue with this script without exiting.	
+		
+		"func_$input" 1		# pass the parameter "1" with the funciton when it gets called directly from terminal.
+		
+		unset input
+		unset input2
+		
+		exit $?			# exit here and return error code if present
+		
+elif (( $# > 0 ))		# if "func_$input" is no valid function AND if one or more arguments are given.
+then
+		
+		unset input
+		unset input2
+		
+		# error, if $input does not refer to a valid function. the UI will be started by default.
+		echo -e "Bad console command. Press ENTER to start pacli's UI or CTRL+C to abort."
+		read
+		# now, continue with this script without exiting.
+		
 fi
 
-unset input
-unset input2
 
 
-
+# =======================
+# =======================
 # =======================
 
 
@@ -735,13 +754,13 @@ unset input2
 # Run infinte loop for UI / menu, till the user quits.
 while true
 do
-    
-	# the traditional "clear" command does not work as expected. solution: do everything i expect from "clear" manually. this is the only way the "clear" command works as intended for Bertie@forum.manjaro.org :
-	# number of lines of the user's terminal. this variable is needed in multiple places inside the following while-loop.
-    lines=$(tput lines)
-	# insert ($lines+1) number of empty lines.
-	for (( i=1; i<=lines+1; i++ ))
+	
+	# the traditional "clear" command does not work as expected on all systems. solution: do everything i expect from "clear" manually:
+	# number of lines of the user's terminal.
+	lines=$(tput lines)
+	for (( i=1; i<=lines; i++ ))
 	do
+		# insert (lines+1) number of empty lines:
 		echo
 	done
 	# move cursor to the top left of the terminal
@@ -776,13 +795,13 @@ do
 	read -r choice
 	# convert "choice" variable to lowercase:
 	choice=$(echo "$choice" | tr '[:upper:]' '[:lower:]' )
+	echo
 	
 	case $choice in
 
 
+		# this line means: the following commands will get executed if $choice is "1" or "u" or "update" until a ";;" code line is encountered:
 		1|u|update)
-			# the line above means: the following commands will get executed if $choice is "1" or "u" or "update" 
-			echo
 			# call function "func_u"
 			func_u
 			echo
@@ -791,47 +810,40 @@ do
 			read
 			;;
 		2|c|clean)
-			echo
 			func_c
 			echo
 			echo -e " System cleaned. To return to pacli press ENTER "
 			read
 			;;
 		3|i|install)
-			echo
 			func_i
 			echo
 			echo -e " Package installation finished. To return to pacli press ENTER "
 			read
 			;;
 		4|r|remove)
-			echo
 			func_r
 			echo
 			echo -e " Package(s) including all unneeded dependencies removed. To return to pacli press ENTER "
 			read
 			;;
 		5|info|information)
-			echo
 			func_info
 			echo
 			echo -e " Package information displayed. To return to pacli press ENTER "
 			read
 			;;
 		6|l|list)
-			echo
 			func_l
 			echo
 			;;
 		7|t|tree)
-			echo
 			func_t
 			echo
 			echo -e " Dependency tree displayed. Navigate with SHIFT+PageUp. To return to pacli press ENTER "
 			read
 			;;
 		8|rt|reversetree)
-			echo
 			func_rt
 			echo
 			echo -e " Reverse dependency tree displayed. Navigate with SHIFT+PageUp. To return to pacli press ENTER "
@@ -840,57 +852,48 @@ do
 
 
 		9|log)
-			echo
 			func_log
 			echo
 			;;			
 		10|d|down|downgrade)
-			echo
 			func_d
 			echo
 			echo -e " Downgrade finished. To return to pacli press ENTER "
 			read
 			;;
 		11|00|111|h|help)
-			echo
 			func_h
 			echo
 			;;
 		13|conf|config|configure)
-			echo
 			func_conf
 			echo
 			;;
 		14|fix)
-			echo
 			func_fix
 			echo
 			echo -e " Operation finished. To return to pacli press ENTER "
 			read
 			;;
 		15|fu|forceupdate)
-			echo
 			func_fu
 			echo
 			echo -e " System updated in force mode. To return to pacli press ENTER "
 			read
 			;;
 		16|e|empty)
-			echo
 			func_e
 			echo
 			echo -e " Entire package cache emptied. To return to pacli press ENTER "
 			read
 			;;
 		17|fi|forceinstall)
-			echo
 			func_fi
 			echo
 			echo -e " Package installation in force mode finished. To return to pacli press ENTER "
 			read
 			;;
 		18|fr|forceremove)
-			echo
 			func_fr
 			echo
 			echo -e " Package(s) removed in force mode. To return to pacli press ENTER "
@@ -899,28 +902,24 @@ do
 
 
 		19|ua|fua|forceupdateaur|updateaur)
-			echo
 			func_ua
 			echo
 			echo -e " All AUR packages updated and reinstalled. To return to pacli press ENTER "
 			read
 			;;
 		20|la|listaur)
-			echo
 			func_la
 			echo
 			echo -e " All locally installed packages listed. To return to pacli press ENTER "
 			read
 			;;
 		21|a|aur)
-			echo
 			func_a
 			echo
 			echo -e " Yaourt finished. To return to pacli press ENTER "
 			read
 			;;
 		22|ia|installaur)
-			echo
 			func_ia
 			echo
 			echo -e " Installation from AUR finished. To return to pacli press ENTER "
@@ -929,18 +928,17 @@ do
 
 
 		0|q|quit)
-			echo
-			# the traditional "clear" command does not work here as expected: i do not know why this is the case! instead of doing everything manually (as in the beginning of the while-loop), the "tput clear" command is sufficient (but sometimes a little ugly).
+			# the traditional "clear" command does not work here as expected: i do not know why this is the case! instead of doing everything manually (as in the beginning of the while-loop), the "tput clear" command is sufficient here (but sometimes a little ugly):
 			tput clear
-            
+			
+			# exit while-loop and close pacli
 			exit
 			;;
 
 		*)
-			echo
 			echo -e " \e[41m Wrong option \e[0m"
 			echo -e "  Wait and try again later..."
-			sleep 1
+			sleep 2
 			;;
             
 	esac    # close case-loop
