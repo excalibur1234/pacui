@@ -262,9 +262,9 @@ function func_conf
 
 function func_fix 
 {
-		sudo rm -f /var/lib/pacman/db.lck
+		echo "sudo rm -f /var/lib/pacman/db.lck ..." && sudo rm -f /var/lib/pacman/db.lck
 		echo ""
-		sudo pacman-mirrors -g && echo "" && sudo pacman -Syy
+		echo "fixing mirror ..." && sudo pacman-mirrors -g && echo "" && sudo pacman -Syy
 		echo ""
 
 		# check, whether manjaro mirror with the latest packages is reachable
@@ -285,7 +285,7 @@ function func_fix
 		else
 		
 			# the following command sometimes prevents an error connecting to the key server		
-			sudo dirmngr </dev/null
+			echo "sudo dirmngr </dev/null ..." && sudo dirmngr </dev/null
 			echo ""
 		
 			#declare local variables (needed later)
@@ -299,9 +299,10 @@ function func_fix
 				then
 					# set almost correct time (while ignoring time zone and daylight saving time):
 					# 1. stop running NTPD service (and ignore output in case NTPD is not installed):
-					sudo systemctl stop ntpd.service &>/dev/null
+					echo "sudo systemctl stop ntpd.service ..." && sudo systemctl stop ntpd.service &>/dev/null
 					echo ""
 					# 2. manually download and install networkmanager-dispatcher-ntpd:
+						echo "installing networkmanager-dispatcher-ntpd ..."
 						# extract the version number of networkmanager-dispatcher-ntpd in the Manjaro repositories and save it in "version" variable
 						version="$(lang=C pacman -Si networkmanager-dispatcher-ntpd | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
 						# save the address of the latest networkmanager-dispatcher-ntpd package on a reliable Manjaro mirror to "url" variable
@@ -318,35 +319,40 @@ function func_fix
 				fi
 				
 				# remove gnupg including all keys
-				sudo rm -r /etc/pacman.d/gnupg &>/dev/null
+				echo "sudo rm -r /etc/pacman.d/gnupg &>/dev/null ..." && sudo rm -r /etc/pacman.d/gnupg &>/dev/null
 				echo ""
 				
 				# manually download and install gnupg:
+				echo "installing gnupg ..."
 				version="$(lang=C pacman -Si gnupg | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
 				url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/gnupg${version}-${arch}.pkg.tar.xz"
 				wget "${url}" && sudo pacman -U "gnupg${version}-${arch}.pkg.tar.xz" --noconfirm && sudo rm "gnupg${version}-${arch}.pkg.tar.xz"
 				echo ""
 				
 				# manually download and install archlinux-keyring:
+				echo "installing archlinux-keyring ..."
 				version="$(lang=C pacman -Si archlinux-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
 				url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/archlinux-keyring${version}-any.pkg.tar.xz"
 				wget "${url}" && sudo pacman -U "archlinux-keyring${version}-any.pkg.tar.xz" --noconfirm && sudo rm "archlinux-keyring${version}-any.pkg.tar.xz"
 				echo ""
 				
 				# manually download and install manjaro-keyring:
+				echo "installing manjaro-keyring ..."
 				version="$(lang=C pacman -Si manjaro-keyring | awk -F':' ' /^Ver/ {print $2}' | sed 's# #-#' | head -n 1 )"
 				url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/manjaro-keyring${version}-any.pkg.tar.xz"
 				wget "${url}" && sudo pacman -U "manjaro-keyring${version}-any.pkg.tar.xz" --noconfirm && sudo rm "manjaro-keyring${version}-any.pkg.tar.xz"
 				echo ""
 
-			sudo pacman-key --init && echo "" && sudo pacman-key --populate archlinux manjaro
+			echo "sudo pacman-key --init ..." && sudo pacman-key --init && echo "" && echo "sudo pacman-key --populate archlinux manjaro ..." && sudo pacman-key --populate archlinux manjaro
 			echo ""
 
-			sudo pacman -Sc --noconfirm
+			echo "sudo pacman -Sc --noconfirm ..." && sudo pacman -Sc --noconfirm
+			echo ""
+			echo "updating systemd ..." && sudo pacman -S --needed --noconfirm libsystemd systemd-sysvcompat systemd && sleep 30
 			echo ""
 			sudo pacman -Syyuu --color always --noconfirm
 			echo ""
-			sudo pacman -Suu --color always --noconfirm
+			sudo pacman -Suu --color always
 		fi
 }
 
@@ -601,7 +607,8 @@ This command searches for working and good Manjaro repository mirrors/servers. I
 Sometimes during key management the package "dirmngr" outputs error messages, which interrupt key management processes (such as the following commands). This command prevents any output from "dirmngr".
 
 "sudo systemctl stop ntpd.service &>/dev/null"
-This command stops (temporarily) the Network Time Protocol daemon service (if it is installed and running). This is the first command of a series of commands, which try to set the system and hardware clock on your computer (ignoring time zone and daylight saving time). An (almost) correct system time is needed for checking and importing keys or fingerprints later on in the fixing process!
+This command stops (temporarily) the Network Time Protocol daemon service NTPD (if it is installed and running). In case NTPD is not installed, the output is ignored.
+This is the first command of a series of commands, which try to set the system and hardware clock on your computer (ignoring time zone and daylight saving time). An (almost) correct system time is needed for checking and importing keys or fingerprints later on in the fixing process!
 
 "sudo pacman -Sy networkmanager-dispatcher-ntpd"
 This command (re-)installs the "networkmanager-dispatcher-ntpd" package. Pacli actually does not use this command but instead downloads and installs this package manually in order to bypass key database and key chain errors.
@@ -632,11 +639,15 @@ After an unseccessful attempt to update your system (which quit with a key error
 This command removes all packages from your pacman cache, which are not installed on your system. Afterwards, you need to download all previously downloaded but not installed packages again.
 ATTENTION: This command makes it impossible to DOWNGRADE PACKAGES on systems without an active internet connection.
 
+"sudo pacman -S --needed libsystemd systemd-sysvcompat systemd && sleep 30"
+The first command updates - if necessary - systemd including important components before all other packages are updated. This is necessary, because sometimes a successful update of systemd causes a short crash on some systems, which prevents a successful update of all other packages.
+The second command simply does nothing for 30 seconds before the update of all other packages get started. It is only here as precaution.
+
 "sudo pacman -Syyuu"
 This last command forces a redownload of the latest package database from the best Manjaro repository mirror. Then, all your installed packages are checked against this latest package database. If an updated package is available from the Manjaro repositories, it will get downloaded and installed on your system. If an installed package is newer than the same package in the Manjaro repositories, the installed package will get downgraded. This behavior ensures your packages are always in sync with the Manajro repositories, even if you have just switched the Manjaro mirror or switched from unstable to stable branch.
 
 "sudo pacman -Suu"
-This command makes sure all downloaded packages get installed and downgraded if necessary. It is only here as precaution.
+This command makes sure all downloaded packages get installed and downgraded if necessary. The user has to manually allow downgrades of packages, if downgrades are available.
 
 15 - FORCE UPDATE SYSTEM
 "sudo pacman -Syu --force"
