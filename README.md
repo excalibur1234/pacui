@@ -4,7 +4,7 @@ pacli is a CLI tool, which provides useful and advanced Pacman and Yaourt comman
 
 pacli is meant for experienced/intermediate/advanced users, who have at least basic knowledge of the structure of their Linux system and how Pacman and Yaourt work. Absolute beginners are probably overwhelmed by the amount of choices pacli offers.
 
-This fork of an old version of [pacli](https://github.com/Manjaro-Pek/pacli/tree/f98e9226eb75ea00217481f436399328fe73d3ae) called pacli-simple follows the KISS principle: The whole program is contained within one file, which contains easy to read bash code. pacli-simple wants to provide the same functionality as pacli but without any available settings and/or translations. Additionally, pacli-simple does not require the use of the UI, but can also be used by terminal commands directly: This way of using pacli is much faster!
+This fork of an old version of [pacli](https://github.com/Manjaro-Pek/pacli/tree/f98e9226eb75ea00217481f436399328fe73d3ae) called pacli-simple follows the KISS principle: The whole program is contained within one file, which consists of easy to read bash code with many comments. pacli-simple wants to provide the same or more functionality as pacli but without any available settings and/or translations. Additionally, pacli-simple does not require the use of the UI, but can also be used by terminal commands directly: This way of using pacli is much faster!
 
 
 ## Screenshots
@@ -19,14 +19,9 @@ Installing the package "cantata" from the Manjaro repositories:
 ![Screenshot 02](http://s32.postimg.org/50okof26t/pacli_simple2.gif)
 
 
-Downgrading the package "file-roller":
-
-![Screenshot 03](http://i.imgur.com/kKzqbSl.png)
-
-
 New "conf" option, which lets you edit a lot of .conf files on your system:
 
-![Screenshot 04](https://s18.postimg.org/5jgervr7t/conf.png)
+![Screenshot 03](http://s17.postimg.org/tvujdlyjj/screen_png.jpg)
 
 
 ## Installation
@@ -88,11 +83,10 @@ For short help, e.g. when using pacli without UI, use one of the following comma
 - `pacli -h`
 
 ### Detailed pacli Help
-Choose the "Help" option within pacli's UI by entering "11" or "h" or "help" and pressing "ENTER".
+Choose the "Help" option within pacli's UI by entering "11" or "H" or "h" or "help" and pressing "ENTER".
 
-This help page explains some general stuff such as how to navigate in pacli. It also explains every pacli option in detail. If you want to look up which commands pacli uses under the hood and understand them, this is the right place for you!
+This help page explains some general stuff such as how to navigate pacli. It also explains every pacli option in detail. If you want to look up which commands pacli uses under the hood and understand them, this is the right place for you!
 
-### Manjaro Forum
-There are new and old topics in the Manjaro forum. Most of the discussion between the developers is going on there:
+### Manjaro Forum Threads
  - [New Forum](https://forum.manjaro.org/t/pacli-simple-a-simple-bash-frontend-for-pacman-and-yaourt/677)
  - [Old Forum - Inactive Thread](https://classicforum.manjaro.org/index.php?topic=21399.0)
