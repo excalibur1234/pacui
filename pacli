@@ -226,12 +226,14 @@ function func_conf
 		[[ -e $HOME/.zshrc ]] && echo "~/.zshrc                      - Configure zsh shell." >> /tmp/pacli-conf
 		[[ -e $HOME/.config/fish ]] && echo "~/.config/fish/*              - Configure fish shell." >> /tmp/pacli-conf
 		[[ -e $HOME/.xinitrc ]] && echo "~/.xinitrc                    - Configure X server startup." >> /tmp/pacli-conf
-		[[ -e /etc/fstab ]] && echo "/etc/fstab                    - Configure files system mounts." >> /tmp/pacli-conf
+		[[ -e /etc/fstab ]] && echo "/etc/fstab                    - Configure file system mount table." >> /tmp/pacli-conf
 		[[ -e /etc/sudoers ]] && echo "/etc/sudoers                  - Configure sudo." >> /tmp/pacli-conf
 		[[ -e /etc/systemd/logind.conf ]] && echo "/etc/systemd/logind.conf      - Configure systemd user logins." >> /tmp/pacli-conf
 		[[ -e /etc/systemd/journald.conf ]] && echo "/etc/systemd/journald.conf    - Configure systemd logging." >> /tmp/pacli-conf
 		[[ -e /etc/systemd/system.conf ]] && echo "/etc/systemd/system.conf      - Configure systemd system." >> /tmp/pacli-conf
 		[[ -e /etc/sysctl.d ]] && echo "/etc/sysctl.d/*               - Configure kernel parameters at runtime in multiple files." >> /tmp/pacli-conf
+		[[ -e /etc/X11/xorg.conf.d ]] && echo "/etc/X11/xorg.conf.d/*        - Configure Xorg display server in multiple files." >> /tmp/pacli-conf
+		[[ -e $HOME/.config/weston.ini ]] && echo "~/.config/weston.ini          - Configure Weston compositor." >> /tmp/pacli-conf
 		[[ -e /etc/mkinitcpio.conf ]] && echo "/etc/mkinitcpio.conf          - Configure initial ramdisk environment. Afterwards, do 'sudo mkinitcpio -P && sudo update-grub'." >> /tmp/pacli-conf
 		[[ -e /etc/default/grub ]] && echo "/etc/default/grub             - Configure GRUB boot loader. Afterwards, do 'sudo update-grub'." >> /tmp/pacli-conf
 		[[ -e /boot/loader/entries/manjaro.conf ]] && echo "/boot/loader/entries/manjaro.conf  - Configure systemd-boot boot loader." >> /tmp/pacli-conf
@@ -253,8 +255,8 @@ function func_conf
 			else
 				# if $EDITOR variable does not exist, set it to 'nano'
 				[[ -z "$EDITOR" ]] && EDITOR='nano'
-				# open "file" in "EDITOR"
-				sudo $EDITOR "$file"
+				# open "file" in "EDITOR": (attention: "$file" does NOT WORK!!!)
+				sudo $EDITOR $file
 			fi
 		fi
 		rm /tmp/pacli-conf
