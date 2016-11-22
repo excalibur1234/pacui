@@ -81,10 +81,10 @@ function func_i
 		local pkg
 		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
-		# only run the command inside the if-statement, if "$pkg" variable is not empty - this happens when fzf is quit with ESC or CTRL+C
-		if [[ -n "$pkg" ]]
+		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
+		if [[ -n $pkg ]]
 		then
-			sudo pacman -S "$pkg" --color always
+			sudo pacman -S $pkg --color always
 		fi
 }
 
@@ -97,9 +97,9 @@ function func_r
 		local pkg
 		pkg=$(package-query -Q -f "%n  %v  -  %d"  | sort | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to remove. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
         
-		if [[ -n "$pkg" ]]
+		if [[ -n $pkg ]]
 		then
-			sudo pacman -Rsn "$pkg" --color always
+			sudo pacman -Rsn $pkg --color always
 		fi
 }
 
@@ -118,15 +118,15 @@ function func_info
 		local pkg
 		pkg=$(sort /tmp/pacli-packages | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to display info. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
-		# only run the command inside the if-statement, if "$pkg" variable is not empty - this happens when fzf is quit with ESC or CTRL+C
-		if [[ -n "$pkg" ]]
+		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
+		if [[ -n $pkg ]]
 		then
 			# next, it is checked, whether "pkg" is part of a list of all installed packages (pacman -Qq).
-			if ( pacman -Qq "$pkg" &>/dev/null )
+			if ( pacman -Qq $pkg &>/dev/null )
 			then
-				yaourt -Qii "$pkg"		# execute this command when "pkg" is already installed on system
+				yaourt -Qii $pkg		# execute this command when "pkg" is already installed on system
 			else
-				yaourt -Sii "$pkg"		# execute this command when "pkg" is not installed on system
+				yaourt -Sii $pkg		# execute this command when "pkg" is not installed on system
 			fi
 		fi
 }
@@ -138,10 +138,10 @@ function func_l
 		local pkg
 		pkg=$(pacman -Qq | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
-		if [[ -n "$pkg" ]]
+		if [[ -n $pkg ]]
 		then
-			# take the output of command "pacman -Qlq "$pkg"" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacli-list.
-			pacman -Qlq "$pkg" --color always | fzf-tmux -m -e +s -i --query="/usr/bin/" --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed directories and files > ' >> /tmp/pacli-list
+			# take the output of command "pacman -Qlq $pkg" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacli-list.
+			pacman -Qlq $pkg --color always | fzf-tmux -m -e +s -i --query="/usr/bin/" --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed directories and files > ' >> /tmp/pacli-list
 		fi
 }
 
@@ -156,13 +156,13 @@ function func_t
 		pkg=$(sort /tmp/pacli-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
 		# look in func_info for explanations
-		if [[ -n "$pkg" ]]
+		if [[ -n $pkg ]]
 		then
-			if ( pacman -Qq "$pkg" &>/dev/null )
+			if ( pacman -Qq $pkg &>/dev/null )
 			then
-				pactree -c "$pkg"
+				pactree -c $pkg
 			else
-				pactree -c -s "$pkg"
+				pactree -c -s $pkg
 			fi
 		fi
 }
@@ -173,7 +173,7 @@ function func_rt
 		local pkg
 		pkg=$(pacman -Qq | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to show reverse tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
-		pactree -c -r "$pkg"
+		pactree -c -r $pkg
 }
 
 
@@ -194,7 +194,7 @@ function func_d
 		local pkg
 		pkg=$(sort /tmp/pacli-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to downgrade. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
-		downgrade "$pkg"
+		downgrade $pkg
 }
 
 
@@ -377,9 +377,9 @@ function func_fi
 		local pkg
 		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
-		if [[ -n "$pkg" ]]
+		if [[ -n $pkg ]]
 		then
-			sudo pacman -S --force "$pkg" --color always
+			sudo pacman -S --force $pkg --color always
 		fi
 }
 
@@ -389,9 +389,9 @@ function func_fr
 		local pkg
 		pkg=$(package-query -Q -f "%n  %v  -  %d" | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to remove. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
-		if [[ -n "$pkg" ]]
+		if [[ -n $pkg ]]
 		then
-			sudo pacman -Rdd "$pkg" --color always
+			sudo pacman -Rdd $pkg --color always
 		fi
 }
 
@@ -418,7 +418,7 @@ function func_a
 			echo "Enter (parts of) name and/or description of package to be searched. Then press ENTER."
 			read -r pkg
             
-			yaourt "$pkg"
+			yaourt $pkg
 		fi
 }
 
@@ -437,9 +437,9 @@ function func_ia
 		
 		pkg=$(sort /tmp/pacli-packages | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
-		if [[ -n "$pkg" ]]
+		if [[ -n $pkg ]]
 		then
-			yaourt -S "$pkg"
+			yaourt -S $pkg
 		fi
 }
 
