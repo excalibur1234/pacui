@@ -759,6 +759,22 @@ fi
 
 
 
+function pacli_clean 
+{
+		# the traditional "clear" command does not work as expected on all systems. solution: do everything i expect from "clear" manually:
+		# number of lines of the user's terminal.
+		lines=$(tput lines)
+		for (( i=1; i<=lines; i++ ))
+		do
+				# insert "lines" number of empty lines:
+				echo
+		done
+		# move cursor to the top left of the terminal
+		tput cup 0 0
+}
+
+
+
 # ANSI Escape sequences:
 #  \e[31m	# red text
 #  \e[41m	# red background
@@ -770,17 +786,7 @@ fi
 while true
 do
 	
-	# the traditional "clear" command does not work as expected on all systems. solution: do everything i expect from "clear" manually:
-	# number of lines of the user's terminal.
-	lines=$(tput lines)
-	for (( i=1; i<=lines; i++ ))
-	do
-			# insert "lines" number of empty lines:
-			echo
-	done
-	# move cursor to the top left of the terminal
-	tput cup 0 0
-	
+	pacli_clean
 	
 	# draw UI / menu. please note the use of ANSI Escape sequences mentioned above. The text/code can be hard to read...
 	echo
@@ -943,11 +949,7 @@ do
 
 
 		0|q|quit)
-			# the traditional "clear" command does not work here as expected: i do not know why this is the case! instead of doing everything manually (as in the beginning of the while-loop), the "tput clear" command is sufficient here (but sometimes a little ugly):
-			tput clear
-			
-			# exit while-loop and close pacli
-			exit
+			pacli_clean && exit
 			;;
 
 		*)
