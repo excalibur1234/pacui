@@ -209,38 +209,39 @@ function func_conf
 		[[ -e /etc/pacman.conf ]] && echo "/etc/pacman.conf              - Configure Pacman." >> /tmp/pacli-conf
 		[[ -e /etc/pacman-mirrors.conf ]] && echo "/etc/pacman-mirrors.conf      - Configure Manjaro's pacman-mirrors." >> /tmp/pacli-conf
 		[[ -e /etc/pacman.d/mirrorlist ]] && echo "/etc/pacman.d/mirrorlist      - Configure mirror list manually. Afterwards, do 'sudo pacman -Syy'." >> /tmp/pacli-conf
-		[[ -e /etc/yaourtrc ]] && echo "/etc/yaourtrc                 - Configure Yaourt." >> /tmp/pacli-conf
-		[[ -e /etc/makepkg.conf ]] && echo "/etc/makepkg.conf             - Configure package compilation." >> /tmp/pacli-conf
-		[[ -e /etc/resolv.conf ]] && echo "/etc/resolv.conf              - Configure DNS servers." >> /tmp/pacli-conf
-		[[ -e /etc/hostname ]] && echo "/etc/hostname                 - Configure your network hostname" >> /tmp/pacli-conf
-		[[ -e /etc/hosts ]] && echo "/etc/hosts                    - Configure local DNS." >> /tmp/pacli-conf
-		[[ -e /etc/slim.conf ]] && echo "/etc/slim.conf                - Configure slim display manager." >> /tmp/pacli-conf
-		[[ -e /etc/lightdm.conf ]] && echo "/etc/lightdm.conf             - Configure lightdm display manager." >> /tmp/pacli-conf
-		[[ -e /etc/sddm.conf ]] && echo "/etc/sddm.conf                - Configure sddm display manager." >> /tmp/pacli-conf
-		[[ -e /etc/mdm/mdm.conf ]] && echo "/etc/mdm/mdm.conf             - Configure mdm display manager." >> /tmp/pacli-conf
-		[[ -e /etc/lxdm/lxdm.conf ]] && echo "/etc/lxdm/lxdm.conf           - Configure lxdm display manager." >> /tmp/pacli-conf
-		[[ -e /etc/gdm/custom.conf ]] && echo "/etc/gdm/custom.conf          - Configure gdm display manager." >> /tmp/pacli-conf
-		[[ -e /etc/entrance/entrance.conf ]] && echo "/etc/entrance/entrance.conf   - Configure entrance display manager." >> /tmp/pacli-conf
-		[[ -e /etc/conf.d/xdm ]] && echo "/etc/conf.d/xdm               - Configure xdm display manager." >> /tmp/pacli-conf
-		[[ -e $HOME/.bashrc ]] && echo "~/.bashrc                     - Configure bash shell." >> /tmp/pacli-conf
-		[[ -e $HOME/.zshrc ]] && echo "~/.zshrc                      - Configure zsh shell." >> /tmp/pacli-conf
-		[[ -e $HOME/.config/fish ]] && echo "~/.config/fish/*              - Configure fish shell." >> /tmp/pacli-conf
-		[[ -e $HOME/.xinitrc ]] && echo "~/.xinitrc                    - Configure X server startup." >> /tmp/pacli-conf
-		[[ -e /etc/fstab ]] && echo "/etc/fstab                    - Configure file system mount table." >> /tmp/pacli-conf
-		[[ -e /etc/sudoers ]] && echo "/etc/sudoers                  - Configure sudo." >> /tmp/pacli-conf
-		[[ -e /etc/systemd/logind.conf ]] && echo "/etc/systemd/logind.conf      - Configure systemd user logins." >> /tmp/pacli-conf
-		[[ -e /etc/systemd/journald.conf ]] && echo "/etc/systemd/journald.conf    - Configure systemd logging." >> /tmp/pacli-conf
-		[[ -e /etc/systemd/system.conf ]] && echo "/etc/systemd/system.conf      - Configure systemd system." >> /tmp/pacli-conf
-		[[ -e /etc/sysctl.d ]] && echo "/etc/sysctl.d/*               - Configure kernel parameters at runtime in multiple files." >> /tmp/pacli-conf
-		[[ -e /etc/X11/xorg.conf.d ]] && echo "/etc/X11/xorg.conf.d/*        - Configure Xorg display server in multiple files." >> /tmp/pacli-conf
-		[[ -e $HOME/.config/weston.ini ]] && echo "~/.config/weston.ini          - Configure Weston compositor." >> /tmp/pacli-conf
-		[[ -e /etc/mkinitcpio.conf ]] && echo "/etc/mkinitcpio.conf          - Configure initial ramdisk environment. Afterwards, do 'sudo mkinitcpio -P && sudo update-grub'." >> /tmp/pacli-conf
-		[[ -e /etc/default/grub ]] && echo "/etc/default/grub             - Configure GRUB boot loader. Afterwards, do 'sudo update-grub'." >> /tmp/pacli-conf
-		[[ -e /boot/loader/entries/manjaro.conf ]] && echo "/boot/loader/entries/manjaro.conf  - Configure systemd-boot boot loader." >> /tmp/pacli-conf
-		[[ -e /boot/refind_linux.conf ]] && echo "/boot/refind_linux.conf       - Configure rEFInd boot loader." >> /tmp/pacli-conf
-		[[ -e /boot/EFI/refind/refind.conf ]] && echo "/boot/EFI/refind/refind.conf  - Configure rEFInd boot loader." >> /tmp/pacli-conf
-		[[ -e /boot/EFI/CLOVER/config.plist ]] && echo "/boot/EFI/CLOVER/config.plist - Configure Clover boot loader." >> /tmp/pacli-conf
-		[[ -e /boot/syslinux/syslinux.cfg ]] && echo "/boot/syslinux/syslinux.cfg   - Configure syslinux boot loaders." >> /tmp/pacli-conf
+		[[ -e /etc/yaourtrc ]] && echo "/etc/yaourtrc                   - Configure Yaourt." >> /tmp/pacli-conf
+		[[ -e /etc/makepkg.conf ]] && echo "/etc/makepkg.conf               - Configure package compilation." >> /tmp/pacli-conf
+		[[ -e /etc/resolv.conf ]] && echo "/etc/resolv.conf                - Configure DNS servers." >> /tmp/pacli-conf
+		[[ -e /etc/hostname ]] && echo "/etc/hostname                   - Configure your network hostname" >> /tmp/pacli-conf
+		[[ -e /etc/hosts ]] && echo "/etc/hosts                      - Configure local DNS." >> /tmp/pacli-conf
+		[[ -e /etc/slim.conf ]] && echo "/etc/slim.conf                  - Configure slim display manager." >> /tmp/pacli-conf
+		[[ -e /etc/lightdm.conf ]] && echo "/etc/lightdm.conf               - Configure lightdm display manager." >> /tmp/pacli-conf
+		[[ -e /etc/sddm.conf ]] && echo "/etc/sddm.conf                  - Configure sddm display manager." >> /tmp/pacli-conf
+		[[ -e /etc/mdm/mdm.conf ]] && echo "/etc/mdm/mdm.conf               - Configure mdm display manager." >> /tmp/pacli-conf
+		[[ -e /etc/lxdm/lxdm.conf ]] && echo "/etc/lxdm/lxdm.conf             - Configure lxdm display manager." >> /tmp/pacli-conf
+		[[ -e /etc/gdm/custom.conf ]] && echo "/etc/gdm/custom.conf            - Configure gdm display manager." >> /tmp/pacli-conf
+		[[ -e /etc/entrance/entrance.conf ]] && echo "/etc/entrance/entrance.conf     - Configure entrance display manager." >> /tmp/pacli-conf
+		[[ -e /etc/conf.d/xdm ]] && echo "/etc/conf.d/xdm                 - Configure xdm display manager." >> /tmp/pacli-conf
+		[[ -e $HOME/.bashrc ]] && echo "~/.bashrc                       - Configure bash shell." >> /tmp/pacli-conf
+		[[ -e $HOME/.zshrc ]] && echo "~/.zshrc                        - Configure zsh shell." >> /tmp/pacli-conf
+		[[ -e $HOME/.config/fish ]] && echo "~/.config/fish/*                - Configure fish shell." >> /tmp/pacli-conf
+		[[ -e $HOME/.xinitrc ]] && echo "~/.xinitrc                      - Configure X server startup." >> /tmp/pacli-conf
+		[[ -e /etc/fstab ]] && echo "/etc/fstab                      - Configure file system mount table." >> /tmp/pacli-conf
+		[[ -e /etc/sudoers ]] && echo "/etc/sudoers                    - Configure sudo." >> /tmp/pacli-conf
+		[[ -e /etc/systemd/logind.conf ]] && echo "/etc/systemd/logind.conf        - Configure systemd user logins." >> /tmp/pacli-conf
+		[[ -e /etc/systemd/journald.conf ]] && echo "/etc/systemd/journald.conf      - Configure systemd logging." >> /tmp/pacli-conf
+		[[ -e /etc/systemd/system.conf ]] && echo "/etc/systemd/system.conf        - Configure systemd system." >> /tmp/pacli-conf
+		[[ -e /usr/lib/systemd/system  ]] && echo "/usr/lib/systemd/system/*.timer - Configure all systemd timers." >> /tmp/pacli-conf
+		[[ -e /etc/sysctl.d ]] && echo "/etc/sysctl.d/*                 - Configure kernel parameters at runtime in multiple files." >> /tmp/pacli-conf
+		[[ -e /etc/X11/xorg.conf.d ]] && echo "/etc/X11/xorg.conf.d/*          - Configure Xorg display server in multiple files." >> /tmp/pacli-conf
+		[[ -e $HOME/.config/weston.ini ]] && echo "~/.config/weston.ini            - Configure Weston compositor." >> /tmp/pacli-conf
+		[[ -e /etc/mkinitcpio.conf ]] && echo "/etc/mkinitcpio.conf            - Configure initial ramdisk environment. Afterwards, do 'sudo mkinitcpio -P && sudo update-grub'." >> /tmp/pacli-conf
+		[[ -e /etc/default/grub ]] && echo "/etc/default/grub               - Configure GRUB boot loader. Afterwards, do 'sudo update-grub'." >> /tmp/pacli-conf
+		[[ -e /boot/loader/entries/manjaro.conf ]] && echo "/boot/loader/entries/manjaro.conf    - Configure systemd-boot boot loader." >> /tmp/pacli-conf
+		[[ -e /boot/refind_linux.conf ]] && echo "/boot/refind_linux.conf         - Configure rEFInd boot loader." >> /tmp/pacli-conf
+		[[ -e /boot/EFI/refind/refind.conf ]] && echo "/boot/EFI/refind/refind.conf    - Configure rEFInd boot loader." >> /tmp/pacli-conf
+		[[ -e /boot/EFI/CLOVER/config.plist ]] && echo "/boot/EFI/CLOVER/config.plist   - Configure Clover boot loader." >> /tmp/pacli-conf
+		[[ -e /boot/syslinux/syslinux.cfg ]] && echo "/boot/syslinux/syslinux.cfg     - Configure syslinux boot loaders." >> /tmp/pacli-conf
 		
 		local file
 		file=$( cat /tmp/pacli-conf | fzf-tmux -e +s -i --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to open file. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of files > ' | awk '{print $1}' )
