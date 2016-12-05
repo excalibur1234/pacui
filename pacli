@@ -352,8 +352,13 @@ function func_fix
 
 			echo "sudo pacman -Sc --noconfirm ..." && sudo pacman -Sc --noconfirm
 			echo ""
-			echo "updating systemd ..." && sudo pacman -S --needed --noconfirm libsystemd systemd-sysvcompat systemd && sleep 30
-			echo ""
+			
+			if [[ $(cat /proc/1/comm) == "systemd" ]]          # if init system is systemd
+			then
+				echo "updating systemd ..." && sudo pacman -S --needed --noconfirm libsystemd systemd-sysvcompat systemd && sleep 30
+				echo ""
+			fi
+			
 			sudo pacman -Syyuu --color always --noconfirm
 			echo ""
 			sudo pacman -Suu --color always
