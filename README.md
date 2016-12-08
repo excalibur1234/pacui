@@ -9,7 +9,7 @@ This fork of an old version of [pacli](https://github.com/Manjaro-Pek/pacli/tree
 
 ## Screenshots
 
-Home Screen of pacli:
+Home Screen of pacli's UI:
 
 ![Screenshot 01](http://s18.postimg.org/8dz7xjlzt/screen.png)
 
@@ -35,7 +35,7 @@ This will install pacli including the latest commits on Github. If you ever enco
 It is highly recommended to use an utility, which notifies the user about available updates alongside of pacli. Such a lightweight utility is for example [update-notifier](https://github.com/Chrysostomus/update-notifier).
 
 ### Execute without prior Installation
-You can download and start pacli without prior installation with the following commands:
+Alternatively, it is possible to download and start pacli without prior installation using the following commands:
 ```
 wget https://raw.githubusercontent.com/excalibur1234/pacli-simple/master/pacli
 ```
