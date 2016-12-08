@@ -34,11 +34,20 @@ This will install pacli including the latest commits on Github. If you ever enco
 
 It is highly recommended to use an utility, which notifies the user about available updates alongside of pacli. Such a lightweight utility is for example [update-notifier](https://github.com/Chrysostomus/update-notifier).
 
+### Execute without prior Installation
+You can download and start pacli without prior installation with the following commands:
+```
+wget https://raw.githubusercontent.com/excalibur1234/pacli-simple/master/pacli
+```
+```
+bash pacli
+```
+
 
 ## Use pacli
 
 ### Start pacli with UI
-Type the following command into your terminal in order to start pacli with a nice UI:
+After successful installation, type the following command into your terminal in order to start pacli with a nice UI:
 ```
 pacli
 ```
