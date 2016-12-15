@@ -27,15 +27,8 @@
 
 function func_u 
 {
-		# this command looks more colorful and works 99% of the time.
+		sudo pacman -Syu --color always
 		yaourt -Syua
-		
-		# the command above finishes with a exit status/return code. return code 0 means it has finished successfully, i.e. the system was updated completely and successfully.
-		if (( "$?" != "0" ))      # if return code of last command is not equal to zero
-		then
-			# major pacman updates require pacman and fail with yaourt:
-			sudo pacman -Syu --color always && echo "" && yaourt -Syua
-		fi
 }
 
 
@@ -249,14 +242,21 @@ function func_conf
 		# only run the command inside the if-statement, if $file variable is not empty <-- this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $file ]]
 		then
-			if [[ $file == "/etc/sudoers" ]]
+			if [[ $file | cut -c1 == "~" ]]
+			# if "file"'s first character is a "~" (tilde), the "file" should NOT be opened as root!
+			then
+				# if $EDITOR variable does not exist, set it to 'nano'
+				[[ -z "$EDITOR" ]] && EDITOR='nano'
+				# open "file" in "EDITOR": (attention: "$file" (including " symbols) does NOT WORK!!!)
+				$EDITOR $file
+			elif [[ $file == "/etc/sudoers" ]]
 			then
 				# the sudoers file should never be edited directly! if something goes wrong, sudo stops working. instead, visudo should be used. this is much safer.
 				sudo EDITOR=nano visudo
 			else
 				# if $EDITOR variable does not exist, set it to 'nano'
 				[[ -z "$EDITOR" ]] && EDITOR='nano'
-				# open "file" in "EDITOR": (attention: "$file" does NOT WORK!!!)
+				# open "file" in "EDITOR": (attention: "$file" (including " symbols) does NOT WORK!!!)
 				sudo $EDITOR $file
 			fi
 		fi
@@ -517,10 +517,10 @@ The last part offers Arch User Repository (AUR) management options.
 This will clear your terminal an quit Pacli.
 
 1 - UPDATE SYSTEM
+"sudo pacman -Syu"
 "yaourt -Syua"
-"sudo pacman -Syu && yaourt -Syua" (only when first command fails)
-The first part of the second command compares a list of all installed packages with package database on your Manjaro repository mirror/server. If an updated package is available from the Manjaro repositories, it will get downloaded and installed on your system.
-The second part of the second command does the same as the first part, but with one exception: It also downloads, compiles, and installs all packages from the Arch User Repository (AUR), which have an updated PKGBUILD file. The first part is still needed, because major Pacman and Yaourt updates require "pacman -Syu" and will fail when started with Yaourt.
+The first command compares a list of all installed packages with package database on your Manjaro repository mirror/server. If an updated package is available from the Manjaro repositories, it will get downloaded and installed on your system.
+The second command does the same as the first part, but with one exception: It also downloads, compiles, and installs all packages from the Arch User Repository (AUR), which have an updated PKGBUILD file. The first command is still needed occasionaly, because major Pacman and Yaourt updates require "pacman -Syu" and will fail when started with Yaourt.
 ATTENTION: When a new version of an AUR package is available, often the PKGBUILD file is not updated. If you want to install the latest version of a single AUR package, (re-)install it with INSTALL FROM AUR. If you want to install the latest versions of ALL AUR packages FORCE UPDATE AUR.
 
 2 - CLEAN SYSTEM
