@@ -242,7 +242,7 @@ function func_conf
 		# only run the command inside the if-statement, if $file variable is not empty <-- this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $file ]]
 		then
-			if [[ $file | cut -c1 == "~" ]]
+			if [[ $( echo $file | cut -c1 ) == "~" ]]
 			# if "file"'s first character is a "~" (tilde), the "file" should NOT be opened as root!
 			then
 				# if $EDITOR variable does not exist, set it to 'nano'
