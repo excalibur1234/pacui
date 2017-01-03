@@ -34,7 +34,7 @@ function func_u
 
 function func_c 
 {
-		sudo pacman-mirrors -g && echo "" && sudo pacman -Syy --color always
+		sudo pacman-mirrors -g -t 30 && echo "" && sudo pacman -Syy --color always
 		echo ""
 		yaourt -Qdt
 		echo ""
@@ -268,7 +268,7 @@ function func_fix
 {
 		echo "sudo rm -f /var/lib/pacman/db.lck ..." && sudo rm -f /var/lib/pacman/db.lck
 		echo ""
-		echo "fixing mirror ..." && sudo pacman-mirrors -g --geoip && echo "" && sudo pacman -Syy
+		echo "fixing mirror ..." && sudo pacman-mirrors -g --geoip -t 30 && echo "" && sudo pacman -Syy
 		echo ""
 
 		# check, whether manjaro mirror with the latest packages is reachable
@@ -524,9 +524,9 @@ The second command does the same as the first part, but with one exception: It a
 ATTENTION: When a new version of an AUR package is available, often the PKGBUILD file is not updated. If you want to install the latest version of a single AUR package, (re-)install it with INSTALL FROM AUR. If you want to install the latest versions of ALL AUR packages FORCE UPDATE AUR.
 
 2 - CLEAN SYSTEM
-"sudo pacman-mirrors -g && sudo pacman -Syy"
+"sudo pacman-mirrors -g -t 30 && sudo pacman -Syy"
 This command tests your connection to all available Manjaro repository mirrors/servers. The mirror with the best connection is automatically chosen for you. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror.
-If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -g -c Germany,France && sudo pacman -Syy"
+If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -g -t 30 -c Germany,France && sudo pacman -Syy"
 
 "yaourt -Qdt"
 This option lists all orphaned packages on your system. Orphaned packages are old and no longer needed dependencies (packages not explicitly installed by you), which were never removed from your system.
@@ -609,7 +609,7 @@ A working internet connection is required.
 This command removes Pacman's database lock. The database lock prevents multiple Pacman instances from running at the same time and interfering with each other.
 ATTENTION: Only run this command when no other Pacman instance (e.g. Pacman, Yaourt, Pamac, Octopi, PacmanXG4, ...) is running.
 
-"sudo pacman-mirrors -g --geoip && sudo pacman -Syy"
+"sudo pacman-mirrors -g -t 30 --geoip && sudo pacman -Syy"
 The first command searches for working and good Manjaro repository mirrors/servers in your country (if available) or all countries (if no mirrors/server is available in your country). It will automatically choose the closest server for you. This might not be the fastest mirror/server to download from, but it is definitely not a bad choice.
 The second command forces a redownload of the latest package database from the chosen Manjaro repository mirror server. 
 
