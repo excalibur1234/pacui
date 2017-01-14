@@ -604,7 +604,11 @@ The Pacman Log contains all updates, installations, and removals (also in the AU
 This command displays the last 5000 lines of your Pacman Log and makes it searchable with fzf. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacli-log.
 
 10 - REVERSE FILE SEARCH
-""
+"pacman -Ql | grep <FILE NAME>"
+This command searches for <FILE NAME> in all your installed packages. The result is a list of (bold) package names including the installation path of <FILE NAME>.
+Every package contains multiple packages, which get installed on your system during package installation. You can LIST LOCAL PACKAGE FILES to see them all (Attention: By default only files in /usr/bin/ are listed). 
+Sometimes, Pacman cannot find a file, for example a shared library. An error message is shown with <FILE NAME>. Use REVERSE FILE SEARCH to find out, which package has installed <FILE NAME> and update or reinstall that package.
+
 
 11 - DOWNGRADE PACKAGES
 "downgrade <PACKAGE NAME>"
