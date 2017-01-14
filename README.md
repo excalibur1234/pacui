@@ -92,7 +92,7 @@ For short help, e.g. when using pacli without UI, use one of the following comma
 - `pacli -h`
 
 ### Detailed pacli Help
-Choose the "Help" option within pacli's UI by entering "11" or "H" or "h" or "help" and pressing "ENTER".
+Choose the "Help" option within pacli's UI by entering "12" or "H" or "h" or "help" and pressing "ENTER".
 
 This help page explains some general stuff such as how to navigate pacli. It also explains every pacli option in detail. If you want to look up which commands pacli uses under the hood and understand them, this is the right place for you!
 
