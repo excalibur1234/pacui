@@ -216,6 +216,7 @@ function func_conf
         
 		# if file /etc/default/tlp exists, push string "/etc/default/tlp              - Configure power management." into /tmp/pacli-conf file.
 		[[ -e /etc/default/tlp ]] && echo "/etc/default/tlp                - Configure power management." >> /tmp/pacli-conf
+		[[ -e /etc/profile.d/freetype2.sh ]] && echo "/etc/profile.d/freetype2.sh     - Configure TrueType interpreter, including Infinality mode." >> /tmp/pacli-conf
 		[[ -e /etc/pulse/daemon.conf ]] && echo "/etc/pulse/daemon.conf          - Configure PulseAudio daemon." >> /tmp/pacli-conf
 		[[ -e /etc/pacman.conf ]] && echo "/etc/pacman.conf                - Configure Pacman." >> /tmp/pacli-conf
 		[[ -e /etc/pacman-mirrors.conf ]] && echo "/etc/pacman-mirrors.conf        - Configure Manjaro's pacman-mirrors." >> /tmp/pacli-conf
