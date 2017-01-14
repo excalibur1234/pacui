@@ -179,6 +179,24 @@ function func_log
 }
 
 
+function func_s
+{
+		local pkg
+		
+		if [[ -n "$input2" ]]
+		then
+			# do this if variable "input" is not empty:
+			pacman -Ql --color always | grep $"$input2"
+		else
+			# do this if pacli is used with UI or no argument is specified in "pacli s" command:
+			echo "Enter (parts of) the file name to be searched within all installed packages. Then press ENTER."
+			read -r pkg
+			
+			pacman -Ql --color always | grep $pkg
+		fi
+}
+
+
 function func_d 
 {
 		pacman -Slq > /tmp/pacli-packages-local
@@ -480,6 +498,7 @@ function func_h
 			echo -e "  pacli	rt    - \e[1mR\e[0meverse Dependency \e[1mT\e[0mree"
 			echo
 			echo -e "  pacli	log   - Pacman \e[1mLog\e[0m"
+			echo -e "  pacli	s     - Reverse File \e[1mS\e[0mearch"
 			echo -e "  pacli	d     - \e[1mD\e[0mowngrade Packages"
 			echo -e "  pacli	h     - \e[1mH\e[0melp. For detailed help, please start User Interface first."
 			echo -e "  \e[31mpacli	conf  \e[0m- \e[1mConf\e[0migure System"
@@ -565,7 +584,7 @@ This command displays a lot of information about <PACKAGE NAME>. Different piece
 
 6 - LIST LOCAL PACKAGE FILES
 "pacman -Qlq <PACKAGE NAME>"
-This command lists all files contained in <PACKAGE NAME> and their install directory. <PACKAGE NAME> must be installed on your system.
+This command lists all files contained in <PACKAGE NAME> including their path. <PACKAGE NAME> must be installed on your system.
 Have you ever installed a program and did not know with which command it can be started/executed? Just look for files (and their names) in your /usr/bin/ directory using LIST LOCAL PACKAGE FILES.
 By default all files are filtered for files located in /usr/bin/, but you can enter any filter term you want to. Delete the default filter term with BACKSPACE to see a complete list of files of <PACKAGE NAME>. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacli-list.
 
@@ -584,7 +603,10 @@ Use this command when you want to know why you cannot remove <PACKAGE NAME> from
 The Pacman Log contains all updates, installations, and removals (also in the AUR) you have done. Whenever something breaks on your system (e.g. after an udpate), but you do not remember anymore which packages were changed recently (e.g. during the last update), take a look at your Pacman Log and find out. Then, DOWNGRADE PACKAGES, which you think might be broken.
 This command displays the last 5000 lines of your Pacman Log and makes it searchable with fzf. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacli-log.
 
-10 - DOWNGRADE PACKAGES
+10 - REVERSE FILE SEARCH
+""
+
+11 - DOWNGRADE PACKAGES
 "downgrade <PACKAGE NAME>"
 Manjaro uses a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. If the latest version of a packages does not work on your system, you can downgrade that package to an earlier, working version.
 This command downgrades <PACKAGE NAME> and offers you a list of old <PACKAGE NAME> versions to choose from. This list includes all old <PACKAGE NAME> versions from your local package cache and online sources (if you have a working internet connection). 
@@ -593,7 +615,7 @@ Alternatively, you can run future updates with the command "sudo pacman -Syu --i
 ATTENTION: Be careful when downgrading to <PACKAGE NAME> from online sources, because these are old versions from the Arch Linux repositories and not the Manjaro repositories: In the worst case, this can brake your system! Therefore, it is recommended to limit downgrading to (old versions of) local packages, if possible.
 ATTEMTION: Downgrading to a working version of <PACKAGE NAME> can break your system in in rare cases like the following: The latest system update has replaced a dependency of <PACKAGE NAME> with a different package and <PACKAGE NAME> is an important system package. Downgrading <PACKAGE NAME> will NOT reinstall the dependency of <PACKAGE NAME>, because it conflicts with the already installled different package. This can result in a broken system. Please keep these kind of conflicts in mind when using DOWNGRADE PACKAGES.
 
-11 - HELP
+12 - HELP
 Display this help page.
 
 13 - CONFIGURE SYSTEM
@@ -806,8 +828,8 @@ do
 	echo -e " │   7   Dependency \e[1mT\e[0mree               8   \e[1mR\e[0meverse Dependency \e[1mT\e[0mree    │"
 	echo -e " └────────────────────────────────────────────────────────────────────┘"
 	echo -e " ┌────────────────────────────────────────────────────────────────────┐"
-	echo -e " │   9   Pacman \e[1mLog\e[0m                   10   \e[1mD\e[0mowngrade Packages         │"
-	echo -e " │  11   \e[1mH\e[0melp                                                         │"
+	echo -e " │   9   Pacman \e[1mLog\e[0m                   10   Reverse File \e[1mS\e[0mearch        │"
+	echo -e " │  11   \e[1mD\e[0mowngrade Packages           12   \e[1mH\e[0melp                       │"
 	echo -e " │  \e[31m13   \e[1mConf\e[0;31migure System             14   \e[1mFix\e[0;31m Pacman Errors         \e[0m │"
 	echo -e " │ \e[31m 15   \e[1mF\e[0;31morce \e[1mU\e[0;31mpdate System          16   \e[1mE\e[0;31mmpty Package Cache       \e[0m │"
 	echo -e " │ \e[31m 17   \e[1mF\e[0;31morce \e[1mI\e[0;31mnstall Packages       18   \e[1mF\e[0;31morce \e[1mR\e[0;31memove Packages     \e[0m │"
@@ -882,14 +904,20 @@ do
 		9|log)
 			func_log
 			echo
-			;;			
-		10|d|down|downgrade)
+			;;		
+		10|s|search)
+			func_s
+			echo
+			echo -e " All packages listed. To return to pacli press ENTER "
+			read
+			;;	
+		11|d|down|downgrade)
 			func_d
 			echo
 			echo -e " Downgrade finished. To return to pacli press ENTER "
 			read
 			;;
-		11|00|111|h|help)
+		12|00|111|h|help)
 			func_h
 			echo
 			;;
