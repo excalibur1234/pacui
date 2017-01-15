@@ -209,6 +209,64 @@ function func_d
 }
 
 
+function func_b
+{
+		# declare local variables
+		local {cache,pkg,line,temp}
+		# get architecture and cache directory and write results to variables:
+		cache=$(grep CacheDir /etc/pacman.conf | awk '{print $3}')
+
+
+		# 1. get list of last installs/upgrades/removes from pacman log and display result in fzf. in the end, fzf saves all selected package names (including the words "installs/upgrades/removes" to file /tmp/pacli-cache-packages.
+		tail -1000 /var/log/pacman.log | grep "\[ALPM\]" | grep "installed\|removed\|upgraded" | sed 's/\[ALPM\] //g' | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --tac --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to roll back. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}' > /tmp/pacli-cache-packages
+
+
+		# 2. in case of conflicting packages, packages have to be first removed.
+		#filter /tmp/pacli-cache-packages file for the word "installed" and write all results to variable "pkg"
+		pkg=$( grep installed /tmp/pacli-cache-packages | awk '{print $2}' )
+		
+		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
+		if [[ -n $pkg ]]
+		then
+			sudo pacman -Rdd $pkg --color always
+		fi
+
+
+		# 3. in case an "upgraded" package needs a package as dependency, the "removed" packages have to be installed.
+		#filter /tmp/pacli-cache-packages file for the word "removed" and write all results to variable "pkg"
+		pkg=$( grep removed /tmp/pacli-cache-packages | awk '{print $2}' )
+		
+		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
+		if [[ -n $pkg ]]
+		then
+			sudo pacman -S $pkg --color always
+		fi
+
+
+		# 4. filter /tmp/pacli-cache-packages file for the word "upgraded" and write all results to file /tmp/pacli-cache-downgrade
+		grep upgraded /tmp/pacli-cache-packages | awk '{print $2}' > /tmp/pacli-cache-downgrade
+
+		# only run the command inside the if-statement, if file /tmp/pacli-downgrade not empty - this happens when fzf is quit with ESC or CTRL+C
+		if [[ -n /tmp/pacli-cache-downgrade ]]
+		then
+			# this file will later contain a list of file names of (old versions of) packages in cache. it has to be empty in the beginning!
+			rm /tmp/pacli-downgrade
+		
+			# read line by line from file /tmp/pacli-cache-downgrade in while loop and save that line to variable $line
+			while IFS='' read -r line || [[ -n "$line" ]]
+			do
+				# use the following command to find all package versions of $line in cache, sort the resulting list, and choose the second line from the list (= the second latest version of package $line found in the cache):
+				find $cache -name "${line}-[0-9a-zA-Z.-]*.pkg.tar.[gx]z" | sort -r | sed -n '2p' >> /tmp/pacli-downgrade
+			done < /tmp/pacli-cache-downgrade
+			
+			# write file into variable (otherwise, the "sudo pacman -U" command does not work
+			pkg=$( cat /tmp/pacli-downgrade )
+			# downgrade packages by manually installing them: (sudo pacman -U --noconfirm --color always )
+			sudo pacman -U $pkg --color always
+		fi
+}
+
+
 function func_conf 
 {
 		# create file, which will contain a list of strings
@@ -618,6 +676,15 @@ After a successful downgrade, you can add <PACKAGE NAME> to your Ignore List ( "
 Alternatively, you can run future updates with the command "sudo pacman -Syu --ignore <PACKAGE NAME>" until a fixed version of <PACKAGE NAME> gets released.
 ATTENTION: Be careful when downgrading to <PACKAGE NAME> from online sources, because these are old versions from the Arch Linux repositories and not the Manjaro repositories: In the worst case, this can brake your system! Therefore, it is recommended to limit downgrading to (old versions of) local packages, if possible.
 ATTEMTION: Downgrading to a working version of <PACKAGE NAME> can break your system in in rare cases like the following: The latest system update has replaced a dependency of <PACKAGE NAME> with a different package and <PACKAGE NAME> is an important system package. Downgrading <PACKAGE NAME> will NOT reinstall the dependency of <PACKAGE NAME>, because it conflicts with the already installled different package. This can result in a broken system. Please keep these kind of conflicts in mind when using DOWNGRADE PACKAGES.
+
+
+11 - ROLL BACK SYSTEM
+"sudo pacman -Rdd <PACKAGE NAME>" (only for installed packages)
+"sudo pacman -S <PACKAGE NAME>" (only for remove packages)
+"sudo pacman -U <FILE NAME>" (only for upgraded packages)
+Manjaro uses a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. Sometimes, Things go wrong during UPDATE SYSTEM and you should roll back the last update.
+This command shows you a list of all recent Pacman action sorted by date. Please select all Pacman actions you want to roll back. Installed packages will be removed from your system, removed packages will be reinstalled, and upgraded packages will be downgraded to the second latest version in your local package cache.
+Attention: When you found a package upgrade, which broke a working package, it is recommende to add this package to your Ignore List ( "IgnorePkg" option in /etc/pacman.conf ). This will prevent Pacman from showing any available updates for this package. The package needs to be removed manually from your Ignore List in order to receive automatic updates  for it again. Alternatively, you can run future updates with the command "sudo pacman -Syu --ignore <PACKAGE NAME>" until a fixed version of that package gets released.
 
 12 - HELP
 Display this help page.
