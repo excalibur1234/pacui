@@ -1,7 +1,7 @@
 # Maintainer: excalibur1234 @forum.manjaro.org
 
-pkgname=pacli-simple
-pkgver=1.1
+pkgname=pacli-simple-git
+pkgver=1.2
 pkgrel=1
 pkgdesc="A simple and interative Bash Frontend for Pacman/Yaourt"
 arch=(any)
@@ -14,6 +14,7 @@ depends=('yaourt'
 makedepends=('git')
 optdepends=('update-notifier: Automatically get notified when updates are available')
 conflicts=('pacli')
+provides=("pacli")
 source=("git://github.com/excalibur1234/$pkgname")
 md5sums=('SKIP')
 
