@@ -212,7 +212,7 @@ function func_d
 function func_b
 {
 		# declare local variables
-		local {cache,pkg,line,temp}
+		local {cache,pkg,line}
 		# get architecture and cache directory and write results to variables:
 		cache=$(grep CacheDir /etc/pacman.conf | awk '{print $3}')
 
@@ -220,35 +220,25 @@ function func_b
 		# 1. get list of last installs/upgrades/removes from pacman log and display result in fzf. in the end, fzf saves all selected package names (including the words "installs/upgrades/removes" to file /tmp/pacli-cache-packages.
 		tail -1000 /var/log/pacman.log | grep "\[ALPM\]" | grep "installed\|removed\|upgraded" | sed 's/\[ALPM\] //g' | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --tac --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to roll back. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}' > /tmp/pacli-cache-packages
 
-
-		# 2. in case of conflicting packages, packages have to be first removed.
-		#filter /tmp/pacli-cache-packages file for the word "installed" and write all results to variable "pkg"
-		pkg=$( grep installed /tmp/pacli-cache-packages | awk '{print $2}' )
-		
-		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
-		if [[ -n $pkg ]]
-		then
-			sudo pacman -Rdd $pkg --color always
-		fi
-
-
-		# 3. in case an "upgraded" package needs a package as dependency, the "removed" packages have to be installed.
-		#filter /tmp/pacli-cache-packages file for the word "removed" and write all results to variable "pkg"
-		pkg=$( grep removed /tmp/pacli-cache-packages | awk '{print $2}' )
-		
-		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
-		if [[ -n $pkg ]]
-		then
-			sudo pacman -S $pkg --color always
-		fi
-
-
-		# 4. filter /tmp/pacli-cache-packages file for the word "upgraded" and write all results to file /tmp/pacli-cache-downgrade
-		grep upgraded /tmp/pacli-cache-packages | awk '{print $2}' > /tmp/pacli-cache-downgrade
-
 		# only run the command inside the if-statement, if file /tmp/pacli-downgrade not empty - this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n /tmp/pacli-cache-downgrade ]]
 		then
+		
+			# 2. in case of conflicting packages, packages have to be first removed.
+			#filter /tmp/pacli-cache-packages file for the word "installed" and write all results to variable "pkg"
+			pkg=$( grep installed /tmp/pacli-cache-packages | awk '{print $2}' )
+			sudo pacman -Rdd $pkg --color always
+
+
+			# 3. in case an "upgraded" package needs a package as dependency, the "removed" packages have to be installed.
+			#filter /tmp/pacli-cache-packages file for the word "removed" and write all results to variable "pkg"
+			pkg=$( grep removed /tmp/pacli-cache-packages | awk '{print $2}' )
+			sudo pacman -S $pkg --color always
+
+
+			# 4. filter /tmp/pacli-cache-packages file for the word "upgraded" and write all results to file /tmp/pacli-cache-downgrade
+			grep upgraded /tmp/pacli-cache-packages | awk '{print $2}' > /tmp/pacli-cache-downgrade
+
 			# this file will later contain a list of file names of (old versions of) packages in cache. it has to be empty in the beginning!
 			rm /tmp/pacli-downgrade
 		
@@ -263,6 +253,7 @@ function func_b
 			pkg=$( cat /tmp/pacli-downgrade )
 			# downgrade packages by manually installing them: (sudo pacman -U --noconfirm --color always )
 			sudo pacman -U $pkg --color always
+			
 		fi
 }
 
