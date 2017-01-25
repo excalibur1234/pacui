@@ -186,13 +186,13 @@ function func_s
 		if [[ -n "$input2" ]]
 		then
 			# do this if variable "input" is not empty:
-			pacman -Ql --color always | grep $"$input2"
+			pacman -Ql --color always | grep -i --color=always $"$input2"
 		else
 			# do this if pacli is used with UI or no argument is specified in "pacli s" command:
 			echo "Enter (parts of) the file name to be searched within all installed packages. Then press ENTER."
 			read -r pkg
 			
-			pacman -Ql --color always | grep $pkg
+			pacman -Ql --color always | grep -i --color=always $pkg
 		fi
 }
 
@@ -245,7 +245,11 @@ function func_b
 
 			# this file will later contain a list of file names of (old versions of) packages in cache. it has to be empty in the beginning!
 			rm /tmp/pacli-downgrade
-		
+			
+			# recommendation: parse all package names in local cache and get the lowest available number of package version.
+			# next, offer a menu to let the user choose which version he wants to roll back to.
+			# continue
+			
 			# read line by line from file /tmp/pacli-cache-downgrade in while loop and save that line to variable $line
 			while IFS='' read -r line || [[ -n "$line" ]]
 			do
@@ -484,6 +488,12 @@ function func_ua
 }
 
 
+function func_la 
+{
+		pacman -Qem --color always
+}
+
+
 function func_a 
 {
 		local pkg
@@ -522,11 +532,6 @@ function func_ia
 		fi
 }
 
-
-function func_la 
-{
-		pacman -Qem --color always
-}
 
 
 # =======================
@@ -1049,9 +1054,10 @@ do
 			;;
 
 
-		0|q|quit)
+		0|q|quit|$'\e'|$'\e'$'\e')
 			pacli_clean && exit
 			;;
+
 
 		*)
 			echo -e " \e[41m Wrong option \e[0m"
