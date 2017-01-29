@@ -46,9 +46,11 @@ function func_c
 		fi
 		
 		echo ""
+		# remove all packages, which are not installed on this system, except the latest verions (this is a back up, in case somebody removes networkmanager)
 		paccache -ruvk1
 		echo ""
-		paccache -rvk2
+		# remove all package versions, except the latest 3
+		paccache -rvk3
 		echo ""
 
 		# 1. extract the name of hard drive the / partition is installed on and write it to the "disk" variatble"
@@ -197,29 +199,16 @@ function func_s
 }
 
 
-function func_d 
-{
-		pacman -Slq > /tmp/pacli-packages-local
-		pacman -Qq >> /tmp/pacli-packages-local
-		
-		local pkg
-		pkg=$(sort /tmp/pacli-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to downgrade. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
-		
-		downgrade $pkg
-}
-
-
 function func_b
 {
 		# declare local variables
-		local {cache,pkg,line,temp}
-		# get architecture and cache directory and write results to variables:
+		local {cache,pkgR,pkgI,pkgD,line,temp}
+		# get cache directory and write results to variable "cache":
 		cache=$(grep CacheDir /etc/pacman.conf | awk '{print $3}')
 
 
 		# 1. get list of last installs/upgrades/removes from pacman log and display result in fzf. in the end, fzf saves all selected package names (including the words "installs/upgrades/removes" to variable "temp".
 		temp=$( tail -2000 /var/log/pacman.log | grep "\[ALPM\]" | grep "installed\|removed\|upgraded" | sed 's/\[ALPM\] //g' | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --tac --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to roll back. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}' )
-		#> /tmp/pacli-cache-packages
 
 		# only run the command inside the if-statement, if variable "temp" is not empty - this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $temp ]]
@@ -230,39 +219,65 @@ function func_b
 		
 			# 2. in case of conflicting packages, packages have to be first removed.
 			#filter /tmp/pacli-cache-packages file for the word "installed" and write all results to variable "pkg"
-			pkg=$( grep installed /tmp/pacli-cache-packages | awk '{print $2}' )
-			sudo pacman -Rdd $pkg --color always
+			pkgR=$( grep installed /tmp/pacli-cache-packages | awk '{print $2}' )
+			
+			if [[ -n $pkgR ]]     # this if-condition avoids error message when no package gets removed (and $pkgR is empty)
+			then
+				sudo pacman -Rdd $pkgR --color always
+			fi
 
 
 			# 3. in case an "upgraded" package needs a package as dependency, the "removed" packages have to be installed.
 			#filter /tmp/pacli-cache-packages file for the word "removed" and write all results to variable "pkg"
-			pkg=$( grep removed /tmp/pacli-cache-packages | awk '{print $2}' )
-			sudo pacman -S $pkg --color always
+			pkgI=$( grep removed /tmp/pacli-cache-packages | awk '{print $2}' )
+			
+			if [[ -n $pkgI ]]     # this if-condition avoids error message when no package gets installed (and $pkgI is empty)
+			then
+				sudo pacman -S $pkgI --color always
+			fi
 
 
-			# 4. filter /tmp/pacli-cache-packages file for the word "upgraded" and write all results to file /tmp/pacli-cache-downgrade
+			# 4. filter /tmp/pacli-cache-packages file for the word "upgraded" and write all results to file /tmp/pacli-cache-downgrade (
+			# /tmp/pacli-cache-downgrade contains list of package names to be downgraded!
 			grep upgraded /tmp/pacli-cache-packages | awk '{print $2}' > /tmp/pacli-cache-downgrade
 
 			# this file will later contain a list of file names of (old versions of) packages in cache. it has to be empty in the beginning!
 			rm /tmp/pacli-downgrade
 			
-			# recommendation: parse all package names in local cache and get the lowest available number of package version.
-			# next, offer a menu to let the user choose which version he wants to roll back to.
-			# continue
-			
 			# read line by line from file /tmp/pacli-cache-downgrade in while loop and save that line to variable $line
 			while IFS='' read -r line || [[ -n "$line" ]]
 			do
-				# use the following command to find all package versions of $line in cache, sort the resulting list, and choose the second line from the list (= the second latest version of package $line found in the cache), append that to file /tmp/pacli-downgrade:
-				find $cache -name "${line}-[0-9a-zA-Z.-]*.pkg.tar.[gx]z" | sort -r | sed -n '2p' >> /tmp/pacli-downgrade
-			done < /tmp/pacli-cache-downgrade
+				# write list with all versions in cache into file /tmp/pacli-temp-downgrade (sorted - newes package version is on top)
+				find $cache -name "${line}-[0-9]*[0-9ainxy.-_]*.pkg.tar.[gx]z" | sort -r > /tmp/pacli-temp-downgrade
+				
+				# this command determines the currently installed verions of package $line:   pacman -Qi "${line}" | grep Version | awk '{print $3}'
+				# the next line moves the version BELOW the currently installed package version to file /tmp/pacli-downgrade. if no older version is available, nothing happens.
+				grep "$( pacman -Qi "${line}" | grep Version | awk '{print $3}' )" -A 1 "/tmp/pacli-temp-downgrade" | sed -n '2p' >> /tmp/pacli-downgrade	
+				
+			done < "/tmp/pacli-cache-downgrade"	
 			
 			# write file into variable (otherwise, the "sudo pacman -U" command does not work)
-			pkg=$( cat /tmp/pacli-downgrade )
-			# downgrade packages by manually installing them: (sudo pacman -U --noconfirm --color always )
-			sudo pacman -U $pkg --color always
+			pkgD=$( cat /tmp/pacli-downgrade )
+			
+			if [[ -n $pkgD ]]     # this if-condition avoids error message when no package gets downgraded (and $pkgD is empty)
+			then
+				# downgrade packages by manually installing them: (sudo pacman -U --noconfirm --color always )
+				sudo pacman -U $pkgD --color always
+			fi
 			
 		fi
+}
+
+
+function func_d
+{
+		pacman -Slq > /tmp/pacli-packages-local
+		pacman -Qq >> /tmp/pacli-packages-local
+		
+		local pkg
+		pkg=$(sort /tmp/pacli-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to downgrade. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
+		
+		downgrade $pkg
 }
 
 
@@ -558,6 +573,7 @@ function func_h
 			echo
 			echo -e "  pacli	log   - Pacman \e[1mLog\e[0m"
 			echo -e "  pacli	s     - Reverse File \e[1mS\e[0mearch"
+			echo -e "  pacli	b     - Roll \e[1mB\e[0mack System"
 			echo -e "  pacli	d     - \e[1mD\e[0mowngrade Packages"
 			echo -e "  pacli	h     - \e[1mH\e[0melp. For detailed help, please start User Interface first."
 			echo -e "  \e[31mpacli	conf  \e[0m- \e[1mConf\e[0migure System"
@@ -591,9 +607,11 @@ The first part focuses on updates, maintenance, installations, and removals of p
 The second part includes options for fixing your system. Options, which can break your system, are marked in red.
 The last part offers Arch User Repository (AUR) management options.
 
+
 0 - QUIT PACLI
 "clear && exit"
 This will clear your terminal an quit Pacli.
+
 
 1 - UPDATE SYSTEM
 "sudo pacman -Syu"
@@ -601,6 +619,7 @@ This will clear your terminal an quit Pacli.
 The first command compares a list of all installed packages with package database on your Manjaro repository mirror/server. If an updated package is available from the Manjaro repositories, it will get downloaded and installed on your system.
 The second command does the same as the first part, but with one exception: It also downloads, compiles, and installs all packages from the Arch User Repository (AUR), which have an updated PKGBUILD file. The first command is still needed occasionaly, because major Pacman and Yaourt updates require "pacman -Syu" and will fail when started with Yaourt.
 ATTENTION: When a new version of an AUR package is available, often the PKGBUILD file is not updated. If you want to install the latest version of a single AUR package, (re-)install it with INSTALL FROM AUR. If you want to install the latest versions of ALL AUR packages FORCE UPDATE AUR.
+
 
 2 - CLEAN SYSTEM
 "sudo pacman-mirrors -g -t 30 && sudo pacman -Syy"
@@ -624,9 +643,11 @@ This command effectively defragments your Pacman database.
 On traditional hard drives (HDD) this command can speed up all actions related to Pacman. 
 ATTENTION: It is NOT recommended to use this command on modern solid state hard drives (SSDs)!
 
+
 3 - INSTALL PACKAGES
 "sudo pacman -S <PACKAGE NAME>"
 This option downloads and installs <PACKAGE NAME> on your system. <PACKAGE NAME> must be a package from the Manjaro repositories. If you want to install a package from the AUR choose INSTALL FROM AUR or SEARCH + INSTALL FROM AUR.
+
 
 4 - REMOVE PACKAGES + DEPS
 "sudo pacman -Rsn <PACKAGE NAME>"
@@ -637,9 +658,11 @@ Please note that folders in your home (~) directory and created by the program <
 ~/.local/share/
 ATTENTION: If you want to display a list of all your installed packages (including their version number and description) use this Pacli option. Simply do not select <PACKAGE NAME> to be removed, but quit the list view with ESC or CTRL+C.
 
+
 5 - PACKAGE INFORMATION
 "yaourt -Sii <PACKAGE NAME>" or "yaourt -Qii <PACKAGE NAME>"
 This command displays a lot of information about <PACKAGE NAME>. Different pieces of information get displayed depending on package source (Manjaro repository or AUR) and package state (installed or not installed).
+
 
 6 - LIST LOCAL PACKAGE FILES
 "pacman -Qlq <PACKAGE NAME>"
@@ -647,20 +670,24 @@ This command lists all files contained in <PACKAGE NAME> including their path. <
 Have you ever installed a program and did not know with which command it can be started/executed? Just look for files (and their names) in your /usr/bin/ directory using LIST LOCAL PACKAGE FILES.
 By default all files are filtered for files located in /usr/bin/, but you can enter any filter term you want to. Delete the default filter term with BACKSPACE to see a complete list of files of <PACKAGE NAME>. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacli-list.
 
+
 7 - DEPENDENCIES TREE
 "pactree -s <PACKAGE NAME>" or "pactree <PACKAGE NAME>"
 This command will display a complete tree of all dependencies of <PACKAGE NAME>. <PACKAGE NAME> can be an installed package or a package from the Manjaro repositories. Dependencies are packages required by <PACKAGE NAME> in order to function. When you install <PACKAGE NAME>, all its dependencies get installed, too.
 The first command gets used when <PACKAGE NAME> is not installed on your local system.
+
 
 8 - REVERSE DEPENDENCIES TREE
 "pactree -r <PACKAGE NAME>"
 This command will display a tree of installed packages, which depend on <PACKAGE NAME>. In other words: All displayed packages require <PACKAGE NAME> in order to function (properly). 
 Use this command when you want to know why you cannot remove <PACKAGE NAME> from your system.
 
+
 9 - PACMAN LOG
 "tail -5000 /var/log/pacman.log"
 The Pacman Log contains all updates, installations, and removals (also in the AUR) you have done. Whenever something breaks on your system (e.g. after an udpate), but you do not remember anymore which packages were changed recently (e.g. during the last update), take a look at your Pacman Log and find out. Then, DOWNGRADE PACKAGES, which you think might be broken.
 This command displays the last 5000 lines of your Pacman Log and makes it searchable with fzf. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacli-log.
+
 
 10 - REVERSE FILE SEARCH
 "pacman -Ql | grep <FILE NAME>"
@@ -668,32 +695,26 @@ This command searches for <FILE NAME> in all your installed packages. The result
 Every package contains multiple packages, which get installed on your system during package installation. You can LIST LOCAL PACKAGE FILES to see them all (Attention: By default only files in /usr/bin/ are listed). 
 Sometimes, Pacman cannot find a file, for example a shared library. An error message is shown with <FILE NAME>. Use REVERSE FILE SEARCH to find out, which package has installed <FILE NAME>. In most cases, you can fix the Pacman error by using one of the following options with that package: UPDATE SYSTEM, FORCE REMOVE PACKAGES and INSTALL PACKAGES, FORCE UPDATE SYSTEM, or DOWNGRADE PACKAGES.
 
-11 - DOWNGRADE PACKAGES
-"downgrade <PACKAGE NAME>"
-Manjaro uses a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. If the latest version of a packages does not work on your system, you can downgrade that package to an earlier, working version.
-This command downgrades <PACKAGE NAME> and offers you a list of old <PACKAGE NAME> versions to choose from. This list includes all old <PACKAGE NAME> versions from your local package cache and online sources (if you have a working internet connection). 
-After a successful downgrade, you can add <PACKAGE NAME> to your Ignore List ( "IgnorePkg" option in /etc/pacman.conf ). This will prevent Pacman from showing any available updates for <PACKAGE NAME>. <PACKAGE NAME> needs to be removed manually from your Ignore List in order to receive automatic updates of <PACKAGE NAME> again.
-Alternatively, you can run future updates with the command "sudo pacman -Syu --ignore <PACKAGE NAME>" until a fixed version of <PACKAGE NAME> gets released.
-ATTENTION: Be careful when downgrading to <PACKAGE NAME> from online sources, because these are old versions from the Arch Linux repositories and not the Manjaro repositories: In the worst case, this can brake your system! Therefore, it is recommended to limit downgrading to (old versions of) local packages, if possible.
-ATTEMTION: Downgrading to a working version of <PACKAGE NAME> can break your system in in rare cases like the following: The latest system update has replaced a dependency of <PACKAGE NAME> with a different package and <PACKAGE NAME> is an important system package. Downgrading <PACKAGE NAME> will NOT reinstall the dependency of <PACKAGE NAME>, because it conflicts with the already installled different package. This can result in a broken system. Please keep these kind of conflicts in mind when using DOWNGRADE PACKAGES.
-
 
 11 - ROLL BACK SYSTEM
 "sudo pacman -Rdd <PACKAGE NAME>" (only for installed packages)
 "sudo pacman -S <PACKAGE NAME>" (only for remove packages)
 "sudo pacman -U <FILE NAME>" (only for upgraded packages)
-Manjaro uses a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. Sometimes, Things go wrong during UPDATE SYSTEM and you should roll back the last update.
-This command shows you a list of all recent Pacman action sorted by date. Please select all Pacman actions you want to roll back. Installed packages will be removed from your system, removed packages will be reinstalled, and upgraded packages will be downgraded to the second latest version in your local package cache.
-Attention: When you found a package upgrade, which broke a working package, it is recommende to add this package to your Ignore List ( "IgnorePkg" option in /etc/pacman.conf ). This will prevent Pacman from showing any available updates for this package. The package needs to be removed manually from your Ignore List in order to receive automatic updates  for it again. Alternatively, you can run future updates with the command "sudo pacman -Syu --ignore <PACKAGE NAME>" until a fixed version of that package gets released.
+Manjaro uses a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. Sometimes, things go wrong during UPDATE SYSTEM and you should roll back the last update.
+This command shows you a list of all recent Pacman actions sorted by date. Please select all Pacman actions you want to roll back. Installed packages will be removed from your system, removed packages will be reinstalled, and upgraded packages will be downgraded to the previous version (if this version is available in your local package cache).
+Attention: When you find a package, which latest version is broken, it is recommended to add this package to your Ignore List ( "IgnorePkg" option in /etc/pacman.conf ). This will prevent Pacman from showing any available updates for this package. The package needs to be removed manually from your Ignore List in order to receive automatic updates  for it again. Alternatively, you can run future updates with the command "sudo pacman -Syu --ignore <PACKAGE NAME>" until a fixed version of that package gets released.
+
 
 12 - HELP
 Display this help page.
+
 
 13 - CONFIGURE SYSTEM
 "$EDITOR <FILE NAME>"
 This command opens <FILE NAME> in your default text editor. You can choose between multiple important system configuration files. Files in the root directory are opened with root privileges.
 By default the text editor Nano gets used, except a custom $EDITOR variable has been exported. In the text editor Nano, Press CTRL+O to save your changes, ENTER to choose a directory, and CTRL+X to quit Nano.
 ATTENTION: Changing system configuration files can harm or even destroy your system. In some cases, this can happen with a single mistake. Be extremely careful and always double check your changes before saving and rebooting! It is recommended to search the Arch Wiki for the configuration file you want to edit and read about available and recommended settings.
+
 
 14 - FIX PACMAN ERRORS
 Multiple commands attempt to fix the most common issues Manjaro users have with Pacman. Force options (as in FORCE UPDATE SYSTEM) are excluded, even though they are essential in fixing some problems.
@@ -753,23 +774,28 @@ This last command forces a redownload of the latest package database from the be
 "sudo pacman -Suu"
 This command makes sure all downloaded packages get installed and downgraded if necessary. The user has to manually allow downgrades of packages, if downgrades are available.
 
+
 15 - FORCE UPDATE SYSTEM
 "sudo pacman -Syu --force"
 This command does the same as UPDATE SYSTEM, but it bypasses file conflict tests and overwrites conflicting files. All files will be overwritten. 
+
 
 16 - EMPTY PACKAGE CACHE
 "yaourt -Scc"
 This command will empty your entire package cache by deleting ALL packages.
 ATTENTION: This will make it impossible to reinstall old (or currently installed) packages or DOWNGRADE PACKAGES without a working internet connection.
 
+
 17 - FORCE INSTALL PACKAGES
 "sudo pacman -S --force <PACKAGE NAME>"
 This command does the same as INSTALL PACKAGES, but it forces the installation of <PACKAGE NAME>.
+
 
 18 - FORCE REMOVE PACKAGES
 "pacman -Rdd <PACKAGE NAME>"
 This command removes <PACKAGE NAME> without checking the dependencies of <PACKAGE NAME> first. This enables experienced users to remove packages and dependencies of packages. This command only removes <PACKAGE NAME> from your system. All dependencies and orphans are left: run CLEAN SYSTEM afterwards to remove them.
 ATTENTION: This command can break pacakges on your system or even your entire system.
+
 
 19 - FORCE UPDATE AUR
 "yaourt -Syua && yaourt -Syua --devel --needed --noconfirm"
@@ -780,10 +806,12 @@ The first command of FORCE UPDATE AUR does the same as the second command of UPD
 The second command of FORCE UPDATE AUR forces a reinstall of ALL your developmental AUR packages (i.e. all git, svn, and cvs-packages). These kinds of AUR packages are usually never updated/reinstalled with a simple "yaourt -Syua". The "--noconfirm" flag is used in a secure way, because no PKGBUILD files have changed since the first command got executed.
 ATTENTION: This might take a long time! By default, after every 15min this command will pause and ask again for your password.
 
+
 20 - LIST INSTALLED FROM AUR
 "pacman -Qem"
 This command lists all installed packages, which are from the AUR or which were manually installed.
 If you want a list of all installed packages use REMOVE PACKAGES + DEPS as described in this Help Page.
+
 
 21 - SEARCH + INSTALL FROM AUR
 "yaourt <PACKAGE NAME>"
@@ -791,10 +819,21 @@ This command searches for <PACKAGE NAME> in all Manjaro repositories and the Arc
 Example: You can search for "web browser" and you will find Firefox and other web browsers. One or multiple search results can be installed on your system.
 If you want to exit this mode without installing any packages, simply press CTRL+C or ENTER.
 
+
 22 - INSTALL FROM AUR
 "yaourt -S <PACKAGE NAME>"
 This command does the same as INSTALL PACKAGES. Additionally, Arch User Repository (AUR) packages can be installed.
 ATTENTION: Experienced users can install packages from the AUR without the need to answer questions all the time by using the command "yaourt -S <PACKAGE NAME> --noconfirm". The "--noconfirm" flag is great for quick and dirty installations of AUR packages on non-secure systems. Please keep always in mind that the AUR can contain any sort of package - including malicious and destructive (parts of) packages. Therefore, it is recommended to always check the PKGBUILD and .INSTALL file manually before installing a package from the AUR.
+
+
+xx - DOWNGRADE PACKAGES
+"downgrade <PACKAGE NAME>"
+Manjaro uses a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. If the latest version of a packages does not work on your system, you can downgrade that package to an earlier, working version.
+This command downgrades <PACKAGE NAME> and offers you a list of old <PACKAGE NAME> versions to choose from. This list includes all old <PACKAGE NAME> versions from your local package cache and online sources (if you have a working internet connection). 
+After a successful downgrade, you can add <PACKAGE NAME> to your Ignore List ( "IgnorePkg" option in /etc/pacman.conf ). This will prevent Pacman from showing any available updates for <PACKAGE NAME>. <PACKAGE NAME> needs to be removed manually from your Ignore List in order to receive automatic updates of <PACKAGE NAME> again.
+Alternatively, you can run future updates with the command "sudo pacman -Syu --ignore <PACKAGE NAME>" until a fixed version of <PACKAGE NAME> gets released.
+ATTENTION: Be careful when downgrading to <PACKAGE NAME> from online sources, because these are old versions from the Arch Linux repositories and not the Manjaro repositories: In the worst case, this can brake your system! Therefore, it is recommended to limit downgrading to (old versions of) local packages, if possible.
+ATTEMTION: Downgrading to a working version of <PACKAGE NAME> can break your system in in rare cases like the following: The latest system update has replaced a dependency of <PACKAGE NAME> with a different package and <PACKAGE NAME> is an important system package. Downgrading <PACKAGE NAME> will NOT reinstall the dependency of <PACKAGE NAME>, because it conflicts with the already installled different package. This can result in a broken system. Please keep these kind of conflicts in mind when using DOWNGRADE PACKAGES.
 
 
 To exit this Help Page, press "q".
@@ -900,7 +939,7 @@ do
 	echo -e " └────────────────────────────────────────────────────────────────────┘"
 	echo -e " ┌────────────────────────────────────────────────────────────────────┐"
 	echo -e " │   9   Pacman \e[1mLog\e[0m                   10   Reverse File \e[1mS\e[0mearch        │"
-	echo -e " │  11   \e[1mD\e[0mowngrade Packages           12   \e[1mH\e[0melp                       │"
+	echo -e " │  11   Roll \e[1mB\e[0mack System             12   \e[1mH\e[0melp                       │"
 	echo -e " │  \e[31m13   \e[1mConf\e[0;31migure System             14   \e[1mFix\e[0;31m Pacman Errors         \e[0m │"
 	echo -e " │ \e[31m 15   \e[1mF\e[0;31morce \e[1mU\e[0;31mpdate System          16   \e[1mE\e[0;31mmpty Package Cache       \e[0m │"
 	echo -e " │ \e[31m 17   \e[1mF\e[0;31morce \e[1mI\e[0;31mnstall Packages       18   \e[1mF\e[0;31morce \e[1mR\e[0;31memove Packages     \e[0m │"
@@ -981,8 +1020,14 @@ do
 			echo
 			echo -e " All packages listed. To return to pacli press ENTER "
 			read
-			;;	
-		11|d|down|downgrade)
+			;;
+		11|b|back)
+			func_b
+			echo
+			echo -e " System roll back finished. To return to pacli press ENTER "
+			read
+			;;
+		d|down|downgrade)
 			func_d
 			echo
 			echo -e " Downgrade finished. To return to pacli press ENTER "
