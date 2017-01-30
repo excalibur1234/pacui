@@ -241,8 +241,8 @@ function func_b
 			# /tmp/pacli-cache-downgrade contains list of package names to be downgraded!
 			grep upgraded /tmp/pacli-cache-packages | awk '{print $2}' > /tmp/pacli-cache-downgrade
 
-			# this file will later contain a list of file names of (old versions of) packages in cache. it has to be empty in the beginning!
-			rm /tmp/pacli-downgrade
+			# the file /tmp/pacli-downgrade will later contain a list of file names of (old versions of) packages in cache. it has to be empty in the beginning!
+			[[ -e /tmp/pacli-downgrade ]] && rm /tmp/pacli-downgrade           # check, whether file exists and delete it.
 			
 			# read line by line from file /tmp/pacli-cache-downgrade in while loop and save that line to variable $line
 			while IFS='' read -r line || [[ -n "$line" ]]
