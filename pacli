@@ -27,8 +27,15 @@
 
 function func_u 
 {
-		sudo pacman -Syu --color always
-		yaourt -Syua
+		if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
+		then
+			# execute these commands, if "pacaur" is not installed on system
+			sudo pacman -Syu --color always
+			yaourt -Syua
+		else
+			# execute these commands, if "pacaur is installed on system
+			pacaur -Syu  --color always
+		fi
 }
 
 
@@ -36,7 +43,17 @@ function func_c
 {
 		sudo pacman-mirrors -g -t 30 && echo "" && sudo pacman -Syy --color always
 		echo ""
-		yaourt -Qdt
+		
+		if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
+		then
+			yaourt -Qdt
+		else
+			pacman -Qdt --color always
+			echo "Press ENTER to remove these orphaned packages or CTRL+C to cancel."
+			read
+			sudo pacman -Rsn $(pacman -Qqdt) --color always --noconfirm
+		fi
+		
 		echo ""
 		
 		if [[ $(cat /proc/1/comm) == "systemd" ]]          # if init system is systemd
@@ -116,12 +133,21 @@ function func_info
 		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $pkg ]]
 		then
-			# next, it is checked, whether "pkg" is part of a list of all installed packages (pacman -Qq).
-			if ( pacman -Qq $pkg &>/dev/null )
+			if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
 			then
-				yaourt -Qii $pkg		# execute this command when "pkg" is already installed on system
+				
+				# next, it is checked, whether "pkg" is part of a list of all installed packages (pacman -Qq).
+				if ( pacman -Qq $pkg &>/dev/null )
+				then
+					yaourt -Qii $pkg		# execute this command when "pkg" is already installed on system
+				else
+					yaourt -Sii $pkg		# execute this command when "pkg" is not installed on system
+				fi
+				
 			else
-				yaourt -Sii $pkg		# execute this command when "pkg" is not installed on system
+			
+				pacaur -Sii $pkg --color always
+				
 			fi
 		fi
 }
@@ -295,6 +321,7 @@ function func_conf
 		[[ -e /etc/pacman-mirrors.conf ]] && echo "/etc/pacman-mirrors.conf        - Configure Manjaro's pacman-mirrors." >> /tmp/pacli-conf
 		[[ -e /etc/pacman.d/mirrorlist ]] && echo "/etc/pacman.d/mirrorlist        - Configure mirror list manually. Afterwards, do 'sudo pacman -Syy'." >> /tmp/pacli-conf
 		[[ -e /etc/yaourtrc ]] && echo "/etc/yaourtrc                   - Configure Yaourt." >> /tmp/pacli-conf
+		[[ -e /etc/xdg/pacaur/config ]] && echo "/etc/xdg/pacaur/config          - Configure Pacaur." >> /tmp/pacli-conf
 		[[ -e /etc/makepkg.conf ]] && echo "/etc/makepkg.conf               - Configure package compilation." >> /tmp/pacli-conf
 		[[ -e /etc/resolv.conf ]] && echo "/etc/resolv.conf                - Configure DNS servers." >> /tmp/pacli-conf
 		[[ -e /etc/hostname ]] && echo "/etc/hostname                   - Configure your network hostname" >> /tmp/pacli-conf
@@ -467,7 +494,12 @@ function func_fu
 
 function func_e 
 {
-		yaourt -Scc
+		if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
+		then
+			yaourt -Scc
+		else
+			pacaur -Scc --color always
+		fi
 }
 
 
@@ -500,7 +532,12 @@ function func_fr
 
 function func_ua 
 {
-		yaourt -Syua && yaourt -Syua --devel --needed --noconfirm
+		if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
+		then
+			yaourt -Syua && yaourt -Syua --devel --needed --noconfirm
+		else
+			pacaur -Syu --color always && pacaur -Syu --devel --needed --color always
+		fi		
 }
 
 
@@ -516,14 +553,28 @@ function func_a
 		
 		if [[ -n "$input2" ]]
 		then
-			# do this if variable "input" is not empty:
-			yaourt "$input2"
+		
+			if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
+			then
+				# do this if variable "input" is not empty:
+				yaourt "$input2"
+			else
+				pacaur -Ss "$input2" --color always
+			fi				
+				
 		else
+			
 			# do this if pacli is used with UI or no argument is specified in "pacli a" command:
 			echo "Enter (parts of) name and/or description of package to be searched. Then press ENTER."
 			read -r pkg
             
-			yaourt $pkg
+			if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
+			then
+				yaourt $pkg
+			else
+				pacaur -Ss $pkg --color always
+			fi
+			
 		fi
 }
 
@@ -544,7 +595,14 @@ function func_ia
 		
 		if [[ -n $pkg ]]
 		then
-			yaourt -S $pkg
+		
+			if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
+			then
+				yaourt -S $pkg
+			else
+				pacaur -S $pkg --color always
+			fi
+			
 		fi
 }
 
@@ -597,7 +655,7 @@ function func_h
 Welcome to Pacli's Help Page.
 
 
-Pacli is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Yaourt as back ends. Additionally, it uses some Manjaro exclusive commands. Pacli offers you the most common and useful features for managing your packages.
+Pacli is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Yaourt/Pacaur as back ends. Additionally, it uses some Manjaro exclusive commands. Pacli offers you the most common and useful features for managing your packages.
 
 Navigate this help page with your Arrow Keys, PageUp/PageDown Keys, SpaceBar, or your Mouse Wheel. To search this Help Page, enter /<SEARCH TERM> and press ENTER. For example, enter the following (without quotes " ") in order to search for update: "/update". Search is not case sensitive. To exit this Help Page, press your "q" key.
 Most options in Pacli use fuzzy finder (fzf), which means by starting to type you can search the displayed list. Use your TAB key to select multiple items from the list and your ENTER key to choose your selection. Navigate fzf's list the same way you navigate this help page.
