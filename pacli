@@ -233,7 +233,8 @@ function func_b
 			
 			if [[ -n $pkgI ]]     # this if-condition avoids error message when no package gets installed (and $pkgI is empty)
 			then
-				sudo pacman -S $pkgI --color always --noconfirm
+				# install as dependency, because otherwise an update would not remove a package!
+				sudo pacman -S $pkgI --color always --asdeps --noconfirm
 			fi
 
 
@@ -698,9 +699,9 @@ Sometimes, Pacman cannot find a file, for example a shared library. An error mes
 
 
 11 - ROLL BACK SYSTEM
-"sudo pacman -Rdd <PACKAGE NAME>" (only for installed packages)
-"sudo pacman -S <PACKAGE NAME>" (only for remove packages)
-"sudo pacman -U <FILE NAME>" (only for upgraded packages)
+"sudo pacman -Rdd <PACKAGE NAME> --noconfirm" (only for installed packages)
+"sudo pacman -S <PACKAGE NAME> --asdeps --noconfirm" (only for remove packages)
+"sudo pacman -U <FILE NAME> --noconfirm" (only for upgraded packages)
 Manjaro uses a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. Sometimes, things go wrong during UPDATE SYSTEM and you should roll back the last update.
 This command shows you a list of all recent Pacman actions sorted by date. Please select all Pacman actions you want to roll back. Installed packages will be removed from your system, removed packages will be reinstalled, and upgraded packages will be downgraded to the previous version (if this version is available in your local package cache).
 Attention: When you find a package, which latest version is broken, it is recommended to add this package to your Ignore List ( "IgnorePkg" option in /etc/pacman.conf ). This will prevent Pacman from showing any available updates for this package. The package needs to be removed manually from your Ignore List in order to receive automatic updates  for it again. Alternatively, you can run future updates with the command "sudo pacman -Syu --ignore <PACKAGE NAME>" until a fixed version of that package gets released.
