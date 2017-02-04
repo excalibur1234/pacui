@@ -655,7 +655,7 @@ function func_h
 Welcome to Pacli's Help Page.
 
 
-Pacli is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Yaourt/Pacaur as back ends. Additionally, it uses some Manjaro exclusive commands. Pacli offers you the most common and useful features for managing your packages.
+Pacli is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Yaourt/Pacaur as back ends. If Pacaur is installed on your system, Pacli uses it by default. Additionally, it uses some Manjaro exclusive commands. Pacli offers you the most common and useful features for managing your packages.
 
 Navigate this help page with your Arrow Keys, PageUp/PageDown Keys, SpaceBar, or your Mouse Wheel. To search this Help Page, enter /<SEARCH TERM> and press ENTER. For example, enter the following (without quotes " ") in order to search for update: "/update". Search is not case sensitive. To exit this Help Page, press your "q" key.
 Most options in Pacli use fuzzy finder (fzf), which means by starting to type you can search the displayed list. Use your TAB key to select multiple items from the list and your ENTER key to choose your selection. Navigate fzf's list the same way you navigate this help page.

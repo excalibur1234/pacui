@@ -1,10 +1,10 @@
 # pacli-simple
 
-pacli is a CLI tool, which provides useful and advanced Pacman and Yaourt commands in an easy to use text interface. 
+pacli-simple is a CLI tool, which provides useful and advanced Pacman and Yaourt/Pacaur commands in an easy to use text interface. If Pacaur is installed on your system, it will be used by default instead of Yaourt.
 
-pacli is meant for experienced/intermediate/advanced users, who have at least basic knowledge of the structure of their Linux system and how Pacman and Yaourt work. Absolute beginners are probably overwhelmed by the amount of choices pacli offers.
+pacli-simple is meant for experienced/intermediate/advanced users, who have at least basic knowledge of the structure of their Linux system and how Pacman and Yaourt work. Absolute beginners are probably overwhelmed by the amount of choices pacli offers.
 
-This fork of an old version of [pacli](https://github.com/Manjaro-Pek/pacli/tree/f98e9226eb75ea00217481f436399328fe73d3ae) called pacli-simple follows the KISS principle: The whole program is contained within one file, which consists of easy to read bash code with many comments. pacli-simple wants to provide the same or more functionality as pacli but without any available settings and/or translations. Additionally, pacli-simple does not require the use of the UI, but can also be used by terminal commands directly: This way of using pacli is much faster!
+This fork of an old version of [pacli](https://github.com/Manjaro-Pek/pacli/tree/f98e9226eb75ea00217481f436399328fe73d3ae) called pacli-simple follows the KISS principle: The whole program is contained within one file, which consists of easy to read bash code with many helpful comments. pacli-simple wants to provide the same or more functionality as pacli but without any available settings and/or translations. Additionally, pacli-simple does not require the use of the UI, but can also be used by terminal commands directly: This way of using pacli is much faster!
 
 
 ## Screenshots
@@ -26,11 +26,17 @@ New "conf" option, which lets you edit a lot of .conf files on your system:
 
 ## Installation
 
-Simply install pacli-simple from the AUR:
+Simply install the stable version of pacli-simple from the Manjaro repositories:
 ```
-yaourt -S pacli-simple
+sudo pacman -S pacli-simple
 ```
-This will install pacli including the latest commits on Github. If you ever encounter any bugs, please reinstall pacli with the same command and check whether the bug is still there before reporting it.
+
+Alternatively, you can also install the latest version of pacli-simple:
+```
+yaourt -S pacli-simple-git
+```
+
+This will install pacli including the latest commits on Github. If you ever encounter any bugs, please reinstall (and thereby update) pacli-simple with the same command and check whether the bug is still there before reporting it.
 
 It is highly recommended to use an utility, which notifies the user about available updates alongside of pacli. Such a lightweight utility is for example [update-notifier](https://github.com/Chrysostomus/update-notifier).
 

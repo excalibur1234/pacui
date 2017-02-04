@@ -14,7 +14,8 @@ depends=('yaourt'
         'downgrade'
         'fzf')
 makedepends=('git')
-optdepends=('update-notifier: Automatically get notified when updates are available')
+optdepends=('pacaur: Needed for AUR support. If installed, it gets used by default over Yaourt.'
+        'update-notifier: Automatically get notified when updates are available.')
 conflicts=('pacli')
 provides=('pacli')
 source=("$pkgname-$pkgver-$pkgrel.tar.gz::$url/archive/$_gitcommit.tar.gz")
