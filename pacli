@@ -48,10 +48,15 @@ function func_c
 		then
 			yaourt -Qdt
 		else
-			pacman -Qdt --color always
-			echo "Press ENTER to remove these orphaned packages or CTRL+C to cancel."
-			read
-			sudo pacman -Rsn $(pacman -Qqdt) --color always --noconfirm
+		
+			if [[ -n $(pacman -Qdt) ]]  # only run these commands, if output of "pacman -Qdt" is not empty. this happens if there are no orphans.
+			then
+				pacman -Qdt --color always
+				echo "Press ENTER to remove these orphaned packages or CTRL+C to cancel."
+				read
+				sudo pacman -Rsn $(pacman -Qqdt) --color always --noconfirm
+			fi
+			
 		fi
 		
 		echo ""
@@ -133,21 +138,26 @@ function func_info
 		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $pkg ]]
 		then
-			if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
+			# next, it is checked, whether "pkg" is part of a list of all installed packages (pacman -Qq).
+			if ( pacman -Qq $pkg &>/dev/null )
 			then
-				
-				# next, it is checked, whether "pkg" is part of a list of all installed packages (pacman -Qq).
-				if ( pacman -Qq $pkg &>/dev/null )
+			
+				if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
 				then
 					yaourt -Qii $pkg		# execute this command when "pkg" is already installed on system
 				else
-					yaourt -Sii $pkg		# execute this command when "pkg" is not installed on system
+					pacaur -Qii $pkg --color always
 				fi
-				
+			
 			else
 			
-				pacaur -Sii $pkg --color always
-				
+				if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
+				then
+					yaourt -Sii $pkg		# execute this command when "pkg" is not installed on system
+				else
+					pacaur -Sii $pkg --color always
+				fi
+			
 			fi
 		fi
 }
