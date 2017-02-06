@@ -546,7 +546,7 @@ function func_ua
 		then
 			yaourt -Syua && yaourt -Syua --devel --needed --noconfirm
 		else
-			pacaur -Syu --color always && pacaur -Syu --devel --needed --color always
+			pacaur -Syua --color always && pacaur -Syua --devel --needed --color always
 		fi		
 }
 
