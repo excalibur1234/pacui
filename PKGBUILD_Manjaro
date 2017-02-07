@@ -9,12 +9,12 @@ pkgdesc="A simple and interative Bash Frontend for Pacman/Yaourt"
 arch=(any)
 url="https://github.com/excalibur1234/$pkgname"
 license=('GPL3')
-depends=('yaourt'
-        'pacman-mirrorlist'
-        'downgrade'
+depends=('pacman-mirrorlist'
         'fzf')
 makedepends=('git')
-optdepends=('pacaur: Needed for AUR support. If installed, it gets used by default over Yaourt.'
+optdepends=('yaourt: Needed for AUR support.'
+        'pacaur: Needed for AUR support. If installed, it gets used by default over Yaourt.'
+        'downgrade: Needed for hidded "downgrade" option.'
         'update-notifier: Automatically get notified when updates are available.')
 conflicts=('pacli')
 provides=('pacli')
