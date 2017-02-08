@@ -103,5 +103,5 @@ Choose the "Help" option within PacUI's UI by entering "12" or "H" or "h" or "he
 This help page explains some general stuff such as how to navigate PacUI. It also explains every PacUI option in detail. If you want to look up which commands PacUI uses under the hood and understand them, this is the right place for you!
 
 ### Manjaro Forum Threads
- - [New Forum](https://forum.manjaro.org/t/pacui-a-simple-bash-frontend-for-pacman-and-yaourt/677)
+ - [New Forum](https://forum.manjaro.org/t/pacui-a-simple-bash-frontend-for-pacman-and-yaourt-pacaur/677)
  - [Old Forum - Inactive Thread](https://classicforum.manjaro.org/index.php?topic=21399.0)

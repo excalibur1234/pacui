@@ -2,23 +2,23 @@
 # Maintainer: excalibur1234 @forum.manjaro.org
 
 pkgname=pacui
-pkgver=20170208
+pkgver=1.3
 pkgrel=1
-_gitcommit=13b98ade77e02adf68a0809e30c878df8930243a
+_gitcommit=43631dc9bb5d6e4efc903185d364b5c6c67d62aa
 pkgdesc="A simple and interative Bash Frontend for Pacman/Pacaur/Yaourt"
 arch=(any)
 url="https://github.com/excalibur1234/$pkgname"
 license=('GPL3')
-depends=('pacman-mirrorlist'
-        'package-query'
-        'fzf')
+depends=('pacman-mirrorlist' 'package-query' 'fzf')
 makedepends=('git')
+provides=("$pkgname")
+conflicts=("$pkgname-git")
 optdepends=('yaourt: Needed for AUR support.'
         'pacaur: Needed for AUR support. If installed, it gets used by default over Yaourt.'
         'downgrade: Needed for hidded "downgrade" option.'
         'update-notifier: Automatically get notified when updates are available.')
 source=("$pkgname-$pkgver-$pkgrel.tar.gz::$url/archive/$_gitcommit.tar.gz")
-md5sums=('19c1ea424c87e5cddc409dcf4b8d9d74')
+md5sums=('SKIP')
 
 pkgver() {
 	date +%Y%m%d
