@@ -2,7 +2,7 @@
 # Maintainer: excalibur1234 @forum.manjaro.org
 
 pkgname=pacui
-pkgver=20170115
+pkgver=20170208
 pkgrel=1
 _gitcommit=13b98ade77e02adf68a0809e30c878df8930243a
 pkgdesc="A simple and interative Bash Frontend for Pacman/Pacaur/Yaourt"
@@ -26,5 +26,5 @@ pkgver() {
 
 package () {
 	cd $srcdir
-        install -Dm755 $srcdir/$pkgname-$_gitcommit/pacli $pkgdir/usr/bin/pacli
+        install -Dm755 $srcdir/$pkgname-$_gitcommit/pacui $pkgdir/usr/bin/pacui
 }

@@ -1,11 +1,11 @@
 # Maintainer: excalibur1234 @forum.manjaro.org
 
 pkgname=pacui-git
-pkgver=1.2
-pkgrel=3
+pkgver=1.3
+pkgrel=1
 pkgdesc="Pacman/Pacaur/Yaourt"
 arch=(any)
-url="https://github.com/excalibur1234/pacli-simple"
+url="https://github.com/excalibur1234/pacui"
 license=('GPL3')
 depends=('pacman-mirrorlist'
         'package-query'
@@ -15,10 +15,10 @@ optdepends=('pacaur: Needed for AUR support. If installed, it gets used by defau
         'yaourt: Needed for AUR support.'
         'downgrade: Needed for hidded "downgrade" option.'
         'update-notifier: Automatically get notified when updates are available.')
-source=("git+https://github.com/excalibur1234/pacli-simple")
+source=("git+https://github.com/excalibur1234/pacui")
 md5sums=('SKIP')
 
 package () {
 	cd "$srcdir"
-        install -Dm755 "$srcdir/pacli-simple/pacli" "$pkgdir/usr/bin/pacli"
+        install -Dm755 "$srcdir/pacui/pacui" "$pkgdir/usr/bin/pacui"
 }
