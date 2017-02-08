@@ -5,11 +5,12 @@ pkgname=pacli-simple
 pkgver=20170115
 pkgrel=1
 _gitcommit=13b98ade77e02adf68a0809e30c878df8930243a
-pkgdesc="A simple and interative Bash Frontend for Pacman/Yaourt"
+pkgdesc="A simple and interative Bash Frontend for Pacman/Pacaur/Yaourt"
 arch=(any)
 url="https://github.com/excalibur1234/$pkgname"
 license=('GPL3')
 depends=('pacman-mirrorlist'
+        'package-query'
         'fzf')
 makedepends=('git')
 optdepends=('yaourt: Needed for AUR support.'
