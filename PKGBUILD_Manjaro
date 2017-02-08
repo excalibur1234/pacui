@@ -1,7 +1,7 @@
 # Maintainer: Stefano Capitani <stefanoatmanjarodotorg>
 # Maintainer: excalibur1234 @forum.manjaro.org
 
-pkgname=pacli-simple
+pkgname=pacui
 pkgver=20170115
 pkgrel=1
 _gitcommit=13b98ade77e02adf68a0809e30c878df8930243a
@@ -17,8 +17,6 @@ optdepends=('yaourt: Needed for AUR support.'
         'pacaur: Needed for AUR support. If installed, it gets used by default over Yaourt.'
         'downgrade: Needed for hidded "downgrade" option.'
         'update-notifier: Automatically get notified when updates are available.')
-conflicts=('pacli')
-provides=('pacli')
 source=("$pkgname-$pkgver-$pkgrel.tar.gz::$url/archive/$_gitcommit.tar.gz")
 md5sums=('19c1ea424c87e5cddc409dcf4b8d9d74')
 
