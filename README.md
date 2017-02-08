@@ -11,7 +11,7 @@ This fork of an old version of [pacli](https://github.com/Manjaro-Pek/pacli/tree
 
 Home Screen of PacUI's UI:
 
-![Screenshot 01](http://s18.postimg.org/8dz7xjlzt/screen.png)
+![Screenshot 01](http://s28.postimg.org/vec8kajnx/screen_png.jpg)
 
 
 Installing the package "cantata" from the Manjaro repositories:
@@ -21,7 +21,7 @@ Installing the package "cantata" from the Manjaro repositories:
 
 New "conf" option, which lets you edit a lot of .conf files on your system:
 
-![Screenshot 03](http://s17.postimg.org/tvujdlyjj/screen_png.jpg)
+![Screenshot 03](http://s27.postimg.org/mmb3ten1f/screen.png)
 
 
 ## Installation
