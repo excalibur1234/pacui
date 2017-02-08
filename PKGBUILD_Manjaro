@@ -4,28 +4,26 @@
 pkgname=pacui
 pkgver=1.3
 pkgrel=1
-_gitcommit=43631dc9bb5d6e4efc903185d364b5c6c67d62aa
 pkgdesc="A simple and interative Bash Frontend for Pacman/Pacaur/Yaourt"
 arch=(any)
 url="https://github.com/excalibur1234/$pkgname"
 license=('GPL3')
 depends=('pacman-mirrorlist' 'package-query' 'fzf')
-makedepends=('git')
 provides=('$pkgname')
-conflicts=('$pkgname-git')
+conflicts=('$pkgname-git' 'pacli-simple')
 replaces=('pacli-simple')
 optdepends=('yaourt: Needed for AUR support.'
         'pacaur: Needed for AUR support. If installed, it gets used by default over Yaourt.'
         'downgrade: Needed for hidded "downgrade" option.'
         'update-notifier: Automatically get notified when updates are available.')
-source=("$pkgname-$pkgver-$pkgrel.tar.gz::$url/archive/$_gitcommit.tar.gz")
-md5sums=('SKIP')
+source=("$url/archive/$pkgver.tar.gz")
+md5sums=('f8aac234d55eb79c555e0f5b1dc30e45')
 
-pkgver() {
-	date +%Y%m%d
-}
+# how to get md5sum:
+#  1. do a release on github and download its ...tar.gz file.
+#  2. do in terminal: "md5sum ...tar.gz"
 
 package () {
 	cd $srcdir
-        install -Dm755 $srcdir/$pkgname-$_gitcommit/pacui $pkgdir/usr/bin/pacui
+        install -Dm755 $srcdir/$pkgname-$pkgver/pacui $pkgdir/usr/bin/pacui
 }
