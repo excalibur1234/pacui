@@ -69,10 +69,10 @@ function func_c
 		
 		echo ""
 		# remove all packages, which are not installed on this system, except the latest verions (this is a back up, in case somebody removes networkmanager)
-		paccache -ruvk1
+		paccache -rvu -k 1
 		echo ""
 		# remove all package versions, except the latest 3
-		paccache -rvk3
+		paccache -rv -k 3
 		echo ""
 
 		# 1. extract the name of hard drive the / partition is installed on and write it to the "disk" variatble"
@@ -172,7 +172,7 @@ function func_l
 		if [[ -n $pkg ]]
 		then
 			# take the output of command "pacman -Qlq $pkg" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacli-list.
-			pacman -Qlq $pkg --color always | fzf-tmux -m -e +s -i --query="/usr/bin/" --cycle --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed directories and files > ' >> /tmp/pacli-list
+			pacman -Qlq $pkg --color always | grep -v "/$" | fzf-tmux -m -e +s -i --query="/usr/bin/" --cycle --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed directories and files > ' >> /tmp/pacli-list
 		fi
 }
 
@@ -230,7 +230,8 @@ function func_s
 			echo "Enter (parts of) the file name to be searched within all installed packages. Then press ENTER."
 			read -r pkg
 			
-			pacman -Ql --color always | grep -i --color=always $pkg
+			# the "grep -v '/$' " part removes all folders from the view:
+			pacman -Ql --color always | grep -i --color=always $pkg | grep -v "/$" 
 		fi
 }
 
