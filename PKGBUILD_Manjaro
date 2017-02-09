@@ -9,8 +9,7 @@ arch=(any)
 url="https://github.com/excalibur1234/$pkgname"
 license=('GPL3')
 depends=('pacman-mirrorlist' 'package-query' 'fzf')
-provides=('$pkgname')
-conflicts=('$pkgname-git' 'pacli-simple')
+conflicts=("$pkgname-git" 'pacli-simple')
 replaces=('pacli-simple')
 optdepends=('yaourt: Needed for AUR support.'
         'pacaur: Needed for AUR support. If installed, it gets used by default over Yaourt.'
