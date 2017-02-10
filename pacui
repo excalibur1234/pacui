@@ -253,8 +253,9 @@ function func_b
 
 			# in order to work with the output of fzf, it has to be copied into a file in the /tmp/ directory: /tmp/pacui-cache-packages
 			echo $temp > /tmp/pacui-cache-packages
-		
-			# 2. in case of conflicting packages, packages have to be first removed.
+			
+			
+			# 2. in case of conflicting packages, packages have to be first removed (with the force option, because other packages might still depend on them).
 			#filter /tmp/pacui-cache-packages file for the word "installed" and write all results to variable "pkg"
 			pkgR=$( grep installed /tmp/pacui-cache-packages | awk '{print $2}' )
 			
@@ -265,43 +266,60 @@ function func_b
 
 
 			# 3. in case an "upgraded" package needs a package as dependency, the "removed" packages have to be installed.
-			#filter /tmp/pacui-cache-packages file for the word "removed" and write all results to variable "pkg"
-			pkgI=$( grep removed /tmp/pacui-cache-packages | awk '{print $2}' )
+			#filter /tmp/pacui-cache-packages file for the word "removed" and write all results to file /tmp/pacui-cache-install
+			grep removed /tmp/pacui-cache-packages | awk '{print $2}' > /tmp/pacui-cache-install
 			
-			if [[ -n $pkgI ]]     # this if-condition avoids error message when no package gets installed (and $pkgI is empty)
+			if [[ -s /tmp/pacui-cache-install ]]     # this if-condition avoids error messages when no package gets installed (and /tmp/pacui-cache-install is empty)
 			then
-				# install as dependency, because otherwise an update would not remove a package!
-				sudo pacman -S $pkgI --color always --asdeps --noconfirm
+				
+				# the file /tmp/pacui-install will later contain a list of file names of (old versions of) packages in cache. it has to be empty in the beginning!
+				[[ -e /tmp/pacui-install ]] && rm /tmp/pacui-install           # check, whether file exists and delete it.
+				
+				# read line by line from file /tmp/pacui-cache-install in while loop and save that line to variable $line
+				while IFS='' read -r line || [[ -n "$line" ]]
+				do
+					# write name of latest version in cache into file /tmp/pacui-install ("sort" puts latest version on top, which is then selected): 
+					find $cache -name "${line}-[0-9]*[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r | sed -n '1p' >> /tmp/pacui-install		
+				done < "/tmp/pacui-cache-install"	
+				
+				# write file into variable (otherwise, the "sudo pacman -U" command does not work)
+				pkgI=$( cat /tmp/pacui-install )
+				
+				# install cannot be done as dependency, because sometimes packages are simply replaced by other packages. in this case, installing as dependency would be bad!
+				sudo pacman -U $pkgI --color always --noconfirm
+				
 			fi
 
 
-			# 4. filter /tmp/pacui-cache-packages file for the word "upgraded" and write all results to file /tmp/pacui-cache-downgrade (
+			# 4. filter /tmp/pacui-cache-packages file for the word "upgraded" and write all results to file /tmp/pacui-cache-downgrade
 			# /tmp/pacui-cache-downgrade contains list of package names to be downgraded!
 			grep upgraded /tmp/pacui-cache-packages | awk '{print $2}' > /tmp/pacui-cache-downgrade
-
-			# the file /tmp/pacui-downgrade will later contain a list of file names of (old versions of) packages in cache. it has to be empty in the beginning!
-			[[ -e /tmp/pacui-downgrade ]] && rm /tmp/pacui-downgrade           # check, whether file exists and delete it.
 			
-			# read line by line from file /tmp/pacui-cache-downgrade in while loop and save that line to variable $line
-			while IFS='' read -r line || [[ -n "$line" ]]
-			do
-				# write list with all versions in cache into file /tmp/pacui-temp-downgrade (sorted - newes package version is on top)
-				find $cache -name "${line}-[0-9]*[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r > /tmp/pacui-temp-downgrade
-				
-				# this command determines the currently installed verions of package $line:   pacman -Qi "${line}" | grep Version | awk '{print $3}'
-				# the next line moves the version BELOW the currently installed package version to file /tmp/pacui-downgrade. if no older version is available, nothing happens.
-				grep "$( pacman -Qi "${line}" | grep Version | awk '{print $3}' )" -A 1 "/tmp/pacui-temp-downgrade" | sed -n '2p' >> /tmp/pacui-downgrade	
-				
-			done < "/tmp/pacui-cache-downgrade"	
-			
-			# write file into variable (otherwise, the "sudo pacman -U" command does not work)
-			pkgD=$( cat /tmp/pacui-downgrade )
-			
-			if [[ -n $pkgD ]]     # this if-condition avoids error message when no package gets downgraded (and $pkgD is empty)
+			if [[ -s /tmp/pacui-cache-downgrade ]]     # this if-condition avoids error messages when no package gets downgraded (and /tmp/pacui-cache-downgrade is empty)
 			then
+				
+				# the file /tmp/pacui-downgrade will later contain a list of file names of (old versions of) packages in cache. it has to be empty in the beginning!
+				[[ -e /tmp/pacui-downgrade ]] && rm /tmp/pacui-downgrade           # check, whether file exists and delete it.
+				
+				# read line by line from file /tmp/pacui-cache-downgrade in while loop and save that line to variable $line
+				while IFS='' read -r line || [[ -n "$line" ]]
+				do
+					# write list with all versions in cache into file /tmp/pacui-temp-downgrade (sorted - newes package version is on top)
+					find $cache -name "${line}-[0-9]*[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r > /tmp/pacui-temp-downgrade
+					
+					# this command determines the currently installed verions of package $line:   pacman -Qi "${line}" | grep Version | awk '{print $3}'
+					# the next line moves the version BELOW the currently installed package version to file /tmp/pacui-downgrade. if no older version is available, nothing happens.
+					grep "$( pacman -Qi "${line}" | grep Version | awk '{print $3}' )" -A 1 "/tmp/pacui-temp-downgrade" | sed -n '2p' >> /tmp/pacui-downgrade	
+				done < "/tmp/pacui-cache-downgrade"	
+				
+				# write file into variable (otherwise, the "sudo pacman -U" command does not work)
+				pkgD=$( cat /tmp/pacui-downgrade )
+				
 				# downgrade packages by manually installing them: (sudo pacman -U --noconfirm --color always )
 				sudo pacman -U $pkgD --color always --noconfirm
+				
 			fi
+			
 			
 		fi
 }
