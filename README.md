@@ -89,6 +89,40 @@ pacui i cantat
 ```
 Since there is only one package found in the Manjaro repositories when searching for "cantat", the list view is skipped and you are immediately prompted to install "cantata".
 
+## Recommended Settings
+Along with PacUI the following settings are recommended:
+
+### Fancy List View
+A fancy list view for all pacman updates can be enabled by uncommenting the following line in your /etc/pacman.conf file:
+```
+#VerbosePkgLists
+```
+A very easy way to edit this file by using PacUI is:
+```
+pacui conf pacman.conf
+```
+
+### Limit Mirrors Check to Countries Near You
+Whenever pacman-mirrors is used by PacUI, e.g. in the "Clean System" option, your ping is checked to all Manjaro servers/mirrors. By limiting this check to mirrors near you, you can dramatically speed up this process.
+You can achieve this by uncommenting and editing the line according to the tips above the following line in your /etc/pacman-mirrors.conf file:
+```
+#OnlyCountry =
+```
+A very easy way to edit this file by using PacUI is:
+```
+pacui --conf pacman-mirrors
+```
+
+### Alias
+If you use PacUI without the UI it is recommended to use an alias for PacUI to reduce the amount of necessary typing. Do this by adding the following line to your ~.bashrc file (if you use bash):
+```
+alias p='pacui'
+```
+This will set "p" as an alias to "pacui" within your terminal (after a reboot of your system). This means that for updating your system, you can simply use
+```
+p u
+```
+
 
 ## Help
 
