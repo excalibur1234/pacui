@@ -241,8 +241,12 @@ function func_b
 		# declare local variables
 		local {cache,pkgR,pkgI,pkgD,line,temp1,temp2,temp3}
 		# get cache directory from file /etc/pacman.conf (without any white spaces) and write results to variable "cache":
-		cache=$( awk -F '=' '/^CacheDir/ {gsub(" ","",$2); print $2}' '/etc/pacman.conf' )		         
-
+		cache=$( awk -F '=' '/^CacheDir/ {gsub(" ","",$2); print $2}' '/etc/pacman.conf' )
+		# set "cache" varialbe to default directory, if  variable "cache" is empty:
+		if [[ ! -n $cache ]]
+		then
+			cache="/var/cache/pacman/pkg/"
+		fi
 
 		# 1. get list of last installs/upgrades/removes from pacman log and display result in fzf. in the end, fzf saves all selected package names (including the words "installed/upgraded/removed/downgraded" to file /tmp/pacui-cache-packages
 		tail -2000 /var/log/pacman.log | grep "\[ALPM\]" | grep "installed\|removed\|upgraded" | sed 's/\[ALPM\] //g' | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --tac --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to roll back. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}' > /tmp/pacui-cache-packages
@@ -316,10 +320,10 @@ function func_b
 						find $cache -name "${temp2}-[0-9]*[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r > /tmp/pacui-temp-downgrade
 						
 						# temp3 is supposed to be "2p" when temp1=1 and "3p" when temp1=2 ...  --> needed for "sed" command below
-						temp3="$((${temp1}+1))p"
+						temp3="$(( temp1 + 1 ))p"
 						# the next line moves the $((temp3-1))-th version below the currently installed package version to file /tmp/pacui-downgrade. if no such old version is available, nothing happens.
 						# this command determines the currently installed verions of package $temp2:   pacman -Qi "${tmep2}" | awk -F ': ' '/Version/ {print $2}'
-						grep "$( lang=C pacman -Qi "${temp2}" | awk -F ': ' '/^Version/ {print $2}' )" -A 100 "/tmp/pacui-temp-downgrade" | sed -n "${temp3}" >> /tmp/pacui-downgrade
+						grep "$( lang=C pacman -Qi "${temp2}" | awk -F ': ' '/^Version/ {print $2}' )" -A 100 "/tmp/pacui-temp-downgrade" | sed -n "$temp3" >> /tmp/pacui-downgrade
 					fi
 				
 				done < "/tmp/pacui-cache-downgrade-counted"	
@@ -1020,7 +1024,7 @@ function pacui_clean
 {
 		# the traditional "clear" command does not work as expected on all systems. solution: do everything i expect from "clear" manually:
 		# number of lines of the user's terminal.
-		lines=$(tput lines)
+		lines=$( tput lines )
 		for (( i=1; i<=lines; i++ ))
 		do
 				# insert "lines" number of empty lines:
