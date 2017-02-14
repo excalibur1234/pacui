@@ -64,16 +64,17 @@ function func_c
 		echo ""
 		
 		# write the content between "EOF" into file "/tmp/pacui-diff".
-		cat <<-DiffScript > /tmp/pacui-diff.sh
+		cat <<-"DiffScript" > /tmp/pacui-diff.sh
 		
 			#!/bin/bash
-			temp="$(( ( ${#2} + $(tput cols) ) / 2 ))"		# calculates half the width of the terminal window ( $(tput cols)=width of terminal window
+			temp="$(( ( $(tput cols) - ${#2} ) / 2 ))"		# calculates half the width of the terminal window ( $(tput cols)=width of terminal window )
 			
+			# insert extra line with file paths above the diff viewer output:
 			echo -n "$1"									# print first argument (without \newline at the end) = file path of file1
 			printf "%*s\n" "$temp" "$2"						# print second argument (flushed half terminal width to the right) = file path of file2
 			
 			# use "diff" as a file difference viewer with many options, which make it look good
-			diff --side-by-side --suppress-common-lines --ignore-all-space --color=always --width=$COLUMNS $1 $2
+			diff --side-by-side --suppress-common-lines --ignore-all-space --color=always --width=$(tput cols) $1 $2
 			
 		DiffScript
 		
@@ -707,7 +708,7 @@ function func_h
 			
 		else
 			
-			less -Ri <<-EOF  # this command will display all the following lines in "less" until a line with "EOF" is encountered
+			less -Ri <<-"EOF"  # this command will display all the following lines in "less" until a line with "EOF" is encountered
 
 Welcome to PacUI's Help Page.
 
