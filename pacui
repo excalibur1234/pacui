@@ -61,6 +61,34 @@ function func_c
 		
 		echo ""
 		
+		if [[ -n $(sudo DIFFPROG="nano" pacdiff) ]]  # only run these commands, if output of "sudo DIFFPROG="nano" pacdiff" is not empty. this happens if there are .pacnew or .pacsave files present
+		then
+			
+			# write the content between "EOF" into file "/tmp/pacui-diff".
+			cat <<-DiffScript > /tmp/pacui-diff.sh
+			
+				#!/bin/bash
+				local temp
+				temp="$(( ( ${#2} + $(tput cols) ) / 2 ))"		# calculates half the width of the terminal window ( $(tput cols)=width of terminal window
+				
+				echo -n "$1"									# print first argument (without \newline at the end) = file path of file1
+				printf "%*s\n" "$temp" "$2"						# print second argument (flushed half terminal width to the right) = file path of file2
+				
+				# use "diff" as a file difference viewer with many options, which make it look good
+				diff --side-by-side --suppress-common-lines --ignore-all-space --color=always --width=$COLUMNS $1 $2
+				
+			DiffScript
+			
+			# make script file executable:
+			sudo chmod +x "/tmp/pacui-diff.sh"
+			
+			# use pacdiff to search for .pacnew and .pacsave files. display both the original and the used config file using "/tmp/pacui-diff".
+			sudo DIFFPROG="/tmp/pacui-diff.sh" pacdiff
+		
+		fi
+		
+		echo ""
+		
 		if [[ $(cat /proc/1/comm) == "systemd" ]]          # if init system is systemd
 		then
 			# limit logs in journalctl to an ageo of 30 days and a combined size of 50mb
@@ -680,7 +708,7 @@ function func_h
 			
 		else
 			
-			less -Ri	<<-EOF
+			less -Ri <<-EOF  # this command will display all the following lines in "less" until a line with "EOF" is encountered
 
 Welcome to PacUI's Help Page.
 
@@ -718,6 +746,10 @@ If you want to speed up this command, it is recommended to only test your connec
 
 "yaourt -Qdt"
 This option lists all orphaned packages on your system. Orphaned packages are old and no longer needed dependencies (packages not explicitly installed by you), which were never removed from your system.
+
+"sudo pacdiff"
+A .pacnew file may be created during a package upgrade to avoid overwriting a file (e.g. a config file) which already exists and was previously modified by the user. A .pacsave file may be created during a package removal, or by a package installation (the package must be removed first). When the pacman database has record that a certain file owned by the package should be backed up it will create a .pacsave file. These files require manual intervention from the user and it is good practice to handle them regularly. If left unhandled, improper configurations can result in improper function of the software, or the software being unable to run altogether. 
+This command displays all the differences between the .pacnew/.pacsave file and your modified file. Please decide which file you want to keep or solve this conflict in another way (e.g. by manually editing one of those files and deleting the other).
 
 "sudo journalctl --vacuum-size=50M --vacuum-time=30days"
 This command limits all log files in journalctl to a combined size of 50 megabytes and a maximum age of 30 days. This leaves plenty of log files behind to analyze systematic and reoccuring errors while preventing excessive amounts of log files.
