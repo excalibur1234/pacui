@@ -67,7 +67,6 @@ function func_c
 		cat <<-DiffScript > /tmp/pacui-diff.sh
 		
 			#!/bin/bash
-			local temp
 			temp="$(( ( ${#2} + $(tput cols) ) / 2 ))"		# calculates half the width of the terminal window ( $(tput cols)=width of terminal window
 			
 			echo -n "$1"									# print first argument (without \newline at the end) = file path of file1
