@@ -11,8 +11,9 @@ license=('GPL3')
 depends=('pacman-mirrorlist' 'package-query' 'wget' 'gawk' 'sudo' 'fzf')
 conflicts=("$pkgname-git" 'pacli-simple')
 replaces=('pacli-simple')
-optdepends=('yaourt: Needed for AUR support.'
-        'pacaur: Needed for AUR support. If installed, it gets used by default over Yaourt.'
+optdepends=('pacaur: Needed for AUR support. If installed, it gets used by default over Yaourt.'
+        'pac: Strongly recommended for pacaur, if AUR support is desired.'
+        'yaourt: Needed for AUR support.'        
         'downgrade: Needed for hidded "downgrade" option.'
         'update-notifier: Automatically get notified when updates are available.')
 source=("$url/archive/$pkgver.tar.gz")

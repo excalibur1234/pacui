@@ -605,7 +605,7 @@ function func_la
 }
 
 
-function func_a 
+function func_ia 
 {
 		local pkg
 		
@@ -617,7 +617,7 @@ function func_a
 				# do this if variable "input" is not empty:
 				yaourt "$input2"
 			else
-				pacaur -Ss "$input2" --color always
+				pac "$input2"                     # "pac" is a wrapper around pacaur, which makes pacaur look like yaourt.
 			fi				
 				
 		else
@@ -630,35 +630,8 @@ function func_a
 			then
 				yaourt $pkg
 			else
-				pacaur -Ss $pkg --color always
-			fi
-			
-		fi
-}
-
-
-function func_ia 
-{
-		# check, whether file /tmp/pacui-packages already exists (the ! negates the result)
-		if ! [[ -e /tmp/pacui-packages ]]
-		then
-			# write package list of manjaro repositories to /tmp/pacui-packages. then, download AUR package list, unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages.
-			pacman -Slq > /tmp/pacui-packages
-			wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzip -f /tmp/aur/packages.gz && cat /tmp/aur/packages >> /tmp/pacui-packages
-		fi
-		
-		local pkg
-		
-		pkg=$(sort /tmp/pacui-packages | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
-		
-		if [[ -n $pkg ]]
-		then
-		
-			if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
-			then
-				yaourt -S $pkg
-			else
-				pacaur -S $pkg --color always
+				#pacaur -Ss $pkg --color always
+				pac $pkg                          # "pac" is a wrapper around pacaur, which makes pacaur look like yaourt.
 			fi
 			
 		fi
@@ -702,7 +675,6 @@ function func_h
 			echo
 			echo -e "  pacui	ua    - Force \e[1mU\e[0mpdate \e[1mA\e[0mUR"
 			echo -e "  pacui	la    - \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
-			echo -e "  pacui	a     - Search + Install from \e[1mA\e[0mUR"
 			echo -e "  pacui	ia    - \e[1mI\e[0mnstall from \e[1mA\e[0mUR"
 			echo
 			
@@ -935,17 +907,11 @@ This command lists all installed packages, which are from the AUR or which were 
 If you want a list of all installed packages use REMOVE PACKAGES + DEPS as described in this Help Page.
 
 
-21 - SEARCH + INSTALL FROM AUR
+21 - INSTALL FROM AUR
 "yaourt <PACKAGE NAME>"
 This command searches for <PACKAGE NAME> in all Manjaro repositories and the Arch User Repository (AUR). It searches for package names and package descriptions. 
 Example: You can search for "web browser" and you will find Firefox and other web browsers. One or multiple search results can be installed on your system.
 If you want to exit this mode without installing any packages, simply press CTRL+C or ENTER.
-
-
-22 - INSTALL FROM AUR
-"yaourt -S <PACKAGE NAME>"
-This command does the same as INSTALL PACKAGES. Additionally, Arch User Repository (AUR) packages can be installed.
-ATTENTION: Experienced users can install packages from the AUR without the need to answer questions all the time by using the command "yaourt -S <PACKAGE NAME> --noconfirm". The "--noconfirm" flag is great for quick and dirty installations of AUR packages on non-secure systems. Please keep always in mind that the AUR can contain any sort of package - including malicious and destructive (parts of) packages. Therefore, it is recommended to always check the PKGBUILD and .INSTALL file manually before installing a package from the AUR.
 
 
 xx - DOWNGRADE PACKAGES
@@ -1068,7 +1034,7 @@ do
 	echo -e " └────────────────────────────────────────────────────────────────────┘"
 	echo -e " ┌────────────────────────────────────────────────────────────────────┐"
 	echo -e " │  19   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR             20   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
-	echo -e " │  21   Search + Install from \e[1mA\e[0mUR    22   \e[1mI\e[0mnstall from \e[1mA\e[0mUR           │"
+	echo -e " │  21   \e[1mI\e[0mnstall from \e[1mA\e[0mUR                                             │"
 	echo -e " └────────────────────────────────────────────────────────────────────┘"
 	echo
 	echo -e "  Enter number or marked letter(s) and press [Enter]  -  0  \e[1mQ\e[0muit PacUI "
