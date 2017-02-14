@@ -44,6 +44,7 @@ function func_c
 		sudo pacman-mirrors -g -t 30 && echo "" && sudo pacman -Syy --color always
 		echo ""
 		
+		
 		if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
 		then
 			yaourt -Qdt
@@ -59,41 +60,39 @@ function func_c
 			
 		fi
 		
-		echo ""
-		
-		if [[ -n $(sudo DIFFPROG="nano" pacdiff) ]]  # only run these commands, if output of "sudo DIFFPROG="nano" pacdiff" is not empty. this happens if there are .pacnew or .pacsave files present
-		then
-			
-			# write the content between "EOF" into file "/tmp/pacui-diff".
-			cat <<-DiffScript > /tmp/pacui-diff.sh
-			
-				#!/bin/bash
-				local temp
-				temp="$(( ( ${#2} + $(tput cols) ) / 2 ))"		# calculates half the width of the terminal window ( $(tput cols)=width of terminal window
-				
-				echo -n "$1"									# print first argument (without \newline at the end) = file path of file1
-				printf "%*s\n" "$temp" "$2"						# print second argument (flushed half terminal width to the right) = file path of file2
-				
-				# use "diff" as a file difference viewer with many options, which make it look good
-				diff --side-by-side --suppress-common-lines --ignore-all-space --color=always --width=$COLUMNS $1 $2
-				
-			DiffScript
-			
-			# make script file executable:
-			sudo chmod +x "/tmp/pacui-diff.sh"
-			
-			# use pacdiff to search for .pacnew and .pacsave files. display both the original and the used config file using "/tmp/pacui-diff".
-			sudo DIFFPROG="/tmp/pacui-diff.sh" pacdiff
-		
-		fi
 		
 		echo ""
+		
+		# write the content between "EOF" into file "/tmp/pacui-diff".
+		cat <<-DiffScript > /tmp/pacui-diff.sh
+		
+			#!/bin/bash
+			local temp
+			temp="$(( ( ${#2} + $(tput cols) ) / 2 ))"		# calculates half the width of the terminal window ( $(tput cols)=width of terminal window
+			
+			echo -n "$1"									# print first argument (without \newline at the end) = file path of file1
+			printf "%*s\n" "$temp" "$2"						# print second argument (flushed half terminal width to the right) = file path of file2
+			
+			# use "diff" as a file difference viewer with many options, which make it look good
+			diff --side-by-side --suppress-common-lines --ignore-all-space --color=always --width=$COLUMNS $1 $2
+			
+		DiffScript
+		
+		# make script file executable:
+		sudo chmod +x "/tmp/pacui-diff.sh"
+		
+		# use pacdiff to search for .pacnew and .pacsave files. display both the original and the used config file using "/tmp/pacui-diff".
+		sudo DIFFPROG="/tmp/pacui-diff.sh" pacdiff
+		
+		echo ""
+		
 		
 		if [[ $(cat /proc/1/comm) == "systemd" ]]          # if init system is systemd
 		then
 			# limit logs in journalctl to an ageo of 30 days and a combined size of 50mb
 			sudo journalctl --vacuum-size=50M --vacuum-time=30days
 		fi
+		
 		
 		echo ""
 		# remove all packages, which are not installed on this system, except the latest verions (this is a back up, in case somebody removes networkmanager)
@@ -102,6 +101,7 @@ function func_c
 		# remove all package versions, except the latest 3
 		paccache -rv -k 3
 		echo ""
+
 
 		# 1. extract the name of hard drive the / partition is installed on and write it to the "disk" variatble"
 		local disk		# declare local variable
