@@ -1173,13 +1173,7 @@ do
 			echo -e " All locally installed packages listed. To return to PacUI press ENTER "
 			read
 			;;
-		21|a|aur)
-			func_a
-			echo
-			echo -e " Yaourt finished. To return to PacUI press ENTER "
-			read
-			;;
-		22|ia|installaur)
+		21|ia|installaur)
 			func_ia
 			echo
 			echo -e " Installation from AUR finished. To return to PacUI press ENTER "
