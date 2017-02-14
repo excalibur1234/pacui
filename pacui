@@ -70,9 +70,10 @@ function func_c
 			temp="$(( ( $(tput cols) - ${#2} ) / 2 ))"		# calculates half the width of the terminal window ( $(tput cols)=width of terminal window )
 			
 			# insert extra line with file paths above the diff viewer output:
-			echo -n "$1"									# print first argument (without \newline at the end) = file path of file1
+			echo -n -e "\e[31;1m$1"							# print first argument (without \newline at the end) = file path of file1 . use ANSI escape sequence to print file names in this line bold and red.
 			printf "%*s\n" "$temp" "$2"						# print second argument (flushed half terminal width to the right) = file path of file2
-			
+			tput rmcup										# printf does not support any ANSI escape sequences, so output has to be reset manually using "tput".
+
 			# use "diff" as a file difference viewer with many options, which make it look good
 			diff --side-by-side --suppress-common-lines --ignore-all-space --color=always --width=$(tput cols) $1 $2
 			
