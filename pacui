@@ -642,34 +642,6 @@ function func_la
 
 function func_a 
 {
-		# check, whether file /tmp/pacui-packages already exists (the ! negates the result)
-		if ! [[ -e /tmp/pacui-packages ]]
-		then
-			# write package list of manjaro repositories to /tmp/pacui-packages. then, download AUR package list, unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages.
-			pacman -Slq > /tmp/pacui-packages
-			wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzip -f /tmp/aur/packages.gz && cat /tmp/aur/packages >> /tmp/pacui-packages
-		fi
-		
-		local pkg
-		
-		pkg=$(sort /tmp/pacui-packages | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
-		
-		if [[ -n $pkg ]]
-		then
-		
-			if [[ ! -e /usr/bin/pacaur ]]	      # checks, whether file "pacaur" does not exist
-			then
-				yaourt -S $pkg
-			else
-				pacaur -S $pkg --color always
-			fi
-			
-		fi
-}
-
-
-function func_ia 
-{
 		local pkg
 		
 		if [[ -n "$input2" ]]
@@ -695,6 +667,34 @@ function func_ia
 			else
 				#pacaur -Ss $pkg --color always
 				pac $pkg                          # "pac" is a wrapper around pacaur, which makes pacaur look like yaourt.
+			fi
+			
+		fi
+}
+
+
+function func_ia 
+{
+		# check, whether file /tmp/pacui-packages already exists (the ! negates the result)
+		if ! [[ -e /tmp/pacui-packages ]]
+		then
+			# write package list of manjaro repositories to /tmp/pacui-packages. then, download AUR package list, unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages.
+			pacman -Slq > /tmp/pacui-packages
+			wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzip -f /tmp/aur/packages.gz && cat /tmp/aur/packages >> /tmp/pacui-packages
+		fi
+		
+		local pkg
+		
+		pkg=$(sort /tmp/pacui-packages | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
+		
+		if [[ -n $pkg ]]
+		then
+		
+			if [[ ! -e /usr/bin/pacaur ]]	      # checks, whether file "pacaur" does not exist
+			then
+				yaourt -S $pkg
+			else
+				pacaur -S $pkg --color always
 			fi
 			
 		fi
