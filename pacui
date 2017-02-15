@@ -41,10 +41,11 @@ function func_u
 
 function func_c 
 {
+		echo "choosing fastest mirror ..." 
 		sudo pacman-mirrors -g -t 30 && echo "" && sudo pacman -Syy --color always
 		echo ""
 		
-		
+		echo "search orphans ..." 
 		if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
 		then
 			yaourt -Qdt
@@ -59,10 +60,9 @@ function func_c
 			fi
 			
 		fi
-		
-		
 		echo ""
 		
+		echo "sudo pacdiff ..." 
 		if [[ -n $DIFFPROG ]]     # this if-condition avoids error message when $DIFFPROG is not set/empty
 		then
 			sudo pacdiff
@@ -76,7 +76,6 @@ function func_c
 				# insert extra line with file paths above the diff viewer output:
 				echo -n -e "\e[31;1m$1"                               # print first argument (without \newline at the end) = file path of file1 . use ANSI escape sequence to print file names in this line bold and red.
 				printf "%*s\n" "$temp" "$2"                           # print second argument (flushed half terminal width to the right) = file path of file2
-				#tput rmcup										      # printf does not support any ANSI escape sequences, so output has to be reset manually using "tput".
 				tput sgr0                                             # printf does not support any ANSI escape sequences, so output has to be reset manually using "tput".
 				
 				# use "diff" as a file difference viewer with many options, which make it look good
@@ -90,26 +89,25 @@ function func_c
 			# use pacdiff to search for .pacnew and .pacsave files. display both the original and the used config file using "/tmp/pacui-diff".
 			sudo DIFFPROG="/tmp/pacui-diff.sh" pacdiff
 		fi
-		
 		echo ""
 		
-		
+		echo "sudo journalctl --vacuum-size=50M --vacuum-time=30days ..." 
 		if [[ $(cat /proc/1/comm) == "systemd" ]]          # if init system is systemd
 		then
 			# limit logs in journalctl to an age of 30 days and a combined size of 50mb
 			sudo journalctl --vacuum-size=50M --vacuum-time=30days
 		fi
-		
-		
 		echo ""
+		
+		echo "paccache ..." 
 		# remove all packages, which are not installed on this system, except the latest verions (this is a back up, in case somebody removes networkmanager)
 		paccache -rvu -k 1
 		echo ""
 		# remove all package versions, except the latest 3
 		paccache -rv -k 3
 		echo ""
-
-
+		
+		
 		# 1. extract the name of hard drive the / partition is installed on and write it to the "disk" variatble"
 		local disk		# declare local variable
 		disk=$(lsblk -o "name,mountpoint" -pa | sed -n '/^\//h;/\/$/{g;p}' | cut -d/ -f3)
@@ -121,7 +119,9 @@ function func_c
 			if [[ $(cat "$( find "/sys" -name "rotational" 2>/dev/null | grep "$disk/queue" )" ) == "1" ]]
 			then
 			# only execute the following line when your / parition is installed on a hard drive.
+			echo "sudo pacman-optimize ..." 
 			sudo pacman-optimize
+			echo ""
 			fi
 		fi
 }
