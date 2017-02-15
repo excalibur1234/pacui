@@ -63,34 +63,39 @@ function func_c
 		
 		echo ""
 		
-		# write the content between "EOF" into file "/tmp/pacui-diff".
-		cat <<-"DiffScript" > /tmp/pacui-diff.sh
-		
-			#!/bin/bash
-			temp="$(( ( $(tput cols) - ${#2} ) / 2 ))"		# calculates half the width of the terminal window ( $(tput cols)=width of terminal window )
+		if [[ -n $DIFFPROG ]]     # this if-condition avoids error message when $DIFFPROG is not set/empty
+		then
+			sudo pacdiff
+		else
+			# write the content between "EOF" into file "/tmp/pacui-diff".
+			cat <<-"DiffScript" > /tmp/pacui-diff.sh
 			
-			# insert extra line with file paths above the diff viewer output:
-			echo -n -e "\e[31;1m$1"							# print first argument (without \newline at the end) = file path of file1 . use ANSI escape sequence to print file names in this line bold and red.
-			printf "%*s\n" "$temp" "$2"						# print second argument (flushed half terminal width to the right) = file path of file2
-			tput rmcup										# printf does not support any ANSI escape sequences, so output has to be reset manually using "tput".
-
-			# use "diff" as a file difference viewer with many options, which make it look good
-			diff --side-by-side --suppress-common-lines --ignore-all-space --color=always --width=$(tput cols) $1 $2
+				#!/bin/bash
+				temp="$(( ( $(tput cols) - ${#2} ) / 2 ))"		# calculates half the width of the terminal window ( $(tput cols)=width of terminal window )
+				
+				# insert extra line with file paths above the diff viewer output:
+				echo -n -e "\e[31;1m$1"							# print first argument (without \newline at the end) = file path of file1 . use ANSI escape sequence to print file names in this line bold and red.
+				printf "%*s\n" "$temp" "$2"						# print second argument (flushed half terminal width to the right) = file path of file2
+				tput rmcup										# printf does not support any ANSI escape sequences, so output has to be reset manually using "tput".
+	
+				# use "diff" as a file difference viewer with many options, which make it look good
+				diff --side-by-side --suppress-common-lines --ignore-all-space --color=always --width=$(tput cols) $1 $2
+				
+			DiffScript
 			
-		DiffScript
-		
-		# make script file executable:
-		sudo chmod +x "/tmp/pacui-diff.sh"
-		
-		# use pacdiff to search for .pacnew and .pacsave files. display both the original and the used config file using "/tmp/pacui-diff".
-		sudo DIFFPROG="/tmp/pacui-diff.sh" pacdiff
+			# make script file executable:
+			sudo chmod +x "/tmp/pacui-diff.sh"
+			
+			# use pacdiff to search for .pacnew and .pacsave files. display both the original and the used config file using "/tmp/pacui-diff".
+			sudo DIFFPROG="/tmp/pacui-diff.sh" pacdiff
+		fi
 		
 		echo ""
 		
 		
 		if [[ $(cat /proc/1/comm) == "systemd" ]]          # if init system is systemd
 		then
-			# limit logs in journalctl to an ageo of 30 days and a combined size of 50mb
+			# limit logs in journalctl to an age of 30 days and a combined size of 50mb
 			sudo journalctl --vacuum-size=50M --vacuum-time=30days
 		fi
 		
