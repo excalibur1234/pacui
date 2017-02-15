@@ -71,13 +71,14 @@ function func_c
 			cat <<-"DiffScript" > /tmp/pacui-diff.sh
 			
 				#!/bin/bash
-				temp="$(( ( $(tput cols) - ${#2} ) / 2 ))"		# calculates half the width of the terminal window ( $(tput cols)=width of terminal window )
+				temp="$(( ( $(tput cols) - ${#1} + ${#2} ) / 2 ))"    # calculates half the width of the terminal window ( $(tput cols)=width of terminal window )
 				
 				# insert extra line with file paths above the diff viewer output:
-				echo -n -e "\e[31;1m$1"							# print first argument (without \newline at the end) = file path of file1 . use ANSI escape sequence to print file names in this line bold and red.
-				printf "%*s\n" "$temp" "$2"						# print second argument (flushed half terminal width to the right) = file path of file2
-				tput rmcup										# printf does not support any ANSI escape sequences, so output has to be reset manually using "tput".
-	
+				echo -n -e "\e[31;1m$1"                               # print first argument (without \newline at the end) = file path of file1 . use ANSI escape sequence to print file names in this line bold and red.
+				printf "%*s\n" "$temp" "$2"                           # print second argument (flushed half terminal width to the right) = file path of file2
+				#tput rmcup										      # printf does not support any ANSI escape sequences, so output has to be reset manually using "tput".
+				tput sgr0                                             # printf does not support any ANSI escape sequences, so output has to be reset manually using "tput".
+				
 				# use "diff" as a file difference viewer with many options, which make it look good
 				diff --side-by-side --suppress-common-lines --ignore-all-space --color=always --width=$(tput cols) $1 $2
 				
@@ -178,7 +179,7 @@ function func_info
 			
 				if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
 				then
-					yaourt -Qii $pkg		# execute this command when "pkg" is already installed on system
+					yaourt -Qii $pkg		    # execute this command when "pkg" is already installed on system
 				else
 					pacaur -Qii $pkg --color always
 				fi
@@ -187,7 +188,7 @@ function func_info
 			
 				if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
 				then
-					yaourt -Sii $pkg		# execute this command when "pkg" is not installed on system
+					yaourt -Sii $pkg		    # execute this command when "pkg" is not installed on system
 				else
 					pacaur -Sii $pkg --color always
 				fi
@@ -586,7 +587,7 @@ function func_fu
 
 function func_e 
 {
-		if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
+		if [[ ! -e /usr/bin/pacaur ]]	             # checks, whether file "pacaur" does not exist
 		then
 			yaourt -Scc
 		else
@@ -624,7 +625,7 @@ function func_fr
 
 function func_ua 
 {
-		if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
+		if [[ ! -e /usr/bin/pacaur ]]	          # checks, whether file "pacaur" does not exist
 		then
 			yaourt -Syua && yaourt -Syua --devel --needed --noconfirm
 		else
@@ -636,39 +637,6 @@ function func_ua
 function func_la 
 {
 		pacman -Qem --color always
-}
-
-
-function func_ia 
-{
-		local pkg
-		
-		if [[ -n "$input2" ]]
-		then
-		
-			if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
-			then
-				# do this if variable "input" is not empty:
-				yaourt "$input2"
-			else
-				pac "$input2"                     # "pac" is a wrapper around pacaur, which makes pacaur look like yaourt.
-			fi				
-				
-		else
-			
-			# do this if pacui is used with UI or no argument is specified in "pacui a" command:
-			echo "Enter (parts of) name and/or description of package to be searched. Then press ENTER."
-			read -r pkg
-            
-			if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
-			then
-				yaourt $pkg
-			else
-				#pacaur -Ss $pkg --color always
-				pac $pkg                          # "pac" is a wrapper around pacaur, which makes pacaur look like yaourt.
-			fi
-			
-		fi
 }
 
 
@@ -689,11 +657,44 @@ function func_a
 		if [[ -n $pkg ]]
 		then
 		
-			if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
+			if [[ ! -e /usr/bin/pacaur ]]	      # checks, whether file "pacaur" does not exist
 			then
 				yaourt -S $pkg
 			else
 				pacaur -S $pkg --color always
+			fi
+			
+		fi
+}
+
+
+function func_ia 
+{
+		local pkg
+		
+		if [[ -n "$input2" ]]
+		then
+		
+			if [[ ! -e /usr/bin/pacaur ]]	      # checks, whether file "pacaur" does not exist
+			then
+				# do this if variable "input" is not empty:
+				yaourt "$input2"
+			else
+				pac "$input2"                     # "pac" is a wrapper around pacaur, which makes pacaur look like yaourt.
+			fi				
+				
+		else
+			
+			# do this if pacui is used with UI or no argument is specified in "pacui a" command:
+			echo "Enter (parts of) name and/or description of package to be searched. Then press ENTER."
+			read -r pkg
+            
+			if [[ ! -e /usr/bin/pacaur ]]	      # checks, whether file "pacaur" does not exist
+			then
+				yaourt $pkg
+			else
+				#pacaur -Ss $pkg --color always
+				pac $pkg                          # "pac" is a wrapper around pacaur, which makes pacaur look like yaourt.
 			fi
 			
 		fi
@@ -737,8 +738,8 @@ function func_h
 			echo
 			echo -e "  pacui	ua    - Force \e[1mU\e[0mpdate \e[1mA\e[0mUR"
 			echo -e "  pacui	la    - \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
+			echo -e "  pacui	a     - Search + Install from \e[1mA\e[0mUR"
 			echo -e "  pacui	ia    - \e[1mI\e[0mnstall from \e[1mA\e[0mUR"
-			echo -e "  pacui	a     - Install from \e[1mA\e[0mUR"
 			echo
 			
 		else
@@ -785,7 +786,7 @@ This option lists all orphaned packages on your system. Orphaned packages are ol
 "sudo pacdiff"
 A .pacnew file may be created during a package upgrade to avoid overwriting a file (e.g. a config file) which already exists and was previously modified by the user. A .pacsave file may be created during a package removal, or by a package installation (the package must be removed first). When the pacman database has record that a certain file owned by the package should be backed up it will create a .pacsave file. These files require manual intervention from the user and it is good practice to handle them regularly. If left unhandled, improper configurations can result in improper function of the software, or the software being unable to run altogether. 
 This command displays all the differences between the .pacnew/.pacsave file and your modified file. Please decide which file you want to keep or solve this conflict in another way (e.g. by manually editing one of those files and deleting the other).
-ATTENTION: This command requires a default file difference viewer by setting the environment variable DIFFPROG. If this varialbe is not set, a minimal default is provided by PacUI using "diff". In this case, the file difference viewer can be quit using the "q" key.
+ATTENTION: This command requires a default file difference viewer by setting the environment variable DIFFPROG. If this varialbe is not set, a minimal default is provided by PacUI using "diff".
 
 "sudo journalctl --vacuum-size=50M --vacuum-time=30days"
 This command limits all log files in journalctl to a combined size of 50 megabytes and a maximum age of 30 days. This leaves plenty of log files behind to analyze systematic and reoccuring errors while preventing excessive amounts of log files.
@@ -975,14 +976,14 @@ This command lists all installed packages, which are from the AUR or which were 
 If you want a list of all installed packages use REMOVE PACKAGES + DEPS as described in this Help Page.
 
 
-21 - INSTALL FROM AUR
+21 - SEARCH + INSTALL FROM AUR
 "yaourt <PACKAGE NAME>"
 This command searches for <PACKAGE NAME> in all Manjaro repositories and the Arch User Repository (AUR). It searches for package names and package descriptions. 
 Example: You can search for "web browser" and you will find Firefox and other web browsers. One or multiple search results can be installed on your system.
 If you want to exit this mode without installing any packages, simply press CTRL+C or ENTER.
 
 
-xx - INSTALL FROM AUR
+22 - INSTALL FROM AUR
 "yaourt -S <PACKAGE NAME>"
 This command does the same as INSTALL PACKAGES. Additionally, Arch User Repository (AUR) packages can be installed.
 ATTENTION: Experienced users can install packages from the AUR without the need to answer questions all the time by using the command "yaourt -S <PACKAGE NAME> --noconfirm". The "--noconfirm" flag is great for quick and dirty installations of AUR packages on non-secure systems. Please keep always in mind that the AUR can contain any sort of package - including malicious and destructive (parts of) packages. Therefore, it is recommended to always check the PKGBUILD and .INSTALL file manually before installing a package from the AUR.
@@ -1108,7 +1109,7 @@ do
 	echo -e " └────────────────────────────────────────────────────────────────────┘"
 	echo -e " ┌────────────────────────────────────────────────────────────────────┐"
 	echo -e " │  19   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR             20   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
-	echo -e " │  21   \e[1mI\e[0mnstall from \e[1mA\e[0mUR                                             │"
+	echo -e " │  21   Search + Install from \e[1mA\e[0mUR    22   \e[1mI\e[0mnstall from \e[1mA\e[0mUR           │"
 	echo -e " └────────────────────────────────────────────────────────────────────┘"
 	echo
 	echo -e "  Enter number or marked letter(s) and press [Enter]  -  0  \e[1mQ\e[0muit PacUI "
@@ -1247,14 +1248,14 @@ do
 			echo -e " All locally installed packages listed. To return to PacUI press ENTER "
 			read
 			;;
-		21|ia|installaur)
-			func_ia
+		21|a|aur)
+			func_a
 			echo
 			echo -e " Installation from AUR finished. To return to PacUI press ENTER "
 			read
 			;;
-		a|aur)
-			func_a
+		22|ia|installaur)
+			func_ia
 			echo
 			echo -e " Installation from AUR finished. To return to PacUI press ENTER "
 			read
