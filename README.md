@@ -38,8 +38,6 @@ yaourt -S pacui-git
 
 This will install PacUI including the latest commits on Github. If you ever encounter any bugs, please reinstall (and thereby update) PacUI with the same command and check whether the bug is still there before reporting it.
 
-It is highly recommended to use an utility, which notifies the user about available updates alongside of PacUI. Such a lightweight utility is for example [update-notifier](https://github.com/Chrysostomus/update-notifier).
-
 ### Execute without prior Installation
 Alternatively, it is possible to download and start PacUI without prior installation using the following commands:
 ```
@@ -90,6 +88,8 @@ pacui i cantat
 Since there is only one package found in the Manjaro repositories when searching for "cantat", the list view is skipped and you are immediately prompted to install "cantata".
 
 ## Recommended Settings
+It is highly recommended to use an utility, which notifies the user about available updates alongside of PacUI. Such a lightweight utility is for example [update-notifier](https://github.com/Chrysostomus/update-notifier).
+
 Along with PacUI the following settings are recommended:
 
 ### Fancy List View
