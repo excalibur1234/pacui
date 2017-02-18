@@ -41,6 +41,8 @@ function func_u
 
 function func_diff 
 {
+		# this function is not called by pacui or pacui's UI directly. instead, it gets called in func_c when no DIFFPROG is set. it provides simple file difference viewer functionality and is essentially a wrapper around "diff".
+
 		local={temp,temp2,temp3}
 		temp="$(( ( $(tput cols) - ${#2} + ${#3} ) / 2 ))"        # calculates half the width of the terminal window ( $(tput cols)=width of terminal window )
 		temp2="$( echo "$input2" | awk '{print $1}' )"            # second argument of "pacui diff temp2 temp3"
@@ -99,10 +101,10 @@ function func_c
 		
 		echo "paccache ..." 
 		# remove all packages, which are not installed on this system, except the latest verions (this is a back up, in case somebody removes networkmanager)
-		paccache -rvu -k 1
+		sudo paccache -rvu -k 1
 		echo ""
 		# remove all package versions, except the latest 3
-		paccache -rv -k 3
+		sudo paccache -rv -k 3
 		echo ""
 		
 		
