@@ -41,7 +41,7 @@ function func_u
 
 function func_diff 
 {
-		# this function is not called by pacui or pacui's UI directly. instead, it gets called in func_c when no DIFFPROG is set. it provides simple file difference viewer functionality and is essentially a wrapper around "diff".
+		# this function is not called by pacui or pacui's UI directly. instead, it gets called in func_c when no DIFFPROG is set. it provides simple file difference viewer functionality and is essentially a wrapper around "diff". therefore, this function expects 2 arguments!
 
 		local={temp,temp2,temp3}
 		temp="$(( ( $(tput cols) - ${#2} + ${#3} ) / 2 ))"        # calculates half the width of the terminal window ( $(tput cols)=width of terminal window )
