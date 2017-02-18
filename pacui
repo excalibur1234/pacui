@@ -39,6 +39,23 @@ function func_u
 }
 
 
+function func_diff 
+{
+		local={temp,temp2,temp3}
+		temp="$(( ( $(tput cols) - ${#2} + ${#3} ) / 2 ))"        # calculates half the width of the terminal window ( $(tput cols)=width of terminal window )
+		temp2="$( echo "$input2" | awk '{print $1}' )"            # second argument of "pacui diff temp2 temp3"
+		temp3="$( echo "$input2" | awk '{print $2}' )"            # third argument of "pacui diff temp2 temp3"
+		
+		# insert extra line with file paths above the diff viewer output:
+		echo -n -e "\e[31;1m$temp2"                               # print first argument (without \newline at the end) = file path of file1 . use ANSI escape sequence to print file names in this line bold and red.
+		printf "%*s\n" "$temp" "$temp3"                           # print second argument (flushed half terminal width to the right) = file path of file2
+		tput sgr0                                                 # printf does not support any ANSI escape sequences, so output has to be reset manually using "tput".
+		
+		# use "diff" as a file difference viewer with many options, which make it look good
+		diff --side-by-side --suppress-common-lines --ignore-all-space --color=always --width=$(tput cols) "$temp2" "$temp3"
+}
+
+
 function func_c 
 {
 		echo "choosing fastest mirror ..." 
@@ -67,27 +84,8 @@ function func_c
 		then
 			sudo pacdiff
 		else
-			# write the content between "EOF" into file "/tmp/pacui-diff".
-			cat <<-"DiffScript" > /tmp/pacui-diff.sh
-			
-				#!/bin/bash
-				temp="$(( ( $(tput cols) - ${#1} + ${#2} ) / 2 ))"    # calculates half the width of the terminal window ( $(tput cols)=width of terminal window )
-				
-				# insert extra line with file paths above the diff viewer output:
-				echo -n -e "\e[31;1m$1"                               # print first argument (without \newline at the end) = file path of file1 . use ANSI escape sequence to print file names in this line bold and red.
-				printf "%*s\n" "$temp" "$2"                           # print second argument (flushed half terminal width to the right) = file path of file2
-				tput sgr0                                             # printf does not support any ANSI escape sequences, so output has to be reset manually using "tput".
-				
-				# use "diff" as a file difference viewer with many options, which make it look good
-				diff --side-by-side --suppress-common-lines --ignore-all-space --color=always --width=$(tput cols) $1 $2
-				
-			DiffScript
-			
-			# make script file executable:
-			sudo chmod +x "/tmp/pacui-diff.sh"
-			
-			# use pacdiff to search for .pacnew and .pacsave files. display both the original and the used config file using "/tmp/pacui-diff".
-			sudo DIFFPROG="/tmp/pacui-diff.sh" pacdiff
+			# use pacdiff to search for .pacnew and .pacsave files. display both the original and the used config file using "pacui_diff" function defined above.
+			sudo DIFFPROG="pacui --diff" pacdiff
 		fi
 		echo ""
 		
@@ -652,7 +650,7 @@ function func_a
 				# do this if variable "input" is not empty:
 				yaourt "$input2"
 			else
-				pac "$input2"                     # "pac" is a wrapper around pacaur, which makes pacaur look like yaourt.
+				pacaur -Ss "$input2" --color always
 			fi				
 				
 		else
@@ -665,8 +663,7 @@ function func_a
 			then
 				yaourt $pkg
 			else
-				#pacaur -Ss $pkg --color always
-				pac $pkg                          # "pac" is a wrapper around pacaur, which makes pacaur look like yaourt.
+				pacaur -Ss $pkg --color always
 			fi
 			
 		fi
