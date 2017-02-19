@@ -44,14 +44,14 @@ function func_diff
 		# this function is not called by pacui or pacui's UI directly. instead, it gets called in func_c when no DIFFPROG is set. it provides simple file difference viewer functionality and is essentially a wrapper around "diff". therefore, this function expects 2 arguments!
 
 		local={temp,temp2,temp3}
-		temp="$(( ( $(tput cols) - ${#2} + ${#3} ) / 2 ))"        # calculates half the width of the terminal window ( $(tput cols)=width of terminal window )
-		temp2="$( echo "$input2" | awk '{print $1}' )"            # second argument of "pacui diff temp2 temp3"
-		temp3="$( echo "$input2" | awk '{print $2}' )"            # third argument of "pacui diff temp2 temp3"
+		temp2="$( echo "$input2" | awk '{print $1}' )"                    # second argument of "pacui diff temp2 temp3"
+		temp3="$( echo "$input2" | awk '{print $2}' )"                    # third argument of "pacui diff temp2 temp3"
+		temp="$(( ( $(tput cols) - ${#temp2} + ${#temp3} ) / 2 ))"        # calculates half the width of the terminal window ( $(tput cols)=width of terminal window )
 		
 		# insert extra line with file paths above the diff viewer output:
-		echo -n -e "\e[31;1m$temp2"                               # print first argument (without \newline at the end) = file path of file1 . use ANSI escape sequence to print file names in this line bold and red.
-		printf "%*s\n" "$temp" "$temp3"                           # print second argument (flushed half terminal width to the right) = file path of file2
-		tput sgr0                                                 # printf does not support any ANSI escape sequences, so output has to be reset manually using "tput".
+		echo -n -e "\e[31;1m$temp2"                                       # print first argument (without \newline at the end) = file path of file1 . use ANSI escape sequence to print file names in this line bold and red.
+		printf "%*s\n" "$temp" "$temp3"                                   # print second argument (flushed half terminal width to the right) = file path of file2
+		tput sgr0                                                         # printf does not support any ANSI escape sequences, so output has to be reset manually using "tput".
 		
 		# use "diff" as a file difference viewer with many options, which make it look good
 		diff --side-by-side --suppress-common-lines --ignore-all-space --color=always --width=$(tput cols) "$temp2" "$temp3"
