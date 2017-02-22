@@ -81,22 +81,13 @@ function func_c
 		fi
 		echo ""
 		
-		echo "searching .pac* files ..." 
-		if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
+		echo "sudo pacdiff ..." 
+		if [[ -n $DIFFPROG ]]     # this if-condition avoids error message when $DIFFPROG is not set/empty
 		then
-		
-			yaourt -C
-		
+			sudo pacdiff
 		else
-		
-			if [[ -n $DIFFPROG ]]     # this if-condition avoids error message when $DIFFPROG is not set/empty
-			then
-				sudo pacdiff
-			else
-				# use pacdiff to search for .pacnew and .pacsave files. display both the original and the used config file using "pacui_diff" function defined above.
-				sudo DIFFPROG="pacui --diff" pacdiff
-			fi
-			
+			# use pacdiff to search for .pacnew and .pacsave files. display both the original and the used config file using "pacui_diff" function defined above.
+			sudo DIFFPROG="pacui --diff" pacdiff
 		fi
 		echo ""
 		
@@ -791,14 +782,13 @@ If you want to speed up this command, it is recommended to only test your connec
 "yaourt -Qdt"
 This option lists all orphaned packages on your system. Orphaned packages are old and no longer needed dependencies (packages not explicitly installed by you), which were never removed from your system.
 
-"yaourt -C" (when only Yaourt is installed)
-"sudo pacdiff" (when Pacaur is installed)
+"sudo pacdiff"
 A .pacnew file may be created during a package upgrade to avoid overwriting a file (e.g. a config file) which already exists and was previously modified by the user. A .pacsave file may be created during a package removal, or by a package installation (the package must be removed first). When the pacman database has record that a certain file owned by the package should be backed up it will create a .pacsave file. These files require manual intervention from the user and it is good practice to handle them regularly. If left unhandled, improper configurations can result in improper function of the software, or the software being unable to run altogether. 
-This command offers you a choice, whether you want to keep the original file (in most cases, these are config files) or the .pacnew/.pacsave file. It is recommended to compare the two files by viewing them. 
+This command offers you a choice, whether you want to keep the original file (in most cases, these are config files) or the .pacnew/.pacsave file. Simply view both files by choosing "v". 
 If you keep the original file, the program could not recognize the old syntax anymore, because it uses now a new syntax. In the worst case, your program could brake or stop working. If you remove the original file and use the new file without any changes, all your configurations might be reset to the default values. 
 In most cases, the syntax does not change and you can simply remove the new file (with the default configuration settings).
 If you notice a syntax change, it is highly recommended to solve this conflict in another way (e.g. by manually editing one of those files and deleting the other).
-ATTENTION: This command requires a default file difference viewer by setting the environment variable DIFFPROG (only when Pacaur is installed). If this varialbe is not set, a minimal default is provided by PacUI using "diff".
+ATTENTION: This command requires a default file difference viewer by setting the environment variable DIFFPROG. If this varialbe is not set, a minimal default is provided by PacUI using "diff".
 
 "sudo journalctl --vacuum-size=50M --vacuum-time=30days"
 This command limits all log files in journalctl to a combined size of 50 megabytes and a maximum age of 30 days. This leaves plenty of log files behind to analyze systematic and reoccuring errors while preventing excessive amounts of log files.
