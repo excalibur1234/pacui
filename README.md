@@ -19,11 +19,6 @@ Installing the package "cantata" from the Manjaro repositories:
 ![Screenshot 02](http://s32.postimg.org/50okof26t/pacli_simple2.gif)
 
 
-New "conf" option, which lets you edit a lot of .conf files on your system:
-
-![Screenshot 03](http://s27.postimg.org/mmb3ten1f/screen.png)
-
-
 ## Installation
 
 Simply install the stable version of PacUI from the Manjaro repositories:
