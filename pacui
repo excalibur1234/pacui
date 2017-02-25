@@ -254,6 +254,8 @@ function func_log
 
 function func_s
 {
+		# maybe, this can be replaced by " pacman -Fl --color always $pkg "
+		
 		local pkg
 		
 		if [[ -n "$input2" ]]
