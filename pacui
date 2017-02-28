@@ -261,7 +261,8 @@ function func_s
 		if [[ -n "$input2" ]]
 		then
 			# do this if variable "input" is not empty:
-			pacman -Ql --color always | grep -i --color=always $"$input2"
+			# the "grep -v '/$' " part removes all folders from the view
+			pacman -Ql --color always | grep -i --color=always $"$input2" | grep -v "/$" 
 		else
 			# do this if pacui is used with UI or no argument is specified in "pacui s" command:
 			echo "Enter (parts of) the file name to be searched within all installed packages. Then press ENTER."
