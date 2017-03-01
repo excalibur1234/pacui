@@ -746,7 +746,7 @@ function func_h
 			
 		else
 			
-			less -Ri <<-"EOF"  # this command will display all the following lines in "less" until a line with "EOF" is encountered
+			less -RiM <<-"EOF"  # this command will display all the following lines in "less" until a line with "EOF" is encountered
 
 Welcome to PacUI's Help Page.
 
