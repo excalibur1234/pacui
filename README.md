@@ -4,7 +4,7 @@ PacUI is a CLI tool, which provides useful and advanced Pacman and Yaourt/Pacaur
 
 PacUI is meant for experienced/intermediate/advanced users, who have at least basic knowledge of the structure of their Linux system and how Pacman and Yaourt work. Absolute beginners are probably overwhelmed by the amount of choices PacUI offers.
 
-This fork of an old version of [pacli](https://github.com/Manjaro-Pek/pacli/tree/f98e9226eb75ea00217481f436399328fe73d3ae) called PacUI follows the KISS principle: The whole program is contained within one file, which consists of easy to read bash code with many helpful comments. PacUI wants to provide the same or more functionality as pacli but without any available settings and/or translations. Additionally, PacUI does not require the use of the UI, but can also be used by terminal commands directly: This way of using PacUI is much faster!
+This fork of an [old version of pacli](https://github.com/Manjaro-Pek/pacli/tree/f98e9226eb75ea00217481f436399328fe73d3ae) called PacUI follows the KISS principle: The whole program is contained within one file, which consists of easy to read bash code with many helpful comments. PacUI wants to provide the same or more functionality as pacli but without any available settings and/or translations. Additionally, PacUI does not require the use of the UI, but can also be used by terminal commands directly: This way of using PacUI is much faster!
 
 
 ## Screenshots
@@ -85,7 +85,7 @@ Since there is only one package found in the Manjaro repositories when searching
 ## Recommended Settings
 It is highly recommended to use an utility, which notifies the user about available updates alongside of PacUI. Such a lightweight utility is for example [update-notifier](https://github.com/Chrysostomus/update-notifier).
 
-Along with PacUI the following settings are recommended:
+Along with PacUI the following settings are recommended by the author:
 
 ### Fancy List View
 A fancy list view for all pacman updates can be enabled by uncommenting the following line in your /etc/pacman.conf file:
@@ -105,7 +105,7 @@ You can achieve this by uncommenting and editing the line according to the tips 
 ```
 A very easy way to edit this file by using PacUI is:
 ```
-pacui --conf pacman-mirrors
+pacui --conf
 ```
 
 ### Alias
@@ -113,7 +113,7 @@ If you use PacUI without the UI it is recommended to use an alias for PacUI to r
 ```
 alias p='pacui'
 ```
-This will set "p" as an alias to "pacui" within your terminal (after a reboot of your system). This means that for updating your system, you can simply use
+This will set "p" as an alias to "pacui" within your terminal (after a restart of your shell or computer). For example, you can now update your system using
 ```
 p u
 ```
