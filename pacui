@@ -61,7 +61,7 @@ function func_diff
 function func_c 
 {
 		echo "choosing fastest mirror ..." 
-		sudo pacman-mirrors -g -t 30 && echo "" && sudo pacman -Syy --color always
+		sudo pacman-mirrors -g && echo "" && sudo pacman -Syy --color always
 		echo ""
 		
 		echo "searching orphans ..." 
@@ -161,9 +161,9 @@ function func_info
 		# check, whether file /tmp/pacui-packages already exists (the ! negates the result)
 		if [[ ! -e /tmp/pacui-packages ]]
 		then
-			# write package list of repositories to /tmp/pacui-packages. then, download AUR package list, unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages.
+			# write package list of repositories to /tmp/pacui-packages: download AUR package list to /tmp/aur/packages.gz, unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages.
 			pacman -Slq > /tmp/pacui-packages
-			wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzip -f /tmp/aur/packages.gz && cat /tmp/aur/packages >> /tmp/pacui-packages
+			wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null && gunzip -f /tmp/aur/packages.gz && cat /tmp/aur/packages >> /tmp/pacui-packages
 		fi
 			
 		# the following command lets you search through the file "/tmp/pacui-packages" with fzf and save your selection in "pkg"
@@ -480,7 +480,7 @@ function func_fix
 {
 		echo "sudo rm -f /var/lib/pacman/db.lck ..." && sudo rm -f /var/lib/pacman/db.lck
 		echo ""
-		echo "fixing mirror ..." && sudo pacman-mirrors -g --geoip -t 30 && echo "" && sudo pacman -Syy
+		echo "fixing mirror ..." && sudo pacman-mirrors -g --geoip && echo "" && sudo pacman -Syy
 		echo ""
 
 		# check, whether manjaro mirror with the latest packages is reachable
@@ -535,7 +535,7 @@ function func_fix
 				fi
 				
 				# remove gnupg including all keys
-				echo "sudo rm -r /etc/pacman.d/gnupg &>/dev/null ..." && sudo rm -r /etc/pacman.d/gnupg &>/dev/null
+				echo "sudo rm -r /etc/pacman.d/gnupg ..." && sudo rm -r /etc/pacman.d/gnupg &>/dev/null
 				echo ""
 				
 				# manually download and install gnupg:
@@ -687,7 +687,7 @@ function func_ia
 		then
 			# write package list of manjaro repositories to /tmp/pacui-packages. then, download AUR package list, unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages.
 			pacman -Slq > /tmp/pacui-packages
-			wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz >/dev/null 2>&1 && gunzip -f /tmp/aur/packages.gz && cat /tmp/aur/packages >> /tmp/pacui-packages
+			wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null && gunzip -f /tmp/aur/packages.gz && cat /tmp/aur/packages >> /tmp/pacui-packages
 		fi
 		
 		local pkg
@@ -783,9 +783,9 @@ ATTENTION: When a new version of an AUR package is available, often the PKGBUILD
 
 
 2 - CLEAN SYSTEM
-"sudo pacman-mirrors -g -t 30 && sudo pacman -Syy"
+"sudo pacman-mirrors -g && sudo pacman -Syy"
 This command tests your connection to all available Manjaro repository mirrors/servers. The mirror with the best connection is automatically chosen for you. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror.
-If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -g -t 30 -c Germany,France && sudo pacman -Syy"
+If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -g -c Germany,France && sudo pacman -Syy"
 
 "yaourt -Qdt"
 This option lists all orphaned packages on your system. Orphaned packages are old and no longer needed dependencies (packages not explicitly installed by you), which were never removed from your system.
@@ -893,14 +893,14 @@ A working internet connection is required.
 This command removes Pacman's database lock. The database lock prevents multiple Pacman instances from running at the same time and interfering with each other.
 ATTENTION: Only run this command when no other Pacman instance (e.g. Pacman, Yaourt, Pamac, Octopi, PacmanXG4, ...) is running.
 
-"sudo pacman-mirrors -g -t 30 --geoip && sudo pacman -Syy"
+"sudo pacman-mirrors -g --geoip && sudo pacman -Syy"
 The first command searches for working and good Manjaro repository mirrors/servers in your country (if available) or all countries (if no mirrors/server is available in your country). It will automatically choose the closest server for you. This might not be the fastest mirror/server to download from, but it is definitely not a bad choice.
 The second command forces a redownload of the latest package database from the chosen Manjaro repository mirror server. 
 
 "sudo dirmngr </dev/null"
 Sometimes during key management the package "dirmngr" outputs error messages, which interrupt key management processes (such as the following commands). This command prevents any output from "dirmngr".
 
-"sudo systemctl stop ntpd.service &>/dev/null"
+"sudo systemctl stop ntpd.service"
 This command stops (temporarily) the Network Time Protocol daemon service NTPD (if it is installed and running). In case NTPD is not installed, the output is ignored.
 This is the first command of a series of commands, which try to set the system and hardware clock on your computer (ignoring time zone and daylight saving time). An (almost) correct system time is needed for checking and importing keys or fingerprints later on in the fixing process!
 
@@ -916,7 +916,7 @@ The second command makes your system wait for 20 seconds. This is done as precau
 The third command is only run when the first and second command have been successfully finished. It writes the time from your system clock to your hardware clock.
 ATTENTION: The last command is needed in order to prevent another services on your system to set your system clock according to your hardware clock in regular intervals. This may result in a hardware clock, which is not set to UTC anymore and/or a system clock, which shows the wrong time. If you encounter this problem read the Arch Linux Wiki article about time: "https://wiki.archlinux.org/index.php/Time"
 
-"sudo rm -r /etc/pacman.d/gnupg &>/dev/null"
+"sudo rm -r /etc/pacman.d/gnupg"
 This command deletes your Pacman, Manjaro, and Arch key database. It does not output an error in case the package "gnupg" is not installed on your system.
 ATTENTION: This command will remove all keys from your system, including manually installed keys (with "sudo pacman-key --lsign-key <KEY>"). Please remember to reinstall those keys again after FIX PACMAN ERRORS has completed!
 
