@@ -61,7 +61,7 @@ function func_diff
 function func_c 
 {
 		echo "choosing fastest mirror ..." 
-		sudo pacman-mirrors -g && echo "" && sudo pacman -Syy --color always
+		timeout 60 sudo pacman-mirrors -g && echo "" && sudo pacman -Syy --color always
 		echo ""
 		
 		echo "searching orphans ..." 
@@ -478,9 +478,12 @@ function func_conf
 
 function func_fix 
 {
-		echo "sudo rm -f /var/lib/pacman/db.lck ..." && sudo rm -f /var/lib/pacman/db.lck
+		echo "sudo rm -f /var/lib/pacman/db.lck ..."
+		sudo rm -f /var/lib/pacman/db.lck
 		echo ""
-		echo "fixing mirror ..." && sudo pacman-mirrors -g --geoip && echo "" && sudo pacman -Syy
+		
+		echo "fixing mirrors ..."
+		timeout 60 sudo pacman-mirrors -g --geoip && echo "" && sudo pacman -Syy
 		echo ""
 
 		# check, whether manjaro mirror with the latest packages is reachable
@@ -501,7 +504,8 @@ function func_fix
 		else
 		
 			# the following command sometimes prevents an error connecting to the key server		
-			echo "sudo dirmngr </dev/null ..." && sudo dirmngr </dev/null
+			echo "sudo dirmngr </dev/null ..."
+			sudo dirmngr </dev/null
 			echo ""
 		
 			#declare local variables (needed later)
@@ -515,7 +519,8 @@ function func_fix
 				then
 					# set almost correct time (while ignoring time zone and daylight saving time):
 					# 1. stop running NTPD service (and ignore output in case NTPD is not installed):
-					echo "sudo systemctl stop ntpd.service ..." && sudo systemctl stop ntpd.service &>/dev/null
+					echo "sudo systemctl stop ntpd.service ..."
+					sudo systemctl stop ntpd.service &>/dev/null
 					echo ""
 					# 2. manually download and install networkmanager-dispatcher-ntpd:
 						echo "installing networkmanager-dispatcher-ntpd ..."
@@ -535,7 +540,8 @@ function func_fix
 				fi
 				
 				# remove gnupg including all keys
-				echo "sudo rm -r /etc/pacman.d/gnupg ..." && sudo rm -r /etc/pacman.d/gnupg &>/dev/null
+				echo "sudo rm -r /etc/pacman.d/gnupg ..."
+				sudo rm -r /etc/pacman.d/gnupg &>/dev/null
 				echo ""
 				
 				# manually download and install gnupg:
@@ -559,7 +565,8 @@ function func_fix
 				wget "${url}" && sudo pacman -U "manjaro-keyring-${version}-any.pkg.tar.xz" --noconfirm && sudo rm "manjaro-keyring-${version}-any.pkg.tar.xz"
 				echo ""
 
-			echo "sudo pacman-key --init ..." && sudo pacman-key --init && echo "" && echo "sudo pacman-key --populate archlinux manjaro ..." && sudo pacman-key --populate archlinux manjaro
+			echo "sudo pacman-key --init ..."
+			sudo pacman-key --init && echo "" && echo "sudo pacman-key --populate archlinux manjaro ..." && sudo pacman-key --populate archlinux manjaro
 			echo ""
 			
 			#automatically trust all keys from arch linux trusted users and manjaro developers - both for packages from the repositories and packages fom the AUR:
@@ -571,15 +578,18 @@ function func_fix
 				echo "keyring /etc/pacman.d/gnupg/pubring.gpg" >> $HOME/.gnupg/gpg.conf
 			fi			
 
-			echo "sudo pacman -Sc --noconfirm ..." && sudo pacman -Sc --noconfirm
+			echo "sudo pacman -Sc --noconfirm ..."
+			sudo pacman -Sc --noconfirm
 			echo ""
 			
 			if [[ $(cat /proc/1/comm) == "systemd" ]]          # if init system is systemd
 			then
-				echo "updating systemd ..." && sudo pacman -S --needed --noconfirm libsystemd systemd-sysvcompat systemd && sleep 30
+				echo "updating systemd ..."
+				sudo pacman -S --needed --noconfirm libsystemd systemd-sysvcompat systemd && sleep 30
 				echo ""
 			fi
 			
+			echo "updating system ..."
 			sudo pacman -Syyuu --color always --noconfirm
 			echo ""
 			sudo pacman -Suu --color always
@@ -783,7 +793,7 @@ ATTENTION: When a new version of an AUR package is available, often the PKGBUILD
 
 
 2 - CLEAN SYSTEM
-"sudo pacman-mirrors -g && sudo pacman -Syy"
+"timeout 60 sudo pacman-mirrors -g && sudo pacman -Syy"
 This command tests your connection to all available Manjaro repository mirrors/servers. The mirror with the best connection is automatically chosen for you. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror.
 If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -g -c Germany,France && sudo pacman -Syy"
 
@@ -893,7 +903,7 @@ A working internet connection is required.
 This command removes Pacman's database lock. The database lock prevents multiple Pacman instances from running at the same time and interfering with each other.
 ATTENTION: Only run this command when no other Pacman instance (e.g. Pacman, Yaourt, Pamac, Octopi, PacmanXG4, ...) is running.
 
-"sudo pacman-mirrors -g --geoip && sudo pacman -Syy"
+"timeout 60 sudo pacman-mirrors -g --geoip && sudo pacman -Syy"
 The first command searches for working and good Manjaro repository mirrors/servers in your country (if available) or all countries (if no mirrors/server is available in your country). It will automatically choose the closest server for you. This might not be the fastest mirror/server to download from, but it is definitely not a bad choice.
 The second command forces a redownload of the latest package database from the chosen Manjaro repository mirror server. 
 
