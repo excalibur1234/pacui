@@ -81,6 +81,10 @@ function func_c
 		fi
 		echo ""
 		
+		echo "checking integrity of local repository ..." 
+		pacman -Dk
+		echo ""
+		
 		echo "sudo pacdiff ..." 
 		if [[ -n $DIFFPROG ]]     # this if-condition avoids error message when $DIFFPROG is not set/empty
 		then
