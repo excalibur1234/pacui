@@ -487,7 +487,7 @@ function func_fix
 		echo ""
 		
 		echo "fixing mirrors ..."
-		timeout 60 sudo pacman-mirrors -g --geoip && echo "" && sudo pacman -Syy
+		timeout 180 sudo pacman-mirrors -g --geoip && echo "" && sudo pacman -Syy
 		echo ""
 
 		# check, whether manjaro mirror with the latest packages is reachable
@@ -909,7 +909,7 @@ A working internet connection is required.
 This command removes Pacman's database lock. The database lock prevents multiple Pacman instances from running at the same time and interfering with each other.
 ATTENTION: Only run this command when no other Pacman instance (e.g. Pacman, Yaourt, Pamac, Octopi, PacmanXG4, ...) is running.
 
-"timeout 60 sudo pacman-mirrors -g --geoip && sudo pacman -Syy"
+"timeout 180 sudo pacman-mirrors -g --geoip && sudo pacman -Syy"
 The first command searches for working and good Manjaro repository mirrors/servers in your country (if available) or all countries (if no mirrors/server is available in your country). It will automatically choose the closest server for you. This might not be the fastest mirror/server to download from, but it is definitely not a bad choice.
 The second command forces a redownload of the latest package database from the chosen Manjaro repository mirror server. 
 
