@@ -172,7 +172,7 @@ function func_info
 			
 		# the following command lets you search through the file "/tmp/pacui-packages" with fzf and save your selection in "pkg"
 		local pkg
-		pkg=$(sort /tmp/pacui-packages | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to display info. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
+		pkg=$(sort -u /tmp/pacui-packages | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to display info. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
 		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $pkg ]]
@@ -633,7 +633,7 @@ function func_fi
 function func_fr 
 {
 		local pkg
-		pkg=$(package-query -Q -f "%n  %v  -  %d" | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to remove. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
+		pkg=$(package-query -Q -f "%n  %v  -  %d" | sort | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to remove. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
 		if [[ -n $pkg ]]
 		then
