@@ -205,7 +205,7 @@ function func_l
 		if [[ -n $pkg ]]
 		then
 			# take the output of command "pacman -Qlq $pkg" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacui-list.
-			pacman -Qlq $pkg --color always | grep -v "/$" | fzf-tmux -m -e +s -i --query="/usr/bin/" --cycle --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed directories and files > ' > /tmp/pacui-list
+			pacman -Qlq $pkg --color always | grep -v "/$" | fzf-tmux -m -e +s -i --query="/usr/bin/" --ansi --cycle --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed directories and files > ' > /tmp/pacui-list
 		fi
 }
 
@@ -217,7 +217,7 @@ function func_t
 		pacman -Qq >> /tmp/pacui-packages-local
 
 		local pkg
-		pkg=$(sort -u /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
+		pkg=$(sort -u /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed list of packages > ')
 		
 		# look in func_info for explanations
 		if [[ -n $pkg ]]
