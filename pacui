@@ -198,6 +198,10 @@ function func_info
 
 function func_l 
 {
+
+		# paritally same result can be obtained from "pacman -Flq $pkg" for packages from manjaro repo (not AUR packages!)
+		
+
 		# use fzf to ask the user to select an installed package. the package name gets save in variable "pkg"
 		local pkg
 		pkg=$(pacman -Qq | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
@@ -256,7 +260,9 @@ function func_log
 
 function func_s
 {
-		# maybe, this can be replaced by " pacman -Fl --color always $pkg "
+		# first do sudo pacman -Fyy
+		# replace with "pacman -Fs --color always $pkg" --> this command only searches for files in /usr/bin !!!  
+		# (use this command addetionally after doing "pacman -Ql --color always | grep -i --color=always $pkg ")
 		
 		local pkg
 		
