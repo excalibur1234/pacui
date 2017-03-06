@@ -218,12 +218,12 @@ function func_l
 
 function func_t 
 {
-		# write package list of Manjaro repositories to /tmp/pacui-packages-local. then add all instaled packages to the bottom of /tmp/pacui-packages-local.
+		# write package list of Manjaro repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
 		pacman -Slq > /tmp/pacui-packages-local
 		pacman -Qq >> /tmp/pacui-packages-local
 
 		local pkg
-		pkg=$(sort /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
+		pkg=$(sort -u /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
 		# look in func_info for explanations
 		if [[ -n $pkg ]]
@@ -397,7 +397,7 @@ function func_d
 		pacman -Qq >> /tmp/pacui-packages-local
 		
 		local pkg
-		pkg=$(sort /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to downgrade. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
+		pkg=$(sort -u /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to downgrade. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
 		downgrade $pkg
 }
@@ -706,7 +706,7 @@ function func_ia
 		
 		local pkg
 		
-		pkg=$(sort /tmp/pacui-packages | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
+		pkg=$(sort -u /tmp/pacui-packages | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
 		if [[ -n $pkg ]]
 		then
