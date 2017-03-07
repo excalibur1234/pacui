@@ -127,9 +127,15 @@ function func_c
 
 function func_i 
 {
-		# the "package-query -Sl -f '%n  %v  -  %d' " displays a list of all packages from the Manjaro repositories and formats them like "NAME  VERSION  -  DESCRIPTION". the first part (="NAME") gets (printed and) saved to the "pkg" variable.
+		# the "package-query -Sl -f '%n  %v  -  %d' " displays a list of all packages from the Manjaro repositories and formats them like "NAME  VERSION  -  DESCRIPTION".
+		# write formatted package list of Manjaro repositories to /tmp/pacui-packages-group-manjaro. then add all package groups to the bottom.
+		package-query -Sl -f "%n  %v  -  %d" > /tmp/pacui-packages-group-manjaro
+		pacman -Sg >> /tmp/pacui-packages-group-manjaro
+		
 		local pkg
-		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
+		
+		# the first part (="NAME") of package list in /tmp/pacui-packages-group-manjaro gets (printed and) saved to the "pkg" variable.
+		pkg=$(sort /tmp/pacui-packages-group-manjaro | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
 		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $pkg ]]
@@ -141,11 +147,15 @@ function func_i
 
 function func_r 
 {
-		# $(pacman -Qq | sort | fzf -e -m +s --reverse --prompt='Select packages to remove (use TAB to toggle selection) > ')
-		# takes a package list from "pacman -Qq", then sorts it alphabetically, then make the resulting list available to fzf.
-		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
+		# write formatted package list of local repository to /tmp/pacui-packages-group. then add all package groups to the bottom (this makes it easier to remove package groups - if a package group with non-installed packages gets selected, an error is the output).
+		package-query -Q -f "%n  %v  -  %d" > /tmp/pacui-packages-group
+		pacman -Sg >> /tmp/pacui-packages-group
+		
 		local pkg
-		pkg=$(package-query -Q -f "%n  %v  -  %d"  | sort | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to remove. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
+		
+		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
+		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
+		pkg=$( sort -u /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to remove. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
         
 		if [[ -n $pkg ]]
 		then
@@ -620,8 +630,12 @@ function func_e
 
 function func_fi 
 {
+		# write formatted package list of Manjaro repositories to /tmp/pacui-packages-group-manjaro. then add all package groups to the bottom.
+		package-query -Sl -f "%n  %v  -  %d" > /tmp/pacui-packages-group-manjaro
+		pacman -Sg >> /tmp/pacui-packages-group-manjaro
+		
 		local pkg
-		pkg=$(package-query -Sl -f "%n  %v  -  %d" | sort | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
+		pkg=$( sort /tmp/pacui-packages-group-manjaro | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
 		if [[ -n $pkg ]]
 		then
@@ -632,8 +646,12 @@ function func_fi
 
 function func_fr 
 {
+		# write formatted package list of local repository to /tmp/pacui-packages-group. then add all package groups to the bottom (this makes it easier to remove package groups - if a package group with non-installed packages gets selected, an error is the output).
+		package-query -Q -f "%n  %v  -  %d" > /tmp/pacui-packages-group
+		pacman -Sg >> /tmp/pacui-packages-group
+		
 		local pkg
-		pkg=$(package-query -Q -f "%n  %v  -  %d" | sort | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to remove. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
+		pkg=$( sort -u /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to remove. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
 		if [[ -n $pkg ]]
 		then
@@ -699,8 +717,9 @@ function func_ia
 		# check, whether file /tmp/pacui-packages already exists (the ! negates the result)
 		if ! [[ -e /tmp/pacui-packages ]]
 		then
-			# write package list of manjaro repositories to /tmp/pacui-packages. then, download AUR package list, unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages.
+			# write package list (and package group list) of manjaro repositories to /tmp/pacui-packages. then, download AUR package list, unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages.
 			pacman -Slq > /tmp/pacui-packages
+			pacman -Sg >> /tmp/pacui-packages
 			wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null && gunzip -f /tmp/aur/packages.gz && cat /tmp/aur/packages >> /tmp/pacui-packages
 		fi
 		
