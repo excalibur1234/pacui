@@ -208,9 +208,9 @@ function func_info
 
 function func_l 
 {
-
+		#
 		# paritally same result can be obtained from "pacman -Fylq $pkg" for packages from manjaro repo (not AUR packages!)
-		
+		#
 
 		# use fzf to ask the user to select an installed package. the package name gets save in variable "pkg"
 		local pkg
@@ -270,30 +270,34 @@ function func_log
 
 function func_s
 {
-		# first (only needed once - mention in help page) do "sudo pacman -Fyy"
-		#
-		# "sudo pacman -Fy &> /dev/null"
-		# "pacman -Fs --color always $pkg" --> this command only searches the exact file name (no variations of that name are displayed) !!!
-		#                                      e.g.: "pacman -Fs abcde" does NOT find "abcde.1.gz" or "abcde-tool" files (only "/usr/bin/abcde" is found) !!! (mention in help page) 
-		# (use this command additionally after doing "pacman -Ql --color always | grep -i --color=always $pkg ")
-		
-		
-		
-		local pkg
+		local file
 		
 		if [[ -n "$input2" ]]
 		then
 			# do this if variable "input" is not empty:
-			pkg=$"$input2" 
+			file=$"$input2" 
 		else
 			# do this if pacui is used with UI or no argument is specified in "pacui s" command:
-			echo "Enter (parts of) the file name to be searched within all installed packages. Then press ENTER."
-			read -r pkg
+			echo "Enter (parts of) the file name to be searched. Then press ENTER."
+			read -r file
 			echo
 		fi
 		
-		# the "grep -v '/$' " part removes all folders from the view
-		pacman -Ql --color always | grep -i --color=always $pkg | grep -v "/$" | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed search results > ' > /tmp/pacui-search
+		if [[ -n $file ]]
+		then
+		
+			# list all files of all installed local package. awk '$2 ~ "$file"' searches for $file in the second column only. the "grep -v '/$' " part removes all folders from the view.
+			pacman -Ql --color always | awk '$2 ~ "$file"' | grep -v "/$" | grep "$file" > /tmp/pacui-rsearch
+		
+			# update local package database. in some cases, the local database has to be initialized with sudo pacman -Fyy
+			echo "updating remote repository database ..."
+			sudo pacman -Fy &>/dev/null
+			echo
+		
+			# search in manjaro repositories
+			pacman -Fsx --color always $file
+						
+		fi
 }
 
 
@@ -901,8 +905,11 @@ This command displays the last 5000 lines of your Pacman Log and makes it search
 
 \e[1m10 - REVERSE FILE SEARCH \e[0m
 "pacman -Ql | grep <FILE NAME>"
-This command searches for <FILE NAME> in all your installed packages. The result is a list of (bold) package names including the installation path of <FILE NAME>. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-search.
-Sometimes, Pacman cannot find a file, for example a shared library. An error message is shown about <FILE NAME>. Use REVERSE FILE SEARCH to find out, which package has installed <FILE NAME>. In most cases, you can fix the Pacman error by using one of the following options with that package: UPDATE SYSTEM, FORCE REMOVE PACKAGES and INSTALL PACKAGES, FORCE UPDATE SYSTEM, or DOWNGRADE PACKAGES.
+"sudo pacman -Fysx <FILE NAME>"
+In some situations, Pacman (e.g. during UPDATE SYSTEM) cannot find a file, for example a shared library. An error message is shown about <FILE NAME>. Use REVERSE FILE SEARCH to find out, which package has installed <FILE NAME>. In most cases, you can fix the Pacman error by using one of the following options on that package: UPDATE SYSTEM, FORCE REMOVE PACKAGES and INSTALL PACKAGES, FORCE UPDATE SYSTEM, or DOWNGRADE PACKAGES.
+The first command searches for <FILE NAME> in all your installed packages. The result is a list of (bold) package names including the installation path of <FILE NAME>. 
+The second command updates the file database of the manjaro repositories. Next, it searches for <FILE NAME> in the Manjaro repositories and displays a package name (including in which repository it is located) followed by a list of files (including their path).
+ATTENTION: On some systems, the file database has not been downloaded which results in an error message instead of search results from the Manjaro repositories. You can fix it by running "sudo pacman -Fyy" once and restarting REVERSE FILE SEARCH.
 
 
 \e[1m11 - ROLL BACK SYSTEM \e[0m
