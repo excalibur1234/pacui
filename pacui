@@ -209,7 +209,7 @@ function func_info
 function func_l 
 {
 
-		# paritally same result can be obtained from "pacman -Flq $pkg" for packages from manjaro repo (not AUR packages!)
+		# paritally same result can be obtained from "pacman -Fylq $pkg" for packages from manjaro repo (not AUR packages!)
 		
 
 		# use fzf to ask the user to select an installed package. the package name gets save in variable "pkg"
@@ -270,9 +270,14 @@ function func_log
 
 function func_s
 {
-		# first do sudo pacman -Fyy
-		# replace with "pacman -Fs --color always $pkg" --> this command only searches for files in /usr/bin !!!  
-		# (use this command addetionally after doing "pacman -Ql --color always | grep -i --color=always $pkg ")
+		# first (only needed once - mention in help page) do "sudo pacman -Fyy"
+		#
+		# "sudo pacman -Fy &> /dev/null"
+		# "pacman -Fs --color always $pkg" --> this command only searches the exact file name (no variations of that name are displayed) !!!
+		#                                      e.g.: "pacman -Fs abcde" does NOT find "abcde.1.gz" or "abcde-tool" files (only "/usr/bin/abcde" is found) !!! (mention in help page) 
+		# (use this command additionally after doing "pacman -Ql --color always | grep -i --color=always $pkg ")
+		
+		
 		
 		local pkg
 		
