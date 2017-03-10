@@ -790,7 +790,7 @@ function func_h
 			echo -e "  pacui	i     - \e[1mI\e[0mnstall Packages"
 			echo -e "  pacui	r     - \e[1mR\e[0memove Packages + Deps"
 			echo -e "  pacui	info  - Package \e[1mInfo\e[0mrmation"
-			echo -e "  pacui	l     - \e[1mL\e[0mist Local Package Files"
+			echo -e "  pacui	l     - \e[1mL\e[0mist Package Files"
 			echo -e "  pacui	t     - Dependency \e[1mT\e[0mree"
 			echo -e "  pacui	rt    - \e[1mR\e[0meverse Dependency \e[1mT\e[0mree"
 			echo
@@ -899,11 +899,12 @@ Please note that folders in your home (~) directory and created by the program <
 This command displays a lot of information about <PACKAGE NAME>. Different pieces of information get displayed depending on package source (Manjaro repository or AUR) and package state (installed or not installed).
 
 
-\e[1m6 - LIST LOCAL PACKAGE FILES \e[0m
+\e[1m6 - LIST PACKAGE FILES \e[0m
 "pacman -Qlq <PACKAGE NAME>"
+"sudo pacman -Fyl <PACKAGE NAME>" (only for packages not installed on your system)
 This command lists all files contained in <PACKAGE NAME> including their path. <PACKAGE NAME> must be installed on your system.
-Have you ever installed a program and did not know with which command it can be started/executed? Just look for files (and their names) in your /usr/bin/ directory using LIST LOCAL PACKAGE FILES.
-By default all files are filtered for files located in /usr/bin/, but you can enter any filter term you want to. Delete the default filter term with BACKSPACE to see a complete list of files of <PACKAGE NAME>. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-list.
+Have you ever installed a program and did not know with which command it can be started/executed? Just look for files (and their names) in your /usr/bin/ directory using LIST PACKAGE FILES.
+By default all files are filtered for files located in usr/bin/, but you can enter any filter term you want to. Delete the default filter term with BACKSPACE to see a complete list of files of <PACKAGE NAME>. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-list.
 
 
 \e[1m7 - DEPENDENCIES TREE \e[0m
@@ -1180,7 +1181,7 @@ do
 	echo -e " │   1   \e[1mU\e[0mpdate System                 2   \e[1mC\e[0mlean System               │"
 	echo -e " │   3   \e[1mI\e[0mnstall Packages              4   \e[1mR\e[0memove Packages + Deps     │"
 	echo -e " │--------------------------------------------------------------------│"
-	echo -e " │   5   Package \e[1mInfo\e[0mrmation           6   \e[1mL\e[0mist Local Package Files   │"
+	echo -e " │   5   Package \e[1mInfo\e[0mrmation           6   \e[1mL\e[0mist Package Files         │"
 	echo -e " │   7   Dependency \e[1mT\e[0mree               8   \e[1mR\e[0meverse Dependency \e[1mT\e[0mree    │"
 	echo -e " └────────────────────────────────────────────────────────────────────┘"
 	echo -e " ┌────────────────────────────────────────────────────────────────────┐"
