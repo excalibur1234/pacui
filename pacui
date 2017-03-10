@@ -208,18 +208,32 @@ function func_info
 
 function func_l 
 {
-		#
-		# paritally same result can be obtained from "pacman -Fylq $pkg" for packages from manjaro repo (not AUR packages!)
-		#
-
-		# use fzf to ask the user to select an installed package. the package name gets save in variable "pkg"
+		# write package list of Manjaro repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
+		pacman -Slq > /tmp/pacui-packages-local
+		pacman -Qq >> /tmp/pacui-packages-local
+		
 		local pkg
-		pkg=$(pacman -Qq | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
+		pkg=$( sort -u /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
 		if [[ -n $pkg ]]
 		then
+		
 			# take the output of command "pacman -Qlq $pkg" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacui-list.
-			pacman -Qlq $pkg --color always | grep -v "/$" | fzf-tmux -m -e +s -i --query="/usr/bin/" --ansi --cycle --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed directories and files > ' > /tmp/pacui-list
+			pacman -Ql $pkg --color always 2>/dev/null | grep -v "/$" > /tmp/pacui-list-temp
+			
+			# update local package database. this needs a long time when internet connection is slow.
+			# in some cases, the local database has to be initialized with sudo pacman -Fyy
+			sudo pacman -Fy
+			
+			# search in manjaro repositories with "pacman -Fl" --> machine readable version of output is easier to read for awk!
+			# the awk command is used to format output: "-F '\0'" set "\0" as separator. this makes it possible to easily use $1,$2,$3,$4 as syntax later.
+			# "system( "pacman -Qq " $2 " &>/dev/null" ) == 1" check exit status of "pacman -Qq <package name> &>/dev/null". if error occurs (==1), the package is not installled
+			# "{print $1 "/" $2, $4}" prints output nicely formatted.
+			pacman -Fl --machinereadable "$pkg" | awk -F '\0' 'system( "pacman -Qq " $2 " &>/dev/null" ) == 1 {print $1 "/" $2, $4}' | grep -v "/$" >> /tmp/pacui-list-temp
+			
+			# output /tmp/pacui-list-temp file and display results using fzf:
+			cat /tmp/pacui-list-temp | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed package name and file path > ' > /tmp/pacui-list
+		
 		fi
 }
 
@@ -302,7 +316,7 @@ function func_s
 			pacman -Fsx --machinereadable "$file" | awk -F '\0' 'system( "pacman -Qq " $2 " &>/dev/null" ) == 1 {print $1 "/" $2, $4}' >> /tmp/pacui-search-temp
 			
 			# display results from file /tmp/pacui-search-temp in fzf.
-			cat /tmp/pacui-search-temp | fzf-tmux -m -e +s -i --ansi --reverse --query="$file" --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed search results > ' > /tmp/pacui-search
+			cat /tmp/pacui-search-temp | fzf-tmux -m -e +s -i --ansi --reverse --query="$file" --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed package name and file path > ' > /tmp/pacui-search
 									
 		fi
 }
