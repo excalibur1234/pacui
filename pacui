@@ -902,9 +902,11 @@ This command displays a lot of information about <PACKAGE NAME>. Different piece
 \e[1m6 - LIST PACKAGE FILES \e[0m
 "pacman -Ql <PACKAGE NAME>"
 "sudo pacman -Fyl <PACKAGE NAME>" (only for packages not installed on your system)
-These commands list all files contained in <PACKAGE NAME> including their path. As a result, <MANJARO REPOSITORY>/<PACKAGE NAME> and the complete path to the files gets displayed. <MANJARO REPOSITORY> gets only displayed, if <PACKAGE NAME> is not installed on your system. 
+These commands list all files contained in <PACKAGE NAME> including their path. The second command syncs the file database with the Manjaro repositories and then searches the file database for files, which get installed by <PACKAGE NAME>.
+As a result, <MANJARO REPOSITORY>/<PACKAGE NAME> and the complete path to the files gets displayed. <MANJARO REPOSITORY> gets only displayed, if <PACKAGE NAME> is not installed on your system. 
 Have you ever installed a program and did not know with which command it can be started/executed? Just look for files (and their names) in your /usr/bin/ directory using LIST PACKAGE FILES.
 By default, the results are filtered for files located in usr/bin/, but you can enter any filter term you want to. Delete the default filter term with BACKSPACE to see a complete list of files of <PACKAGE NAME>. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-list.
+\e[1mAttention\e[0m: On some systems, the file database has not been downloaded which results in an error message instead of search results from the Manjaro repositories. You can fix it by running "sudo pacman -Fyy" once and restarting LIST PACKAGE FILES.
 
 
 \e[1m7 - DEPENDENCIES TREE \e[0m
@@ -929,8 +931,9 @@ This command displays the last 5000 lines of your Pacman Log and makes it search
 "pacman -Ql | grep <FILE NAME>"
 "sudo pacman -Fysx <FILE NAME>" (only for packages not installed on your system)
 In some situations, Pacman (e.g. during UPDATE SYSTEM) cannot find a file, for example a shared library. An error message is shown about <FILE NAME>. Use REVERSE FILE SEARCH to find out, which package has installed <FILE NAME>. In most cases, you can fix the Pacman error by using one of the following options on that package: UPDATE SYSTEM, FORCE REMOVE PACKAGES and INSTALL PACKAGES, FORCE UPDATE SYSTEM, or DOWNGRADE PACKAGES.
-The first command searches for <FILE NAME> in all your installed packages. The result is a list of (bold) package names including the installation path of <FILE NAME>. 
-As a result, <MANJARO REPOSITORY>/<PACKAGE NAME> and the complete path to the files gets displayed using fzf. <MANJARO REPOSITORY> gets only displayed, if <PACKAGE NAME> is not installed on your system. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-search.
+The first command searches for <FILE NAME> in all your installed packages. 
+The second command syncs the file database with the Manjaro repositories and then searches the file database for <FILE NAME>.
+As a result, <MANJARO REPOSITORY>/<PACKAGE NAME> and the complete path to <FILE NAME> gets displayed using fzf. <MANJARO REPOSITORY> gets only displayed, if <PACKAGE NAME> is not installed on your system. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-search.
 \e[1mAttention\e[0m: On some systems, the file database has not been downloaded which results in an error message instead of search results from the Manjaro repositories. You can fix it by running "sudo pacman -Fyy" once and restarting REVERSE FILE SEARCH.
 
 
