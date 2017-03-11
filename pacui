@@ -217,7 +217,8 @@ function func_l
 		
 		if [[ -n $pkg ]]
 		then
-		
+			
+			# "pacman -Ql" shows sometimes more files than "pacman -Fl". therefore, both commands have to be used!
 			# take the output of command "pacman -Qlq $pkg" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacui-list.
 			pacman -Ql $pkg --color always 2>/dev/null | grep -v "/$" > /tmp/pacui-list-temp
 			
@@ -301,9 +302,8 @@ function func_s
 		then
 			
 			# list all files of all installed local package. 
-			# awk -v VAR="$file" '$2 ~ VAR' searches for $file in the second column only. 
-			# the "grep -v '/$' " part removes all folders from the view.
-			pacman -Ql --color always | awk -v VAR="$file" '$2 ~ VAR' | grep -v "/$" > /tmp/pacui-search-temp
+			# awk -v VAR="$file" '$NF ~ VAR' searches for $file (using regex) in the last field/column only. 
+			pacman -Ql --color always | awk -v VAR="$file" -F '/' '$NF ~ VAR' > /tmp/pacui-search-temp
 						
 			# update local package database. this needs a long time when internet connection is slow.
 			# in some cases, the local database has to be initialized with sudo pacman -Fyy
@@ -316,7 +316,7 @@ function func_s
 			pacman -Fsx --machinereadable "$file" | awk -F '\0' 'system( "pacman -Qq " $2 " &>/dev/null" ) == 1 {print $1 "/" $2, $4}' >> /tmp/pacui-search-temp
 			
 			# display results from file /tmp/pacui-search-temp in fzf.
-			cat /tmp/pacui-search-temp | fzf-tmux -m -e +s -i --ansi --reverse --query="$file" --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed package name and file path > ' > /tmp/pacui-search
+			cat /tmp/pacui-search-temp | fzf-tmux -m -e +s -i --ansi --reverse --query="$file" --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed package name and file path > ' > /tmp/pacui-search
 									
 		fi
 }
@@ -822,7 +822,7 @@ function func_h
 PacUI is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Pacaur/Yaourt as back ends. If Pacaur is installed on your system, PacUI uses it by default. PacUI offers you the most common and useful features for managing your packages.
 
 Navigate this help page with your Arrow Keys, PageUp/PageDown Keys, SpaceBar, or your Mouse Wheel. To search this Help Page, enter /<SEARCH TERM> and press ENTER. For example, enter the following (without quotes " ") in order to search for the word "update": "/update". Search is not case sensitive. To exit this Help Page, press your "q" key.
-Most options in PacUI use fuzzy finder (fzf), which means by starting to type you can search the displayed list. Use your TAB key to select multiple items from the list and your ENTER key to choose your selection. Navigate fzf's list the same way you navigate this help page.
+Most options in PacUI use fuzzy finder (fzf), which means by starting to type you can search the displayed list. Advanced users can even use regular expressions to search in fzf. Use your TAB key to select multiple items from the list and your ENTER key to choose your selection. Navigate fzf's list the same way you navigate this help page.
 
 
 \e[1mHOME SCREEN \e[0m
@@ -931,7 +931,7 @@ This command displays the last 5000 lines of your Pacman Log and makes it search
 "pacman -Ql | grep <FILE NAME>"
 "sudo pacman -Fysx <FILE NAME>" (only for packages not installed on your system)
 In some situations, Pacman (e.g. during UPDATE SYSTEM) cannot find a file, for example a shared library. An error message is shown about <FILE NAME>. Use REVERSE FILE SEARCH to find out, which package has installed <FILE NAME>. In most cases, you can fix the Pacman error by using one of the following options on that package: UPDATE SYSTEM, FORCE REMOVE PACKAGES and INSTALL PACKAGES, FORCE UPDATE SYSTEM, or DOWNGRADE PACKAGES.
-The first command searches for <FILE NAME> in all your installed packages. 
+The first command searches for <FILE NAME> in all your installed packages. <FILE NAME> can contain regular expressions.
 The second command syncs the file database with the Manjaro repositories and then searches the file database for <FILE NAME>.
 As a result, <MANJARO REPOSITORY>/<PACKAGE NAME> and the complete path to <FILE NAME> gets displayed using fzf. <MANJARO REPOSITORY> gets only displayed, if <PACKAGE NAME> is not installed on your system. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-search.
 \e[1mAttention\e[0m: On some systems, the file database has not been downloaded which results in an error message instead of search results from the Manjaro repositories. You can fix it by running "sudo pacman -Fyy" once and restarting REVERSE FILE SEARCH.
