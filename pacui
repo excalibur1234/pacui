@@ -449,48 +449,50 @@ function func_conf
 		touch /tmp/pacui-conf
         
 		# if file /etc/default/tlp exists, push string "/etc/default/tlp              - Configure power management." into /tmp/pacui-conf file.
-		[[ -e /etc/default/tlp ]] && echo "/etc/default/tlp                - Configure power management." >> /tmp/pacui-conf
-		[[ -e /etc/default/cpupower ]] && echo "/etc/default/cpupower           - Configure CPU power management." >> /tmp/pacui-conf
-		[[ -e /etc/profile.d/freetype2.sh ]] && echo "/etc/profile.d/freetype2.sh     - Configure TrueType interpreter, including Infinality mode." >> /tmp/pacui-conf
-		[[ -e /etc/pulse/daemon.conf ]] && echo "/etc/pulse/daemon.conf          - Configure PulseAudio daemon." >> /tmp/pacui-conf
-		[[ -e /etc/pacman.conf ]] && echo "/etc/pacman.conf                - Configure Pacman." >> /tmp/pacui-conf
-		[[ -e /etc/pacman-mirrors.conf ]] && echo "/etc/pacman-mirrors.conf        - Configure Manjaro's pacman-mirrors." >> /tmp/pacui-conf
-		[[ -e /etc/pacman.d/mirrorlist ]] && echo "/etc/pacman.d/mirrorlist        - Configure mirror list manually. Afterwards, do 'sudo pacman -Syy'." >> /tmp/pacui-conf
-		[[ -e /etc/yaourtrc ]] && echo "/etc/yaourtrc                   - Configure Yaourt." >> /tmp/pacui-conf
-		[[ -e /etc/xdg/pacaur/config ]] && echo "/etc/xdg/pacaur/config          - Configure Pacaur." >> /tmp/pacui-conf
-		[[ -e /etc/makepkg.conf ]] && echo "/etc/makepkg.conf               - Configure package compilation." >> /tmp/pacui-conf
-		[[ -e /etc/resolv.conf ]] && echo "/etc/resolv.conf                - Configure DNS servers." >> /tmp/pacui-conf
-		[[ -e /etc/hostname ]] && echo "/etc/hostname                   - Configure your network hostname" >> /tmp/pacui-conf
-		[[ -e /etc/hosts ]] && echo "/etc/hosts                      - Configure local DNS." >> /tmp/pacui-conf
-		[[ -e /etc/environment ]] && echo "/etc/environment                - Configure system-wide environment variables." >> /tmp/pacui-conf
-		[[ -e /etc/slim.conf ]] && echo "/etc/slim.conf                  - Configure slim display manager." >> /tmp/pacui-conf
-		[[ -e /etc/lightdm.conf ]] && echo "/etc/lightdm.conf               - Configure lightdm display manager." >> /tmp/pacui-conf
-		[[ -e /etc/sddm.conf ]] && echo "/etc/sddm.conf                  - Configure sddm display manager." >> /tmp/pacui-conf
-		[[ -e /etc/mdm/mdm.conf ]] && echo "/etc/mdm/mdm.conf               - Configure mdm display manager." >> /tmp/pacui-conf
-		[[ -e /etc/lxdm/lxdm.conf ]] && echo "/etc/lxdm/lxdm.conf             - Configure lxdm display manager." >> /tmp/pacui-conf
-		[[ -e /etc/gdm/custom.conf ]] && echo "/etc/gdm/custom.conf            - Configure gdm display manager." >> /tmp/pacui-conf
-		[[ -e /etc/entrance/entrance.conf ]] && echo "/etc/entrance/entrance.conf     - Configure entrance display manager." >> /tmp/pacui-conf
-		[[ -e /etc/conf.d/xdm ]] && echo "/etc/conf.d/xdm                 - Configure xdm display manager." >> /tmp/pacui-conf
-		[[ -e $HOME/.bashrc ]] && echo "~/.bashrc                       - Configure bash shell." >> /tmp/pacui-conf
-		[[ -e $HOME/.zshrc ]] && echo "~/.zshrc                        - Configure zsh shell." >> /tmp/pacui-conf
-		[[ -e $HOME/.config/fish ]] && echo "~/.config/fish/*                - Configure fish shell." >> /tmp/pacui-conf
-		[[ -e $HOME/.xinitrc ]] && echo "~/.xinitrc                      - Configure X server startup." >> /tmp/pacui-conf
-		[[ -e /etc/fstab ]] && echo "/etc/fstab                      - Configure file system mount table." >> /tmp/pacui-conf
-		[[ -e /etc/sudoers ]] && echo "/etc/sudoers                    - Configure sudo." >> /tmp/pacui-conf
-		[[ -e /etc/systemd/logind.conf ]] && echo "/etc/systemd/logind.conf        - Configure systemd user logins." >> /tmp/pacui-conf
-		[[ -e /etc/systemd/journald.conf ]] && echo "/etc/systemd/journald.conf      - Configure systemd logging." >> /tmp/pacui-conf
-		[[ -e /etc/systemd/system.conf ]] && echo "/etc/systemd/system.conf        - Configure systemd system." >> /tmp/pacui-conf
-		[[ -e /usr/lib/systemd/system  ]] && echo "/usr/lib/systemd/system/*.timer - Configure all systemd timers." >> /tmp/pacui-conf
-		[[ -e /etc/X11/xorg.conf.d ]] && echo "/etc/X11/xorg.conf.d/*          - Configure Xorg display server in multiple files." >> /tmp/pacui-conf
-		[[ -e $HOME/.config/weston.ini ]] && echo "~/.config/weston.ini            - Configure Weston compositor." >> /tmp/pacui-conf
-		[[ -e /etc/sysctl.d ]] && echo "/etc/sysctl.d/*                 - Configure kernel parameters at runtime in multiple files." >> /tmp/pacui-conf
-		[[ -e /etc/mkinitcpio.conf ]] && echo "/etc/mkinitcpio.conf            - Configure initial ramdisk environment. Afterwards, do 'sudo mkinitcpio -P && sudo update-grub'." >> /tmp/pacui-conf
-		[[ -e /etc/default/grub ]] && echo "/etc/default/grub               - Configure GRUB boot loader. Afterwards, do 'sudo update-grub'." >> /tmp/pacui-conf
+		[[ -e /etc/default/tlp ]]                  && echo "/etc/default/tlp                - Configure power management." >> /tmp/pacui-conf
+		[[ -e /etc/default/cpupower ]]             && echo "/etc/default/cpupower           - Configure CPU power management." >> /tmp/pacui-conf
+		[[ -e /etc/profile.d/freetype2.sh ]]       && echo "/etc/profile.d/freetype2.sh     - Configure TrueType interpreter, including Infinality mode." >> /tmp/pacui-conf
+		[[ -e /etc/pulse/daemon.conf ]]            && echo "/etc/pulse/daemon.conf          - Configure PulseAudio daemon." >> /tmp/pacui-conf
+		[[ -e /etc/pacman.conf ]]                  && echo "/etc/pacman.conf                - Configure Pacman." >> /tmp/pacui-conf
+		[[ -e /etc/pacman-mirrors.conf ]]          && echo "/etc/pacman-mirrors.conf        - Configure Manjaro's pacman-mirrors." >> /tmp/pacui-conf
+		[[ -e /etc/pacman.d/mirrorlist ]]          && echo "/etc/pacman.d/mirrorlist        - Configure mirror list manually. Afterwards, do 'sudo pacman -Syy'." >> /tmp/pacui-conf
+		[[ -e /etc/yaourtrc ]]                     && echo "/etc/yaourtrc                   - Configure Yaourt." >> /tmp/pacui-conf
+		[[ -e /etc/xdg/pacaur/config ]]            && echo "/etc/xdg/pacaur/config          - Configure Pacaur." >> /tmp/pacui-conf
+		[[ -e /etc/makepkg.conf ]]                 && echo "/etc/makepkg.conf               - Configure package compilation." >> /tmp/pacui-conf
+		[[ -e /etc/resolv.conf ]]                  && echo "/etc/resolv.conf                - Configure DNS servers." >> /tmp/pacui-conf
+		[[ -e /etc/hostname ]]                     && echo "/etc/hostname                   - Configure your network hostname" >> /tmp/pacui-conf
+		[[ -e /etc/hosts ]]                        && echo "/etc/hosts                      - Configure local DNS." >> /tmp/pacui-conf
+		[[ -e /etc/environment ]]                  && echo "/etc/environment                - Configure system-wide environment variables." >> /tmp/pacui-conf
+		[[ -e /etc/slim.conf ]]                    && echo "/etc/slim.conf                  - Configure slim display manager." >> /tmp/pacui-conf
+		[[ -e /etc/lightdm.conf ]]                 && echo "/etc/lightdm.conf               - Configure lightdm display manager." >> /tmp/pacui-conf
+		[[ -e /etc/sddm.conf ]]                    && echo "/etc/sddm.conf                  - Configure sddm display manager." >> /tmp/pacui-conf
+		[[ -e /etc/mdm/mdm.conf ]]                 && echo "/etc/mdm/mdm.conf               - Configure mdm display manager." >> /tmp/pacui-conf
+		[[ -e /etc/lxdm/lxdm.conf ]]               && echo "/etc/lxdm/lxdm.conf             - Configure lxdm display manager." >> /tmp/pacui-conf
+		[[ -e /etc/gdm/custom.conf ]]              && echo "/etc/gdm/custom.conf            - Configure gdm display manager." >> /tmp/pacui-conf
+		[[ -e /etc/entrance/entrance.conf ]]       && echo "/etc/entrance/entrance.conf     - Configure entrance display manager." >> /tmp/pacui-conf
+		[[ -e /etc/conf.d/xdm ]]                   && echo "/etc/conf.d/xdm                 - Configure xdm display manager." >> /tmp/pacui-conf
+		[[ -e $HOME/.bashrc ]]                     && echo "~/.bashrc                       - Configure bash shell." >> /tmp/pacui-conf
+		[[ -e $HOME/.zshrc ]]                      && echo "~/.zshrc                        - Configure zsh shell." >> /tmp/pacui-conf
+		[[ -e $HOME/.config/fish ]]                && echo "~/.config/fish/*                - Configure fish shell." >> /tmp/pacui-conf
+		[[ -e $HOME/.xinitrc ]]                    && echo "~/.xinitrc                      - Configure X server startup." >> /tmp/pacui-conf
+		[[ -e /etc/fstab ]]                        && echo "/etc/fstab                      - Configure file system mount table." >> /tmp/pacui-conf
+		[[ -e /etc/crypttab ]]                     && echo "/etc/crypttab                   - Configure encrypted file system mount table." >> /tmp/pacui-conf
+		[[ -e /etc/sudoers ]]                      && echo "/etc/sudoers                    - Configure sudo." >> /tmp/pacui-conf		
+		[[ -e /etc/systemd/logind.conf ]]          && echo "/etc/systemd/logind.conf        - Configure systemd user logins." >> /tmp/pacui-conf
+		[[ -e /etc/systemd/journald.conf ]]        && echo "/etc/systemd/journald.conf      - Configure systemd logging." >> /tmp/pacui-conf
+		[[ -e /etc/systemd/coredump.conf ]]        && echo "/etc/systemd/coredump.conf      - Configure systemd coredumps." >> /tmp/pacui-conf
+		[[ -e /etc/systemd/system.conf ]]          && echo "/etc/systemd/system.conf        - Configure systemd system." >> /tmp/pacui-conf
+		[[ -e /usr/lib/systemd/system  ]]          && echo "/usr/lib/systemd/system/*.timer - Configure all systemd timers." >> /tmp/pacui-conf
+		[[ -e /etc/X11/xorg.conf.d ]]              && echo "/etc/X11/xorg.conf.d/*          - Configure Xorg display server in multiple files." >> /tmp/pacui-conf
+		[[ -e $HOME/.config/weston.ini ]]          && echo "~/.config/weston.ini            - Configure Weston compositor." >> /tmp/pacui-conf
+		[[ -e /etc/sysctl.d ]]                     && echo "/etc/sysctl.d/*                 - Configure kernel parameters at runtime in multiple files." >> /tmp/pacui-conf
+		[[ -e /etc/mkinitcpio.conf ]]              && echo "/etc/mkinitcpio.conf            - Configure initial ramdisk environment. Afterwards, do 'sudo mkinitcpio -P && sudo update-grub'." >> /tmp/pacui-conf
+		[[ -e /etc/default/grub ]]                 && echo "/etc/default/grub               - Configure GRUB boot loader. Afterwards, do 'sudo update-grub'." >> /tmp/pacui-conf
 		[[ -e /boot/loader/entries/manjaro.conf ]] && echo "/boot/loader/entries/manjaro.conf    - Configure systemd-boot boot loader." >> /tmp/pacui-conf
-		[[ -e /boot/refind_linux.conf ]] && echo "/boot/refind_linux.conf         - Configure rEFInd boot loader." >> /tmp/pacui-conf
-		[[ -e /boot/EFI/refind/refind.conf ]] && echo "/boot/EFI/refind/refind.conf    - Configure rEFInd boot loader." >> /tmp/pacui-conf
-		[[ -e /boot/EFI/CLOVER/config.plist ]] && echo "/boot/EFI/CLOVER/config.plist   - Configure Clover boot loader." >> /tmp/pacui-conf
-		[[ -e /boot/syslinux/syslinux.cfg ]] && echo "/boot/syslinux/syslinux.cfg     - Configure syslinux boot loaders." >> /tmp/pacui-conf
+		[[ -e /boot/refind_linux.conf ]]           && echo "/boot/refind_linux.conf         - Configure rEFInd boot loader." >> /tmp/pacui-conf
+		[[ -e /boot/EFI/refind/refind.conf ]]      && echo "/boot/EFI/refind/refind.conf    - Configure rEFInd boot loader." >> /tmp/pacui-conf
+		[[ -e /boot/EFI/CLOVER/config.plist ]]     && echo "/boot/EFI/CLOVER/config.plist   - Configure Clover boot loader." >> /tmp/pacui-conf
+		[[ -e /boot/syslinux/syslinux.cfg ]]       && echo "/boot/syslinux/syslinux.cfg     - Configure syslinux boot loaders." >> /tmp/pacui-conf
 		
 		local file
 		file=$( cat /tmp/pacui-conf | fzf-tmux -e +s -i -1 --cycle --query="$input2" --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to open file. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of files > ' | awk '{print $1}' )
@@ -1098,16 +1100,16 @@ To exit this Help Page, press "q".
 # =======================
 
 
-# the following section of code gets executed when this script gets executed directly from a terminal/tty without using the UI:
+# the following section of code gets executed when this script gets called directly from a terminal/tty without using the UI:
 
 
-# write first argument of "pacui ..." to "input" variable.
+# write first argument of "pacui ..." (= option of pacui) to "input" variable.
 input=$1
-# wirte all other arguments of "pacui $1 ..." to "input2" variable. all arguments gets combined into one variable with spaces, but no breaks. 
+# wirte all other arguments of "pacui $1 ..." (= often (parts of) package or file names) to "input2" variable. all arguments gets combined into one variable with spaces, but no breaks. 
 #fzf will always display search results for "input2", if it exists (and "input" is a valid function"). if "input2" is not found in fzf's list, NOTHING is displayed.
 input2=${*:2}
 
-# if "input" starts with a "-" or "--" symbol, the "-" symbol(s) gets removed from the beginnig of "input" variable
+# if "input" starts with a "-" or "--" dash symbol, the dash(es) gets removed from the beginnig of "input" variable
 input=${input#-}
 input=${input#-}
 
@@ -1126,7 +1128,7 @@ then
 		
 		exit $?			# exit here and return error code if present
 		
-elif (( $# > 0 ))		# if "func_$input" is no valid function AND if one or more arguments are given.
+elif (( $# > 0 ))		# if "func_$input" is no valid function AND if one or more arguments are given. this condition is needed to exclude "pacui" (without any arguments) from running this section.
 then
 		
 		unset input
@@ -1135,7 +1137,7 @@ then
 		# error, if $input does not refer to a valid function. the UI will be started by default.
 		echo -e "Bad console command. Press ENTER to start PacUI's UI or CTRL+C to abort."
 		read
-		# now, continue with this script without exiting.
+		# now, continue this script without exiting.
 		
 fi
 
@@ -1162,7 +1164,6 @@ function pacui_clean
 }
 
 
-
 # ANSI Escape sequences:
 #  \e[31m	# red text
 #  \e[41m	# red background
@@ -1178,27 +1179,34 @@ do
 	
 	# draw UI / menu. please note the use of ANSI Escape sequences mentioned above. The text/code can be hard to read...
 	echo
-	echo -e "                    \e[0m ::PacUI - Package manager:: "
-	echo -e " ┌────────────────────────────────────────────────────────────────────┐"
-	echo -e " │   1   \e[1mU\e[0mpdate System                 2   \e[1mC\e[0mlean System               │"
-	echo -e " │   3   \e[1mI\e[0mnstall Packages              4   \e[1mR\e[0memove Packages + Deps     │"
-	echo -e " │--------------------------------------------------------------------│"
-	echo -e " │   5   Package \e[1mInfo\e[0mrmation           6   \e[1mL\e[0mist Package Files         │"
-	echo -e " │   7   Dependency \e[1mT\e[0mree               8   \e[1mR\e[0meverse Dependency \e[1mT\e[0mree    │"
-	echo -e " └────────────────────────────────────────────────────────────────────┘"
-	echo -e " ┌────────────────────────────────────────────────────────────────────┐"
-	echo -e " │   9   Pacman \e[1mLog\e[0m                   10   Reverse File \e[1mS\e[0mearch        │"
-	echo -e " │  11   Roll \e[1mB\e[0mack System             12   \e[1mH\e[0melp                       │"
-	echo -e " │  \e[31m13   \e[1mConf\e[0;31migure System             14   \e[1mFix\e[0;31m Pacman Errors         \e[0m │"
-	echo -e " │ \e[31m 15   \e[1mF\e[0;31morce \e[1mU\e[0;31mpdate System          16   \e[1mE\e[0;31mmpty Package Cache       \e[0m │"
-	echo -e " │ \e[31m 17   \e[1mF\e[0;31morce \e[1mI\e[0;31mnstall Packages       18   \e[1mF\e[0;31morce \e[1mR\e[0;31memove Packages     \e[0m │"
-	echo -e " └────────────────────────────────────────────────────────────────────┘"
-	echo -e " ┌────────────────────────────────────────────────────────────────────┐"
-	echo -e " │  19   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR             20   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
-	echo -e " │  21   Search + Install from \e[1mA\e[0mUR    22   \e[1mI\e[0mnstall from \e[1mA\e[0mUR           │"
-	echo -e " └────────────────────────────────────────────────────────────────────┘"
+	#echo -e "                      ::\e[7m PacUI - Package manager \e[0m::                     "
+	echo -e " ┌─────────────────────────────────────────────────────────────────────┐"
+	echo -e " │    1   \e[1mU\e[0mpdate System                 2   \e[1mC\e[0mlean System               │"
+	echo -e " │    3   \e[1mI\e[0mnstall Packages              4   \e[1mR\e[0memove Packages + Deps     │"
+	echo -e " │---------------------------------------------------------------------│"
+	echo -e " │    5   Package \e[1mInfo\e[0mrmation           6   \e[1mL\e[0mist Package Files         │"
+	echo -e " │    7   Dependency \e[1mT\e[0mree               8   \e[1mR\e[0meverse Dependency \e[1mT\e[0mree    │"
+	echo -e " └─────────────────────────────────────────────────────────────────────┘"
+	#echo -e " ├─────────────────────────────────────────────────────────────────────┤"
+	#echo -e " ┌─────────────────────────────────────────────────────────────────────┐"
+	#echo -e " │    9   Pacman \e[1mLog\e[0m                   10   Reverse File \e[1mS\e[0mearch        │"
+	#echo -e " │   11   Roll \e[1mB\e[0mack System             12   \e[1mH\e[0melp                       │"
+	#echo -e " │  \e[31m 13   \e[1mConf\e[0;31migure System             14   \e[1mFix\e[0;31m Pacman Errors        \e[0m  │"
+	#echo -e " │  \e[31m 15   \e[1mF\e[0;31morce \e[1mU\e[0;31mpdate System          16   \e[1mE\e[0;31mmpty Package Cache      \e[0m  │"
+	#echo -e " │  \e[31m 17   \e[1mF\e[0;31morce \e[1mI\e[0;31mnstall Packages       18   \e[1mF\e[0;31morce \e[1mR\e[0;31memove Packages    \e[0m  │"
+	echo -e "      9   Pacman \e[1mLog\e[0m                   10   Reverse File \e[1mS\e[0mearch         "
+	echo -e "     11   Roll \e[1mB\e[0mack System             12   \e[1mH\e[0melp                        "
+	echo -e "   \e[31m  13   \e[1mConf\e[0;31migure System             14   \e[1mFix\e[0;31m Pacman Errors         \e[0m  "
+	echo -e "   \e[31m  15   \e[1mF\e[0;31morce \e[1mU\e[0;31mpdate System          16   \e[1mE\e[0;31mmpty Package Cache       \e[0m "
+	echo -e "   \e[31m  17   \e[1mF\e[0;31morce \e[1mI\e[0;31mnstall Packages       18   \e[1mF\e[0;31morce \e[1mR\e[0;31memove Packages     \e[0m "
+	#echo -e " └─────────────────────────────────────────────────────────────────────┘"
+	#echo -e " ├─────────────────────────────────────────────────────────────────────┤"
+	echo -e " ┌─────────────────────────────────────────────────────────────────────┐"
+	echo -e " │   19   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR             20   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
+	echo -e " │   21   Search + Install from \e[1mA\e[0mUR    22   \e[1mI\e[0mnstall from \e[1mA\e[0mUR           │"
+	echo -e " └─────────────────────────────────────────────────────────────────────┘"
 	echo
-	echo -e "  Enter number or marked letter(s) and press [Enter]  -  0  \e[1mQ\e[0muit PacUI "
+	echo -e "  Enter number or marked letter(s) and press [Enter]  -   0  \e[1mQ\e[0muit PacUI "
 	
 	# save entered number in varialbe "choice" and test, whether "chioce" fits any of the following numbers, letters, or words
 	read -r choice
