@@ -16,7 +16,7 @@
 
 
 
-# all functions of pacui are defined here in almost the same order as they appear in pacui's UI:
+# all functions of pacui are defined here in the same order as they appear in pacui's UI:
 
 
 function func_u 
@@ -654,6 +654,9 @@ function func_fix
 			sudo pacman -Syyuu --color always --noconfirm
 			echo ""
 			sudo pacman -Suu --color always
+			echo ""
+			sudo pacman -Fyy
+		
 		fi
 }
 
@@ -788,11 +791,9 @@ function func_ia
 }
 
 
-
 # =======================
 
 
-# the help function was put at the end of all functions, because of convenient reasons.
 function func_h
 {
 		# the "then" part is displayed, when started directly from terminal (the last function adds the "1" parameter). the "else" part gets displayed when started from UI.
@@ -1037,7 +1038,10 @@ The second command simply does nothing for 30 seconds before the update of all o
 This last command forces a redownload of the latest package database from the best Manjaro repository mirror. Then, all your installed packages are checked against this latest package database. If an updated package is available from the Manjaro repositories, it will get downloaded and installed on your system. If an installed package is newer than the same package in the Manjaro repositories, the installed package will get downgraded. This behavior ensures your packages are always in sync with the Manajro repositories, even if you have just switched the Manjaro mirror or switched from unstable to stable branch.
 
 "sudo pacman -Suu"
-This command makes sure all downloaded packages get installed and downgraded if necessary. The user has to manually allow downgrades of packages, if downgrades are available.
+This command makes abolutely sure all downloaded packages get installed and downgraded if necessary. The user has to manually allow downgrades of packages, if downgrades are available.
+
+"sudo pacman -Fyy"
+This command forces a sync of the file database of the Manjaro repository with the chosen mirror. The file database is a separate from the package database. The file database enables REVERSE FILE SEARCH and LIST PACKAGE FILES of packages from the Manjaro repository, which are not installed on your system.
 
 
 \e[1;31m15 - FORCE UPDATE SYSTEM \e[0m
@@ -1205,7 +1209,7 @@ do
 	echo -e " │    7   Dependency \e[1mT\e[0mree               8   \e[1mR\e[0meverse Dependency \e[1mT\e[0mree    │"
 	echo -e " └─────────────────────────────────────────────────────────────────────┘"
 	echo -e "      9   Pacman \e[1mLog\e[0m                   10   Reverse File \e[1mS\e[0mearch         "
-	echo -e "     11   Roll \e[1mB\e[0mack System             12   \e[1mH\e[0melp                        "
+	echo -e "     11   Roll \e[1mB\e[0mack System                                              "
 	echo -e "   \e[31m  13   \e[1mConf\e[0;31migure System             14   \e[1mFix\e[0;31m Pacman Errors         \e[0m  "
 	echo -e "   \e[31m  15   \e[1mF\e[0;31morce \e[1mU\e[0;31mpdate System          16   \e[1mE\e[0;31mmpty Package Cache       \e[0m "
 	echo -e "   \e[31m  17   \e[1mF\e[0;31morce \e[1mI\e[0;31mnstall Packages       18   \e[1mF\e[0;31morce \e[1mR\e[0;31memove Packages     \e[0m "
@@ -1214,7 +1218,7 @@ do
 	echo -e " │   21   Search + Install from \e[1mA\e[0mUR    22   \e[1mI\e[0mnstall from \e[1mA\e[0mUR           │"
 	echo -e " └─────────────────────────────────────────────────────────────────────┘"
 	echo
-	echo -e "  Enter number or marked letter(s) and press [Enter]  -   0  \e[1mQ\e[0muit PacUI "
+	echo -e "  Enter number or marked letter(s)   -   00   \e[1mH\e[0melp   -   0   \e[1mQ\e[0muit PacUI "
 	
 	# save entered number in varialbe "choice" and test, whether "choice" fits any of the following numbers, letters, or words
 	read -r choice
@@ -1298,10 +1302,6 @@ do
 			echo -e " Downgrade finished. To return to PacUI press ENTER "
 			read
 			;;
-		12|00|h|help)
-			func_h
-			echo
-			;;
 		13|conf|config|configure)
 			func_conf
 			echo
@@ -1364,6 +1364,10 @@ do
 			;;
 
 
+		00|12|h|help)
+			func_h
+			echo
+			;;
 		0|q|quit|$'\e'|$'\e'$'\e')
 			pacui_clean && exit
 			;;
