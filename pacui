@@ -1096,14 +1096,14 @@ This command downgrades <PACKAGE NAME> and offers you a list of old <PACKAGE NAM
 After a successful downgrade, you can add <PACKAGE NAME> to your Ignore List ( "IgnorePkg" option in /etc/pacman.conf ). This will prevent Pacman from showing any available updates for <PACKAGE NAME>. <PACKAGE NAME> needs to be removed manually from your Ignore List in order to receive automatic updates of <PACKAGE NAME> again.
 Alternatively, you can run future updates with the command "sudo pacman -Syu --ignore <PACKAGE NAME>" until a fixed version of <PACKAGE NAME> gets released.
 \e[1mAttention\e[0m: Be careful when downgrading to <PACKAGE NAME> from online sources, because these are old versions from the Arch Linux repositories and not the Manjaro repositories: In the worst case, this can brake your system! Therefore, it is recommended to limit downgrading to (old versions of) local packages, if possible.
-ATTEMTION: Downgrading to a working version of <PACKAGE NAME> can break your system in in rare cases like the following: The latest system update has replaced a dependency of <PACKAGE NAME> with a different package and <PACKAGE NAME> is an important system package. Downgrading <PACKAGE NAME> will NOT reinstall the dependency of <PACKAGE NAME>, because it conflicts with the already installled different package. This can result in a broken system. Please keep these kind of conflicts in mind when using DOWNGRADE PACKAGES.
+\e[1mAttention\e[0m: Downgrading to a working version of <PACKAGE NAME> can break your system in in rare cases like the following: The latest system update has replaced a dependency of <PACKAGE NAME> with a different package and <PACKAGE NAME> is an important system package. Downgrading <PACKAGE NAME> will NOT reinstall the dependency of <PACKAGE NAME>, because it conflicts with the already installled different package. This can result in a broken system. Please keep these kind of conflicts in mind when using DOWNGRADE PACKAGES.
 
 
 To exit this Help Page, press "q".
 
 			EOF
 			
-			# display /tmp/pacui-help file in "less" and interpret all ANSI escape sequences in it
+			# display /tmp/pacui-help file in "less" and interpret all ANSI escape sequences in it (which only works with "echo -e ..."
 			echo -e "$( cat '/tmp/pacui-help' )" | less -RMi
 			
 		fi
@@ -1202,20 +1202,11 @@ do
 	echo -e " │    5   Package \e[1mInfo\e[0mrmation           6   \e[1mL\e[0mist Package Files         │"
 	echo -e " │    7   Dependency \e[1mT\e[0mree               8   \e[1mR\e[0meverse Dependency \e[1mT\e[0mree    │"
 	echo -e " └─────────────────────────────────────────────────────────────────────┘"
-	#echo -e " ├─────────────────────────────────────────────────────────────────────┤"
-	#echo -e " ┌─────────────────────────────────────────────────────────────────────┐"
-	#echo -e " │    9   Pacman \e[1mLog\e[0m                   10   Reverse File \e[1mS\e[0mearch        │"
-	#echo -e " │   11   Roll \e[1mB\e[0mack System             12   \e[1mH\e[0melp                       │"
-	#echo -e " │  \e[31m 13   \e[1mConf\e[0;31migure System             14   \e[1mFix\e[0;31m Pacman Errors        \e[0m  │"
-	#echo -e " │  \e[31m 15   \e[1mF\e[0;31morce \e[1mU\e[0;31mpdate System          16   \e[1mE\e[0;31mmpty Package Cache      \e[0m  │"
-	#echo -e " │  \e[31m 17   \e[1mF\e[0;31morce \e[1mI\e[0;31mnstall Packages       18   \e[1mF\e[0;31morce \e[1mR\e[0;31memove Packages    \e[0m  │"
 	echo -e "      9   Pacman \e[1mLog\e[0m                   10   Reverse File \e[1mS\e[0mearch         "
 	echo -e "     11   Roll \e[1mB\e[0mack System             12   \e[1mH\e[0melp                        "
 	echo -e "   \e[31m  13   \e[1mConf\e[0;31migure System             14   \e[1mFix\e[0;31m Pacman Errors         \e[0m  "
 	echo -e "   \e[31m  15   \e[1mF\e[0;31morce \e[1mU\e[0;31mpdate System          16   \e[1mE\e[0;31mmpty Package Cache       \e[0m "
 	echo -e "   \e[31m  17   \e[1mF\e[0;31morce \e[1mI\e[0;31mnstall Packages       18   \e[1mF\e[0;31morce \e[1mR\e[0;31memove Packages     \e[0m "
-	#echo -e " └─────────────────────────────────────────────────────────────────────┘"
-	#echo -e " ├─────────────────────────────────────────────────────────────────────┤"
 	echo -e " ┌─────────────────────────────────────────────────────────────────────┐"
 	echo -e " │   19   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR             20   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
 	echo -e " │   21   Search + Install from \e[1mA\e[0mUR    22   \e[1mI\e[0mnstall from \e[1mA\e[0mUR           │"
@@ -1223,7 +1214,7 @@ do
 	echo
 	echo -e "  Enter number or marked letter(s) and press [Enter]  -   0  \e[1mQ\e[0muit PacUI "
 	
-	# save entered number in varialbe "choice" and test, whether "chioce" fits any of the following numbers, letters, or words
+	# save entered number in varialbe "choice" and test, whether "choice" fits any of the following numbers, letters, or words
 	read -r choice
 	# convert "choice" variable to lowercase:
 	choice=$(echo "$choice" | tr '[:upper:]' '[:lower:]' )
@@ -1287,7 +1278,7 @@ do
 			func_log
 			echo
 			;;		
-		10|s|search)
+		10|s|search|rs|reversesearch)
 			func_s
 			echo
 			echo -e " All packages listed. To return to PacUI press ENTER "
@@ -1305,7 +1296,7 @@ do
 			echo -e " Downgrade finished. To return to PacUI press ENTER "
 			read
 			;;
-		12|00|111|h|help)
+		12|00|h|help)
 			func_h
 			echo
 			;;
