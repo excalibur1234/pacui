@@ -233,7 +233,7 @@ function func_l
 			pacman -Fl --machinereadable "$pkg" | awk -F '\0' 'system( "pacman -Qq " $2 " &>/dev/null" ) == 1 {print $1 "/" $2, $4}' | grep -v "/$" >> /tmp/pacui-list-temp
 			
 			# output /tmp/pacui-list-temp file and display results using fzf:
-			cat /tmp/pacui-list-temp | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed package name and file path > ' > /tmp/pacui-list
+			cat /tmp/pacui-list-temp | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed package name and file path > ' > /tmp/pacui-l
 		
 		fi
 }
@@ -313,10 +313,10 @@ function func_s
 			# the awk command is used to format output: "-F '\0'" set "\0" as separator. this makes it possible to easily use $1,$2,$3,$4 as syntax later.
 			# "system( "pacman -Qq " $2 " &>/dev/null" ) == 1" check exit status of "pacman -Qq <package name> &>/dev/null". if error occurs (==1), the package is not installled
 			# "{print $1 "/" $2, $4}" prints output nicely formatted.
-			pacman -Fsx --machinereadable "$file" | awk -F '\0' 'system( "pacman -Qq " $2 " &>/dev/null" ) == 1 {print $1 "/" $2, $4}' >> /tmp/pacui-search-temp
+			pacman -Fsx --machinereadable "$file" | awk -F '\0' 'system( "pacman -Qq " $2 " &>/dev/null" ) == 1 {print $1 "/" $2 "  " $4}' >> /tmp/pacui-search-temp
 			
 			# display results from file /tmp/pacui-search-temp in fzf.
-			cat /tmp/pacui-search-temp | fzf-tmux -m -e +s -i --ansi --reverse --query="$file" --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed package name and file path > ' > /tmp/pacui-search
+			cat /tmp/pacui-search-temp | fzf-tmux -m -e +s -i --ansi --reverse --query="$file" --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed package name and file path > ' > /tmp/pacui-s
 									
 		fi
 }
@@ -922,7 +922,7 @@ This command displays a lot of information about <PACKAGE NAME>. Different piece
 These commands list all files contained in <PACKAGE NAME> including their path. The second command syncs the file database with the Manjaro repositories and then searches the file database for files, which get installed by <PACKAGE NAME>.
 As a result, <MANJARO REPOSITORY>/<PACKAGE NAME> and the complete path to the files gets displayed. <MANJARO REPOSITORY> gets only displayed, if <PACKAGE NAME> is not installed on your system. 
 Have you ever installed a program and did not know with which command it can be started/executed? Just look for files (and their names) in your /usr/bin/ directory using LIST PACKAGE FILES.
-By default, the results are filtered for files located in usr/bin/, but you can enter any filter term you want to. Delete the default filter term with BACKSPACE to see a complete list of files of <PACKAGE NAME>. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-list.
+By default, the results are filtered for files located in usr/bin/, but you can enter any filter term you want to. Delete the default filter term with BACKSPACE to see a complete list of files of <PACKAGE NAME>. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-l.
 \e[1mAttention\e[0m: On some systems, the file database has not been downloaded which results in an error message instead of search results from the Manjaro repositories. You can fix it by running "sudo pacman -Fyy" once and restarting LIST PACKAGE FILES.
 
 
@@ -930,12 +930,14 @@ By default, the results are filtered for files located in usr/bin/, but you can 
 "pactree -s <PACKAGE NAME>" or "pactree <PACKAGE NAME>"
 This command will display a complete tree of all dependencies of <PACKAGE NAME>. <PACKAGE NAME> can be an installed package or a package from the Manjaro repositories. Dependencies are packages required by <PACKAGE NAME> in order to function. When you install <PACKAGE NAME>, all its dependencies get installed, too.
 The first command gets used when <PACKAGE NAME> is not installed on your local system.
+Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-t.
 
 
 \e[1m8 - REVERSE DEPENDENCIES TREE \e[0m
 "pactree -r <PACKAGE NAME>"
 This command will display a tree of installed packages, which depend on <PACKAGE NAME>. In other words: All displayed packages require <PACKAGE NAME> in order to function (properly). 
 Use this command when you want to know why you cannot remove <PACKAGE NAME> from your system.
+Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-rt.
 
 
 \e[1m9 - PACMAN LOG \e[0m
@@ -950,7 +952,7 @@ This command displays the last 5000 lines of your Pacman Log and makes it search
 In some situations, Pacman (e.g. during UPDATE SYSTEM) cannot find a file, for example a shared library. An error message is shown about <FILE NAME>. Use REVERSE FILE SEARCH to find out, which package has installed <FILE NAME>. In most cases, you can fix the Pacman error by using one of the following options on that package: UPDATE SYSTEM, FORCE REMOVE PACKAGES and INSTALL PACKAGES, FORCE UPDATE SYSTEM, or DOWNGRADE PACKAGES.
 The first command searches for <FILE NAME> in all your installed packages. <FILE NAME> can contain regular expressions.
 The second command syncs the file database with the Manjaro repositories and then searches the file database for <FILE NAME>.
-As a result, <MANJARO REPOSITORY>/<PACKAGE NAME> and the complete path to <FILE NAME> gets displayed using fzf. <MANJARO REPOSITORY> gets only displayed, if <PACKAGE NAME> is not installed on your system. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-search.
+As a result, <MANJARO REPOSITORY>/<PACKAGE NAME> and the complete path to <FILE NAME> gets displayed using fzf. <MANJARO REPOSITORY> gets only displayed, if <PACKAGE NAME> is not installed on your system. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-s.
 \e[1mAttention\e[0m: On some systems, the file database has not been downloaded which results in an error message instead of search results from the Manjaro repositories. You can fix it by running "sudo pacman -Fyy" once and restarting REVERSE FILE SEARCH.
 
 
