@@ -217,24 +217,27 @@ function func_l
 		
 		if [[ -n $pkg ]]
 		then
+			# next, it is checked, whether "pkg" is part of a list of all installed packages (pacman -Qq): the if-statement checks the exit code of the command "pacman -Qq $pkg &>/dev/null".
+			if ( pacman -Qq $pkg &>/dev/null )
+			then
 			
-			# "pacman -Ql" shows sometimes more files than "pacman -Fl". therefore, both commands have to be used!
-			# take the output of command "pacman -Qlq $pkg" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacui-list.
-			pacman -Ql $pkg --color always 2>/dev/null | grep -v "/$" > /tmp/pacui-list-temp
-			
-			# update local package database. this needs a long time when internet connection is slow.
-			# in some cases, the local database has to be initialized with sudo pacman -Fyy
-			sudo pacman -Fy
-			
-			# search in manjaro repositories with "pacman -Fl" --> machine readable version of output is easier to read for awk!
-			# the awk command is used to format output: "-F '\0'" set "\0" as separator. this makes it possible to easily use $1,$2,$3,$4 as syntax later.
-			# "system( "pacman -Qq " $2 " &>/dev/null" ) == 1" check exit status of "pacman -Qq <package name> &>/dev/null". if error occurs (==1), the package is not installled
-			# "{print $1 "/" $2, $4}" prints output nicely formatted.
-			pacman -Fl --machinereadable "$pkg" | awk -F '\0' 'system( "pacman -Qq " $2 " &>/dev/null" ) == 1 {print $1 "/" $2, $4}' | grep -v "/$" >> /tmp/pacui-list-temp
-			
-			# output /tmp/pacui-list-temp file and display results using fzf:
-			cat /tmp/pacui-list-temp | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed package name and file path > ' > /tmp/pacui-l
-		
+				# "pacman -Ql" shows sometimes more files than "pacman -Fl". therefore, both commands have to be used!
+				# take the output of command "pacman -Qlq $pkg" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacui-list.
+				pacman -Ql $pkg --color always 2>/dev/null | grep -v "/$" | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed package name and file path > ' > /tmp/pacui-l
+				
+			else
+				
+				# update local package database. this needs a long time when internet connection is slow.
+				# in some cases, the local database has to be initialized with sudo pacman -Fyy
+				sudo pacman -Fy
+				
+				# search in manjaro repositories with "pacman -Fl" --> machine readable version of output is easier to read for awk!
+				# the awk command is used to format output: "-F '\0'" set "\0" as separator. this makes it possible to easily use $1,$2,$3,$4 as syntax later.
+				# "system( "pacman -Qq " $2 " &>/dev/null" ) == 1" check exit status of "pacman -Qq <package name> &>/dev/null". if error occurs (==1), the package is not installled
+				# "{print $1 "/" $2, $4}" prints output nicely formatted.
+				pacman -Fl --machinereadable "$pkg" | awk -F '\0' '{print $1 "/" $2 "  " $4}' | grep -v "/$" | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed package name and file path > ' > /tmp/pacui-l
+				
+			fi
 		fi
 }
 
@@ -1105,7 +1108,8 @@ Alternatively, you can run future updates with the command "sudo pacman -Syu --i
 \e[1mAttention\e[0m: Downgrading to a working version of <PACKAGE NAME> can break your system in in rare cases like the following: The latest system update has replaced a dependency of <PACKAGE NAME> with a different package and <PACKAGE NAME> is an important system package. Downgrading <PACKAGE NAME> will NOT reinstall the dependency of <PACKAGE NAME>, because it conflicts with the already installled different package. This can result in a broken system. Please keep these kind of conflicts in mind when using DOWNGRADE PACKAGES.
 
 
-To exit this Help Page, press "q".
+Press "q" to quit this Help Page.
+
 
 			EOF
 			
@@ -1199,8 +1203,8 @@ do
 	pacui_clean
 	
 	# draw UI / menu. please note the use of ANSI Escape sequences mentioned above. The text/code can be hard to read...
-	echo
-	#echo -e "                      ::\e[7m PacUI - Package manager \e[0m::                     "
+	#echo
+	echo -e "                      .:\e[7m PacUI - Package manager \e[0m:.                     "
 	echo -e " ┌─────────────────────────────────────────────────────────────────────┐"
 	echo -e " │    1   \e[1mU\e[0mpdate System                 2   \e[1mC\e[0mlean System               │"
 	echo -e " │    3   \e[1mI\e[0mnstall Packages              4   \e[1mR\e[0memove Packages + Deps     │"
