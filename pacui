@@ -466,102 +466,6 @@ function func_d
 }
 
 
-function func_conf 
-{
-		# create file, which will contain a list of strings
-		touch /tmp/pacui-conf
-        
-		# if file /etc/default/tlp exists, push string "/etc/default/tlp              - Configure power management." into /tmp/pacui-conf file.
-		[[ -e /etc/default/tlp ]]                  && echo "/etc/default/tlp                - Configure power management." >> /tmp/pacui-conf
-		[[ -e /etc/default/cpupower ]]             && echo "/etc/default/cpupower           - Configure CPU power management." >> /tmp/pacui-conf
-		[[ -e /etc/profile.d/freetype2.sh ]]       && echo "/etc/profile.d/freetype2.sh     - Configure TrueType interpreter, including Infinality mode." >> /tmp/pacui-conf
-		[[ -e /etc/pulse/daemon.conf ]]            && echo "/etc/pulse/daemon.conf          - Configure PulseAudio daemon." >> /tmp/pacui-conf
-		[[ -e /etc/pacman.conf ]]                  && echo "\e[31m/etc/pacman.conf                - Configure Pacman.\e[0m" >> /tmp/pacui-conf
-		[[ -e /etc/pacman-mirrors.conf ]]          && echo "/etc/pacman-mirrors.conf        - Configure Manjaro's pacman-mirrors." >> /tmp/pacui-conf
-		[[ -e /etc/pacman.d/mirrorlist ]]          && echo "/etc/pacman.d/mirrorlist        - Configure mirror list manually." >> /tmp/pacui-conf
-		[[ -e /etc/yaourtrc ]]                     && echo "/etc/yaourtrc                   - Configure Yaourt." >> /tmp/pacui-conf
-		[[ -e /etc/xdg/pacaur/config ]]            && echo "/etc/xdg/pacaur/config          - Configure Pacaur." >> /tmp/pacui-conf
-		[[ -e /etc/makepkg.conf ]]                 && echo "/etc/makepkg.conf               - Configure package compilation." >> /tmp/pacui-conf
-		[[ -e /etc/resolv.conf ]]                  && echo "/etc/resolv.conf                - Configure DNS servers." >> /tmp/pacui-conf
-		[[ -e /etc/hostname ]]                     && echo "/etc/hostname                   - Configure your network hostname" >> /tmp/pacui-conf
-		[[ -e /etc/hosts ]]                        && echo "/etc/hosts                      - Configure local DNS." >> /tmp/pacui-conf
-		[[ -e /etc/environment ]]                  && echo "/etc/environment                - Configure system-wide environment variables." >> /tmp/pacui-conf
-		[[ -e /etc/slim.conf ]]                    && echo "/etc/slim.conf                  - Configure slim display manager." >> /tmp/pacui-conf
-		[[ -e /etc/lightdm.conf ]]                 && echo "/etc/lightdm.conf               - Configure lightdm display manager." >> /tmp/pacui-conf
-		[[ -e /etc/sddm.conf ]]                    && echo "/etc/sddm.conf                  - Configure sddm display manager." >> /tmp/pacui-conf
-		[[ -e /etc/mdm/mdm.conf ]]                 && echo "/etc/mdm/mdm.conf               - Configure mdm display manager." >> /tmp/pacui-conf
-		[[ -e /etc/lxdm/lxdm.conf ]]               && echo "/etc/lxdm/lxdm.conf             - Configure lxdm display manager." >> /tmp/pacui-conf
-		[[ -e /etc/gdm/custom.conf ]]              && echo "/etc/gdm/custom.conf            - Configure gdm display manager." >> /tmp/pacui-conf
-		[[ -e /etc/entrance/entrance.conf ]]       && echo "/etc/entrance/entrance.conf     - Configure entrance display manager." >> /tmp/pacui-conf
-		[[ -e /etc/conf.d/xdm ]]                   && echo "/etc/conf.d/xdm                 - Configure xdm display manager." >> /tmp/pacui-conf
-		[[ -e $HOME/.bashrc ]]                     && echo "~/.bashrc                       - Configure bash shell." >> /tmp/pacui-conf
-		[[ -e $HOME/.zshrc ]]                      && echo "~/.zshrc                        - Configure zsh shell." >> /tmp/pacui-conf
-		[[ -e $HOME/.config/fish ]]                && echo "~/.config/fish/*                - Configure fish shell." >> /tmp/pacui-conf
-		[[ -e $HOME/.xinitrc ]]                    && echo "\e[31m~/.xinitrc                      - Configure X server startup.\e[0m" >> /tmp/pacui-conf
-		[[ -e /etc/fstab ]]                        && echo "\e[31m/etc/fstab                      - Configure file system mount table.\e[0m" >> /tmp/pacui-conf
-		[[ -e /etc/crypttab ]]                     && echo "\e[31m/etc/crypttab                   - Configure encrypted file system mount table.\e[0m" >> /tmp/pacui-conf
-		[[ -e /etc/sudoers ]]                      && echo "\e[31m/etc/sudoers                    - Configure sudo.\e[0m" >> /tmp/pacui-conf		
-		[[ -e /etc/systemd/logind.conf ]]          && echo "/etc/systemd/logind.conf        - Configure systemd user logins." >> /tmp/pacui-conf
-		[[ -e /etc/systemd/journald.conf ]]        && echo "/etc/systemd/journald.conf      - Configure systemd logging." >> /tmp/pacui-conf
-		[[ -e /etc/systemd/coredump.conf ]]        && echo "/etc/systemd/coredump.conf      - Configure systemd coredumps." >> /tmp/pacui-conf
-		[[ -e /etc/systemd/system.conf ]]          && echo "/etc/systemd/system.conf        - Configure systemd system." >> /tmp/pacui-conf
-		[[ -e /usr/lib/systemd/system  ]]          && echo "/usr/lib/systemd/system/*.timer - Configure all systemd timers." >> /tmp/pacui-conf
-		[[ -e /etc/X11/xorg.conf.d ]]              && echo "/etc/X11/xorg.conf.d/*          - Configure Xorg display server in multiple files." >> /tmp/pacui-conf
-		[[ -e $HOME/.config/weston.ini ]]          && echo "~/.config/weston.ini            - Configure Weston compositor." >> /tmp/pacui-conf
-		[[ -e /etc/sysctl.d ]]                     && echo "/etc/sysctl.d/*                 - Configure kernel parameters at runtime in multiple files." >> /tmp/pacui-conf
-		[[ -e /etc/mkinitcpio.conf ]]              && echo "\e[31m/etc/mkinitcpio.conf            - Configure initial ramdisk environment.\e[0m" >> /tmp/pacui-conf
-		[[ -e /etc/default/grub ]]                 && echo "\e[31m/etc/default/grub               - Configure GRUB boot loader.\e[0m" >> /tmp/pacui-conf
-		[[ -e /boot/loader/entries/manjaro.conf ]] && echo "\e[31m/boot/loader/entries/manjaro.conf    - Configure systemd-boot boot loader.\e[0m" >> /tmp/pacui-conf
-		[[ -e /boot/refind_linux.conf ]]           && echo "\e[31m/boot/refind_linux.conf         - Configure rEFInd boot loader.\e[0m" >> /tmp/pacui-conf
-		[[ -e /boot/EFI/refind/refind.conf ]]      && echo "\e[31m/boot/EFI/refind/refind.conf    - Configure rEFInd boot loader.\e[0m" >> /tmp/pacui-conf
-		[[ -e /boot/EFI/CLOVER/config.plist ]]     && echo "\e[31m/boot/EFI/CLOVER/config.plist   - Configure Clover boot loader.\e[0m" >> /tmp/pacui-conf
-		[[ -e /boot/syslinux/syslinux.cfg ]]       && echo "\e[31m/boot/syslinux/syslinux.cfg     - Configure syslinux boot loaders.\e[0m" >> /tmp/pacui-conf
-		
-		local file
-
-		# echo -e "$( cat '/tmp/pacui-conf' )"  -- this command interprets the ANSI escape sequences contained in /tmp/pacui-conf.
-		file=$( echo -e "$( cat '/tmp/pacui-conf' )" | fzf-tmux -e +s -i -1 --ansi --cycle --query="$input2" --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to open file. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of files > ' | awk '{print $1}' )
-		
-		# only run the command inside the if-statement, if $file variable is not empty <-- this happens when fzf is quit with ESC or CTRL+C
-		if [[ -n $file ]]
-		then
-			if [[ $( echo $file | cut -c1 ) == "~" ]]
-			# if "file"'s first character is a "~" (tilde), the "file" should NOT be opened as root!
-			then
-				# if $EDITOR variable does not exist, set it to 'nano'
-				[[ -z "$EDITOR" ]] && EDITOR='nano'
-				# open "file" in "EDITOR": (attention: "$file" (including " symbols) does NOT WORK!!!)
-				$EDITOR $file
-			elif [[ $file == "/etc/sudoers" ]]
-			then
-				# the sudoers file should never be edited directly! if something goes wrong, sudo stops working. instead, visudo should be used. this is much safer.
-				sudo EDITOR=nano visudo
-			elif [[ $file == "/etc/pacman.d/mirrorlist" ]]
-			then
-				# if $EDITOR variable does not exist, set it to 'nano'
-				[[ -z "$EDITOR" ]] && EDITOR='nano'
-				# open "file" in "EDITOR": (attention: "$file" (including " symbols) does NOT WORK!!!)
-				sudo $EDITOR $file
-				sudo pacman -Syy                            # apply changes
-			elif [[ $file == "/etc/mkinitcpio.conf" ]]
-			then
-				[[ -z "$EDITOR" ]] && EDITOR='nano'
-				sudo $EDITOR $file
-				sudo mkinitcpio -P && sudo update-grub      # apply changes
-			elif [[ $file == "/etc/default/grub" ]]
-			then
-				[[ -z "$EDITOR" ]] && EDITOR='nano'
-				sudo $EDITOR $file
-				sudo update-grub                            # apply changes
-			else
-				[[ -z "$EDITOR" ]] && EDITOR='nano'
-				sudo $EDITOR $file
-			fi
-		fi
-		rm /tmp/pacui-conf
-}
-
-
 function func_fix 
 {
 		echo "sudo rm -f /var/lib/pacman/db.lck ..."
@@ -684,6 +588,103 @@ function func_fix
 		
 		fi
 }
+
+
+function func_conf 
+{
+		# create file, which will contain a list of strings
+		touch /tmp/pacui-conf
+        
+		# if file /etc/default/tlp exists, push string "/etc/default/tlp              - Configure power management." into /tmp/pacui-conf file.
+		[[ -e /etc/default/tlp ]]                  && echo "/etc/default/tlp                - Configure power management." >> /tmp/pacui-conf
+		[[ -e /etc/default/cpupower ]]             && echo "/etc/default/cpupower           - Configure CPU power management." >> /tmp/pacui-conf
+		[[ -e /etc/profile.d/freetype2.sh ]]       && echo "/etc/profile.d/freetype2.sh     - Configure TrueType interpreter, including Infinality mode." >> /tmp/pacui-conf
+		[[ -e /etc/pulse/daemon.conf ]]            && echo "/etc/pulse/daemon.conf          - Configure PulseAudio daemon." >> /tmp/pacui-conf
+		[[ -e /etc/pacman.conf ]]                  && echo "\e[31m/etc/pacman.conf                - Configure Pacman.\e[0m" >> /tmp/pacui-conf
+		[[ -e /etc/pacman-mirrors.conf ]]          && echo "/etc/pacman-mirrors.conf        - Configure Manjaro's pacman-mirrors." >> /tmp/pacui-conf
+		[[ -e /etc/pacman.d/mirrorlist ]]          && echo "/etc/pacman.d/mirrorlist        - Configure mirror list manually." >> /tmp/pacui-conf
+		[[ -e /etc/yaourtrc ]]                     && echo "/etc/yaourtrc                   - Configure Yaourt." >> /tmp/pacui-conf
+		[[ -e /etc/xdg/pacaur/config ]]            && echo "/etc/xdg/pacaur/config          - Configure Pacaur." >> /tmp/pacui-conf
+		[[ -e /etc/makepkg.conf ]]                 && echo "/etc/makepkg.conf               - Configure package compilation." >> /tmp/pacui-conf
+		[[ -e /etc/resolv.conf ]]                  && echo "/etc/resolv.conf                - Configure DNS servers." >> /tmp/pacui-conf
+		[[ -e /etc/hostname ]]                     && echo "/etc/hostname                   - Configure your network hostname" >> /tmp/pacui-conf
+		[[ -e /etc/hosts ]]                        && echo "/etc/hosts                      - Configure local DNS." >> /tmp/pacui-conf
+		[[ -e /etc/environment ]]                  && echo "/etc/environment                - Configure system-wide environment variables." >> /tmp/pacui-conf
+		[[ -e /etc/slim.conf ]]                    && echo "/etc/slim.conf                  - Configure slim display manager." >> /tmp/pacui-conf
+		[[ -e /etc/lightdm.conf ]]                 && echo "/etc/lightdm.conf               - Configure lightdm display manager." >> /tmp/pacui-conf
+		[[ -e /etc/sddm.conf ]]                    && echo "/etc/sddm.conf                  - Configure sddm display manager." >> /tmp/pacui-conf
+		[[ -e /etc/mdm/mdm.conf ]]                 && echo "/etc/mdm/mdm.conf               - Configure mdm display manager." >> /tmp/pacui-conf
+		[[ -e /etc/lxdm/lxdm.conf ]]               && echo "/etc/lxdm/lxdm.conf             - Configure lxdm display manager." >> /tmp/pacui-conf
+		[[ -e /etc/gdm/custom.conf ]]              && echo "/etc/gdm/custom.conf            - Configure gdm display manager." >> /tmp/pacui-conf
+		[[ -e /etc/entrance/entrance.conf ]]       && echo "/etc/entrance/entrance.conf     - Configure entrance display manager." >> /tmp/pacui-conf
+		[[ -e /etc/conf.d/xdm ]]                   && echo "/etc/conf.d/xdm                 - Configure xdm display manager." >> /tmp/pacui-conf
+		[[ -e $HOME/.bashrc ]]                     && echo "~/.bashrc                       - Configure bash shell." >> /tmp/pacui-conf
+		[[ -e $HOME/.zshrc ]]                      && echo "~/.zshrc                        - Configure zsh shell." >> /tmp/pacui-conf
+		[[ -e $HOME/.config/fish ]]                && echo "~/.config/fish/*                - Configure fish shell." >> /tmp/pacui-conf
+		[[ -e $HOME/.xinitrc ]]                    && echo "\e[31m~/.xinitrc                      - Configure X server startup.\e[0m" >> /tmp/pacui-conf
+		[[ -e /etc/fstab ]]                        && echo "\e[31m/etc/fstab                      - Configure file system mount table.\e[0m" >> /tmp/pacui-conf
+		[[ -e /etc/crypttab ]]                     && echo "\e[31m/etc/crypttab                   - Configure encrypted file system mount table.\e[0m" >> /tmp/pacui-conf
+		[[ -e /etc/sudoers ]]                      && echo "\e[31m/etc/sudoers                    - Configure sudo.\e[0m" >> /tmp/pacui-conf		
+		[[ -e /etc/systemd/logind.conf ]]          && echo "/etc/systemd/logind.conf        - Configure systemd user logins." >> /tmp/pacui-conf
+		[[ -e /etc/systemd/journald.conf ]]        && echo "/etc/systemd/journald.conf      - Configure systemd logging." >> /tmp/pacui-conf
+		[[ -e /etc/systemd/coredump.conf ]]        && echo "/etc/systemd/coredump.conf      - Configure systemd coredumps." >> /tmp/pacui-conf
+		[[ -e /etc/systemd/system.conf ]]          && echo "/etc/systemd/system.conf        - Configure systemd system." >> /tmp/pacui-conf
+		[[ -e /usr/lib/systemd/system  ]]          && echo "/usr/lib/systemd/system/*.timer - Configure all systemd timers." >> /tmp/pacui-conf
+		[[ -e /etc/X11/xorg.conf.d ]]              && echo "/etc/X11/xorg.conf.d/*          - Configure Xorg display server in multiple files." >> /tmp/pacui-conf
+		[[ -e $HOME/.config/weston.ini ]]          && echo "~/.config/weston.ini            - Configure Weston compositor." >> /tmp/pacui-conf
+		[[ -e /etc/sysctl.d ]]                     && echo "/etc/sysctl.d/*                 - Configure kernel parameters at runtime in multiple files." >> /tmp/pacui-conf
+		[[ -e /etc/mkinitcpio.conf ]]              && echo "\e[31m/etc/mkinitcpio.conf            - Configure initial ramdisk environment.\e[0m" >> /tmp/pacui-conf
+		[[ -e /etc/default/grub ]]                 && echo "\e[31m/etc/default/grub               - Configure GRUB boot loader.\e[0m" >> /tmp/pacui-conf
+		[[ -e /boot/loader/entries/manjaro.conf ]] && echo "\e[31m/boot/loader/entries/manjaro.conf    - Configure systemd-boot boot loader.\e[0m" >> /tmp/pacui-conf
+		[[ -e /boot/refind_linux.conf ]]           && echo "\e[31m/boot/refind_linux.conf         - Configure rEFInd boot loader.\e[0m" >> /tmp/pacui-conf
+		[[ -e /boot/EFI/refind/refind.conf ]]      && echo "\e[31m/boot/EFI/refind/refind.conf    - Configure rEFInd boot loader.\e[0m" >> /tmp/pacui-conf
+		[[ -e /boot/EFI/CLOVER/config.plist ]]     && echo "\e[31m/boot/EFI/CLOVER/config.plist   - Configure Clover boot loader.\e[0m" >> /tmp/pacui-conf
+		[[ -e /boot/syslinux/syslinux.cfg ]]       && echo "\e[31m/boot/syslinux/syslinux.cfg     - Configure syslinux boot loaders.\e[0m" >> /tmp/pacui-conf
+		
+		local file
+
+		# echo -e "$( cat '/tmp/pacui-conf' )"  -- this command interprets the ANSI escape sequences contained in /tmp/pacui-conf.
+		file=$( echo -e "$( cat '/tmp/pacui-conf' )" | fzf-tmux -e +s -i -1 --ansi --cycle --query="$input2" --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to open file. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of files > ' | awk '{print $1}' )
+		
+		# only run the command inside the if-statement, if $file variable is not empty <-- this happens when fzf is quit with ESC or CTRL+C
+		if [[ -n $file ]]
+		then
+			if [[ $( echo $file | cut -c1 ) == "~" ]]
+			# if "file"'s first character is a "~" (tilde), the "file" should NOT be opened as root!
+			then
+				# if $EDITOR variable does not exist, set it to 'nano'
+				[[ -z "$EDITOR" ]] && EDITOR='nano'
+				# open "file" in "EDITOR": (attention: "$file" (including " symbols) does NOT WORK!!!)
+				$EDITOR $file
+			elif [[ $file == "/etc/sudoers" ]]
+			then
+				# the sudoers file should never be edited directly! if something goes wrong, sudo stops working. instead, visudo should be used. this is much safer.
+				sudo EDITOR=nano visudo
+			elif [[ $file == "/etc/pacman.d/mirrorlist" ]]
+			then
+				# if $EDITOR variable does not exist, set it to 'nano'
+				[[ -z "$EDITOR" ]] && EDITOR='nano'
+				# open "file" in "EDITOR": (attention: "$file" (including " symbols) does NOT WORK!!!)
+				sudo $EDITOR $file
+				sudo pacman -Syy                            # apply changes
+			elif [[ $file == "/etc/mkinitcpio.conf" ]]
+			then
+				[[ -z "$EDITOR" ]] && EDITOR='nano'
+				sudo $EDITOR $file
+				sudo mkinitcpio -P && sudo update-grub      # apply changes
+			elif [[ $file == "/etc/default/grub" ]]
+			then
+				[[ -z "$EDITOR" ]] && EDITOR='nano'
+				sudo $EDITOR $file
+				sudo update-grub                            # apply changes     # command not compatible with arch linux!
+			else
+				[[ -z "$EDITOR" ]] && EDITOR='nano'
+				sudo $EDITOR $file
+			fi
+		fi
+		rm /tmp/pacui-conf
+}
+
 
 
 function func_fu 
@@ -810,9 +811,8 @@ function func_h
 			echo -e "  pacui	s     - Reverse File \e[1mS\e[0mearch"
 			echo -e "  pacui	b     - Roll \e[1mB\e[0mack System"
 			echo -e "  pacui	d     - \e[1mD\e[0mowngrade Packages"
-			echo -e "  pacui	h     - \e[1mH\e[0melp. For detailed help, please start User Interface first."
-			echo -e "  pacui	conf  - \e[1mConf\e[0migure System"
 			echo -e "  pacui	fix   - \e[1mFix\e[0m Pacman Errors"
+			echo -e "  pacui	conf  - \e[1mConf\e[0migure System"
 			echo -e "  \e[31mpacui	fu    \e[0m- \e[1mF\e[0morce \e[1mU\e[0mpdate System"
 			echo -e "  \e[31mpacui	e     \e[0m- \e[1mE\e[0mmpty Package Cache"
 			echo -e "  \e[31mpacui	fi    \e[0m- \e[1mF\e[0morce \e[1mI\e[0mnstall Packages"
@@ -822,6 +822,7 @@ function func_h
 			echo -e "  pacui	la    - \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
 			echo -e "  pacui	a     - Search + Install from \e[1mA\e[0mUR"
 			echo
+			echo -e "  pacui	h     - \e[1mH\e[0melp. For detailed help, please start User Interface first."
 			
 		else
 			
@@ -965,14 +966,7 @@ This command shows you a list of all recent Pacman actions sorted by date. Pleas
 \e[1mAttention\e[0m: After downgrading a broken package to a working version, it is recommended to add the package name to your Ignore List ( "IgnorePkg" option in /etc/pacman.conf ). This will prevent Pacman from showing any available updates for this package. The package needs to be removed manually from your Ignore List in order to receive automatic updates  for it again. Alternatively, you can run future updates with the command "sudo pacman -Syu --ignore <PACKAGE NAME>" until a fixed version of that package gets released.
 
 
-\e[1m13 - CONFIGURE SYSTEM
-\e[36m"$EDITOR <FILE NAME>"
-This command opens <FILE NAME> in your default text editor. You can choose between multiple important system configuration files. Files in the root directory are opened with root privileges.
-By default the text editor Nano gets used, except a custom $EDITOR variable has been exported. In the text editor Nano, Press CTRL+O to save your changes, ENTER to choose a directory, and CTRL+X to quit Nano.
-\e[1mAttention\e[0m: Changing system configuration files can harm or even destroy your system. In some cases, this can happen with a single mistake. Be extremely careful and always double check your changes before saving and rebooting! It is recommended to search the Arch Wiki for the configuration file you want to edit and read about available and recommended settings.
-
-
-\e[1m14 - FIX PACMAN ERRORS
+\e[1m12 - FIX PACMAN ERRORS
 Multiple commands attempt to fix the most common issues Manjaro users have with Pacman. Force options (as in FORCE UPDATE SYSTEM) are excluded, even though they are essential in fixing some problems.
 A working internet connection is required.
 
@@ -1037,6 +1031,13 @@ This command makes abolutely sure all downloaded packages get installed and down
 
 \e[36m"sudo pacman -Fyy"
 This command forces a sync of the file database of the Manjaro repository with the chosen mirror. The file database is a separate from the package database. The file database enables REVERSE FILE SEARCH and LIST PACKAGE FILES of packages from the Manjaro repository, which are not installed on your system.
+
+
+\e[1m13 - CONFIGURE SYSTEM
+\e[36m"$EDITOR <FILE NAME>"
+This command opens <FILE NAME> in your default text editor. You can choose between multiple important system configuration files. Files in the root directory are opened with root privileges.
+By default the text editor Nano gets used, except a custom $EDITOR variable has been exported. In the text editor Nano, Press CTRL+O to save your changes, ENTER to choose a directory, and CTRL+X to quit Nano.
+\e[1mAttention\e[0m: Changing system configuration files can harm or even destroy your system. In some cases, this can happen with a single mistake. Be extremely careful and always double check your changes before saving and rebooting! It is recommended to search the Arch Wiki for the configuration file you want to edit and read about available and recommended settings.
 
 
 \e[1;31m15 - FORCE UPDATE SYSTEM
@@ -1200,8 +1201,8 @@ do
 	echo -e " │    7   Dependency \e[1mT\e[0mree               8   \e[1mR\e[0meverse Dependency \e[1mT\e[0mree    │"
 	echo -e " └─────────────────────────────────────────────────────────────────────┘"
 	echo -e "      9   Pacman \e[1mLog\e[0m                   10   Reverse File \e[1mS\e[0mearch         "
-	echo -e "     11   Roll \e[1mB\e[0mack System                                              "
-	echo -e "     13   \e[1mConf\e[0migure System             14   \e[1mFix\e[0m Pacman Errors           "
+	echo -e "     11   Roll \e[1mB\e[0mack System             12   \e[1mFix\e[0m Pacman Errors           "
+	echo -e "     13   \e[1mConf\e[0migure System                                              "
 	echo -e "   \e[31m  15   \e[1mF\e[0;31morce \e[1mU\e[0;31mpdate System          16   \e[1mE\e[0;31mmpty Package Cache       \e[0m "
 	echo -e "   \e[31m  17   \e[1mF\e[0;31morce \e[1mI\e[0;31mnstall Packages       18   \e[1mF\e[0;31morce \e[1mR\e[0;31memove Packages     \e[0m "
 	echo -e " ┌─────────────────────────────────────────────────────────────────────┐"
@@ -1286,6 +1287,12 @@ do
 			echo -e " System roll back finished. To return to PacUI press ENTER "
 			read
 			;;
+		12|fix)
+			func_fix
+			echo
+			echo -e " Operation finished. To return to PacUI press ENTER "
+			read
+			;;
 		d|down|downgrade)
 			func_d
 			echo
@@ -1295,12 +1302,6 @@ do
 		13|conf|config|configure)
 			func_conf
 			echo
-			;;
-		14|fix)
-			func_fix
-			echo
-			echo -e " Operation finished. To return to PacUI press ENTER "
-			read
 			;;
 		15|fu|forceupdate)
 			func_fu
@@ -1348,7 +1349,7 @@ do
 			;;
 
 
-		00|12|h|help)
+		00|h|help)
 			func_h
 			echo
 			;;
