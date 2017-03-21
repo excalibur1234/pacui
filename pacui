@@ -127,20 +127,40 @@ function func_c
 
 function func_i 
 {
-		# the "package-query -Sl -f '%n  %v  -  %d' " displays a list of all packages from the Manjaro repositories and formats them like "NAME  VERSION  -  DESCRIPTION".
-		# write formatted package list of Manjaro repositories to /tmp/pacui-packages-group-manjaro. then add all package groups to the bottom.
-		package-query -Sl -f "%n  %v  -  %d" > /tmp/pacui-packages-group-manjaro
-		pacman -Sg >> /tmp/pacui-packages-group-manjaro
+		# check, whether file /tmp/pacui-packages-install already exists (the ! negates the result)
+		if ! [[ -e /tmp/pacui-packages-install ]]
+		then
+			# the "package-query -Sl -f '%n  %v  -  %d' " displays a list of all packages from the Manjaro repositories and formats them like "NAME  VERSION  -  DESCRIPTION".
+			# write formatted package list of Manjaro repositories to /tmp/pacui-packages-install. then add all package groups to the bottom.
+			# finally, download AUR package list, unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages-install.
+			package-query -Sl -f "%n  %v  -  %d" > /tmp/pacui-packages-install
+			pacman -Sg >> /tmp/pacui-packages-install
+			wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null && gunzip -f /tmp/aur/packages.gz && cat /tmp/aur/packages >> /tmp/pacui-packages-install
+		fi
 		
 		local pkg
 		
-		# the first part (="NAME") of package list in /tmp/pacui-packages-group-manjaro gets (printed and) saved to the "pkg" variable.
-		pkg=$(sort /tmp/pacui-packages-group-manjaro | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
+		# the first part (="NAME") of package list in /tmp/pacui-packages-install-group-manjaro gets (printed and) saved to the "pkg" variable.
+		pkg=$(sort -u /tmp/pacui-packages-install | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages and groups > ' | awk '{print $1}' )
 		
 		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $pkg ]]
 		then
-			sudo pacman -S $pkg --color always
+			if ( package-query -S $pkg &>/dev/null )        # check, whether $pkg is in manjaro repositories
+			then
+			
+				sudo pacman -S $pkg --color always
+				
+			else
+			
+				if [[ ! -e /usr/bin/pacaur ]]	            # checks, whether file "pacaur" does not exist
+				then
+					yaourt -S $pkg
+				else
+					pacaur -S $pkg --color always
+				fi
+			
+			fi
 		fi
 }
 
@@ -767,37 +787,6 @@ function func_a
 }
 
 
-function func_ia 
-{
-		# check, whether file /tmp/pacui-packages already exists (the ! negates the result)
-		if ! [[ -e /tmp/pacui-packages ]]
-		then
-			# write package list (and package group list) of manjaro repositories to /tmp/pacui-packages. then, download AUR package list, unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages.
-			pacman -Slq > /tmp/pacui-packages
-			pacman -Sg >> /tmp/pacui-packages
-			wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null && gunzip -f /tmp/aur/packages.gz && cat /tmp/aur/packages >> /tmp/pacui-packages
-		fi
-		
-		local pkg
-		
-		pkg=$(sort -u /tmp/pacui-packages | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
-		
-		if [[ -n $pkg ]]
-		then
-		
-			if [[ ! -e /usr/bin/pacaur ]]	      # checks, whether file "pacaur" does not exist
-			then
-				yaourt -S $pkg
-			else
-				pacaur -S $pkg --color always
-			fi
-			
-		fi
-}
-
-
-# =======================
-
 
 function func_h
 {
@@ -832,7 +821,6 @@ function func_h
 			echo -e "  pacui	ua    - Force \e[1mU\e[0mpdate \e[1mA\e[0mUR"
 			echo -e "  pacui	la    - \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
 			echo -e "  pacui	a     - Search + Install from \e[1mA\e[0mUR"
-			echo -e "  pacui	ia    - \e[1mI\e[0mnstall from \e[1mA\e[0mUR"
 			echo
 			
 		else
@@ -907,8 +895,10 @@ On traditional hard drives (HDD) this command can speed up all actions related t
 
 
 \e[1m3 - INSTALL PACKAGES
-\e[36m"sudo pacman -S <PACKAGE NAME>"
-This option downloads and installs <PACKAGE NAME> on your system. <PACKAGE NAME> must be a package from the Manjaro repositories. If you want to install a package from the AUR choose INSTALL FROM AUR or SEARCH + INSTALL FROM AUR.
+\e[36m"sudo pacman -S <PACKAGE NAME>" \e[0m(if <PACKAGE NAME> is in Manjaro repository)
+\e[36m"yaourt -S <PACKAGE NAME>" \e[0m(if <PACKAGE NAME> is in the AUR)
+This option downloads and installs <PACKAGE NAME> on your system. 
+\e[1mAttention\e[0m: Experienced users can install packages from the AUR without the need to answer questions all the time by using the command "yaourt -S <PACKAGE NAME> --noconfirm". The "--noconfirm" flag is great for quick and dirty installations of AUR packages on non-secure systems. Please keep always in mind that the AUR can contain any sort of package - including malicious and destructive (parts of) packages. Therefore, it is recommended to always check the PKGBUILD and .INSTALL file manually before installing a package from the AUR.
 
 
 \e[1m4 - REMOVE PACKAGES + DEPS
@@ -1087,12 +1077,6 @@ This command lists all installed packages, which are from the AUR or which were 
 If you want a list of all installed packages use REMOVE PACKAGES + DEPS as described in this Help Page.
 
 
-\e[1m21 - INSTALL FROM AUR
-\e[36m"yaourt -S <PACKAGE NAME>"
-This command does the same as INSTALL PACKAGES. Additionally, Arch User Repository (AUR) packages can be installed.
-\e[1mAttention\e[0m: Experienced users can install packages from the AUR without the need to answer questions all the time by using the command "yaourt -S <PACKAGE NAME> --noconfirm". The "--noconfirm" flag is great for quick and dirty installations of AUR packages on non-secure systems. Please keep always in mind that the AUR can contain any sort of package - including malicious and destructive (parts of) packages. Therefore, it is recommended to always check the PKGBUILD and .INSTALL file manually before installing a package from the AUR.
-
-
 \e[1mDOWNGRADE PACKAGES
 \e[36m"downgrade <PACKAGE NAME>"
 Manjaro uses a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. If the latest version of a packages does not work on your system, you can downgrade that package to an earlier, working version.
@@ -1222,7 +1206,6 @@ do
 	echo -e "   \e[31m  17   \e[1mF\e[0;31morce \e[1mI\e[0;31mnstall Packages       18   \e[1mF\e[0;31morce \e[1mR\e[0;31memove Packages     \e[0m "
 	echo -e " ┌─────────────────────────────────────────────────────────────────────┐"
 	echo -e " │   19   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR             20   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
-	echo -e " │   21   \e[1mI\e[0mnstall from \e[1mA\e[0mUR                                             │"
 	echo -e " └─────────────────────────────────────────────────────────────────────┘"
 	echo
 	echo -e "  Enter number or marked letter(s)   -   00   \e[1mH\e[0melp   -   0   \e[1mQ\e[0muit PacUI "
@@ -1359,12 +1342,6 @@ do
 			;;
 		a|aur)
 			func_a
-			echo
-			echo -e " Installation from AUR finished. To return to PacUI press ENTER "
-			read
-			;;
-		21|ia|installaur)
-			func_ia
 			echo
 			echo -e " Installation from AUR finished. To return to PacUI press ENTER "
 			read
