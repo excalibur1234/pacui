@@ -228,9 +228,13 @@ function func_info
 
 function func_l 
 {
-		# write package list of Manjaro repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
-		pacman -Slq > /tmp/pacui-packages-local
-		pacman -Qq >> /tmp/pacui-packages-local
+		# check, whether file /tmp/pacui-packages-local already exists (the ! negates the result)
+		if [[ ! -e /tmp/pacui-packages-local ]]
+		then
+			# write package list of Manjaro repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
+			pacman -Slq > /tmp/pacui-packages-local
+			pacman -Qq >> /tmp/pacui-packages-local
+		fi
 		
 		local pkg
 		pkg=$( sort -u /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
@@ -264,9 +268,13 @@ function func_l
 
 function func_t 
 {
-		# write package list of Manjaro repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
-		pacman -Slq > /tmp/pacui-packages-local
-		pacman -Qq >> /tmp/pacui-packages-local
+		# check, whether file /tmp/pacui-packages-local already exists (the ! negates the result)
+		if [[ ! -e /tmp/pacui-packages-local ]]
+		then
+			# write package list of Manjaro repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
+			pacman -Slq > /tmp/pacui-packages-local
+			pacman -Qq >> /tmp/pacui-packages-local
+		fi
 
 		local pkg
 		pkg=$(sort -u /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed list of packages > ')
@@ -706,9 +714,13 @@ function func_e
 
 function func_fi 
 {
-		# write formatted package list of Manjaro repositories to /tmp/pacui-packages-group-manjaro. then add all package groups to the bottom.
-		package-query -Sl -f "%n  %v  -  %d" > /tmp/pacui-packages-group-manjaro
-		pacman -Sg >> /tmp/pacui-packages-group-manjaro
+		# check, whether file /tmp/pacui-packages-group-manjaro already exists (the ! negates the result)
+		if ! [[ -e /tmp/pacui-packages-group-manjaro ]]
+		then
+			# write formatted package list of Manjaro repositories to /tmp/pacui-packages-group-manjaro. then add all package groups to the bottom.
+			package-query -Sl -f "%n  %v  -  %d" > /tmp/pacui-packages-group-manjaro
+			pacman -Sg >> /tmp/pacui-packages-group-manjaro
+		fi
 		
 		local pkg
 		pkg=$( sort /tmp/pacui-packages-group-manjaro | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
