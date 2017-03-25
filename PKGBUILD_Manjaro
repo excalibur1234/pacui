@@ -2,13 +2,13 @@
 # Maintainer: excalibur1234 @forum.manjaro.org
 
 pkgname=pacui
-pkgver=1.3
-pkgrel=5
+pkgver=1.4
+pkgrel=1
 pkgdesc="A simple and interative Bash Frontend for Pacman/Pacaur/Yaourt"
 arch=(any)
 url="https://github.com/excalibur1234/$pkgname"
 license=('GPL3')
-depends=('pacman-mirrorlist' 'package-query' 'wget' 'gawk' 'sudo' 'fzf')
+depends=('pacman-mirrors' 'package-query' 'wget' 'gawk' 'sudo' 'fzf')
 conflicts=("$pkgname-git" 'pacli-simple')
 replaces=('pacli-simple')
 optdepends=('pacaur: Needed for AUR support. If installed, it gets used by default over Yaourt.'
