@@ -16,7 +16,7 @@ optdepends=('pacaur: Needed for AUR support. If installed, it gets used by defau
         'downgrade: Needed for hidded "downgrade" option.'
         'update-notifier: Automatically get notified when updates are available.')
 source=("$url/archive/$pkgver.tar.gz")
-md5sums=('f8aac234d55eb79c555e0f5b1dc30e45')
+md5sums=('a0e0b317ce46d5564e80cac608b464a8')
 
 # how to get md5sum:
 #  1. do a release on github and download its ...tar.gz file.
