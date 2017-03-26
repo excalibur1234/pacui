@@ -19,8 +19,7 @@ source=("$url/archive/$pkgver.tar.gz")
 md5sums=('a0e0b317ce46d5564e80cac608b464a8')
 
 # how to get md5sum:
-#  1. do a release on github and download its ...tar.gz file.
-#  2. do in terminal: "md5sum ...tar.gz"
+#  do "updpkgsums" inside the folder of PKGBUILD
 
 package () {
 	cd $srcdir
