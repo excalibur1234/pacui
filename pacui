@@ -347,7 +347,7 @@ function func_s
 			pacman -Fsx --machinereadable "$file" | awk -F '\0' 'system( "pacman -Qq " $2 " &>/dev/null" ) == 1 {print $1 "/" $2 "  " $4}' >> /tmp/pacui-search-temp
 			
 			# display results from file /tmp/pacui-search-temp in fzf.
-			cat /tmp/pacui-search-temp | fzf-tmux -m -e +s -i --ansi --reverse --query="$file" --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed package name and file path > ' > /tmp/pacui-s
+			cat /tmp/pacui-search-temp | fzf-tmux -m -e +s -i --ansi --reverse --query="$file" --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed package names and file paths > ' > /tmp/pacui-s
 									
 		fi
 }
@@ -820,7 +820,7 @@ function func_h
 			echo -e "  pacui	rt    - \e[1mR\e[0meverse Dependency \e[1mT\e[0mree"
 			echo
 			echo -e "  pacui	log   - Pacman \e[1mLog\e[0m"
-			echo -e "  pacui	s     - Reverse File \e[1mS\e[0mearch"
+			echo -e "  pacui	s     - \e[1mS\e[0mearch Package Files"
 			echo -e "  pacui	b     - Roll \e[1mB\e[0mack System"
 			echo -e "  pacui	d     - \e[1mD\e[0mowngrade Packages"
 			echo -e "  pacui	fix   - \e[1mFix\e[0m Pacman Errors"
@@ -959,14 +959,14 @@ The Pacman Log contains all updates, installations, and removals (also in the AU
 This command displays the last 5000 lines of your Pacman Log and makes it searchable with fzf. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-log.
 
 
-\e[1m10 - REVERSE FILE SEARCH
+\e[1m10 - SEARCH PACKAGE FILES
 \e[36m"pacman -Ql | grep <FILE NAME>"
 \e[36m"sudo pacman -Fysx <FILE NAME>" \e[0m(only for packages not installed on your system)
-In some situations, Pacman (e.g. during UPDATE SYSTEM) cannot find a file, for example a shared library. An error message is shown about <FILE NAME>. Use REVERSE FILE SEARCH to find out, which package has installed <FILE NAME>. In most cases, you can fix the Pacman error by using one of the following options on that package: UPDATE SYSTEM, FORCE REMOVE PACKAGES and INSTALL PACKAGES, FORCE UPDATE SYSTEM, or DOWNGRADE PACKAGES.
+In some situations, Pacman (e.g. during UPDATE SYSTEM) cannot find a file, for example a shared library. An error message is shown about <FILE NAME>. Use SEARCH PACKAGE FILES to find out, which package has installed <FILE NAME>. In most cases, you can fix the Pacman error by using one of the following options on that package: UPDATE SYSTEM, FORCE REMOVE PACKAGES and INSTALL PACKAGES, FORCE UPDATE SYSTEM, or DOWNGRADE PACKAGES.
 The first command searches for <FILE NAME> in all your installed packages. <FILE NAME> can contain regular expressions.
 The second command syncs the file database with the Manjaro repositories and then searches the file database for <FILE NAME>.
 As a result, <MANJARO REPOSITORY>/<PACKAGE NAME> and the complete path to <FILE NAME> gets displayed using fzf. <MANJARO REPOSITORY> gets only displayed, if <PACKAGE NAME> is not installed on your system. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-s.
-\e[1mAttention\e[0m: On some systems, the file database has not been downloaded which results in an error message instead of search results from the Manjaro repositories. You can fix it by running "sudo pacman -Fyy" once and restarting REVERSE FILE SEARCH.
+\e[1mAttention\e[0m: On some systems, the file database has not been downloaded which results in an error message instead of search results from the Manjaro repositories. You can fix it by running "sudo pacman -Fyy" once and restarting SEARCH PACKAGE FILES.
 
 
 \e[1m11 - ROLL BACK SYSTEM
@@ -1042,7 +1042,7 @@ This last command forces a redownload of the latest package database from the be
 This command makes abolutely sure all downloaded packages get installed and downgraded if necessary. The user has to manually allow downgrades of packages, if downgrades are available.
 
 \e[36m"sudo pacman -Fyy"
-This command forces a sync of the file database of the Manjaro repository with the chosen mirror. The file database is a separate from the package database. The file database enables REVERSE FILE SEARCH and LIST PACKAGE FILES of packages from the Manjaro repository, which are not installed on your system.
+This command forces a sync of the file database of the Manjaro repository with the chosen mirror. The file database is a separate from the package database. The file database enables SEARCH PACKAGE FILES and LIST PACKAGE FILES of packages from the Manjaro repository, which are not installed on your system.
 
 
 \e[1m13 - CONFIGURE SYSTEM
@@ -1212,7 +1212,7 @@ do
 	echo -e " │    5   Package \e[1mInfo\e[0mrmation           6   \e[1mL\e[0mist Package Files         │"
 	echo -e " │    7   Dependency \e[1mT\e[0mree               8   \e[1mR\e[0meverse Dependency \e[1mT\e[0mree    │"
 	echo -e " └─────────────────────────────────────────────────────────────────────┘"
-	echo -e "      9   Pacman \e[1mLog\e[0m                   10   Reverse File \e[1mS\e[0mearch         "
+	echo -e "      9   Pacman \e[1mLog\e[0m                   10   \e[1mS\e[0mearch Package Files        "
 	echo -e "     11   Roll \e[1mB\e[0mack System             12   \e[1mFix\e[0m Pacman Errors           "
 	echo -e "     13   \e[1mConf\e[0migure System                                              "
 	echo -e "   \e[31m  15   \e[1mF\e[0;31morce \e[1mU\e[0;31mpdate System          16   \e[1mE\e[0;31mmpty Package Cache       \e[0m "
@@ -1287,11 +1287,9 @@ do
 			func_log
 			echo
 			;;		
-		10|s|search|rs|reversesearch)
+		10|s|search)
 			func_s
 			echo
-			echo -e " All packages listed. To return to PacUI press ENTER "
-			read
 			;;
 		11|b|back)
 			func_b
