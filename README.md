@@ -11,12 +11,12 @@ This fork of an [old version of pacli](https://github.com/Manjaro-Pek/pacli/tree
 
 Home Screen of PacUI's UI:
 
-![Screenshot 01](http://s28.postimg.org/vec8kajnx/screen_png.jpg)
+![Screenshot 01](http://s10.postimg.org/fqodrrceh/screen.png)
 
 
 Installing the package "cantata" from the Manjaro repositories:
 
-![Screenshot 02](http://s32.postimg.org/50okof26t/pacli_simple2.gif)
+![Screenshot 02](http://s32.postimg.org/50okof26t/pacli-simple2.gif)
 
 
 ## Installation
