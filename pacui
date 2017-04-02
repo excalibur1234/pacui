@@ -896,10 +896,10 @@ If you notice a syntax change, it is highly recommended to solve this conflict i
 This command limits all log files in journalctl to a combined size of 50 megabytes and a maximum age of 30 days. This leaves plenty of log files behind to analyze systematic and reoccuring errors while preventing excessive amounts of log files.
 
 \e[36m"paccache -ruvk1"
-\e[36m"paccache -rvk2"
+\e[36m"paccache -rvk3"
 By default Pacman uses this cache directory for downloading packages: /var/cache/pacman/pkg/... . No cached packages get deleted automatically. This enables you to DOWNGRADE PACKAGES, which are broken, without a working internet connection. The package cache of an old and actively used Manjaro installation can become quite large. Clean it to regain space on your root partition.
 The first command removes all packages from cache, which are not installed (anymore) on your system, except the latest version. 
-The second command removes all old packages from your cache except the 2 latest versions: The version you have currently installed on your system and the previous version. Old package versions are kept to enable you to manually DOWNGRADE PACKAGES even without a working internet connection.
+The second command removes all old packages from your cache except the 3 latest versions: The version you have currently installed on your system and 2 previous versions. Old package versions are kept to enable you to use ROLL BACK SYSTEM (or to manually downgrade packages) even without a working internet connection.
 
 \e[36m"sudo pacman-optimize" \e[0m(only when Manjaro is installed on a HDD)
 This command effectively defragments your Pacman database.
