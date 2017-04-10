@@ -632,7 +632,8 @@ function func_conf
 		[[ -e $HOME/.xinitrc ]]                    && echo "\e[31m~/.xinitrc                      - Configure X server startup.\e[0m" >> /tmp/pacui-conf
 		[[ -e /etc/fstab ]]                        && echo "\e[31m/etc/fstab                      - Configure file system mount table.\e[0m" >> /tmp/pacui-conf
 		[[ -e /etc/crypttab ]]                     && echo "\e[31m/etc/crypttab                   - Configure encrypted file system mount table.\e[0m" >> /tmp/pacui-conf
-		[[ -e /etc/sudoers ]]                      && echo "\e[31m/etc/sudoers                    - Configure sudo.\e[0m" >> /tmp/pacui-conf		
+		[[ -e /etc/sudoers ]]                      && echo "\e[31m/etc/sudoers                    - Configure sudo.\e[0m" >> /tmp/pacui-conf
+		[[ -e /etc/systemd/swap.conf ]]            && echo "/etc/systemd/swap.conf          - Configure systemd swap." >> /tmp/pacui-conf
 		[[ -e /etc/systemd/logind.conf ]]          && echo "/etc/systemd/logind.conf        - Configure systemd user logins." >> /tmp/pacui-conf
 		[[ -e /etc/systemd/journald.conf ]]        && echo "/etc/systemd/journald.conf      - Configure systemd logging." >> /tmp/pacui-conf
 		[[ -e /etc/systemd/coredump.conf ]]        && echo "/etc/systemd/coredump.conf      - Configure systemd coredumps." >> /tmp/pacui-conf
