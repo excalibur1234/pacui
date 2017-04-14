@@ -669,7 +669,7 @@ function func_conf
 			then
 				# the sudoers file should never be edited directly! if something goes wrong, sudo stops working. instead, visudo should be used. this is much safer.
 				sudo EDITOR=nano visudo
-			elif [[ $file == "/etc/pacman.d/mirrorlist" ]]
+			elif [[ $file == "/etc/pacman.d/mirrorlist" ]] || [[ $file == "/etc/pacman-mirrors.conf" ]]
 			then
 				# if $EDITOR variable does not exist, set it to 'nano'
 				[[ -z "$EDITOR" ]] && EDITOR='nano'
@@ -687,6 +687,7 @@ function func_conf
 				sudo $EDITOR $file
 				sudo grub-mkconfig -o /boot/grub/grub.cfg                            # apply changes   # "grub-mkconfig -o /boot/grub/grub.cfg" == "udpate-grub" (in manjaro)
 			else
+				# start "sudo nano $file" for all other files (not mentioned separately in elif-statements above)
 				[[ -z "$EDITOR" ]] && EDITOR='nano'
 				sudo $EDITOR $file
 			fi
