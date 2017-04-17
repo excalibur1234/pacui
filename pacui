@@ -604,51 +604,52 @@ function func_conf
 		touch /tmp/pacui-conf
         
 		# if file /etc/default/tlp exists, push string "/etc/default/tlp              - Configure power management." into /tmp/pacui-conf file.
-		[[ -e /etc/default/tlp ]]                  && echo "/etc/default/tlp                - Configure power management." >> /tmp/pacui-conf
-		[[ -e /etc/default/cpupower ]]             && echo "/etc/default/cpupower           - Configure CPU power management." >> /tmp/pacui-conf
-		[[ -e /etc/profile.d/freetype2.sh ]]       && echo "/etc/profile.d/freetype2.sh     - Configure TrueType interpreter, including Infinality mode." >> /tmp/pacui-conf
-		[[ -e /etc/pulse/daemon.conf ]]            && echo "/etc/pulse/daemon.conf          - Configure PulseAudio daemon." >> /tmp/pacui-conf
-		[[ -e /etc/pacman.conf ]]                  && echo "\e[31m/etc/pacman.conf                - Configure Pacman.\e[0m" >> /tmp/pacui-conf
-		[[ -e /etc/pacman-mirrors.conf ]]          && echo "/etc/pacman-mirrors.conf        - Configure Manjaro's pacman-mirrors." >> /tmp/pacui-conf
-		[[ -e /etc/pacman.d/mirrorlist ]]          && echo "/etc/pacman.d/mirrorlist        - Configure mirror list manually." >> /tmp/pacui-conf
-		[[ -e /etc/yaourtrc ]]                     && echo "/etc/yaourtrc                   - Configure Yaourt." >> /tmp/pacui-conf
-		[[ -e /etc/xdg/pacaur/config ]]            && echo "/etc/xdg/pacaur/config          - Configure Pacaur." >> /tmp/pacui-conf
-		[[ -e /etc/makepkg.conf ]]                 && echo "/etc/makepkg.conf               - Configure package compilation." >> /tmp/pacui-conf
-		[[ -e /etc/resolv.conf ]]                  && echo "/etc/resolv.conf                - Configure DNS servers." >> /tmp/pacui-conf
-		[[ -e /etc/hostname ]]                     && echo "/etc/hostname                   - Configure your network hostname" >> /tmp/pacui-conf
-		[[ -e /etc/hosts ]]                        && echo "/etc/hosts                      - Configure local DNS." >> /tmp/pacui-conf
-		[[ -e /etc/environment ]]                  && echo "/etc/environment                - Configure system-wide environment variables." >> /tmp/pacui-conf
-		[[ -e /etc/slim.conf ]]                    && echo "/etc/slim.conf                  - Configure slim display manager." >> /tmp/pacui-conf
-		[[ -e /etc/lightdm.conf ]]                 && echo "/etc/lightdm.conf               - Configure lightdm display manager." >> /tmp/pacui-conf
-		[[ -e /etc/sddm.conf ]]                    && echo "/etc/sddm.conf                  - Configure sddm display manager." >> /tmp/pacui-conf
-		[[ -e /etc/mdm/mdm.conf ]]                 && echo "/etc/mdm/mdm.conf               - Configure mdm display manager." >> /tmp/pacui-conf
-		[[ -e /etc/lxdm/lxdm.conf ]]               && echo "/etc/lxdm/lxdm.conf             - Configure lxdm display manager." >> /tmp/pacui-conf
-		[[ -e /etc/gdm/custom.conf ]]              && echo "/etc/gdm/custom.conf            - Configure gdm display manager." >> /tmp/pacui-conf
-		[[ -e /etc/entrance/entrance.conf ]]       && echo "/etc/entrance/entrance.conf     - Configure entrance display manager." >> /tmp/pacui-conf
-		[[ -e /etc/conf.d/xdm ]]                   && echo "/etc/conf.d/xdm                 - Configure xdm display manager." >> /tmp/pacui-conf
-		[[ -e $HOME/.bashrc ]]                     && echo "~/.bashrc                       - Configure bash shell." >> /tmp/pacui-conf
-		[[ -e $HOME/.zshrc ]]                      && echo "~/.zshrc                        - Configure zsh shell." >> /tmp/pacui-conf
-		[[ -e $HOME/.config/fish ]]                && echo "~/.config/fish/*                - Configure fish shell." >> /tmp/pacui-conf
-		[[ -e $HOME/.xinitrc ]]                    && echo "\e[31m~/.xinitrc                      - Configure X server startup.\e[0m" >> /tmp/pacui-conf
-		[[ -e /etc/fstab ]]                        && echo "\e[31m/etc/fstab                      - Configure file system mount table.\e[0m" >> /tmp/pacui-conf
-		[[ -e /etc/crypttab ]]                     && echo "\e[31m/etc/crypttab                   - Configure encrypted file system mount table.\e[0m" >> /tmp/pacui-conf
-		[[ -e /etc/sudoers ]]                      && echo "\e[31m/etc/sudoers                    - Configure sudo.\e[0m" >> /tmp/pacui-conf
-		[[ -e /etc/systemd/swap.conf ]]            && echo "/etc/systemd/swap.conf          - Configure systemd swap." >> /tmp/pacui-conf
-		[[ -e /etc/systemd/logind.conf ]]          && echo "/etc/systemd/logind.conf        - Configure systemd user logins." >> /tmp/pacui-conf
-		[[ -e /etc/systemd/journald.conf ]]        && echo "/etc/systemd/journald.conf      - Configure systemd logging." >> /tmp/pacui-conf
-		[[ -e /etc/systemd/coredump.conf ]]        && echo "/etc/systemd/coredump.conf      - Configure systemd coredumps." >> /tmp/pacui-conf
-		[[ -e /etc/systemd/system.conf ]]          && echo "/etc/systemd/system.conf        - Configure systemd system." >> /tmp/pacui-conf
-		[[ -e /usr/lib/systemd/system  ]]          && echo "/usr/lib/systemd/system/*.timer - Configure all systemd timers." >> /tmp/pacui-conf
-		[[ -e /etc/X11/xorg.conf.d ]]              && echo "/etc/X11/xorg.conf.d/*          - Configure Xorg display server in multiple files." >> /tmp/pacui-conf
-		[[ -e $HOME/.config/weston.ini ]]          && echo "~/.config/weston.ini            - Configure Weston compositor." >> /tmp/pacui-conf
-		[[ -e /etc/sysctl.d ]]                     && echo "/etc/sysctl.d/*                 - Configure kernel parameters at runtime in multiple files." >> /tmp/pacui-conf
-		[[ -e /etc/mkinitcpio.conf ]]              && echo "\e[31m/etc/mkinitcpio.conf            - Configure initial ramdisk environment.\e[0m" >> /tmp/pacui-conf
-		[[ -e /etc/default/grub ]]                 && echo "\e[31m/etc/default/grub               - Configure GRUB boot loader.\e[0m" >> /tmp/pacui-conf
-		[[ -e /boot/loader/entries/manjaro.conf ]] && echo "\e[31m/boot/loader/entries/manjaro.conf    - Configure systemd-boot boot loader.\e[0m" >> /tmp/pacui-conf
-		[[ -e /boot/refind_linux.conf ]]           && echo "\e[31m/boot/refind_linux.conf         - Configure rEFInd boot loader.\e[0m" >> /tmp/pacui-conf
-		[[ -e /boot/EFI/refind/refind.conf ]]      && echo "\e[31m/boot/EFI/refind/refind.conf    - Configure rEFInd boot loader.\e[0m" >> /tmp/pacui-conf
-		[[ -e /boot/EFI/CLOVER/config.plist ]]     && echo "\e[31m/boot/EFI/CLOVER/config.plist   - Configure Clover boot loader.\e[0m" >> /tmp/pacui-conf
-		[[ -e /boot/syslinux/syslinux.cfg ]]       && echo "\e[31m/boot/syslinux/syslinux.cfg     - Configure syslinux boot loaders.\e[0m" >> /tmp/pacui-conf
+		[[ -e /etc/default/tlp ]]                  && echo "/etc/default/tlp                  - Configure power management." >> /tmp/pacui-conf
+		[[ -e /etc/default/cpupower ]]             && echo "/etc/default/cpupower             - Configure CPU power management." >> /tmp/pacui-conf
+		[[ -e /etc/profile.d/freetype2.sh ]]       && echo "/etc/profile.d/freetype2.sh       - Configure TrueType interpreter, including Infinality mode." >> /tmp/pacui-conf
+		[[ -e /etc/pulse/daemon.conf ]]            && echo "/etc/pulse/daemon.conf            - Configure PulseAudio daemon." >> /tmp/pacui-conf
+		[[ -e /etc/pacman.conf ]]                  && echo "\e[31m/etc/pacman.conf                  - Configure Pacman.\e[0m" >> /tmp/pacui-conf
+		[[ -e /etc/pacman-mirrors.conf ]]          && echo "/etc/pacman-mirrors.conf          - Configure Manjaro's pacman-mirrors." >> /tmp/pacui-conf
+		[[ -e /etc/pacman.d/mirrorlist ]]          && echo "/etc/pacman.d/mirrorlist          - Configure mirror list manually." >> /tmp/pacui-conf
+		[[ -e /etc/yaourtrc ]]                     && echo "/etc/yaourtrc                     - Configure Yaourt." >> /tmp/pacui-conf
+		[[ -e /etc/xdg/pacaur/config ]]            && echo "/etc/xdg/pacaur/config            - Configure Pacaur." >> /tmp/pacui-conf
+		[[ -e /etc/makepkg.conf ]]                 && echo "/etc/makepkg.conf                 - Configure package compilation." >> /tmp/pacui-conf
+		[[ -e /etc/resolv.conf ]]                  && echo "/etc/resolv.conf                  - Configure DNS servers." >> /tmp/pacui-conf
+		[[ -e /etc/hostname ]]                     && echo "/etc/hostname                     - Configure your network hostname" >> /tmp/pacui-conf
+		[[ -e /etc/hosts ]]                        && echo "/etc/hosts                        - Configure local DNS." >> /tmp/pacui-conf
+		[[ -e /etc/environment ]]                  && echo "/etc/environment                  - Configure system-wide environment variables." >> /tmp/pacui-conf
+		[[ -e /etc/slim.conf ]]                    && echo "/etc/slim.conf                    - Configure slim display manager." >> /tmp/pacui-conf
+		[[ -e /etc/lightdm.conf ]]                 && echo "/etc/lightdm.conf                 - Configure lightdm display manager." >> /tmp/pacui-conf
+		[[ -e /etc/sddm.conf ]]                    && echo "/etc/sddm.conf                    - Configure sddm display manager." >> /tmp/pacui-conf
+		[[ -e /etc/mdm/mdm.conf ]]                 && echo "/etc/mdm/mdm.conf                 - Configure mdm display manager." >> /tmp/pacui-conf
+		[[ -e /etc/lxdm/lxdm.conf ]]               && echo "/etc/lxdm/lxdm.conf               - Configure lxdm display manager." >> /tmp/pacui-conf
+		[[ -e /etc/gdm/custom.conf ]]              && echo "/etc/gdm/custom.conf              - Configure gdm display manager." >> /tmp/pacui-conf
+		[[ -e /etc/entrance/entrance.conf ]]       && echo "/etc/entrance/entrance.conf       - Configure entrance display manager." >> /tmp/pacui-conf
+		[[ -e /etc/conf.d/xdm ]]                   && echo "/etc/conf.d/xdm                   - Configure xdm display manager." >> /tmp/pacui-conf
+		[[ -e $HOME/.bashrc ]]                     && echo "~/.bashrc                         - Configure bash shell." >> /tmp/pacui-conf
+		[[ -e $HOME/.zshrc ]]                      && echo "~/.zshrc                          - Configure zsh shell." >> /tmp/pacui-conf
+		[[ -e $HOME/.config/fish ]]                && echo "~/.config/fish/*                  - Configure fish shell." >> /tmp/pacui-conf
+		[[ -e $HOME/.xinitrc ]]                    && echo "\e[31m~/.xinitrc                        - Configure X server startup.\e[0m" >> /tmp/pacui-conf
+		[[ -e /etc/fstab ]]                        && echo "\e[31m/etc/fstab                        - Configure file system mount table.\e[0m" >> /tmp/pacui-conf
+		[[ -e /etc/crypttab ]]                     && echo "\e[31m/etc/crypttab                     - Configure encrypted file system mount table.\e[0m" >> /tmp/pacui-conf
+		[[ -e /etc/sudoers ]]                      && echo "\e[31m/etc/sudoers                      - Configure sudo.\e[0m" >> /tmp/pacui-conf
+		[[ -e /etc/systemd/swap.conf ]]            && echo "/etc/systemd/swap.conf            - Configure systemd swap." >> /tmp/pacui-conf
+		[[ -e /etc/systemd/logind.conf ]]          && echo "/etc/systemd/logind.conf          - Configure systemd user logins." >> /tmp/pacui-conf
+		[[ -e /etc/systemd/journald.conf ]]        && echo "/etc/systemd/journald.conf        - Configure systemd logging." >> /tmp/pacui-conf
+		[[ -e /etc/systemd/coredump.conf ]]        && echo "/etc/systemd/coredump.conf        - Configure systemd coredumps." >> /tmp/pacui-conf
+		[[ -e /etc/systemd/system.conf ]]          && echo "/etc/systemd/system.conf          - Configure systemd system." >> /tmp/pacui-conf
+		[[ -e /usr/lib/systemd/system  ]]          && echo "/usr/lib/systemd/system/*.service - Configure all systemd services in user directory." >> /tmp/pacui-conf
+		[[ -e /usr/lib/systemd/system  ]]          && echo "/usr/lib/systemd/system/*.timer   - Configure all systemd timers in user directory." >> /tmp/pacui-conf
+		[[ -e /etc/X11/xorg.conf.d ]]              && echo "\e[31m/etc/X11/xorg.conf.d/*            - Configure Xorg display server in multiple files.\e[0m" >> /tmp/pacui-conf
+		[[ -e $HOME/.config/weston.ini ]]          && echo "~/.config/weston.ini              - Configure Weston compositor." >> /tmp/pacui-conf
+		[[ -e /etc/sysctl.d ]]                     && echo "/etc/sysctl.d/*                   - Configure kernel parameters at runtime in multiple files." >> /tmp/pacui-conf
+		[[ -e /etc/mkinitcpio.conf ]]              && echo "\e[31m/etc/mkinitcpio.conf              - Configure initial ramdisk environment.\e[0m" >> /tmp/pacui-conf
+		[[ -e /etc/default/grub ]]                 && echo "\e[31m/etc/default/grub                 - Configure GRUB boot loader.\e[0m" >> /tmp/pacui-conf
+		[[ -e /boot/loader/entries/manjaro.conf ]] && echo "\e[31m/boot/loader/entries/manjaro.conf - Configure systemd-boot boot loader.\e[0m" >> /tmp/pacui-conf
+		[[ -e /boot/refind_linux.conf ]]           && echo "\e[31m/boot/refind_linux.conf           - Configure rEFInd boot loader.\e[0m" >> /tmp/pacui-conf
+		[[ -e /boot/EFI/refind/refind.conf ]]      && echo "\e[31m/boot/EFI/refind/refind.conf      - Configure rEFInd boot loader.\e[0m" >> /tmp/pacui-conf
+		[[ -e /boot/EFI/CLOVER/config.plist ]]     && echo "\e[31m/boot/EFI/CLOVER/config.plist     - Configure Clover boot loader.\e[0m" >> /tmp/pacui-conf
+		[[ -e /boot/syslinux/syslinux.cfg ]]       && echo "\e[31m/boot/syslinux/syslinux.cfg       - Configure syslinux boot loaders.\e[0m" >> /tmp/pacui-conf
 		
 		local file
 
@@ -1002,7 +1003,7 @@ This is the first command of a series of commands, which try to set the system a
 
 \e[36m"sudo pacman -Sy networkmanager-dispatcher-ntpd"
 This command (re-)installs the "networkmanager-dispatcher-ntpd" package. PacUI actually does not use this command but instead downloads and installs this package manually in order to bypass key database and key chain errors.
-\e[1mAttention\e[0m: PacUI will fail if you cannot install any packages on your system anymore due to key database and key chain errors AND "networkmanager-dispatcher-ntpd" was not installed on your system before. As long as your system clock is set (almost) correct, you do not have to worry about it. But if your system clock is set completely wrong AND you cannot install any packages on your system anymore AND "networkmanager-dispatcher-ntpd" was not installed on your system before, your have to set your system clock manually before you run PacUIs "fix" command. You can do this with the following command:
+\e[1mAttention\e[0m: PacUI will fail if you cannot install any packages on your system anymore due to key database and key chain errors AND "networkmanager-dispatcher-ntpd" was not installed on your system before. As long as your system clock is set (almost) correct, you do not have to worry about it. But if your system clock is set completely wrong AND you cannot install any packages on your system anymore AND "networkmanager-dispatcher-ntpd" was not installed on your system before, you have to set your system clock manually before you run PacUIs "fix" command. You can do this with the following command:
 sudo timedatectl set-time "yyyy-MM-dd hh:mm:ss"
 ( example: sudo timedatectl set-time "2016-05-26 11:13:54" )
 
