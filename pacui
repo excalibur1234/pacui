@@ -612,7 +612,7 @@ function func_conf
 		[[ -e /etc/pacman-mirrors.conf ]]          && echo "/etc/pacman-mirrors.conf          - Configure Manjaro's pacman-mirrors." >> /tmp/pacui-conf
 		[[ -e /etc/pacman.d/mirrorlist ]]          && echo "/etc/pacman.d/mirrorlist          - Configure mirror list manually." >> /tmp/pacui-conf
 		[[ -e /etc/yaourtrc ]]                     && echo "/etc/yaourtrc                     - Configure Yaourt." >> /tmp/pacui-conf
-		[[ -e /etc/xdg/pacaur/config ]]            && echo "/etc/xdg/pacaur/config            - Configure Pacaur." >> /tmp/pacui-conf
+		[[ -e $XDG_CONFIG_DIRS/pacaur/config ]]    && echo "$XDG_CONFIG_DIRS/pacaur/config            - Configure Pacaur." >> /tmp/pacui-conf
 		[[ -e /etc/makepkg.conf ]]                 && echo "/etc/makepkg.conf                 - Configure package compilation." >> /tmp/pacui-conf
 		[[ -e /etc/resolv.conf ]]                  && echo "/etc/resolv.conf                  - Configure DNS servers." >> /tmp/pacui-conf
 		[[ -e /etc/hostname ]]                     && echo "/etc/hostname                     - Configure your network hostname" >> /tmp/pacui-conf
