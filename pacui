@@ -55,7 +55,7 @@ function func_diff
 function func_c 
 {
 		echo "choosing fastest mirror ..." 
-		timeout 60 sudo pacman-mirrors -g && echo "" && sudo pacman -Syy --color always
+		sudo pacman-mirrors -g && echo "" && sudo pacman -Syy --color always
 		echo ""
 		
 		echo "searching orphans ..." 
@@ -481,7 +481,7 @@ function func_fix
 		echo ""
 		
 		echo "fixing mirrors ..."
-		timeout 180 sudo pacman-mirrors -g && echo "" && sudo pacman -Syy
+		sudo pacman-mirrors -g && echo "" && sudo pacman -Syy
 		echo ""
 
 		# check, whether manjaro mirror with the latest packages is reachable
