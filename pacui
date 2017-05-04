@@ -55,7 +55,7 @@ function func_diff
 function func_c 
 {
 		echo "choosing fastest mirror ..." 
-		sudo pacman-mirrors -g && echo "" && sudo pacman -Syy --color always
+		sudo pacman-mirrors -g -u --no-update
 		echo ""
 		
 		echo "searching orphans ..." 
@@ -481,7 +481,7 @@ function func_fix
 		echo ""
 		
 		echo "fixing mirrors ..."
-		sudo pacman-mirrors -g && echo "" && sudo pacman -Syy
+		sudo pacman-mirrors -g -u
 		echo ""
 
 		# check, whether manjaro mirror with the latest packages is reachable
@@ -878,8 +878,8 @@ The second command does the same as the first part, but with one exception: It a
 
 
 \e[1m2 - CLEAN SYSTEM
-\e[36m"timeout 60 sudo pacman-mirrors -g && sudo pacman -Syy"
-This command tests your ping to 15 available and updated Manjaro repository mirrors/servers. The mirror with the best connection is automatically chosen for you. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror.
+\e[36m"sudo pacman-mirrors -g -u --no-update"
+This command generates a new mirrorslist of all available Manjaro repository mirrors/servers (except, if you do not want to do that and have specified a "NoUpdate = True" in your pacman-mirrors.conf file). Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror. If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -g -c Germany,France && sudo pacman -Syy". Alternatively, you can use the fasttrack argument and hope you get a good Manjaro mirror, e.g. "sudo pacman-mirrors -f 10 && sudo pacman -Syy".
 
 \e[36m"yaourt -Qdt"
 This option lists all orphaned packages on your system. Orphaned packages are old and no longer needed dependencies (packages not explicitly installed by you), which were never removed from your system.
@@ -989,10 +989,8 @@ A working internet connection is required.
 This command removes Pacmans database lock. The database lock prevents multiple Pacman instances from running at the same time and interfering with each other.
 \e[1mAttention\e[0m: Only run this command when no other Pacman instance (e.g. Pacman, Yaourt, Pamac, Octopi, PacmanXG4, ...) is running.
 
-\e[36m"timeout 180 sudo pacman-mirrors -g && sudo pacman -Syy"
-The first command searches for working and good Manjaro repository mirrors/servers in all countries. It will automatically choose the closest server for you. This might not be the fastest mirror/server to download from, but it is definitely not a bad choice.
-The second command forces a redownload of the latest package database from the chosen Manjaro repository mirror server. 
-If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -g -c Germany,France && sudo pacman -Syy". Alternatively, you can use the fasttrack argument and hope you get a good Manjaro mirror, e.g. "sudo pacman-mirrors -f 10 && sudo pacman -Syy".
+\e[36m"sudo pacman-mirrors -g -u"
+This command generates a new mirrorslist of all available Manjaro repository mirrors/servers. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror. If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -g -c Germany,France && sudo pacman -Syy". Alternatively, you can use the fasttrack argument and hope you get a good Manjaro mirror, e.g. "sudo pacman-mirrors -f 10 && sudo pacman -Syy".
 
 \e[36m"sudo dirmngr </dev/null"
 Sometimes during key management the package "dirmngr" outputs error messages, which interrupt key management processes (such as the following commands). This command prevents any output from "dirmngr".
