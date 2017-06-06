@@ -1238,9 +1238,6 @@ do
 	echo
 	echo -e "  Enter number or marked letter(s)   -   00   \e[1mH\e[0melp   -   0   \e[1mQ\e[0muit PacUI "
 	
-	# send interrupt signal, if the ESC key (which prints ^[ ) is pressed. this will quit pacui immediately!
-	stty intr ^[
-	
 	# save entered numbers/letters in varialbe "choice"
 	read -r choice
 	# convert "choice" variable to lowercase:
