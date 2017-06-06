@@ -101,16 +101,16 @@ function func_c
 		echo ""
 		
 		
-		echo "sudo journalctl --vacuum-size=50M --vacuum-time=30days ..." 
 		if [[ $(cat /proc/1/comm) == "systemd" ]]          # if init system is systemd
 		then
+			echo "cleaning systemd log files ..." 
 			# limit logs in journalctl to an age of 30 days and a combined size of 50mb
 			sudo journalctl --vacuum-size=50M --vacuum-time=30days
 		fi
 		echo ""
 		
 		
-		echo "paccache ..." 
+		echo "cleaning package cache ..." 
 		# remove all packages, which are not installed on this system, except the latest verions (this is a back up, in case somebody removes networkmanager)
 		sudo paccache -rvu -k 1
 		echo ""
