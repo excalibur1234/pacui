@@ -1238,12 +1238,16 @@ do
 	echo
 	echo -e "  Enter number or marked letter(s)   -   00   \e[1mH\e[0melp   -   0   \e[1mQ\e[0muit PacUI "
 	
-	# save entered number in varialbe "choice" and test, whether "choice" fits any of the following numbers, letters, or words
+	# send interrupt signal, if the ESC key (which prints ^[ ) is pressed. this will quit pacui immediately!
+	stty intr ^[
+	
+	# save entered numbers/letters in varialbe "choice"
 	read -r choice
 	# convert "choice" variable to lowercase:
 	choice=$(echo "$choice" | tr '[:upper:]' '[:lower:]' )
 	echo
 	
+	# test, whether "choice" fits any of the following numbers, letters, or words
 	case $choice in
 
 
