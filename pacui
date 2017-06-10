@@ -323,7 +323,7 @@ function func_rt
 
 function func_log 
 {
-		tail -5000 /var/log/pacman.log | fzf-tmux -m -e +s -i --query="ALPM] " --tac --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed logs > ' > /tmp/pacui-log
+		tail -5000 /var/log/pacman.log | fzf-tmux -m -e +s -i --query="[ALPM] " --tac --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed logs > ' > /tmp/pacui-log
 }
 
 
@@ -345,14 +345,16 @@ function func_s
 		if [[ -n $file ]]
 		then
 			
+			echo "Local package files: " > /tmp/pacui-search-temp
 			# list all files of all installed local package. 
 			# awk -v VAR="$file" '$NF ~ VAR' searches for $file (using regex) in the last field/column only. 
-			pacman -Ql --color always | awk -v VAR="$file" -F '/' '$NF ~ VAR' > /tmp/pacui-search-temp
+			pacman -Ql --color always | awk -v VAR="$file" -F '/' '$NF ~ VAR' >> /tmp/pacui-search-temp
 						
 			# update local package database. this needs a long time when internet connection is slow.
 			# in some cases, the local database has to be initialized with sudo pacman -Fyy
 			sudo pacman -Fy
 			
+			echo -e "\nPackage files in Manjaro repositories: " >> /tmp/pacui-search-temp
 			# search in manjaro repositories with "pacman -Fsx" --> machine readable version of output is easier to read for awk!
 			# the awk command is used to format output: "-F '\0'" set "\0" as separator. this makes it possible to easily use $1,$2,$3,$4 as syntax later.
 			# "system( "pacman -Qq " $2 " &>/dev/null" ) == 1" check exit status of "pacman -Qq <package name> &>/dev/null". if error occurs (==1), the package is not installled
