@@ -159,18 +159,18 @@ function func_i
 		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $pkg ]]
 		then
-			if ( package-query -S $pkg &>/dev/null )        # check, whether $pkg is in manjaro repositories
+			if ( package-query -S "$pkg" &>/dev/null )        # check, whether $pkg is in manjaro repositories
 			then
 			
-				sudo pacman -S $pkg --color always
+				sudo pacman -S "$pkg" --color always
 				
 			else
 			
 				if [[ ! -e /usr/bin/pacaur ]]	            # checks, whether file "pacaur" does not exist
 				then
-					yaourt -S $pkg
+					yaourt -S "$pkg"
 				else
-					pacaur -S $pkg --color always
+					pacaur -S "$pkg" --color always
 				fi
 			
 			fi
@@ -192,7 +192,7 @@ function func_r
         
 		if [[ -n $pkg ]]
 		then
-			sudo pacman -Rsn $pkg --color always
+			sudo pacman -Rsn "$pkg" --color always
 		fi
 }
 
@@ -215,23 +215,23 @@ function func_info
 		if [[ -n $pkg ]]
 		then
 			# next, it is checked, whether "pkg" is part of a list of all installed packages (pacman -Qq).
-			if ( pacman -Qq $pkg &>/dev/null )
+			if ( pacman -Qq "$pkg" &>/dev/null )
 			then
 			
 				if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
 				then
-					yaourt -Qii $pkg		    # execute this command when "pkg" is already installed on system
+					yaourt -Qii "$pkg"		    # execute this command when "pkg" is already installed on system
 				else
-					pacaur -Qii $pkg --color always
+					pacaur -Qii "$pkg" --color always
 				fi
 			
 			else
 			
 				if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
 				then
-					yaourt -Sii $pkg		    # execute this command when "pkg" is not installed on system
+					yaourt -Sii "$pkg"		    # execute this command when "pkg" is not installed on system
 				else
-					pacaur -Sii $pkg --color always
+					pacaur -Sii "$pkg" --color always
 				fi
 			
 			fi
@@ -255,12 +255,12 @@ function func_l
 		if [[ -n $pkg ]]
 		then
 			# next, it is checked, whether "pkg" is part of a list of all installed packages (pacman -Qq): the if-statement checks the exit code of the command "pacman -Qq $pkg &>/dev/null".
-			if ( pacman -Qq $pkg &>/dev/null )
+			if ( pacman -Qq "$pkg" &>/dev/null )
 			then
 			
 				# "pacman -Ql" shows sometimes more files than "pacman -Fl". therefore, both commands have to be used!
 				# take the output of command "pacman -Qlq $pkg" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacui-list.
-				pacman -Ql $pkg --color always 2>/dev/null | grep -v "/$" | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed package name and file path > ' > /tmp/pacui-l
+				pacman -Ql "$pkg" --color always 2>/dev/null | grep -v "/$" | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed package name and file path > ' > /tmp/pacui-l
 				
 			else
 				
@@ -295,11 +295,11 @@ function func_t
 		# look in func_info for explanations
 		if [[ -n $pkg ]]
 		then
-			if ( pacman -Qq $pkg &>/dev/null )
+			if ( pacman -Qq "$pkg" &>/dev/null )
 			then
-				pactree -c $pkg | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Dependency Tree of installed package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-t
+				pactree -c "$pkg" | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Dependency Tree of installed package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-t
 			else
-				pactree -c -s $pkg | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Dependency Tree of remote package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-t
+				pactree -c -s "$pkg" | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Dependency Tree of remote package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-t
 			fi
 		fi
 }
@@ -313,7 +313,7 @@ function func_rt
 		# look in func_info for explanations
 		if [[ -n $pkg ]]
 		then
-			pactree -c -r $pkg | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Reverse Dependency Tree of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-rt
+			pactree -c -r "$pkg" | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Reverse Dependency Tree of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-rt
 		fi
 }
 
@@ -394,7 +394,7 @@ function func_b
 			
 			if [[ -n $pkgR ]]     # this if-condition avoids error message when no package gets removed (and $pkgR is empty)
 			then
-				sudo pacman -Rdd $pkgR --color always --noconfirm
+				sudo pacman -Rdd "$pkgR" --color always --noconfirm
 			fi
 
 
@@ -419,7 +419,7 @@ function func_b
 				pkgI=$( sort -u /tmp/pacui-install )
 				
 				# install cannot be done as dependency, because sometimes packages are simply replaced by other packages. in this case, installing as dependency would be bad!
-				sudo pacman -U $pkgI --color always --noconfirm
+				sudo pacman -U "$pkgI" --color always --noconfirm
 				
 			fi
 
@@ -443,8 +443,8 @@ function func_b
 				do
 					
 					# attention, the following variables can be empty:
-					temp1=$( echo $line | awk '{print $1}' )   # this variable is the no. of times a package has to be downgraded
-					temp2=$( echo $line | awk '{print $2}' )   # this variable is the package name to be downgraded
+					temp1=$( echo "$line" | awk '{print $1}' )   # this variable is the no. of times a package has to be downgraded
+					temp2=$( echo "$line" | awk '{print $2}' )   # this variable is the package name to be downgraded
 					
 					if [[ -n $temp2 ]]   # checks, if variable is not empty
 					then
@@ -467,7 +467,7 @@ function func_b
 				if [[ -n $pkgD ]]   # checks, if variable is not empty
 				then
 					# downgrade packages by manually installing them: (sudo pacman -U --noconfirm --color always )
-					sudo pacman -U $pkgD --color always --noconfirm
+					sudo pacman -U "$pkgD" --color always --noconfirm
 				fi
 			
 			fi
@@ -485,7 +485,7 @@ function func_d
 		local pkg
 		pkg=$(sort -u /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to downgrade. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
-		downgrade $pkg
+		downgrade "$pkg"
 }
 
 
@@ -584,7 +584,7 @@ function func_fix
 			
 			#automatically trust all keys from arch linux trusted users and manjaro developers - both for packages from the repositories and packages fom the AUR:
 			local temp
-			temp=$( grep "/etc/pacman.d/gnupg/pubring.gpg" $HOME/.gnupg/gpg.conf )
+			temp=$( grep "/etc/pacman.d/gnupg/pubring.gpg" "$HOME/.gnupg/gpg.conf" )
 			if [[ -n $temp ]]   # check, whether $temp variable is empty
 			then
 				# there are 2 different places on system for keys to be stored. move all keys for pacman to your private collection of keys. this collection is needed when installling packages from the AUR, e.g. for verifying who signed the package.
@@ -674,13 +674,13 @@ function func_conf
 		# only run the command inside the if-statement, if $file variable is not empty <-- this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $file ]]
 		then
-			if [[ $( echo $file | cut -c1 ) == "~" ]]
+			if [[ $( echo "$file" | cut -c1 ) == "~" ]]
 			# if "file"'s first character is a "~" (tilde), the "file" should NOT be opened as root!
 			then
 				# if $EDITOR variable does not exist, set it to 'nano'
 				[[ -z "$EDITOR" ]] && EDITOR='nano'
 				# open "file" in "EDITOR": (attention: "$file" (including " symbols) does NOT WORK!!!)
-				$EDITOR $file
+				$EDITOR "$file"
 			elif [[ $file == "/etc/sudoers" ]]
 			then
 				# the sudoers file should never be edited directly! if something goes wrong, sudo stops working. instead, visudo should be used. this is much safer.
@@ -690,22 +690,22 @@ function func_conf
 				# if $EDITOR variable does not exist, set it to 'nano'
 				[[ -z "$EDITOR" ]] && EDITOR='nano'
 				# open "file" in "EDITOR": (attention: "$file" (including " symbols) does NOT WORK!!!)
-				sudo $EDITOR $file
+				sudo $EDITOR "$file"
 				sudo pacman -Syy                                                     # apply changes
 			elif [[ $file == "/etc/mkinitcpio.conf" ]]
 			then
 				[[ -z "$EDITOR" ]] && EDITOR='nano'
-				sudo $EDITOR $file
+				sudo $EDITOR "$file"
 				sudo mkinitcpio -P && sudo grub-mkconfig -o /boot/grub/grub.cfg      # apply changes   # "grub-mkconfig -o /boot/grub/grub.cfg" == "udpate-grub" (in manjaro)
 			elif [[ $file == "/etc/default/grub" ]]
 			then
 				[[ -z "$EDITOR" ]] && EDITOR='nano'
-				sudo $EDITOR $file
+				sudo $EDITOR "$file"
 				sudo grub-mkconfig -o /boot/grub/grub.cfg                            # apply changes   # "grub-mkconfig -o /boot/grub/grub.cfg" == "udpate-grub" (in manjaro)
 			else
 				# start "sudo nano $file" for all other files (not mentioned separately in elif-statements above)
 				[[ -z "$EDITOR" ]] && EDITOR='nano'
-				sudo $EDITOR $file
+				sudo $EDITOR "$file"
 			fi
 		fi
 		rm /tmp/pacui-conf
@@ -745,7 +745,7 @@ function func_fi
 		
 		if [[ -n $pkg ]]
 		then
-			sudo pacman -S --force $pkg --color always
+			sudo pacman -S --force "$pkg" --color always
 		fi
 }
 
@@ -761,7 +761,7 @@ function func_fr
 		
 		if [[ -n $pkg ]]
 		then
-			sudo pacman -Rdd $pkg --color always
+			sudo pacman -Rdd "$pkg" --color always
 		fi
 }
 
@@ -809,9 +809,9 @@ function func_a
             
 			if [[ ! -e /usr/bin/pacaur ]]	      # checks, whether file "pacaur" does not exist
 			then
-				yaourt $pkg
+				yaourt "$pkg"
 			else
-				pacaur -Ss $pkg --color always
+				pacaur -Ss "$pkg" --color always
 			fi
 			
 		fi
