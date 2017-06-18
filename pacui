@@ -180,9 +180,9 @@ function func_i
 
 function func_r 
 {
-		# write formatted package list of local repository to /tmp/pacui-packages-group. then add all package groups to the bottom (this makes it easier to remove package groups - if a package group with non-installed packages gets selected, an error is the output).
+		# write formatted package list of local repository to /tmp/pacui-packages-group. then add all installed package groups to the bottom (this makes it easier to remove package groups).
 		package-query -Q -f "%n  %v  -  %d" > /tmp/pacui-packages-group
-		pacman -Sg >> /tmp/pacui-packages-group
+		package-query -Qg >> /tmp/pacui-packages-group
 		
 		local pkg
 		
@@ -754,7 +754,7 @@ function func_fr
 {
 		# write formatted package list of local repository to /tmp/pacui-packages-group. then add all package groups to the bottom (this makes it easier to remove package groups - if a package group with non-installed packages gets selected, an error is the output).
 		package-query -Q -f "%n  %v  -  %d" > /tmp/pacui-packages-group
-		pacman -Sg >> /tmp/pacui-packages-group
+		package-query -Qg >> /tmp/pacui-packages-group
 		
 		local pkg
 		pkg=$( sort -u /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to remove. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
