@@ -127,7 +127,7 @@ For short help, e.g. when using PacUI without UI, use one of the following comma
 - `pacui -h`
 
 ### Detailed PacUI Help
-Choose the "Help" option within PacUI's UI by entering "12" or "H" or "h" or "help" and pressing "ENTER".
+Choose the "Help" option within PacUI's UI by entering "00" or "H" or "h" or "help" and pressing "ENTER".
 
 This help page explains some general stuff such as how to navigate PacUI. It also explains every PacUI option in detail. If you want to look up which commands PacUI uses under the hood and understand them, this is the right place for you!
 

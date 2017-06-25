@@ -239,46 +239,6 @@ function func_info
 }
 
 
-function func_l 
-{
-		# check, whether file /tmp/pacui-packages-local already exists (the ! negates the result)
-		if [[ ! -e /tmp/pacui-packages-local ]]
-		then
-			# write package list of Manjaro repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
-			pacman -Slq > /tmp/pacui-packages-local
-			pacman -Qq >> /tmp/pacui-packages-local
-		fi
-		
-		local pkg
-		pkg=$( sort -u /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
-		
-		if [[ -n $pkg ]]
-		then
-			# next, it is checked, whether "pkg" is part of a list of all installed packages (pacman -Qq): the if-statement checks the exit code of the command "pacman -Qq $pkg &>/dev/null".
-			if ( pacman -Qq "$pkg" &>/dev/null )
-			then
-			
-				# "pacman -Ql" shows sometimes more files than "pacman -Fl". therefore, both commands have to be used!
-				# take the output of command "pacman -Qlq $pkg" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacui-list.
-				pacman -Ql "$pkg" --color always 2>/dev/null | grep -v "/$" | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed package name and file path > ' > /tmp/pacui-l
-				
-			else
-				
-				# update local package database. this needs a long time when internet connection is slow.
-				# in some cases, the local database has to be initialized with sudo pacman -Fyy
-				sudo pacman -Fy
-				
-				# search in manjaro repositories with "pacman -Fl" --> machine readable version of output is easier to read for awk!
-				# the awk command is used to format output: "-F '\0'" set "\0" as separator. this makes it possible to easily use $1,$2,$3,$4 as syntax later.
-				# "system( "pacman -Qq " $2 " &>/dev/null" ) == 1" check exit status of "pacman -Qq <package name> &>/dev/null". if error occurs (==1), the package is not installled
-				# "{print $1 "/" $2, $4}" prints output nicely formatted.
-				pacman -Fl --machinereadable "$pkg" | awk -F '\0' '{print $1 "/" $2 "  " $4}' | grep -v "/$" | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed package name and file path > ' > /tmp/pacui-l
-				
-			fi
-		fi
-}
-
-
 function func_t 
 {
 		# check, whether file /tmp/pacui-packages-local already exists (the ! negates the result)
@@ -318,12 +278,43 @@ function func_rt
 }
 
 
-# =======================
-
-
-function func_log 
+function func_l 
 {
-		tail -5000 /var/log/pacman.log | fzf-tmux -m -e +s -i --query="[ALPM] " --tac --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed logs > ' > /tmp/pacui-log
+		# check, whether file /tmp/pacui-packages-local already exists (the ! negates the result)
+		if [[ ! -e /tmp/pacui-packages-local ]]
+		then
+			# write package list of Manjaro repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
+			pacman -Slq > /tmp/pacui-packages-local
+			pacman -Qq >> /tmp/pacui-packages-local
+		fi
+		
+		local pkg
+		pkg=$( sort -u /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
+		
+		if [[ -n $pkg ]]
+		then
+			# next, it is checked, whether "pkg" is part of a list of all installed packages (pacman -Qq): the if-statement checks the exit code of the command "pacman -Qq $pkg &>/dev/null".
+			if ( pacman -Qq "$pkg" &>/dev/null )
+			then
+			
+				# "pacman -Ql" shows sometimes more files than "pacman -Fl". therefore, both commands have to be used!
+				# take the output of command "pacman -Qlq $pkg" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacui-list.
+				pacman -Ql "$pkg" --color always 2>/dev/null | grep -v "/$" | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed package name and file path > ' > /tmp/pacui-l
+				
+			else
+				
+				# update local package database. this needs a long time when internet connection is slow.
+				# in some cases, the local database has to be initialized with sudo pacman -Fyy
+				sudo pacman -Fy
+				
+				# search in manjaro repositories with "pacman -Fl" --> machine readable version of output is easier to read for awk!
+				# the awk command is used to format output: "-F '\0'" set "\0" as separator. this makes it possible to easily use $1,$2,$3,$4 as syntax later.
+				# "system( "pacman -Qq " $2 " &>/dev/null" ) == 1" check exit status of "pacman -Qq <package name> &>/dev/null". if error occurs (==1), the package is not installled
+				# "{print $1 "/" $2, $4}" prints output nicely formatted.
+				pacman -Fl --machinereadable "$pkg" | awk -F '\0' '{print $1 "/" $2 "  " $4}' | grep -v "/$" | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed package name and file path > ' > /tmp/pacui-l
+				
+			fi
+		fi
 }
 
 
@@ -365,6 +356,27 @@ function func_s
 			cat /tmp/pacui-search-temp | fzf-tmux -m -e +s -i --ansi --reverse --query="$file" --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed package names and file paths > ' > /tmp/pacui-s
 									
 		fi
+}
+
+
+# =======================
+
+
+function func_log 
+{
+		tail -5000 /var/log/pacman.log | fzf-tmux -m -e +s -i --query="[ALPM] " --tac --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed logs > ' > /tmp/pacui-log
+}
+
+
+function func_d
+{
+		pacman -Slq > /tmp/pacui-packages-local
+		pacman -Qq >> /tmp/pacui-packages-local
+		
+		local pkg
+		pkg=$(sort -u /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to downgrade. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
+		
+		downgrade "$pkg"
 }
 
 
@@ -474,18 +486,6 @@ function func_b
 			
 			
 		fi
-}
-
-
-function func_d
-{
-		pacman -Slq > /tmp/pacui-packages-local
-		pacman -Qq >> /tmp/pacui-packages-local
-		
-		local pkg
-		pkg=$(sort -u /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to downgrade. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
-		
-		downgrade "$pkg"
 }
 
 
@@ -777,12 +777,6 @@ function func_ua
 }
 
 
-function func_la 
-{
-		pacman -Qem --color always
-}
-
-
 function func_a 
 {
 		local pkg
@@ -815,6 +809,12 @@ function func_a
 }
 
 
+function func_la 
+{
+		pacman -Qem --color always
+}
+
+
 
 function func_h
 {
@@ -830,14 +830,14 @@ function func_h
 			echo -e "  pacui	i     - \e[1mI\e[0mnstall Packages"
 			echo -e "  pacui	r     - \e[1mR\e[0memove Packages + Deps"
 			echo -e "  pacui	info  - Package \e[1mInfo\e[0mrmation"
-			echo -e "  pacui	l     - \e[1mL\e[0mist Package Files"
 			echo -e "  pacui	t     - Dependency \e[1mT\e[0mree"
 			echo -e "  pacui	rt    - \e[1mR\e[0meverse Dependency \e[1mT\e[0mree"
+			echo -e "  pacui	l     - \e[1mL\e[0mist Package Files"
+			echo -e "  pacui	s     - \e[1mS\e[0mearch Package Files"
 			echo
 			echo -e "  pacui	log   - Pacman \e[1mLog\e[0m"
-			echo -e "  pacui	s     - \e[1mS\e[0mearch Package Files"
-			echo -e "  pacui	b     - Roll \e[1mB\e[0mack System"
 			echo -e "  pacui	d     - \e[1mD\e[0mowngrade Packages"
+			echo -e "  pacui	b     - Roll \e[1mB\e[0mack System"
 			echo -e "  pacui	fix   - \e[1mFix\e[0m Pacman Errors"
 			echo -e "  pacui	conf  - \e[1mConf\e[0migure System"
 			echo -e "  \e[31mpacui	fu    \e[0m- \e[1mF\e[0morce \e[1mU\e[0mpdate System"
@@ -846,8 +846,8 @@ function func_h
 			echo -e "  \e[31mpacui	fr    \e[0m- \e[1mF\e[0morce \e[1mR\e[0memove Packages"
 			echo
 			echo -e "  pacui	ua    - Force \e[1mU\e[0mpdate \e[1mA\e[0mUR"
-			echo -e "  pacui	la    - \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
 			echo -e "  pacui	a     - Search + Install from \e[1mA\e[0mUR"
+			echo -e "  pacui	la    - \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
 			echo
 			echo -e "  pacui	h     - \e[1mH\e[0melp. For detailed help, please start User Interface first."
 			
@@ -944,16 +944,6 @@ Please note that folders in your home (~) directory and created by the program <
 This command displays a lot of information about <PACKAGE NAME>. Different pieces of information get displayed depending on package source (Manjaro repository or AUR) and package state (installed or not installed).
 
 
-\e[1m6 - LIST PACKAGE FILES
-\e[36m"pacman -Ql <PACKAGE NAME>"
-\e[36m"sudo pacman -Fyl <PACKAGE NAME>" \e[0m(only for packages not installed on your system)
-These commands list all files contained in <PACKAGE NAME> including their path. The second command syncs the file database with the Manjaro repositories and then searches the file database for files, which get installed by <PACKAGE NAME>.
-As a result, <MANJARO REPOSITORY>/<PACKAGE NAME> and the complete path to the files gets displayed. <MANJARO REPOSITORY> gets only displayed, if <PACKAGE NAME> is not installed on your system. 
-Have you ever installed a program and did not know with which command it can be started/executed? Just look for files (and their names) in your /usr/bin/ directory using LIST PACKAGE FILES.
-By default, the results are filtered for files located in usr/bin/, but you can enter any filter term you want to. Delete the default filter term with BACKSPACE to see a complete list of files of <PACKAGE NAME>. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-l.
-\e[1mAttention\e[0m: On some systems, the file database has not been downloaded which results in an error message instead of search results from the Manjaro repositories. You can fix it by running "sudo pacman -Fyy" once and restarting LIST PACKAGE FILES.
-
-
 \e[1m7 - DEPENDENCIES TREE
 \e[36m"pactree -s <PACKAGE NAME>"\e[0m or \e[36m"pactree <PACKAGE NAME>"
 This command will display a complete tree of all dependencies of <PACKAGE NAME>. <PACKAGE NAME> can be an installed package or a package from the Manjaro repositories. Dependencies are packages required by <PACKAGE NAME> in order to function. When you install <PACKAGE NAME>, all its dependencies get installed, too.
@@ -968,10 +958,14 @@ Use this command when you want to know why you cannot remove <PACKAGE NAME> from
 Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-rt.
 
 
-\e[1m9 - PACMAN LOG
-\e[36m"tail -5000 /var/log/pacman.log"
-The Pacman Log contains all updates, installations, and removals (also in the AUR) you have done. Whenever something breaks on your system (e.g. after an udpate), but you do not remember anymore which packages were changed recently (e.g. during the last update), take a look at your Pacman Log and find out. Then, DOWNGRADE PACKAGES, which you think might be broken.
-This command displays the last 5000 lines of your Pacman Log and makes it searchable with fzf. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-log.
+\e[1m9 - LIST PACKAGE FILES
+\e[36m"pacman -Ql <PACKAGE NAME>"
+\e[36m"sudo pacman -Fyl <PACKAGE NAME>" \e[0m(only for packages not installed on your system)
+These commands list all files contained in <PACKAGE NAME> including their path. The second command syncs the file database with the Manjaro repositories and then searches the file database for files, which get installed by <PACKAGE NAME>.
+As a result, <MANJARO REPOSITORY>/<PACKAGE NAME> and the complete path to the files gets displayed. <MANJARO REPOSITORY> gets only displayed, if <PACKAGE NAME> is not installed on your system. 
+Have you ever installed a program and did not know with which command it can be started/executed? Just look for files (and their names) in your /usr/bin/ directory using LIST PACKAGE FILES.
+By default, the results are filtered for files located in usr/bin/, but you can enter any filter term you want to. Delete the default filter term with BACKSPACE to see a complete list of files of <PACKAGE NAME>. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-l.
+\e[1mAttention\e[0m: On some systems, the file database has not been downloaded which results in an error message instead of search results from the Manjaro repositories. You can fix it by running "sudo pacman -Fyy" once and restarting LIST PACKAGE FILES.
 
 
 \e[1m10 - SEARCH PACKAGE FILES
@@ -984,7 +978,13 @@ As a result, <MANJARO REPOSITORY>/<PACKAGE NAME> and the complete path to <FILE 
 \e[1mAttention\e[0m: On some systems, the file database has not been downloaded which results in an error message instead of search results from the Manjaro repositories. You can fix it by running "sudo pacman -Fyy" once and restarting SEARCH PACKAGE FILES.
 
 
-\e[1m11 - ROLL BACK SYSTEM
+\e[1m11 - PACMAN LOG
+\e[36m"tail -5000 /var/log/pacman.log"
+The Pacman Log contains all updates, installations, and removals (also in the AUR) you have done. Whenever something breaks on your system (e.g. after an udpate), but you do not remember anymore which packages were changed recently (e.g. during the last update), take a look at your Pacman Log and find out. Then, DOWNGRADE PACKAGES, which you think might be broken.
+This command displays the last 5000 lines of your Pacman Log and makes it searchable with fzf. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-log.
+
+
+\e[1m12 - ROLL BACK SYSTEM
 \e[36m"sudo pacman -Rdd <PACKAGE NAME> --noconfirm" \e[0m(only for installed packages)
 \e[36m"sudo pacman -U <PACKAGE NAME> --noconfirm" \e[0m(only for removed packages: Installs latest version in Pacman cache)
 \e[36m"sudo pacman -U <FILE NAME> --noconfirm" \e[0m(only for upgraded packages: Installs previous version from Pacman cache)
@@ -994,7 +994,7 @@ This command shows you a list of all recent Pacman actions sorted by date. Pleas
 \e[1mAttention\e[0m: This option of PacUI does not work for log files created by pamac!
 
 
-\e[1m12 - FIX PACMAN ERRORS
+\e[1m13 - FIX PACMAN ERRORS
 Multiple commands attempt to fix the most common issues Manjaro users have with Pacman. Force options (as in FORCE UPDATE SYSTEM) are excluded, even though they are essential in fixing some problems.
 A working internet connection is required.
 
@@ -1059,7 +1059,7 @@ This command makes abolutely sure all downloaded packages get installed and down
 This command forces a sync of the file database of the Manjaro repository with the chosen mirror. The file database is a separate from the package database. The file database enables SEARCH PACKAGE FILES and LIST PACKAGE FILES of packages from the Manjaro repository, which are not installed on your system.
 
 
-\e[1m13 - CONFIGURE SYSTEM
+\e[1m14 - CONFIGURE SYSTEM
 \e[36m"$EDITOR <FILE NAME>"
 This command opens <FILE NAME> in your default text editor. You can choose between multiple important system configuration files. Files in the root directory are opened with root privileges.
 By default the text editor Nano gets used, except a custom $EDITOR variable has been exported. In the text editor Nano, Press CTRL+O to save your changes, ENTER to choose a directory, and CTRL+X to quit Nano.
@@ -1223,12 +1223,12 @@ do
 	echo -e " │    1   \e[1mU\e[0mpdate System                 2   \e[1mC\e[0mlean System               │"
 	echo -e " │    3   \e[1mI\e[0mnstall Packages              4   \e[1mR\e[0memove Packages + Deps     │"
 	echo -e " │---------------------------------------------------------------------│"
-	echo -e " │    5   Package \e[1mInfo\e[0mrmation           6   \e[1mL\e[0mist Package Files         │"
+	echo -e " │    5   Package \e[1mInfo\e[0mrmation                                          │"
 	echo -e " │    7   Dependency \e[1mT\e[0mree               8   \e[1mR\e[0meverse Dependency \e[1mT\e[0mree    │"
+	echo -e " │    9   \e[1mL\e[0mist Package Files           10   \e[1mS\e[0mearch Package Files       │"
 	echo -e " └─────────────────────────────────────────────────────────────────────┘"
-	echo -e "      9   Pacman \e[1mLog\e[0m                   10   \e[1mS\e[0mearch Package Files        "
-	echo -e "     11   Roll \e[1mB\e[0mack System             12   \e[1mFix\e[0m Pacman Errors           "
-	echo -e "     13   \e[1mConf\e[0migure System                                              "
+	echo -e "     11   Pacman \e[1mLog\e[0m                   12   Roll \e[1mB\e[0mack System            "
+	echo -e "     13   \e[1mFix\e[0m Pacman Errors            14   \e[1mConf\e[0migure System            "
 	echo -e "   \e[31m  15   \e[1mF\e[0;31morce \e[1mU\e[0;31mpdate System          16   \e[1mE\e[0;31mmpty Package Cache       \e[0m "
 	echo -e "   \e[31m  17   \e[1mF\e[0;31morce \e[1mI\e[0;31mnstall Packages       18   \e[1mF\e[0;31morce \e[1mR\e[0;31memove Packages     \e[0m "
 	echo -e " ┌─────────────────────────────────────────────────────────────────────┐"
@@ -1280,10 +1280,6 @@ do
 			echo -e " Package information displayed. To return to PacUI press ENTER "
 			read
 			;;
-		6|l|list)
-			func_l
-			echo
-			;;
 		7|t|tree)
 			func_t
 			echo
@@ -1296,35 +1292,39 @@ do
 			echo -e " Reverse dependency tree displayed. Navigate with SHIFT+PageUp. To return to PacUI press ENTER "
 			read
 			;;
-
-
-		9|log)
-			func_log
+		9|l|list)
+			func_l
 			echo
-			;;		
+			;;
 		10|s|search)
 			func_s
 			echo
 			;;
-		11|b|back)
-			func_b
+
+
+		11|log)
+			func_log
 			echo
-			echo -e " System roll back finished. To return to PacUI press ENTER "
-			read
-			;;
-		12|fix)
-			func_fix
-			echo
-			echo -e " Operation finished. To return to PacUI press ENTER "
-			read
-			;;
+			;;	
 		d|down|downgrade)
 			func_d
 			echo
 			echo -e " Downgrade finished. To return to PacUI press ENTER "
 			read
+			;;	
+		12|b|back)
+			func_b
+			echo
+			echo -e " System roll back finished. To return to PacUI press ENTER "
+			read
 			;;
-		13|conf|config|configure)
+		13|fix)
+			func_fix
+			echo
+			echo -e " Operation finished. To return to PacUI press ENTER "
+			read
+			;;
+		14|conf|config|configure)
 			func_conf
 			echo
 			;;
