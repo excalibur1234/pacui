@@ -37,7 +37,7 @@ function func_diff
 {
 		# this function is not called by pacui or pacui's UI directly. instead, it gets called in func_c when no DIFFPROG is set. it provides simple file difference viewer functionality and is essentially a wrapper around "diff". therefore, this function expects 2 arguments!
 
-		local={temp,temp2,temp3}
+		local {temp,temp2,temp3}                                          # define local variables
 		temp2="$( echo "$input2" | awk '{print $1}' )"                    # second argument of "pacui diff temp2 temp3"
 		temp3="$( echo "$input2" | awk '{print $2}' )"                    # third argument of "pacui diff temp2 temp3"
 		temp="$(( ( $(tput cols) - ${#temp2} + ${#temp3} ) / 2 ))"        # calculates half the width of the terminal window ( $(tput cols)=width of terminal window )
@@ -499,15 +499,12 @@ function func_fix
 		sudo pacman-mirrors -g -y
 		echo ""
 
-		# check, whether manjaro mirror with the latest packages is reachable
-		wget --spider http://mirror.netzspielplatz.de/manjaro/
-		echo ""
+		# check, whether manjaro mirror with the latest packages is reachable:  wget --spider http://mirror.netzspielplatz.de/manjaro/
 		# the "wget" command finishes with an exit status/return code. return code 0 means "wget --spider" has finished successfully, i.e. the manjaro mirror can be reached.
-		if (( "$?" != "0" ))
+		if ( ! wget --spider "http://mirror.netzspielplatz.de/manjaro/" )
 		then
 		
-			# if the shell return code is not 0, this part of the code runs and the manjaro mirror cannot be reached.
-			# run the following command in case the internet is working and only the manjaro mirror is down:
+			# if the manjaro mirror cannot be reached, this part of the code runs and the manjaro mirror cannot be reached.
 			sudo pacman -Syyuu --color always --noconfirm
 			# display error message (ANSI Escape sequences will be explained later):
   			echo -e "\e[41m Either there is something wrong with your internet connection or http://mirror.netzspielplatz.de/manjaro is down. \e[0m"
