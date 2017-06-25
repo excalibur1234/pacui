@@ -839,6 +839,7 @@ function func_h
 			echo -e "  pacui	i     - \e[1mI\e[0mnstall Packages"
 			echo -e "  pacui	r     - \e[1mR\e[0memove Packages + Deps"
 			echo -e "  pacui	info  - Package \e[1mInfo\e[0mrmation"
+			echo -e "  pacui	ls    - \e[1mL\e[0mist Package \e[1mS\e[0mizes"
 			echo -e "  pacui	t     - Dependency \e[1mT\e[0mree"
 			echo -e "  pacui	rt    - \e[1mR\e[0meverse Dependency \e[1mT\e[0mree"
 			echo -e "  pacui	l     - \e[1mL\e[0mist Package Files"
@@ -1113,7 +1114,7 @@ This command lists all installed packages, which are from the AUR or which were 
 If you want a list of all installed packages use REMOVE PACKAGES + DEPS as described in this Help Page.
 
 
-\e[1mLIST PACKAGE SIZE
+\e[1mLIST PACKAGE SIZES
 \e[36m"package-query -Q --rsort 2 -f '%2 - %n %v'"
 This command lists all packages on your system by their installation size in bytes. The package, which has the largest installation size will be displayed on top. Both explicitly installed packages and dependencies are displayed. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-ls.
 
