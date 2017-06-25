@@ -241,8 +241,8 @@ function func_info
 
 function func_ls
 {
-		# list all packages on local system sorted by their size
-		package-query -Q --rsort 2 -f "%2 - \e[1m%n \e[0m%v" | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed packages and their installed size in bytes > ' > /tmp/pacui-ls
+		# list all packages on local system sorted by their installed size using package-query. then, convert to human-readable format using numfmt and displaying the result using fzf.
+		package-query -Q --rsort 2 -f "%2 - \e[1m%n \e[0m%v" | numfmt --to=iec | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed packages and their installed size in bytes > ' > /tmp/pacui-ls
 
 
 }
@@ -1116,7 +1116,7 @@ If you want a list of all installed packages use REMOVE PACKAGES + DEPS as descr
 
 \e[1mLIST PACKAGE SIZES
 \e[36m"package-query -Q --rsort 2 -f '%2 - %n %v'"
-This command lists all packages on your system by their installation size in bytes. The package, which has the largest installation size will be displayed on top. Both explicitly installed packages and dependencies are displayed. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-ls.
+This command lists all packages on your system by their installation size. Both explicitly installed packages and dependencies are displayed. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-ls.
 
 
 \e[1mDOWNGRADE PACKAGES
