@@ -925,7 +925,7 @@ This command limits all log files in journalctl to a combined size of 50 megabyt
 
 \e[36m"paccache -ruvk1"
 \e[36m"paccache -rvk3"
-By default Pacman uses this cache directory for downloading packages: /var/cache/pacman/pkg/... . No cached packages get deleted automatically. This enables you to DOWNGRADE PACKAGES, which are broken, without a working internet connection. The package cache of an old and actively used Manjaro installation can become quite large. Clean it to regain space on your root partition.
+By default Pacman uses this cache directory for downloading packages: /var/cache/pacman/pkg/... . No cached packages get deleted automatically. The package cache of an old and actively used Manjaro installation can become quite large. Clean it to regain space on your root partition.
 The first command removes all packages from cache, which are not installed (anymore) on your system, except the latest version. 
 The second command removes all old packages from your cache except the 3 latest versions: The version you have currently installed on your system and 2 previous versions. Old package versions are kept to enable you to use ROLL BACK SYSTEM (or to manually downgrade packages) even without a working internet connection.
 
@@ -983,7 +983,7 @@ By default, the results are filtered for files located in usr/bin/, but you can 
 \e[1m10 - SEARCH PACKAGE FILES
 \e[36m"pacman -Ql | grep <FILE NAME>"
 \e[36m"sudo pacman -Fysx <FILE NAME>" \e[0m(only for packages not installed on your system)
-In some situations, Pacman (e.g. during UPDATE SYSTEM) cannot find a file, for example a shared library. An error message is shown about <FILE NAME>. Use SEARCH PACKAGE FILES to find out, which package has installed <FILE NAME>. In most cases, you can fix the Pacman error by using one of the following options on that package: UPDATE SYSTEM, FORCE REMOVE PACKAGES and INSTALL PACKAGES, FORCE UPDATE SYSTEM, or DOWNGRADE PACKAGES.
+In some situations, Pacman (e.g. during UPDATE SYSTEM) cannot find a file, for example a shared library. An error message is shown about <FILE NAME>. Use SEARCH PACKAGE FILES to find out, which package has installed <FILE NAME>. In most cases, you can fix the Pacman error by using one of the following options on that package: UPDATE SYSTEM, ROLL BACK SYSTEM, FORCE REMOVE PACKAGES and INSTALL PACKAGES, or FORCE UPDATE SYSTEM.
 The first command searches for <FILE NAME> in all your installed packages. <FILE NAME> can contain regular expressions.
 The second command syncs the file database with the Manjaro repositories and then searches the file database for <FILE NAME>.
 As a result, <MANJARO REPOSITORY>/<PACKAGE NAME> and the complete path to <FILE NAME> gets displayed using fzf. <MANJARO REPOSITORY> gets only displayed, if <PACKAGE NAME> is not installed on your system. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-s.
@@ -1054,7 +1054,7 @@ This command imports all keys for pacman into GPG. This essentially means that t
 \e[36m"sudo pacman -Sc"
 After an unseccessful attempt to update your system (which quit with a key error), you might have already downloaded unsigned packages to your pacman cache. These packages cannot be installed anymore.
 This command removes all packages from your pacman cache, which are not installed on your system. Afterwards, you need to download all previously downloaded but not installed packages again.
-\e[1mAttention\e[0m: This command makes it impossible to DOWNGRADE PACKAGES on systems without an active internet connection.
+\e[1mAttention\e[0m: This command makes it impossible to ROLL BACK SYSTEM on systems without an internet connection.
 
 \e[36m"sudo pacman -S --needed libsystemd systemd-sysvcompat systemd && sleep 30"
 The first command updates - if necessary - systemd including important components before all other packages are updated. This is necessary, because sometimes a successful update of systemd causes a short crash on some systems, which prevents a successful update of all other packages.
@@ -1085,7 +1085,7 @@ This command does the same as UPDATE SYSTEM, but it bypasses file conflict tests
 \e[1;31m16 - EMPTY PACKAGE CACHE
 \e[36m"yaourt -Scc"
 This command will empty your entire package cache by deleting ALL packages.
-\e[1mAttention\e[0m: This will make it impossible to reinstall old (or currently installed) packages or DOWNGRADE PACKAGES without a working internet connection.
+\e[1mAttention\e[0m: This will make it impossible to ROLL BACK SYSTEM without a working internet connection.
 
 
 \e[1;31m17 - FORCE INSTALL PACKAGES
@@ -1120,7 +1120,7 @@ If you want a list of all installed packages use REMOVE PACKAGES + DEPS as descr
 This command lists all packages on your system by their installation size. Both explicitly installed packages and dependencies are displayed. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-ls.
 
 
-\e[1mDOWNGRADE PACKAGES
+\e[1mPACKAGES
 \e[36m"downgrade <PACKAGE NAME>"
 Manjaro uses a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. If the latest version of a packages does not work on your system, you can downgrade that package to an earlier, working version.
 This command downgrades <PACKAGE NAME> and offers you a list of old <PACKAGE NAME> versions to choose from. This list includes all old <PACKAGE NAME> versions from your local package cache and online sources (if you have a working internet connection). 
