@@ -870,8 +870,8 @@ function func_h
 
 PacUI is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Pacaur/Yaourt as back ends. If Pacaur is installed on your system, PacUI uses it by default. PacUI offers you the most common and useful features for managing your packages.
 
-Navigate this help page with your Arrow Keys, PageUp/PageDown Keys, SpaceBar, or your Mouse Wheel. To search this Help Page, enter /<SEARCH TERM> and press ENTER. For example, enter the following (without quotes " ") in order to search for the word "update": "/update". Search is not case sensitive. Press "n" key to continue searching for "/update". To exit this Help Page, press your "q" key.
-Most options in PacUI use fuzzy finder (fzf), which means by starting to type you can search the displayed list. Advanced users can even use regular expressions to search in fzf. Use your TAB key to select multiple items from the list and your ENTER key to choose your selection. Navigate fzf's list the same way you navigate this help page.
+Navigate this help page with your Arrow Keys, PageUp/PageDown Keys, SpaceBar, or your Mouse Wheel. To search this Help Page, enter /<SEARCH TERM> and press ENTER. For example, enter the following (without quotes " ") in order to search for the word "update": "/update". Press "n" key to continue searching for "/update". Search is not case sensitive. To exit this Help Page, press your "q" key.
+Most options in PacUI use Fuzzy Finder (fzf), which lets you search the displayed list by starting to type. Advanced users can even use regular expressions to search in fzf. Use your TAB key to select multiple items from the list and your ENTER key to choose your selection. Navigate fzf's list the same way you navigate this help page.
 
 
 \e[1mHOME SCREEN
@@ -888,7 +888,7 @@ This help page only gets displayed when entered from PacUIs UI. If "pacui h" or 
 
 \e[1m0 - QUIT PacUI
 \e[36m"clear && exit"
-This will clear your terminal an quit PacUI.
+This will clear your terminal and quit PacUI.
 
 
 \e[1m1 - UPDATE SYSTEM
@@ -905,6 +905,9 @@ This command generates a new mirrorslist of all available Manjaro repository mir
 
 \e[36m"yaourt -Qdt"
 This option lists all orphaned packages on your system. Orphaned packages are old and no longer needed dependencies (packages not explicitly installed by you), which were never removed from your system.
+
+\e[36m"sudo find -xtype l -print" \e[0m(only if there are broken symlinks)
+This command displays a list of broken symbolic links on your system. These links are not deleted by default. You have to decide yourself what to do with them. When you have doubt about deleting them, leave them on your system. They can sometimes cause problems, but they hardly use any hard drive space.
 
 \e[36m"pacman -Dk"
 This command checks your local package repository for consistency and shows missing packages, dependencies, or other errors. Please refer to "man pacman" for a more detailed explanation.
@@ -957,7 +960,6 @@ This command displays a lot of information about <PACKAGE NAME>. Different piece
 \e[1m7 - DEPENDENCIES TREE
 \e[36m"pactree -s <PACKAGE NAME>"\e[0m or \e[36m"pactree <PACKAGE NAME>"
 This command will display a complete tree of all dependencies of <PACKAGE NAME>. <PACKAGE NAME> can be an installed package or a package from the Manjaro repositories. Dependencies are packages required by <PACKAGE NAME> in order to function. When you install <PACKAGE NAME>, all its dependencies get installed, too.
-The first command gets used when <PACKAGE NAME> is not installed on your local system.
 Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-t.
 
 
@@ -990,7 +992,7 @@ As a result, <MANJARO REPOSITORY>/<PACKAGE NAME> and the complete path to <FILE 
 
 \e[1m11 - PACMAN LOG
 \e[36m"tail -5000 /var/log/pacman.log"
-The Pacman Log contains all updates, installations, and removals (also in the AUR) you have done. Whenever something breaks on your system (e.g. after an udpate), but you do not remember anymore which packages were changed recently (e.g. during the last update), take a look at your Pacman Log and find out. Then, DOWNGRADE PACKAGES, which you think might be broken.
+The Pacman Log contains all updates, installations, and removals (also in the AUR) you have done. Whenever something breaks on your system (e.g. after an udpate), but you do not remember anymore which packages were changed recently (e.g. during the last update), take a look at your Pacman Log and find out. Then, ROLL BACK SYSTEM, and downgrade the packages you think might be broken.
 This command displays the last 5000 lines of your Pacman Log and makes it searchable with fzf. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-log.
 
 
@@ -1001,7 +1003,6 @@ This command displays the last 5000 lines of your Pacman Log and makes it search
 Manjaro uses a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. Sometimes, things go wrong during UPDATE SYSTEM and you should roll back the last update.
 This command shows you a list of all recent Pacman actions sorted by date. Please select all Pacman actions you want to roll back. Installed packages will be removed from your system, removed packages will be reinstalled, and upgraded packages will be downgraded to the previous version (if this version is available in your local package cache). If you select multiple upgrades of the same package, the package gets downgraded multiple times (if this version is available in your local package cache).
 \e[1mAttention\e[0m: After downgrading a broken package to a working version, it is recommended to add the package name to your Ignore List ( "IgnorePkg" option in /etc/pacman.conf ). This will prevent Pacman from showing any available updates for this package. The package needs to be removed manually from your Ignore List in order to receive automatic updates  for it again. Alternatively, you can run future updates with the command "sudo pacman -Syu --ignore <PACKAGE NAME>" until a fixed version of that package gets released.
-\e[1mAttention\e[0m: This option of PacUI does not work for log files created by pamac!
 
 
 \e[1m13 - FIX PACMAN ERRORS
