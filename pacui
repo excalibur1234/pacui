@@ -1120,7 +1120,7 @@ If you want a list of all installed packages use REMOVE PACKAGES + DEPS as descr
 This command lists all packages on your system by their installation size. Both explicitly installed packages and dependencies are displayed. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-ls.
 
 
-\e[1mPACKAGES
+\e[1mDOWNGRADE PACKAGES
 \e[36m"downgrade <PACKAGE NAME>"
 Manjaro uses a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. If the latest version of a packages does not work on your system, you can downgrade that package to an earlier, working version.
 This command downgrades <PACKAGE NAME> and offers you a list of old <PACKAGE NAME> versions to choose from. This list includes all old <PACKAGE NAME> versions from your local package cache and online sources (if you have a working internet connection). 
