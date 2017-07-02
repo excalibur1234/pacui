@@ -1303,14 +1303,10 @@ do
 		7|t|tree)
 			func_t
 			echo
-			echo -e " Dependency tree displayed. Navigate with SHIFT+PageUp. To return to PacUI press ENTER "
-			read
 			;;
 		8|rt|reversetree)
 			func_rt
 			echo
-			echo -e " Reverse dependency tree displayed. Navigate with SHIFT+PageUp. To return to PacUI press ENTER "
-			read
 			;;
 		9|l|list)
 			func_l
