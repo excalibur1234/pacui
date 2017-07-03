@@ -552,9 +552,9 @@ function func_fix
 						sudo rm "networkmanager-dispatcher-ntpd-${version}-any.pkg.tar.xz"
 						echo ""
 					# 3. start NTP daemon, set the system clock, and quit
-					# 4. wait for 20 seconds
+					# 4. wait for 60 seconds (maximum time needed for system clock to set to new time)
 					# 5. write the time from system clock to hardare clock
-					sudo ntpd -qg && sleep 20 && sudo hwclock -w
+					sudo ntpd -qg && sleep 60 && sudo hwclock -w
 					echo ""
 				fi
 				
@@ -1029,9 +1029,9 @@ This command (re-)installs the "networkmanager-dispatcher-ntpd" package. PacUI a
 sudo timedatectl set-time "yyyy-MM-dd hh:mm:ss"
 ( example: sudo timedatectl set-time "2016-05-26 11:13:54" )
 
-\e[36m"sudo ntpd -qg && sleep 20 && sudo hwclock -w"
+\e[36m"sudo ntpd -qg && sleep 60 && sudo hwclock -w"
 The first command starts the just (re-)installed Network Time Protocol daemon (ntpd.service). Next, your system clock is set. Finally, the ntpd.service is quit.
-The second command makes your system wait for 20 seconds. This is done as precaution to ensure your system has enough time to connect to an internet or network server and set the system clock.
+The second command makes your system wait for 60 seconds. This is done as precaution to ensure your system has enough time to connect to an internet or network server and set the system clock.
 The third command is only run when the first and second command have been successfully finished. It writes the time from your system clock to your hardware clock.
 \e[1mAttention\e[0m: The last command is needed in order to prevent another services on your system to set your system clock according to your hardware clock in regular intervals. This may result in a hardware clock, which is not set to UTC anymore and/or a system clock, which shows the wrong time. If you encounter this problem read the Arch Linux Wiki article about time: "https://wiki.archlinux.org/index.php/Time"
 
