@@ -139,9 +139,9 @@ function func_c
 		
 		echo "checking installed kernels ..."
 		# check, if any installed kernel is EOL:
-		# 0. delte old temporary file to avoid strange errors. ignore all output.
+		# 0. delte old temporary file to avoid strange errors. ignore all output of "rm" command (such as output, messages, or errors).
 		rm /tmp/.installed_kernels /tmp/.available_kernels /tmp/.uptodate_kernels /tmp/.eol_kernels &>/dev/null
-		# 1. create lists of installed and available kernels
+		# 1. create lists of installed and available kernels (and ignore all errors).
 		mhwd-kernel -li 2>/dev/null | awk '/ linux/ {print $2}' > /tmp/.installed_kernels
 		mhwd-kernel -l 2>/dev/null | awk '/linux/ {print $2}' > /tmp/.available_kernels
 		# 2. Check if all installed kernels are eol:
@@ -343,7 +343,6 @@ function func_l
 				
 				# search in manjaro repositories with "pacman -Fl" --> machine readable version of output is easier to read for awk!
 				# the awk command is used to format output: "-F '\0'" set "\0" as separator. this makes it possible to easily use $1,$2,$3,$4 as syntax later.
-				# "system( "pacman -Qq " $2 " &>/dev/null" ) == 1" check exit status of "pacman -Qq <package name> &>/dev/null". if error occurs (==1), the package is not installled
 				# "{print $1 "/" $2, $4}" prints output nicely formatted.
 				pacman -Fl --machinereadable "$pkg" | awk -F '\0' '{print $1 "/" $2 "  " $4}' | grep -v "/$" | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed package name and file path > ' > /tmp/pacui-l
 				
@@ -958,6 +957,12 @@ The second command removes all old packages from your cache except the 3 latest 
 This command effectively defragments your Pacman database.
 On traditional hard drives (HDD) this command can speed up all actions related to Pacman. 
 \e[1mAttention\e[0m: It is NOT recommended to use this command on modern solid state hard drives (SSDs)!
+
+\e[36m"mhwd-kernel -li"
+\e[36m"mhwd-kernel -l" \e[0m(compare outputs of both commands)
+The first command outputs a list of <KERNEL NAME> of installed kernels on your system. 
+The second command ouputs a list of <KERNEL NAME> of available and supported kernels by the Manjaro team.
+By comparing both outputs, it is possible to extract a list of so called end-of-live kernels. These kernels are no longer supported and do not receive updates anymore. It is highly recommended to remove these kernels using Manjaro Settings Manager or the following command: "sudo mhwd-kernel -r <KERNEL NAME>"
 
 
 \e[1m3 - INSTALL PACKAGES
