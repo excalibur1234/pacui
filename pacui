@@ -54,12 +54,12 @@ function func_diff
 
 function func_c 
 {
-		echo "choosing fastest mirror ..." 
+		echo "choosing fastest mirror ..."
 		sudo pacman-mirrors -g -y
 		echo ""
 		
 		
-		echo "searching orphans ..." 
+		echo "searching orphans ..."
 		if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
 		then
 			yaourt -Qdt
@@ -85,7 +85,7 @@ function func_c
 		echo ""
 		
 		
-		echo "checking consistency of local repository ..." 
+		echo "checking consistency of local repository ..."
 		pacman -Dk
 		echo ""
 		
@@ -110,7 +110,7 @@ function func_c
 		echo ""
 		
 		
-		echo "cleaning package cache ..." 
+		echo "cleaning package cache ..."
 		# remove all packages, which are not installed on this system, except the latest verions (this is a back up, in case somebody removes networkmanager)
 		sudo paccache -rvu -k 1
 		echo ""
@@ -135,6 +135,31 @@ function func_c
 			echo ""
 			fi
 		fi
+		
+		
+		echo "checking installed kernels ..."
+		# check, if any installed kernel is EOL:
+		# 0. delte old temporary file to avoid strange errors. ignore all output.
+		rm /tmp/.installed_kernels /tmp/.available_kernels /tmp/.uptodate_kernels /tmp/.eol_kernels &>/dev/null
+		# 1. create lists of installed and available kernels
+		mhwd-kernel -li 2>/dev/null | awk '/ linux/ {print $2}' > /tmp/.installed_kernels
+		mhwd-kernel -l 2>/dev/null | awk '/linux/ {print $2}' > /tmp/.available_kernels
+		# 2. Check if all installed kernels are eol:
+		if ! [[ -z $(cat /tmp/.available_kernels) ]]   # make sure that file is not empty
+		then
+			# write all kernels, which are installed and still available to /tmp/.uptodate_kernels
+			grep -f /tmp/.available_kernels /tmp/.installed_kernels > /tmp/.uptodate_kernels
+			# write all kernels, which are NOT up-to-date anymore, but which are still installed to /tmp/.eol_kernels
+			grep -v -f /tmp/.uptodate_kernels /tmp/.installed_kernels > /tmp/.eol_kernels
+			if ! [[ -z $(cat /tmp/.eol_kernels) ]]   # make sure that file is not empty
+			then
+				echo -e "\e[1;41m The following Linux kernels have reached their end-of-live status. \e[0m"
+				echo -e "\e[1;41m Do not expect any security or stability fixes for those kernels anymore. \e[0m"
+				echo -e "\e[1;41m Kernel modules are likely to break. Please remove these Linux kernels: \e[0m"
+				cat /tmp/.eol_kernels
+			fi
+		fi
+		echo ""
 }
 
 
