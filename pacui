@@ -959,8 +959,7 @@ By comparing both outputs, it is possible to extract a list of so called end-of-
 
 
 \e[1m3 - INSTALL PACKAGES
-\e[36m"sudo pacman -S <PACKAGE NAME>" \e[0m(if <PACKAGE NAME> is in Manjaro repository)
-\e[36m"yaourt -S <PACKAGE NAME>" \e[0m(if <PACKAGE NAME> is in the AUR)
+\e[36m"yaourt -S <PACKAGE NAME>"
 This option downloads and installs <PACKAGE NAME> on your system. The list of packages shows packages from the Manjaro repository with their version number and description while package groups or packages from the AUR are only shown with their name.
 \e[1mAttention\e[0m: Experienced users can install packages from the AUR without the need to answer questions all the time by using the command "yaourt -S <PACKAGE NAME> --noconfirm". The "--noconfirm" flag is great for quick and dirty installations of AUR packages on non-secure systems. Please keep always in mind that the AUR can contain any sort of package - including malicious and destructive (parts of) packages. Therefore, it is recommended to always check the PKGBUILD and .INSTALL file manually before installing a package from the AUR.
 
@@ -1113,7 +1112,7 @@ This command will empty your entire package cache by deleting ALL packages.
 
 \e[1;31m17 - FORCE INSTALL PACKAGES
 \e[36m"sudo pacman -S --force <PACKAGE NAME>"
-This command does the same as INSTALL PACKAGES, but it forces the installation of <PACKAGE NAME>.
+This command does the same as INSTALL PACKAGES for packages from the Manjaro repositories exclusively. The installation of <PACKAGE NAME> is forced.
 
 
 \e[1;31m18 - FORCE REMOVE PACKAGES
