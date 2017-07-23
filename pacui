@@ -184,21 +184,14 @@ function func_i
 		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $pkg ]]
 		then
-			if ( package-query -S "$pkg" &>/dev/null )        # check, whether $pkg is in manjaro repositories
+			
+			if [[ ! -e /usr/bin/pacaur ]]	              # checks, whether file "pacaur" does not exist
 			then
-			
-				sudo pacman -S "$pkg" --color always
-				
+				yaourt -S "$pkg"
 			else
-			
-				if [[ ! -e /usr/bin/pacaur ]]	            # checks, whether file "pacaur" does not exist
-				then
-					yaourt -S "$pkg"
-				else
-					pacaur -S "$pkg" --color always
-				fi
-			
+				pacaur -S "$pkg" --color always
 			fi
+			
 		fi
 }
 
