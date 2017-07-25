@@ -36,6 +36,7 @@ function func_u
 function func_diff 
 {
 		# this function is not called by pacui or pacui's UI directly. instead, it gets called in func_c when no DIFFPROG is set. it provides simple file difference viewer functionality and is essentially a wrapper around "diff". therefore, this function expects 2 arguments!
+		# $(( ... )) does arithmetic evaluation. always use this when dealing with numbers, instead of strings - $[[ ... ]] does sting evaluation!
 
 		local {temp,temp2,temp3}                                          # define local variables
 		temp2="$( echo "$input2" | awk '{print $1}' )"                    # second argument of "pacui diff temp2 temp3"
