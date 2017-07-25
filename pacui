@@ -90,13 +90,13 @@ function func_c
 		echo ""
 		
 		
-		echo "sudo pacdiff ..." 
+		echo "pacdiff ..." 
 		if [[ -n $DIFFPROG ]]     # this if-condition avoids error message when $DIFFPROG is not set/empty
 		then
-			sudo pacdiff
+			pacdiff
 		else
 			# use pacdiff to search for .pacnew and .pacsave files. display both the original and the used config file using "pacui_diff" function defined above.
-			sudo DIFFPROG="pacui --diff" pacdiff
+			DIFFPROG="pacui --diff" pacdiff
 		fi
 		echo ""
 		
