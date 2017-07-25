@@ -153,9 +153,9 @@ function func_c
 			grep -v -f /tmp/.uptodate_kernels /tmp/.installed_kernels > /tmp/.eol_kernels
 			if ! [[ -z $(cat /tmp/.eol_kernels) ]]   # make sure that file is not empty
 			then
-				echo -e "\e[1;41m The following Linux kernels have reached their end-of-live status. \e[0m"
-				echo -e "\e[1;41m Do not expect any security or stability fixes for those kernels anymore. \e[0m"
-				echo -e "\e[1;41m Kernel modules are likely to break. Please remove these Linux kernels: \e[0m"
+				echo -e "\e[1m The following Linux kernels have reached their end-of-live status. \e[0m"
+				echo -e "\e[1m Do not expect any security or stability fixes for those kernels anymore. \e[0m"
+				echo -e "\e[1m Kernel modules are likely to break. Please remove these Linux kernels: \e[0m"
 				cat /tmp/.eol_kernels
 			fi
 		fi
