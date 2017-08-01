@@ -518,7 +518,7 @@ function func_b
 
 function func_fix 
 {
-		echo "sudo rm -f /var/lib/pacman/db.lck ..."
+		echo "removing pacman database lock ..."
 		sudo rm -f /var/lib/pacman/db.lck
 		echo ""
 		
@@ -615,7 +615,7 @@ function func_fix
 				echo "keyring /etc/pacman.d/gnupg/pubring.gpg" >> $HOME/.gnupg/gpg.conf
 			fi			
 
-			echo "sudo pacman -Sc --noconfirm ..."
+			echo "cleaning pacman cache ..."
 			sudo pacman -Sc --noconfirm
 			echo ""
 			
@@ -1292,7 +1292,7 @@ do
 			func_u
 			echo
 			echo -e " System updated. To return to PacUI press ENTER "
-			# wait for input, e.g. by pressing ENTER
+			# wait for input, e.g. by pressing ENTER:
 			read
 			;;
 		2|c|clean)
