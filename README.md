@@ -38,7 +38,7 @@ Home Screen of PacUI's UI:
 
 Installing the package "cantata" from the Manjaro repositories:
 
-![Screenshot 02](https://s32.postimg.org/50okof26t/pacli-simple2.gif)
+![Screenshot 02](https://s3.postimg.org/xvgqwhe1f/install.gif)
 
 
 ## Installation
