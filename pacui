@@ -167,14 +167,19 @@ function func_c
 function func_i 
 {
 		# check, whether file /tmp/pacui-packages-install already exists (the ! negates the result)
-		if  [[ ! -e /tmp/pacui-packages-install ]]
+		if  [[  -e /tmp/pacui-packages-install ]]
 		then
 			# the "package-query -Sl -f '%n  %v  -  %d' " displays a list of all packages from the Manjaro repositories and formats them like "NAME  VERSION  -  DESCRIPTION".
 			# write formatted package list of Manjaro repositories to /tmp/pacui-packages-install. then add all package groups to the bottom.
-			# finally, download AUR package list, unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages-install.
 			package-query -Sl -f "\e[1m%n\e[0m" | awk '{print $1}' > /tmp/pacui-packages-install
 			package-query -Sg | awk '{print $1}' | sort -u >> /tmp/pacui-packages-install
-			wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null && gunzip -f /tmp/aur/packages.gz && cat /tmp/aur/packages >> /tmp/pacui-packages-install
+			
+			# finally, download AUR package list (only when not already downloaded), unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages-install.
+			if  [[ ! -e /tmp/aur/packages ]]
+			then
+				wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null && gunzip -f /tmp/aur/packages.gz
+			fi
+			cat /tmp/aur/packages >> /tmp/pacui-packages-install
 		fi
 		
 		local pkg
@@ -258,7 +263,13 @@ function func_info
 		then
 			# write package list of repositories to /tmp/pacui-packages: download AUR package list to /tmp/aur/packages.gz, unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages.
 			pacman -Slq > /tmp/pacui-packages
-			wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null && gunzip -f /tmp/aur/packages.gz && cat /tmp/aur/packages >> /tmp/pacui-packages
+
+			# download AUR package list (only when not already downloaded), unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages-install.
+			if  [[ ! -e /tmp/aur/packages ]]
+			then
+				wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null && gunzip -f /tmp/aur/packages.gz
+			fi
+			cat /tmp/aur/packages >> /tmp/pacui-packages
 		fi
 			
 		# the following command lets you search through the file "/tmp/pacui-packages" with fzf and save your selection in "pkg"
@@ -801,10 +812,10 @@ function func_e
 function func_fi 
 {
 		# check, whether file /tmp/pacui-packages-group-manjaro already exists (the ! negates the result)
-		if ! [[ -e /tmp/pacui-packages-group-manjaro ]]
+		if [[ ! -e /tmp/pacui-packages-group-manjaro ]]
 		then
 			# write formatted package list of Manjaro repositories to /tmp/pacui-packages-group-manjaro. then add all package groups to the bottom.
-			package-query -Sl -f "\e[1m%n \e[0m%v  -  %d" | awk '{print $1}' > /tmp/pacui-packages-group-manjaro
+			package-query -Sl -f "\e[1m%n\e[0m" | awk '{print $1}' > /tmp/pacui-packages-group-manjaro
 			package-query -Sg | awk '{print $1}' | sort -u >> /tmp/pacui-packages-group-manjaro
 		fi
 		
