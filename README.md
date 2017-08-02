@@ -119,16 +119,16 @@ p u
 ```
 
 #### Search syntax
-PacUI uses [fuzzy finder (fzf)](https://github.com/junegunn/fzf) to display lists and by starting to type, you can easily search/filter those lists. Advanced users can use regular expressions to improve their search results. Simply type in multiple search terms delimited by spaces. e.g. `^music .mp3$ sbtrkt !fire`
+PacUI uses [fuzzy finder (fzf)](https://github.com/junegunn/fzf) to display lists of items (such as packages, package groups, logs, patchs, etc.) and by starting to type, you can easily search/filter those lists. Advanced users can use regular expressions to improve their search results. Simply type in multiple search terms delimited by spaces. e.g. `^music git$ sbtrkt !fire`
 
-| Token    | Match type                 | Description                       |
-| -------- | -------------------------- | --------------------------------- |
-| `sbtrkt` | fuzzy-match                | Items that match `sbtrkt`         |
-| `^music` | prefix-exact-match         | Items that start with `music`     |
-| `.mp3$`  | suffix-exact-match         | Items that end with `.mp3`        |
-| `'wild`  | exact-match (quoted)       | Items that include `wild`         |
-| `!fire`  | inverse-exact-match        | Items that do not include `fire`  |
-| `!.mp3$` | inverse-suffix-exact-match | Items that do not end with `.mp3` |
+| Search Term | Description                       |
+| ----------- | --------------------------------- |
+|  `sbtrkt`   | Items that match `sbtrkt`         |
+|  `^music`   | Items that start with `music`     |
+|  `git$`     | Items that end with `git`         |
+|  `'wild`    | Items that include `wild`         |
+|  `!fire`    | Items that do not include `fire`  |
+|  `!-git$`   | Items that do not end with `-git` |
 
 A single bar character term acts as an OR operator. For example, the following query matches entries that start with `core` and end with either `go`, `rb`, or `py`.
 ```
