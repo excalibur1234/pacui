@@ -201,7 +201,7 @@ function func_i
 					pacaur -Si {} --color always
 				fi
 			fi
-			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Manipulate string to filter list > ' )
+			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
 		
 		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $pkg ]]
@@ -242,7 +242,7 @@ function func_r
 				fi
 
 			fi
-			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Manipulate string to filter list > ' )
+			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
         
 		if [[ -n $pkg ]]
 		then
@@ -263,7 +263,7 @@ function func_info
 			
 		# the following command lets you search through the file "/tmp/pacui-packages" with fzf and save your selection in "pkg"
 		local pkg
-		pkg=$( sort -u -i /tmp/pacui-packages | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to display info. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed list of packages > ')
+		pkg=$( sort -u -i /tmp/pacui-packages | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to display info. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
 		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $pkg ]]
@@ -313,7 +313,7 @@ function func_t
 		fi
 
 		local pkg
-		pkg=$( sort -u -i /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed list of packages > ')
+		pkg=$( sort -u -i /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
 		# look in func_info for explanations
 		if [[ -n $pkg ]]
@@ -331,7 +331,7 @@ function func_t
 function func_rt 
 {
 		local pkg
-		pkg=$( pacman -Qq | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to show reverse tree. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed list of packages > ')
+		pkg=$( pacman -Qq | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to show reverse tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
 		# look in func_info for explanations
 		if [[ -n $pkg ]]
@@ -352,7 +352,7 @@ function func_l
 		fi
 		
 		local pkg
-		pkg=$( sort -u -i /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed list of packages > ')
+		pkg=$( sort -u -i /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
 		if [[ -n $pkg ]]
 		then
@@ -460,7 +460,7 @@ function func_b
 		fi
 
 		# 1. get list of last installs/upgrades/removes from pacman log and display result in fzf. in the end, fzf saves all selected package names (including the words "installed/upgraded/removed/downgraded" to file /tmp/pacui-cache-packages
-		tail -2000 /var/log/pacman.log | grep "\[ALPM\]" | grep "installed\|removed\|upgraded" | sed 's/\[ALPM\] //g' | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --tac --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to roll back. ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}' > /tmp/pacui-cache-packages
+		tail -2000 /var/log/pacman.log | grep "\[ALPM\]" | grep "installed\|removed\|upgraded" | sed 's/\[ALPM\] //g' | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --tac --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to roll back. ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}' > /tmp/pacui-cache-packages
 		
 		# only run the command inside the if-statement, if file /tmp/pacui-cache-packages is not empty and exists - this happens when fzf is quit with ESC or CTRL+C
 		if [[ -s /tmp/pacui-cache-packages ]]
@@ -733,7 +733,7 @@ function func_conf
 		local file
 
 		# echo -e "$( cat '/tmp/pacui-conf' )"  -- this command interprets the ANSI escape sequences contained in /tmp/pacui-conf.
-		file=$( echo -e "$( cat '/tmp/pacui-conf' )" | fzf-tmux -e +s -i -1 --ansi --cycle --query="$input2" --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to open file. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed list of files > ' | awk '{print $1}' )
+		file=$( echo -e "$( cat '/tmp/pacui-conf' )" | fzf-tmux -e +s -i -1 --ansi --cycle --query="$input2" --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to open file. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of files > ' | awk '{print $1}' )
 		
 		# only run the command inside the if-statement, if $file variable is not empty <-- this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $file ]]
@@ -830,7 +830,7 @@ function func_fi
 					pacaur -Si {} --color always
 				fi
 			fi
-			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Manipulate string to filter list > ' )
+			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
 		
 		if [[ -n $pkg ]]
 		then
@@ -862,7 +862,7 @@ function func_fr
 				fi
 
 			fi
-			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Manipulate string to filter list > ' )
+			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
 		
 		if [[ -n $pkg ]]
 		then
