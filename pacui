@@ -180,7 +180,7 @@ function func_i
 		local pkg
 		
 		# the first part (="NAME") of package list in /tmp/pacui-packages-install-group-manjaro gets (printed and) saved to the "pkg" variable.
-		pkg=$( sort -u /tmp/pacui-packages-install | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+		pkg=$( sort -u -i /tmp/pacui-packages-install | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
 			then
 				if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
@@ -191,7 +191,7 @@ function func_i
 				fi
 			elif ( pacman -Sgq {} &>/dev/null )		# check, if selected line in fzf is a package group
 			then
-				echo -e "\e[1m{} group has the following memebers: \e[0m"
+				echo -e "\e[1m{} group has the following members: \e[0m"
 				pacman -Sgq {}
 			else									# do this if line is neither a group nor locally installed
 				if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
@@ -201,7 +201,7 @@ function func_i
 					pacaur -Si {} --color always
 				fi
 			fi
-			' --preview-window=right:45%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Manipulate string to filter list > ' )
+			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Manipulate string to filter list > ' )
 		
 		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $pkg ]]
@@ -228,10 +228,10 @@ function func_r
 		
 		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
-		pkg=$( sort -u /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+		pkg=$( sort -u -i /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			if ( pacman -Sgq {} &>/dev/null )		# check, if selected line in fzf is a package group
 			then
-				echo -e "\e[1m{} group has the following memebers: \e[0m"
+				echo -e "\e[1m{} group has the following members: \e[0m"
 				pacman -Sgq {}
 			else									# selected line has to be a locally installed pacakge in all other cases
 				if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
@@ -242,7 +242,7 @@ function func_r
 				fi
 
 			fi
-			' --preview-window=right:45%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Manipulate string to filter list > ' )
+			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Manipulate string to filter list > ' )
         
 		if [[ -n $pkg ]]
 		then
@@ -263,7 +263,7 @@ function func_info
 			
 		# the following command lets you search through the file "/tmp/pacui-packages" with fzf and save your selection in "pkg"
 		local pkg
-		pkg=$(sort -u /tmp/pacui-packages | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to display info. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed list of packages > ')
+		pkg=$( sort -u -i /tmp/pacui-packages | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to display info. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed list of packages > ')
 		
 		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $pkg ]]
@@ -313,7 +313,7 @@ function func_t
 		fi
 
 		local pkg
-		pkg=$(sort -u /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed list of packages > ')
+		pkg=$( sort -u -i /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed list of packages > ')
 		
 		# look in func_info for explanations
 		if [[ -n $pkg ]]
@@ -331,7 +331,7 @@ function func_t
 function func_rt 
 {
 		local pkg
-		pkg=$(pacman -Qq | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to show reverse tree. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed list of packages > ')
+		pkg=$( pacman -Qq | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to show reverse tree. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed list of packages > ')
 		
 		# look in func_info for explanations
 		if [[ -n $pkg ]]
@@ -352,7 +352,7 @@ function func_l
 		fi
 		
 		local pkg
-		pkg=$( sort -u /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed list of packages > ')
+		pkg=$( sort -u -i /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed list of packages > ')
 		
 		if [[ -n $pkg ]]
 		then
@@ -441,7 +441,7 @@ function func_d
 		fi
 		
 		local pkg
-		pkg=$(sort -u /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to downgrade. ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
+		pkg=$( sort -u -i /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to downgrade. ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
 		downgrade "$pkg"
 }
@@ -809,7 +809,7 @@ function func_fi
 		fi
 		
 		local pkg
-		pkg=$( sort -u /tmp/pacui-packages-install | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+		pkg=$( sort -u -i /tmp/pacui-packages-install | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
 			then
 				if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
@@ -820,7 +820,7 @@ function func_fi
 				fi
 			elif ( pacman -Sgq {} &>/dev/null )		# check, if selected line in fzf is a package group
 			then
-				echo -e "\e[1m{} group has the following memebers: \e[0m"
+				echo -e "\e[1m{} group has the following members: \e[0m"
 				pacman -Sgq {}
 			else									# do this if line is neither a group nor locally installed
 				if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
@@ -830,7 +830,7 @@ function func_fi
 					pacaur -Si {} --color always
 				fi
 			fi
-			' --preview-window=right:45%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Manipulate string to filter list > ' )
+			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Manipulate string to filter list > ' )
 		
 		if [[ -n $pkg ]]
 		then
@@ -848,10 +848,10 @@ function func_fr
 		local pkg
 		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
-		pkg=$( sort -u /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+		pkg=$( sort -u -i /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			if ( pacman -Sgq {} &>/dev/null )		# check, if selected line in fzf is a package group
 			then
-				echo -e "\e[1m{} group has the following memebers: \e[0m"
+				echo -e "\e[1m{} group has the following members: \e[0m"
 				pacman -Sgq {}
 			else									# selected line has to be a locally installed pacakge in all other cases
 				if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
@@ -862,7 +862,7 @@ function func_fr
 				fi
 
 			fi
-			' --preview-window=right:45%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Manipulate string to filter list > ' )
+			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Manipulate string to filter list > ' )
 		
 		if [[ -n $pkg ]]
 		then
