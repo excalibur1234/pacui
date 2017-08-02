@@ -950,15 +950,12 @@ function func_h
 			echo -e "  pacui	c     - \e[1mC\e[0mlean System"
 			echo -e "  pacui	i     - \e[1mI\e[0mnstall Packages"
 			echo -e "  pacui	r     - \e[1mR\e[0memove Packages + Deps"
-			echo -e "  pacui	info  - Package \e[1mInfo\e[0mrmation"
-			echo -e "  pacui	ls    - \e[1mL\e[0mist Packages by \e[1mS\e[0mize"
 			echo -e "  pacui	t     - Dependency \e[1mT\e[0mree"
 			echo -e "  pacui	rt    - \e[1mR\e[0meverse Dependency \e[1mT\e[0mree"
 			echo -e "  pacui	l     - \e[1mL\e[0mist Package Files"
 			echo -e "  pacui	s     - \e[1mS\e[0mearch Package Files"
 			echo
 			echo -e "  pacui	log   - Pacman \e[1mLog\e[0m"
-			echo -e "  pacui	d     - \e[1mD\e[0mowngrade Packages"
 			echo -e "  pacui	b     - Roll \e[1mB\e[0mack System"
 			echo -e "  pacui	fix   - \e[1mFix\e[0m Pacman Errors"
 			echo -e "  pacui	conf  - \e[1mConf\e[0migure System"
@@ -968,8 +965,12 @@ function func_h
 			echo -e "  \e[31mpacui	fr    \e[0m- \e[1mF\e[0morce \e[1mR\e[0memove Packages"
 			echo
 			echo -e "  pacui	ua    - Force \e[1mU\e[0mpdate \e[1mA\e[0mUR"
-			echo -e "  pacui	a     - Search + Install from \e[1mA\e[0mUR"
 			echo -e "  pacui	la    - \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
+			echo
+			echo -e "  pacui	info  - Package \e[1mInfo\e[0mrmation"
+			echo -e "  pacui	ls    - \e[1mL\e[0mist Packages by \e[1mS\e[0mize"
+			echo -e "  pacui	d     - \e[1mD\e[0mowngrade Packages"
+			echo -e "  pacui	a     - Search + Install from \e[1mA\e[0mUR"
 			echo
 			echo -e "  pacui	h     - \e[1mH\e[0melp. For detailed help, please start User Interface first."
 			
