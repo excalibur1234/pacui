@@ -167,20 +167,41 @@ function func_c
 function func_i 
 {
 		# check, whether file /tmp/pacui-packages-install already exists (the ! negates the result)
-		if ! [[ -e /tmp/pacui-packages-install ]]
+		if  [[ ! -e /tmp/pacui-packages-install ]]
 		then
 			# the "package-query -Sl -f '%n  %v  -  %d' " displays a list of all packages from the Manjaro repositories and formats them like "NAME  VERSION  -  DESCRIPTION".
 			# write formatted package list of Manjaro repositories to /tmp/pacui-packages-install. then add all package groups to the bottom.
 			# finally, download AUR package list, unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages-install.
-			package-query -Sl -f "\e[1m%n \e[0m%v  -  %d" > /tmp/pacui-packages-install
-			pacman -Sg >> /tmp/pacui-packages-install
+			package-query -Sl -f "\e[1m%n\e[0m" | awk '{print $1}' > /tmp/pacui-packages-install
+			package-query -Sg | awk '{print $1}' | sort -u >> /tmp/pacui-packages-install
 			wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null && gunzip -f /tmp/aur/packages.gz && cat /tmp/aur/packages >> /tmp/pacui-packages-install
 		fi
 		
 		local pkg
 		
 		# the first part (="NAME") of package list in /tmp/pacui-packages-install-group-manjaro gets (printed and) saved to the "pkg" variable.
-		pkg=$(sort -u /tmp/pacui-packages-install | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages and groups > ' | awk '{print $1}' )
+		pkg=$(sort -u /tmp/pacui-packages-install | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
+			then
+				if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
+				then
+					yaourt -Qi {}
+				else 				
+					pacaur -Qi {} --color always
+				fi
+			elif ( pacman -Sgq {} &>/dev/null )		# check, if selected line in fzf is a package group
+			then
+				echo -e "\e[1m{} group has the following memebers: \e[0m"
+				pacman -Sgq {}
+			else									# do this if line is neither a group nor locally installed
+				if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
+				then 
+					yaourt -Si {}
+				else 
+					pacaur -Si {} --color always
+				fi
+			fi
+			' --preview-window=right:50%:wrap  --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list of packages and groups > ' )
 		
 		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $pkg ]]
@@ -200,14 +221,28 @@ function func_i
 function func_r 
 {
 		# write formatted package list of local repository to /tmp/pacui-packages-group. then add all installed package groups to the bottom (this makes it easier to remove package groups).
-		package-query -Q -f "\e[1m%n \e[0m%v  -  %d" > /tmp/pacui-packages-group
-		package-query -Qg >> /tmp/pacui-packages-group
+		package-query -Q -f "\e[1m%n\e[0m" | awk '{print $1}' > /tmp/pacui-packages-group
+		package-query -Qg | awk '{print $1}' >> /tmp/pacui-packages-group
 		
 		local pkg
 		
 		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
-		pkg=$( sort -u /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to remove. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
+		pkg=$( sort -u /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+			if ( pacman -Sgq {} &>/dev/null )		# check, if selected line in fzf is a package group
+			then
+				echo -e "\e[1m{} group has the following memebers: \e[0m"
+				pacman -Sgq {}
+			else									# selected line has to be a locally installed pacakge in all other cases
+				if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
+				then
+					yaourt -Qi {}
+				else 				
+					pacaur -Qi {} --color always
+				fi
+
+			fi
+			' --preview-window=right:50%:wrap --header="Press TAB to (un)select. Press ENTER to remove. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list of packages and groups > ' )
         
 		if [[ -n $pkg ]]
 		then
@@ -234,7 +269,7 @@ function func_info
 		if [[ -n $pkg ]]
 		then
 			# next, it is checked, whether "pkg" is part of a list of all installed packages (pacman -Qq).
-			if ( pacman -Qq "$pkg" &>/dev/null )
+			if ( pacman -Qq "$pkg" 2>/dev/null )
 			then
 			
 				if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
@@ -397,8 +432,13 @@ function func_log
 
 function func_d
 {
-		pacman -Slq > /tmp/pacui-packages-local
-		pacman -Qq >> /tmp/pacui-packages-local
+		# check, whether file /tmp/pacui-packages-local already exists (the ! negates the result)
+		if [[ ! -e /tmp/pacui-packages-local ]]
+		then
+			# write package list of Manjaro repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
+			pacman -Slq > /tmp/pacui-packages-local
+			pacman -Qq >> /tmp/pacui-packages-local
+		fi
 		
 		local pkg
 		pkg=$(sort -u /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to downgrade. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
@@ -750,6 +790,10 @@ function func_e
 			yaourt -Scc
 		else
 			pacaur -Scc --color always
+
+			echo
+			echo -e "\e[1mPlease look manually at your cache folder and remove all unwanted files:\e[0m"
+			echo "$HOME/.cache/pacaur/"
 		fi
 }
 
