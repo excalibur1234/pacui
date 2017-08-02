@@ -857,7 +857,7 @@ function func_h
 			echo -e "  pacui	i     - \e[1mI\e[0mnstall Packages"
 			echo -e "  pacui	r     - \e[1mR\e[0memove Packages + Deps"
 			echo -e "  pacui	info  - Package \e[1mInfo\e[0mrmation"
-			echo -e "  pacui	ls    - \e[1mL\e[0mist Package \e[1mS\e[0mizes"
+			echo -e "  pacui	ls    - \e[1mL\e[0mist Packages by \e[1mS\e[0mize"
 			echo -e "  pacui	t     - Dependency \e[1mT\e[0mree"
 			echo -e "  pacui	rt    - \e[1mR\e[0meverse Dependency \e[1mT\e[0mree"
 			echo -e "  pacui	l     - \e[1mL\e[0mist Package Files"
@@ -978,6 +978,11 @@ Please note that folders in your home (~) directory and created by the program <
 \e[1m5 - PACKAGE INFORMATION
 \e[36m"yaourt -Sii <PACKAGE NAME>"\e[0m or \e[36m"yaourt -Qii <PACKAGE NAME>"
 This command displays a lot of information about <PACKAGE NAME>. Different pieces of information get displayed depending on package source (Manjaro repository or AUR) and package state (installed or not installed).
+
+
+\e[1m6 - LIST PACKAGES BY SIZE
+\e[36m"package-query -Q --rsort 2 -f '%2 - %n %v'"
+This command lists all packages on your system sorted by their installation size. Both explicitly installed packages and dependencies are displayed. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-ls.
 
 
 \e[1m7 - DEPENDENCIES TREE
@@ -1138,11 +1143,6 @@ This command lists all installed packages, which are from the AUR or which were 
 If you want a list of all installed packages use REMOVE PACKAGES + DEPS as described in this Help Page.
 
 
-\e[1mLIST PACKAGE SIZES
-\e[36m"package-query -Q --rsort 2 -f '%2 - %n %v'"
-This command lists all packages on your system by their installation size. Both explicitly installed packages and dependencies are displayed. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-ls.
-
-
 \e[1mDOWNGRADE PACKAGES
 \e[36m"downgrade <PACKAGE NAME>"
 Manjaro uses a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. If the latest version of a packages does not work on your system, you can downgrade that package to an earlier, working version.
@@ -1262,7 +1262,7 @@ do
 	echo -e " │    1   \e[1mU\e[0mpdate System                 2   \e[1mC\e[0mlean System               │"
 	echo -e " │    3   \e[1mI\e[0mnstall Packages              4   \e[1mR\e[0memove Packages + Deps     │"
 	echo -e " │---------------------------------------------------------------------│"
-	echo -e " │    5   Package \e[1mInfo\e[0mrmation                                          │"
+	echo -e " │    5   Package \e[1mInfo\e[0mrmation           6   \e[1mL\e[0mist Packages by \e[1mS\e[0mize      │"
 	echo -e " │    7   Dependency \e[1mT\e[0mree               8   \e[1mR\e[0meverse Dependency \e[1mT\e[0mree    │"
 	echo -e " │    9   \e[1mL\e[0mist Package Files           10   \e[1mS\e[0mearch Package Files       │"
 	echo -e " └─────────────────────────────────────────────────────────────────────┘"
