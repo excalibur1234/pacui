@@ -180,7 +180,7 @@ function func_i
 		local pkg
 		
 		# the first part (="NAME") of package list in /tmp/pacui-packages-install-group-manjaro gets (printed and) saved to the "pkg" variable.
-		pkg=$(sort -u /tmp/pacui-packages-install | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+		pkg=$( sort -u /tmp/pacui-packages-install | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
 			then
 				if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
@@ -201,7 +201,7 @@ function func_i
 					pacaur -Si {} --color always
 				fi
 			fi
-			' --preview-window=right:50%:wrap  --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list of packages and groups > ' )
+			' --preview-window=right:45%:wrap  --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter list > ' )
 		
 		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $pkg ]]
@@ -242,7 +242,7 @@ function func_r
 				fi
 
 			fi
-			' --preview-window=right:50%:wrap --header="Press TAB to (un)select. Press ENTER to remove. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list of packages and groups > ' )
+			' --preview-window=right:45%:wrap --header="Press TAB to (un)select. Press ENTER to remove. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter list > ' )
         
 		if [[ -n $pkg ]]
 		then
@@ -263,7 +263,7 @@ function func_info
 			
 		# the following command lets you search through the file "/tmp/pacui-packages" with fzf and save your selection in "pkg"
 		local pkg
-		pkg=$(sort -u /tmp/pacui-packages | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to display info. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
+		pkg=$(sort -u /tmp/pacui-packages | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to display info. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed list of packages > ')
 		
 		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $pkg ]]
@@ -296,7 +296,7 @@ function func_info
 function func_ls
 {
 		# list all packages on local system sorted by their installed size using package-query. then, convert to human-readable format using numfmt and displaying the result using fzf.
-		package-query -Q --rsort 2 -f "%2 - \e[1m%n \e[0m%v" | numfmt --to=iec | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed packages > ' > /tmp/pacui-ls
+		package-query -Q --rsort 2 -f "%2 - \e[1m%n \e[0m%v" | numfmt --to=iec | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-ls
 
 
 }
@@ -331,7 +331,7 @@ function func_t
 function func_rt 
 {
 		local pkg
-		pkg=$(pacman -Qq | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to show reverse tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
+		pkg=$(pacman -Qq | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to show reverse tree. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed list of packages > ')
 		
 		# look in func_info for explanations
 		if [[ -n $pkg ]]
@@ -352,7 +352,7 @@ function func_l
 		fi
 		
 		local pkg
-		pkg=$( sort -u /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
+		pkg=$( sort -u /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed list of packages > ')
 		
 		if [[ -n $pkg ]]
 		then
@@ -460,7 +460,7 @@ function func_b
 		fi
 
 		# 1. get list of last installs/upgrades/removes from pacman log and display result in fzf. in the end, fzf saves all selected package names (including the words "installed/upgraded/removed/downgraded" to file /tmp/pacui-cache-packages
-		tail -2000 /var/log/pacman.log | grep "\[ALPM\]" | grep "installed\|removed\|upgraded" | sed 's/\[ALPM\] //g' | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --tac --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to roll back. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}' > /tmp/pacui-cache-packages
+		tail -2000 /var/log/pacman.log | grep "\[ALPM\]" | grep "installed\|removed\|upgraded" | sed 's/\[ALPM\] //g' | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --tac --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to roll back. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}' > /tmp/pacui-cache-packages
 		
 		# only run the command inside the if-statement, if file /tmp/pacui-cache-packages is not empty and exists - this happens when fzf is quit with ESC or CTRL+C
 		if [[ -s /tmp/pacui-cache-packages ]]
@@ -733,7 +733,7 @@ function func_conf
 		local file
 
 		# echo -e "$( cat '/tmp/pacui-conf' )"  -- this command interprets the ANSI escape sequences contained in /tmp/pacui-conf.
-		file=$( echo -e "$( cat '/tmp/pacui-conf' )" | fzf-tmux -e +s -i -1 --ansi --cycle --query="$input2" --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to open file. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of files > ' | awk '{print $1}' )
+		file=$( echo -e "$( cat '/tmp/pacui-conf' )" | fzf-tmux -e +s -i -1 --ansi --cycle --query="$input2" --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to open file. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed list of files > ' | awk '{print $1}' )
 		
 		# only run the command inside the if-statement, if $file variable is not empty <-- this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $file ]]
@@ -830,7 +830,7 @@ function func_fi
 					pacaur -Si {} --color always
 				fi
 			fi
-			' --preview-window=right:50%:wrap  --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list of packages and groups > ' )
+			' --preview-window=right:45%:wrap  --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter list > ' )
 		
 		if [[ -n $pkg ]]
 		then
@@ -862,7 +862,7 @@ function func_fr
 				fi
 
 			fi
-			' --preview-window=right:50%:wrap --header="Press TAB to (un)select. Press ENTER to remove. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list of packages and groups > ' )
+			' --preview-window=right:45%:wrap --header="Press TAB to (un)select. Press ENTER to remove. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter list > ' )
 		
 		if [[ -n $pkg ]]
 		then
@@ -1056,30 +1056,20 @@ Please note that folders in your home (~) directory and created by the program <
 \e[1mAttention\e[0m: If you want to display a list of all your installed packages (including their version number and description) use this PacUI option. Simply do not select <PACKAGE NAME> to be removed, but quit the list view with ESC or CTRL+C.
 
 
-\e[1m5 - PACKAGE INFORMATION
-\e[36m"yaourt -Sii <PACKAGE NAME>"\e[0m or \e[36m"yaourt -Qii <PACKAGE NAME>"
-This command displays a lot of information about <PACKAGE NAME>. Different pieces of information get displayed depending on package source (Manjaro repository or AUR) and package state (installed or not installed).
-
-
-\e[1m6 - LIST PACKAGES BY SIZE
-\e[36m"package-query -Q --rsort 2 -f '%2 - %n %v'"
-This command lists all packages on your system sorted by their installation size. Both explicitly installed packages and dependencies are displayed. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-ls.
-
-
-\e[1m7 - DEPENDENCIES TREE
+\e[1m5 - DEPENDENCIES TREE
 \e[36m"pactree -s <PACKAGE NAME>"\e[0m or \e[36m"pactree <PACKAGE NAME>"
 This command will display a complete tree of all dependencies of <PACKAGE NAME>. <PACKAGE NAME> can be an installed package or a package from the Manjaro repositories. Dependencies are packages required by <PACKAGE NAME> in order to function. When you install <PACKAGE NAME>, all its dependencies get installed, too.
 Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-t.
 
 
-\e[1m8 - REVERSE DEPENDENCIES TREE
+\e[1m6 - REVERSE DEPENDENCIES TREE
 \e[36m"pactree -r <PACKAGE NAME>"
 This command will display a tree of installed packages, which depend on <PACKAGE NAME>. In other words: All displayed packages require <PACKAGE NAME> in order to function (properly). 
 Use this command when you want to know why you cannot remove <PACKAGE NAME> from your system.
 Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-rt.
 
 
-\e[1m9 - LIST PACKAGE FILES
+\e[1m7 - LIST PACKAGE FILES
 \e[36m"pacman -Ql <PACKAGE NAME>"
 \e[36m"sudo pacman -Fyl <PACKAGE NAME>" \e[0m(only for packages not installed on your system)
 These commands list all files contained in <PACKAGE NAME> including their path. The second command syncs the file database with the Manjaro repositories and then searches the file database for files, which get installed by <PACKAGE NAME>.
@@ -1089,7 +1079,7 @@ By default, the results are filtered for files located in usr/bin/, but you can 
 \e[1mAttention\e[0m: On some systems, the file database has not been downloaded which results in an error message instead of search results from the Manjaro repositories. You can fix it by running "sudo pacman -Fyy" once and restarting LIST PACKAGE FILES.
 
 
-\e[1m10 - SEARCH PACKAGE FILES
+\e[1m8 - SEARCH PACKAGE FILES
 \e[36m"pacman -Ql | grep <FILE NAME>"
 \e[36m"sudo pacman -Fysx <FILE NAME>" \e[0m(only for packages not installed on your system)
 In some situations, Pacman (e.g. during UPDATE SYSTEM) cannot find a file, for example a shared library. An error message is shown about <FILE NAME>. Use SEARCH PACKAGE FILES to find out, which package has installed <FILE NAME>. In most cases, you can fix the Pacman error by using one of the following options on that package: UPDATE SYSTEM, ROLL BACK SYSTEM, FORCE REMOVE PACKAGES and INSTALL PACKAGES, or FORCE UPDATE SYSTEM.
@@ -1099,13 +1089,13 @@ As a result, <MANJARO REPOSITORY>/<PACKAGE NAME> and the complete path to <FILE 
 \e[1mAttention\e[0m: On some systems, the file database has not been downloaded which results in an error message instead of search results from the Manjaro repositories. You can fix it by running "sudo pacman -Fyy" once and restarting SEARCH PACKAGE FILES.
 
 
-\e[1m11 - PACMAN LOG
+\e[1m9 - PACMAN LOG
 \e[36m"tail -5000 /var/log/pacman.log"
 The Pacman Log contains all updates, installations, and removals (also in the AUR) you have done. Whenever something breaks on your system (e.g. after an udpate), but you do not remember anymore which packages were changed recently (e.g. during the last update), take a look at your Pacman Log and find out. Then, ROLL BACK SYSTEM, and downgrade the packages you think might be broken.
 This command displays the last 5000 lines of your Pacman Log and makes it searchable with fzf. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-log.
 
 
-\e[1m12 - ROLL BACK SYSTEM
+\e[1m10 - ROLL BACK SYSTEM
 \e[36m"sudo pacman -Rdd <PACKAGE NAME> --noconfirm" \e[0m(only for installed packages)
 \e[36m"sudo pacman -U <PACKAGE NAME> --noconfirm" \e[0m(only for removed packages: Installs latest version in Pacman cache)
 \e[36m"sudo pacman -U <FILE NAME> --noconfirm" \e[0m(only for upgraded packages: Installs previous version from Pacman cache)
@@ -1114,7 +1104,7 @@ This command shows you a list of all recent Pacman actions sorted by date. Pleas
 \e[1mAttention\e[0m: After downgrading a broken package to a working version, it is recommended to add the package name to your Ignore List ( "IgnorePkg" option in /etc/pacman.conf ). This will prevent Pacman from showing any available updates for this package. The package needs to be removed manually from your Ignore List in order to receive automatic updates  for it again. Alternatively, you can run future updates with the command "sudo pacman -Syu --ignore <PACKAGE NAME>" until a fixed version of that package gets released.
 
 
-\e[1m13 - FIX PACMAN ERRORS
+\e[1m11 - FIX PACMAN ERRORS
 Multiple commands attempt to fix the most common issues Manjaro users have with Pacman. Force options (as in FORCE UPDATE SYSTEM) are excluded, even though they are essential in fixing some problems.
 A working internet connection is required.
 
@@ -1179,36 +1169,36 @@ This command makes abolutely sure all downloaded packages get installed and down
 This command forces a sync of the file database of the Manjaro repository with the chosen mirror. The file database is a separate from the package database. The file database enables SEARCH PACKAGE FILES and LIST PACKAGE FILES of packages from the Manjaro repository, which are not installed on your system.
 
 
-\e[1m14 - CONFIGURE SYSTEM
+\e[1m12 - CONFIGURE SYSTEM
 \e[36m"$EDITOR <FILE NAME>"
 This command opens <FILE NAME> in your default text editor. You can choose between multiple important system configuration files. Files in the root directory are opened with root privileges.
 By default the text editor Nano gets used, except a custom $EDITOR variable has been exported. In the text editor Nano, Press CTRL+O to save your changes, ENTER to choose a directory, and CTRL+X to quit Nano.
 \e[1mAttention\e[0m: Changing system configuration files can harm or even destroy your system. In some cases, this can happen with a single mistake. Be extremely careful and always double check your changes before saving and rebooting - especially when editing the files marked in red! It is recommended to search the Arch Wiki for the configuration file you want to edit and read about available and recommended settings.
 
 
-\e[1;31m15 - FORCE UPDATE SYSTEM
+\e[1;31m13 - FORCE UPDATE SYSTEM
 \e[36m"sudo pacman -Syu --force"
 This command does the same as UPDATE SYSTEM, but it bypasses file conflict tests and overwrites conflicting files. All files will be overwritten. 
 
 
-\e[1;31m16 - EMPTY PACKAGE CACHE
+\e[1;31m14 - EMPTY PACKAGE CACHE
 \e[36m"yaourt -Scc"
 This command will empty your entire package cache by deleting ALL packages.
 \e[1mAttention\e[0m: This will make it impossible to ROLL BACK SYSTEM without a working internet connection.
 
 
-\e[1;31m17 - FORCE INSTALL PACKAGES
+\e[1;31m15 - FORCE INSTALL PACKAGES
 \e[36m"sudo pacman -S --force <PACKAGE NAME>"
 This command does the same as INSTALL PACKAGES for packages from the Manjaro repositories exclusively. The installation of <PACKAGE NAME> is forced.
 
 
-\e[1;31m18 - FORCE REMOVE PACKAGES
+\e[1;31m16 - FORCE REMOVE PACKAGES
 \e[36m"pacman -Rdd <PACKAGE NAME>"
 This command removes <PACKAGE NAME> without checking the dependencies of <PACKAGE NAME> first. This enables experienced users to remove packages and dependencies of packages. This command only removes <PACKAGE NAME> from your system. All dependencies and orphans are left: run CLEAN SYSTEM afterwards to remove them.
 \e[1mAttention\e[0m: This command can break pacakges on your system or even your entire system.
 
 
-\e[1m19 - FORCE UPDATE AUR
+\e[1m17 - FORCE UPDATE AUR
 \e[36m"yaourt -Syua && yaourt -Syua --devel --needed --noconfirm"
 The Arch User Repository (AUR) is a repository of (mostly) PKGBUILD files. Everybody can create such a PKGBUILD file and upload it to the AUR. A PKGBUILD file contains simple and human readable instructions like where to download the source code from, what dependencies are needed, where to copy files for installation, etc. Yaourt is a so called AUR Helper: It can interpret PKGBUILD files and download the source code, install dependencies, build files on your system, and copy these files to the right location (a.k.a. installing a program).
 By checking a PKGBUILD file (and .INSTALL file) you can make sure the source code is loaded from an official download server, no harmful dependencies get installed, and the installation instructions do not contain harmful code.
@@ -1218,10 +1208,20 @@ The second command of FORCE UPDATE AUR forces a reinstall of ALL your developmen
 \e[1mAttention\e[0m: This might take a long time! When using Yaourt, after every 15min this command will pause and ask again for your password.
 
 
-\e[1m20 - LIST INSTALLED FROM AUR
+\e[1m18 - LIST INSTALLED FROM AUR
 \e[36m"pacman -Qem"
 This command lists all installed packages, which are from the AUR or which were manually installed.
 If you want a list of all installed packages use REMOVE PACKAGES + DEPS as described in this Help Page.
+
+
+\e[1mPACKAGE INFORMATION
+\e[36m"yaourt -Sii <PACKAGE NAME>"\e[0m or \e[36m"yaourt -Qii <PACKAGE NAME>"
+This command displays a lot of information about <PACKAGE NAME>. Different pieces of information get displayed depending on package source (Manjaro repository or AUR) and package state (installed or not installed).
+
+
+\e[1mLIST PACKAGES BY SIZE
+\e[36m"package-query -Q --rsort 2 -f '%2 - %n %v'"
+This command lists all packages on your system sorted by their installation size. Both explicitly installed packages and dependencies are displayed. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-ls.
 
 
 \e[1mDOWNGRADE PACKAGES
@@ -1343,16 +1343,15 @@ do
 	echo -e " │    1   \e[1mU\e[0mpdate System                 2   \e[1mC\e[0mlean System               │"
 	echo -e " │    3   \e[1mI\e[0mnstall Packages              4   \e[1mR\e[0memove Packages + Deps     │"
 	echo -e " │---------------------------------------------------------------------│"
-	echo -e " │    5   Package \e[1mInfo\e[0mrmation           6   \e[1mL\e[0mist Packages by \e[1mS\e[0mize      │"
-	echo -e " │    7   Dependency \e[1mT\e[0mree               8   \e[1mR\e[0meverse Dependency \e[1mT\e[0mree    │"
-	echo -e " │    9   \e[1mL\e[0mist Package Files           10   \e[1mS\e[0mearch Package Files       │"
+	echo -e " │    5   Dependency \e[1mT\e[0mree               6   \e[1mR\e[0meverse Dependency \e[1mT\e[0mree    │"
+	echo -e " │    7   \e[1mL\e[0mist Package Files            8   \e[1mS\e[0mearch Package Files       │"
 	echo -e " └─────────────────────────────────────────────────────────────────────┘"
-	echo -e "     11   Pacman \e[1mLog\e[0m                   12   Roll \e[1mB\e[0mack System            "
-	echo -e "     13   \e[1mFix\e[0m Pacman Errors            14   \e[1mConf\e[0migure System            "
-	echo -e "   \e[31m  15   \e[1mF\e[0;31morce \e[1mU\e[0;31mpdate System          16   \e[1mE\e[0;31mmpty Package Cache       \e[0m "
-	echo -e "   \e[31m  17   \e[1mF\e[0;31morce \e[1mI\e[0;31mnstall Packages       18   \e[1mF\e[0;31morce \e[1mR\e[0;31memove Packages     \e[0m "
+	echo -e "      9   Pacman \e[1mLog\e[0m                   10   Roll \e[1mB\e[0mack System            "
+	echo -e "     11   \e[1mFix\e[0m Pacman Errors            12   \e[1mConf\e[0migure System            "
+	echo -e "   \e[31m  13   \e[1mF\e[0;31morce \e[1mU\e[0;31mpdate System          14   \e[1mE\e[0;31mmpty Package Cache       \e[0m "
+	echo -e "   \e[31m  15   \e[1mF\e[0;31morce \e[1mI\e[0;31mnstall Packages       16   \e[1mF\e[0;31morce \e[1mR\e[0;31memove Packages     \e[0m "
 	echo -e " ┌─────────────────────────────────────────────────────────────────────┐"
-	echo -e " │   19   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR             20   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
+	echo -e " │   17   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR             18   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
 	echo -e " └─────────────────────────────────────────────────────────────────────┘"
 	echo
 	echo -e "  Enter number or marked letter(s)   -   00   \e[1mH\e[0melp   -   0   \e[1mQ\e[0muit PacUI "
@@ -1394,35 +1393,35 @@ do
 			echo -e " Package(s) including all unneeded dependencies removed. To return to PacUI press ENTER "
 			read
 			;;
-		5|info|information)
+		info|information)
 			func_info
 			echo
 			echo -e " Package information displayed. To return to PacUI press ENTER "
 			read
 			;;
-		6|ls|listsizes)
+		ls|listsizes)
 			func_ls
 			echo
 			;;	
-		7|t|tree)
+		5|t|tree)
 			func_t
 			echo
 			;;
-		8|rt|reversetree)
+		6|rt|reversetree)
 			func_rt
 			echo
 			;;
-		9|l|list)
+		7|l|list)
 			func_l
 			echo
 			;;
-		10|s|search)
+		8|s|search)
 			func_s
 			echo
 			;;
 
 
-		11|log)
+		9|log)
 			func_log
 			echo
 			;;	
@@ -1432,41 +1431,41 @@ do
 			echo -e " Downgrade finished. To return to PacUI press ENTER "
 			read
 			;;	
-		12|b|back)
+		10|b|back)
 			func_b
 			echo
 			echo -e " System roll back finished. To return to PacUI press ENTER "
 			read
 			;;
-		13|fix)
+		11|fix)
 			func_fix
 			echo
 			echo -e " Operation finished. To return to PacUI press ENTER "
 			read
 			;;
-		14|conf|config|configure)
+		12|conf|config|configure)
 			func_conf
 			echo
 			;;
-		15|fu|forceupdate)
+		13|fu|forceupdate)
 			func_fu
 			echo
 			echo -e " System updated in force mode. To return to PacUI press ENTER "
 			read
 			;;
-		16|e|empty)
+		14|e|empty)
 			func_e
 			echo
 			echo -e " Entire package cache emptied. To return to PacUI press ENTER "
 			read
 			;;
-		17|fi|forceinstall)
+		15|fi|forceinstall)
 			func_fi
 			echo
 			echo -e " Package installation in force mode finished. To return to PacUI press ENTER "
 			read
 			;;
-		18|fr|forceremove)
+		16|fr|forceremove)
 			func_fr
 			echo
 			echo -e " Package(s) removed in force mode. To return to PacUI press ENTER "
@@ -1474,13 +1473,13 @@ do
 			;;
 
 
-		19|ua|fua|forceupdateaur|updateaur)
+		17|ua|fua|forceupdateaur|updateaur)
 			func_ua
 			echo
 			echo -e " All AUR packages updated and reinstalled. To return to PacUI press ENTER "
 			read
 			;;
-		20|la|listaur)
+		18|la|listaur)
 			func_la
 			echo
 			echo -e " All locally installed packages listed. To return to PacUI press ENTER "
