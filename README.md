@@ -11,22 +11,22 @@ This fork of an [old version of pacli](https://github.com/Manjaro-Pek/pacli/tree
 Table of Contents
 -----------------
 
-    * [Screenshots](#screenshots)
-    * [Installation](#installation)
-        * [Execute without prior Installation](#execute-without-prior-installation)
-    * [Use PacUI](#use-pacui)
-        * [Start PacUI with UI](#start-pacui-with-ui)
-        * [Start PacUI without UI: Using Options](#start-pacui-without-ui-using-options)
-        * [Start PacUI without UI: Using Options and Package Names](#start-pacui-without-ui-using-options-and-package-names)
-    * [Useful Tips and Recommended Settings](#useful-tips-and-recommended-settings)
-        * [Fancy List View](#fancy-list-view)
-        * [Limit Mirrors Check to Countries Near You](#limit-mirrors-check-to-countries-near-you)
-        * [Alias](#alias)
-        * [Search syntax](#search-syntax)
-    * [Help](#help)
-        * [Short PacUI Help](#short-pacui-help)
-        * [Detailed PacUI Help](#detailed-pacui-help)
-        * [Manjaro Forum Threads](#manjaro-forum-threads)
+   * [Screenshots](#screenshots)
+   * [Installation](#installation)
+      * [Execute without prior Installation](#execute-without-prior-installation)
+   * [Use PacUI](#use-pacui)
+      * [Start PacUI with UI](#start-pacui-with-ui)
+      * [Start PacUI without UI: Using Options](#start-pacui-without-ui-using-options)
+      * [Start PacUI without UI: Using Options and Package Names](#start-pacui-without-ui-using-options-and-package-names)
+   * [Useful Tips and Recommended Settings](#useful-tips-and-recommended-settings)
+      * [Fancy List View](#fancy-list-view)
+      * [Limit Mirrors Check to Countries Near You](#limit-mirrors-check-to-countries-near-you)
+      * [Alias](#alias)
+      * [Search syntax](#search-syntax)
+   * [Help](#help)
+      * [Short PacUI Help](#short-pacui-help)
+      * [Detailed PacUI Help](#detailed-pacui-help)
+      * [Manjaro Forum Threads](#manjaro-forum-threads)
 
 
 ## Screenshots
