@@ -82,7 +82,7 @@ pacui i cantat
 ```
 Since there is only one package found in the Manjaro repositories when searching for "cantat", the list view is skipped and you are immediately prompted to install "cantata".
 
-## Recommended Settings
+## Useful Tips and Recommended Settings
 It is highly recommended to use an utility, which notifies the user about available updates alongside of PacUI. Such a lightweight utility is for example [update-notifier](https://github.com/Chrysostomus/update-notifier).
 
 Along with PacUI the following settings are recommended by the author:
@@ -116,6 +116,23 @@ alias p='pacui'
 This will set "p" as an alias to "pacui" within your terminal (after a restart of your shell or computer). For example, you can now update your system using
 ```
 p u
+```
+
+#### Search syntax
+PacUI uses [fuzzy finder (fzf)](https://github.com/junegunn/fzf) to display lists and by starting to type, you can easily search/filter those lists. Advanced users can use regular expressions to improve their search results. Simply type in multiple search terms delimited by spaces. e.g. `^music .mp3$ sbtrkt !fire`
+
+| Token    | Match type                 | Description                       |
+| -------- | -------------------------- | --------------------------------- |
+| `sbtrkt` | fuzzy-match                | Items that match `sbtrkt`         |
+| `^music` | prefix-exact-match         | Items that start with `music`     |
+| `.mp3$`  | suffix-exact-match         | Items that end with `.mp3`        |
+| `'wild`  | exact-match (quoted)       | Items that include `wild`         |
+| `!fire`  | inverse-exact-match        | Items that do not include `fire`  |
+| `!.mp3$` | inverse-suffix-exact-match | Items that do not end with `.mp3` |
+
+A single bar character term acts as an OR operator. For example, the following query matches entries that start with `core` and end with either `go`, `rb`, or `py`.
+```
+^core go$ | rb$ | py$
 ```
 
 
