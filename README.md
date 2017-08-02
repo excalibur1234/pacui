@@ -118,7 +118,7 @@ This will set "p" as an alias to "pacui" within your terminal (after a restart o
 p u
 ```
 
-#### Search syntax
+### Search syntax
 PacUI uses [fuzzy finder (fzf)](https://github.com/junegunn/fzf) to display lists of items (such as packages, package groups, logs, patchs, etc.) and by starting to type, you can easily search/filter those lists. Advanced users can use regular expressions to improve their search results. Simply type in multiple search terms delimited by spaces. e.g. `^music git$ sbtrkt !fire`
 
 | Search Term | Description                       |
