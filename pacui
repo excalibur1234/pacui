@@ -167,13 +167,13 @@ function func_c
 function func_i 
 {
 		# check, whether file /tmp/pacui-packages-install already exists (the ! negates the result)
-		if  [[  -e /tmp/pacui-packages-install ]]
+		if  [[ ! -e /tmp/pacui-packages-install ]]
 		then
-			# the "package-query -Sl -f '%n  %v  -  %d' " displays a list of all packages from the Manjaro repositories and formats them like "NAME  VERSION  -  DESCRIPTION".
-			# write formatted package list of Manjaro repositories to /tmp/pacui-packages-install. then add all package groups to the bottom.
-			package-query -Sl -f "\e[1m%n\e[0m" | awk '{print $1}' > /tmp/pacui-packages-install
-			package-query -Sg | awk '{print $1}' | sort -u >> /tmp/pacui-packages-install
-			
+			# alternative: "package-query -Sl -f '%n  %v  -  %d' " displays a list of all packages from the Manjaro repositories and formats them like "NAME  VERSION  -  DESCRIPTION".
+			# write package list of Manjaro repositories to /tmp/pacui-packages-install. then add all package groups to the bottom.
+			pacman -Slq > /tmp/pacui-packages-install
+			pacman -Sg >> /tmp/pacui-packages-install
+						
 			# finally, download AUR package list (only when not already downloaded), unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages-install.
 			if  [[ ! -e /tmp/aur/packages ]]
 			then
@@ -184,7 +184,9 @@ function func_i
 		
 		local pkg
 		
-		# the first part (="NAME") of package list in /tmp/pacui-packages-install-group-manjaro gets (printed and) saved to the "pkg" variable.
+		# the package list in /tmp/pacui-packages-install gets sorted and displayed by fzf. look in "man fzf" for what fzf's arguments are used.
+		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
+		# the --preview option of fzf displays information about the currently selected line
 		pkg=$( sort -u -i /tmp/pacui-packages-install | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
 			then
@@ -225,8 +227,8 @@ function func_i
 
 function func_r 
 {
-		# write formatted package list of local repository to /tmp/pacui-packages-group. then add all installed package groups to the bottom (this makes it easier to remove package groups).
-		package-query -Q -f "\e[1m%n\e[0m" | awk '{print $1}' > /tmp/pacui-packages-group
+		# write package list of local repository to /tmp/pacui-packages-group. then add all installed package groups to the bottom.
+		pacman -Qq > /tmp/pacui-packages-group
 		package-query -Qg | awk '{print $1}' >> /tmp/pacui-packages-group
 		
 		local pkg
@@ -801,10 +803,6 @@ function func_e
 			yaourt -Scc
 		else
 			pacaur -Scc --color always
-
-			echo
-			echo -e "\e[1mPlease take a look at your cache folder and remove all unwanted files:\e[0m"
-			echo "$HOME/.cache/pacaur/"
 		fi
 }
 
@@ -815,11 +813,14 @@ function func_fi
 		if [[ ! -e /tmp/pacui-packages-group-manjaro ]]
 		then
 			# write formatted package list of Manjaro repositories to /tmp/pacui-packages-group-manjaro. then add all package groups to the bottom.
-			package-query -Sl -f "\e[1m%n\e[0m" | awk '{print $1}' > /tmp/pacui-packages-group-manjaro
-			package-query -Sg | awk '{print $1}' | sort -u >> /tmp/pacui-packages-group-manjaro
+			pacman -Slq > /tmp/pacui-packages-group-manjaro
+			pacman -Sg >> /tmp/pacui-packages-group-manjaro
 		fi
 		
 		local pkg
+		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
+		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
+		# the --preview option of fzf displays information about the currently selected line
 		pkg=$( sort -u -i /tmp/pacui-packages-install | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
 			then
@@ -852,13 +853,14 @@ function func_fi
 
 function func_fr 
 {
-		# write formatted package list of local repository to /tmp/pacui-packages-group. then add all installed package groups to the bottom (this makes it easier to remove package groups).
-		package-query -Q -f "\e[1m%n\e[0m" | awk '{print $1}' > /tmp/pacui-packages-group
+		# write package list of local repository to /tmp/pacui-packages-group. then add all installed package groups to the bottom.
+		pacman -Qq > /tmp/pacui-packages-group
 		package-query -Qg | awk '{print $1}' >> /tmp/pacui-packages-group
 
 		local pkg
 		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
+		# the --preview option of fzf displays information about the currently selected line
 		pkg=$( sort -u -i /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			if ( pacman -Sgq {} &>/dev/null )		# check, if selected line in fzf is a package group
 			then
