@@ -201,7 +201,7 @@ function func_i
 					pacaur -Si {} --color always
 				fi
 			fi
-			' --preview-window=right:45%:wrap  --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter list > ' )
+			' --preview-window=right:45%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Manipulate string to filter list > ' )
 		
 		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $pkg ]]
@@ -242,7 +242,7 @@ function func_r
 				fi
 
 			fi
-			' --preview-window=right:45%:wrap --header="Press TAB to (un)select. Press ENTER to remove. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter list > ' )
+			' --preview-window=right:45%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Manipulate string to filter list > ' )
         
 		if [[ -n $pkg ]]
 		then
@@ -441,7 +441,7 @@ function func_d
 		fi
 		
 		local pkg
-		pkg=$(sort -u /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to downgrade. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
+		pkg=$(sort -u /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to downgrade. ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
 		downgrade "$pkg"
 }
@@ -460,7 +460,7 @@ function func_b
 		fi
 
 		# 1. get list of last installs/upgrades/removes from pacman log and display result in fzf. in the end, fzf saves all selected package names (including the words "installed/upgraded/removed/downgraded" to file /tmp/pacui-cache-packages
-		tail -2000 /var/log/pacman.log | grep "\[ALPM\]" | grep "installed\|removed\|upgraded" | sed 's/\[ALPM\] //g' | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --tac --reverse --margin=4%,1%,1%,2% --inline-info --header="Press TAB to (un)select. Press ENTER to roll back. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}' > /tmp/pacui-cache-packages
+		tail -2000 /var/log/pacman.log | grep "\[ALPM\]" | grep "installed\|removed\|upgraded" | sed 's/\[ALPM\] //g' | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --tac --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to roll back. ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}' > /tmp/pacui-cache-packages
 		
 		# only run the command inside the if-statement, if file /tmp/pacui-cache-packages is not empty and exists - this happens when fzf is quit with ESC or CTRL+C
 		if [[ -s /tmp/pacui-cache-packages ]]
@@ -830,7 +830,7 @@ function func_fi
 					pacaur -Si {} --color always
 				fi
 			fi
-			' --preview-window=right:45%:wrap  --header="Press TAB to (un)select. Press ENTER to install. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter list > ' )
+			' --preview-window=right:45%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Manipulate string to filter list > ' )
 		
 		if [[ -n $pkg ]]
 		then
@@ -862,7 +862,7 @@ function func_fr
 				fi
 
 			fi
-			' --preview-window=right:45%:wrap --header="Press TAB to (un)select. Press ENTER to remove. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter list > ' )
+			' --preview-window=right:45%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Manipulate string to filter list > ' )
 		
 		if [[ -n $pkg ]]
 		then
