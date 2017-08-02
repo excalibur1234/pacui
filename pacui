@@ -229,6 +229,7 @@ function func_r
 {
 		# write package list of local repository to /tmp/pacui-packages-group. then add all installed package groups to the bottom.
 		pacman -Qq > /tmp/pacui-packages-group
+		# package-query is the only way to display a list of installed package groups that i know of.
 		package-query -Qg | awk '{print $1}' >> /tmp/pacui-packages-group
 		
 		local pkg
