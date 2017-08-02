@@ -1,3 +1,4 @@
+
 # PacUI
 
 PacUI is a CLI tool, which provides useful and advanced Pacman and Yaourt/Pacaur commands in an easy to use text interface. If Pacaur is installed on your system, it will be used by default instead of Yaourt.
@@ -5,6 +6,27 @@ PacUI is a CLI tool, which provides useful and advanced Pacman and Yaourt/Pacaur
 PacUI is aimed at experienced/intermediate/advanced users, who have at least basic knowledge of the structure of their Linux system and how Pacman and Yaourt/Pacaur work. Absolute beginners are probably overwhelmed by the amount of choices PacUI offers.
 
 This fork of an [old version of pacli](https://github.com/Manjaro-Pek/pacli/tree/f98e9226eb75ea00217481f436399328fe73d3ae) called PacUI follows the KISS principle: The whole program is contained within one file, which consists of easy to read bash code with many helpful comments. PacUI wants to provide the same or more functionality as pacli but without any available settings and/or translations. Additionally, PacUI does not require the use of the UI, but can also be used by terminal commands directly: This way of using PacUI is much faster!
+
+​
+Table of Contents
+-----------------
+
+    * [Screenshots](#screenshots)
+    * [Installation](#installation)
+        * [Execute without prior Installation](#execute-without-prior-installation)
+    * [Use PacUI](#use-pacui)
+        * [Start PacUI with UI](#start-pacui-with-ui)
+        * [Start PacUI without UI: Using Options](#start-pacui-without-ui-using-options)
+        * [Start PacUI without UI: Using Options and Package Names](#start-pacui-without-ui-using-options-and-package-names)
+    * [Useful Tips and Recommended Settings](#useful-tips-and-recommended-settings)
+        * [Fancy List View](#fancy-list-view)
+        * [Limit Mirrors Check to Countries Near You](#limit-mirrors-check-to-countries-near-you)
+        * [Alias](#alias)
+        * [Search syntax](#search-syntax)
+    * [Help](#help)
+        * [Short PacUI Help](#short-pacui-help)
+        * [Detailed PacUI Help](#detailed-pacui-help)
+        * [Manjaro Forum Threads](#manjaro-forum-threads)
 
 
 ## Screenshots

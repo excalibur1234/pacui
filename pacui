@@ -1069,13 +1069,13 @@ Please note that folders in your home (~) directory and created by the program <
 \e[1mAttention\e[0m: If you want to display a list of all your installed packages (including their version number and description) use this PacUI option. Simply do not select <PACKAGE NAME> to be removed, but quit the list view with ESC or CTRL+C.
 
 
-\e[1m5 - DEPENDENCIES TREE
+\e[1m5 - DEPENDENCY TREE
 \e[36m"pactree -s <PACKAGE NAME>"\e[0m or \e[36m"pactree <PACKAGE NAME>"
 This command will display a complete tree of all dependencies of <PACKAGE NAME>. <PACKAGE NAME> can be an installed package or a package from the Manjaro repositories. Dependencies are packages required by <PACKAGE NAME> in order to function. When you install <PACKAGE NAME>, all its dependencies get installed, too.
 Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-t.
 
 
-\e[1m6 - REVERSE DEPENDENCIES TREE
+\e[1m6 - REVERSE DEPENDENCY TREE
 \e[36m"pactree -r <PACKAGE NAME>"
 This command will display a tree of installed packages, which depend on <PACKAGE NAME>. In other words: All displayed packages require <PACKAGE NAME> in order to function (properly). 
 Use this command when you want to know why you cannot remove <PACKAGE NAME> from your system.
