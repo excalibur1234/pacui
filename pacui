@@ -791,7 +791,7 @@ function func_conf
 		local file
 
 		# echo -e "$( cat '/tmp/pacui-conf' )"  -- this command interprets the ANSI escape sequences contained in /tmp/pacui-conf.
-		file=$( echo -e "$( cat '/tmp/pacui-conf' )" | fzf-tmux -e +s -i -1 --ansi --cycle --query="$input2" --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to open file. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of files > ' | awk '{print $1}' )
+		file=$( echo -e "$( cat '/tmp/pacui-conf' )" | fzf-tmux -e +s -i -1 --ansi --cycle --query="$input2" --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to edit file. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of files > ' | awk '{print $1}' )
 		
 		# only run the command inside the if-statement, if $file variable is not empty <-- this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $file ]]
