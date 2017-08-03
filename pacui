@@ -138,26 +138,29 @@ function func_c
 		fi
 		
 		
-		echo "checking installed kernels ..."
-		# check, if any installed kernel is EOL:
-		# 0. delete old temporary file to avoid strange errors. ignore all output of "rm" command (such as output, messages, or errors).
-		rm /tmp/.installed_kernels /tmp/.available_kernels /tmp/.uptodate_kernels /tmp/.eol_kernels &>/dev/null
-		# 1. create lists of installed and available kernels (and ignore all errors).
-		mhwd-kernel -li 2>/dev/null | awk '/ linux/ {print $2}' > /tmp/.installed_kernels
-		mhwd-kernel -l 2>/dev/null | awk '/linux/ {print $2}' > /tmp/.available_kernels
-		# 2. Check if all installed kernels are eol:
-		if ! [[ -z $(cat /tmp/.available_kernels) ]]   # make sure that file is not empty
+		if [[ -e /usr/bin/mhwd ]]	# checks, whether file "mhwd" exists.
 		then
-			# write all kernels, which are installed and still available to /tmp/.uptodate_kernels
-			grep -f /tmp/.available_kernels /tmp/.installed_kernels > /tmp/.uptodate_kernels
-			# write all kernels, which are NOT up-to-date anymore, but which are still installed to /tmp/.eol_kernels
-			grep -v -f /tmp/.uptodate_kernels /tmp/.installed_kernels > /tmp/.eol_kernels
-			if ! [[ -z $(cat /tmp/.eol_kernels) ]]   # make sure that file is not empty
+			echo "checking installed kernels ..."
+			# check, if any installed kernel is EOL:
+			# 0. delete old temporary file to avoid strange errors. ignore all output of "rm" command (such as output, messages, or errors).
+			rm /tmp/.installed_kernels /tmp/.available_kernels /tmp/.uptodate_kernels /tmp/.eol_kernels &>/dev/null
+			# 1. create lists of installed and available kernels (and ignore all errors).
+			mhwd-kernel -li 2>/dev/null | awk '/ linux/ {print $2}' > /tmp/.installed_kernels
+			mhwd-kernel -l 2>/dev/null | awk '/linux/ {print $2}' > /tmp/.available_kernels
+			# 2. Check if all installed kernels are eol:
+			if ! [[ -z $(cat /tmp/.available_kernels) ]]   # make sure that file is not empty
 			then
-				echo -e "\e[1m The following Linux kernels have reached their end-of-live status. \e[0m"
-				echo -e "\e[1m Do not expect any security or stability fixes for those kernels anymore. \e[0m"
-				echo -e "\e[1m Kernel modules are likely to break. Please remove these Linux kernels: \e[0m"
-				cat /tmp/.eol_kernels
+				# write all kernels, which are installed and still available to /tmp/.uptodate_kernels
+				grep -f /tmp/.available_kernels /tmp/.installed_kernels > /tmp/.uptodate_kernels
+				# write all kernels, which are NOT up-to-date anymore, but which are still installed to /tmp/.eol_kernels
+				grep -v -f /tmp/.uptodate_kernels /tmp/.installed_kernels > /tmp/.eol_kernels
+				if ! [[ -z $(cat /tmp/.eol_kernels) ]]   # make sure that file is not empty
+				then
+					echo -e "\e[1m The following Linux kernels have reached their end-of-live status. \e[0m"
+					echo -e "\e[1m Do not expect any security or stability fixes for those kernels anymore. \e[0m"
+					echo -e "\e[1m Kernel modules are likely to break. Please remove these Linux kernels: \e[0m"
+					cat /tmp/.eol_kernels
+				fi
 			fi
 		fi
 		echo ""
@@ -412,7 +415,7 @@ function func_s
 		if [[ -n $file ]]
 		then
 			
-			echo "Local package files: " > /tmp/pacui-search-temp
+			echo -e "\n\e[1mLocal package files: \e[0m" > /tmp/pacui-search-temp
 			# list all files of all installed local package. 
 			# awk -v VAR="$file" '$NF ~ VAR' searches for $file (using regex) in the last field/column only. 
 			pacman -Ql --color always | awk -v VAR="$file" -F '/' '$NF ~ VAR' >> /tmp/pacui-search-temp
@@ -421,15 +424,15 @@ function func_s
 			# in some cases, the local database has to be initialized with sudo pacman -Fyy
 			sudo pacman -Fy
 			
-			echo -e "\nPackage files in Manjaro repositories: " >> /tmp/pacui-search-temp
+			echo -e "\n\e[1mPackage files in Manjaro repositories: \e[0m" >> /tmp/pacui-search-temp
 			# search in manjaro repositories with "pacman -Fsx" --> machine readable version of output is easier to read for awk!
 			# the awk command is used to format output: "-F '\0'" set "\0" as separator. this makes it possible to easily use $1,$2,$3,$4 as syntax later.
-			# "system( "pacman -Qq " $2 " &>/dev/null" ) == 1" check exit status of "pacman -Qq <package name> &>/dev/null". if error occurs (==1), the package is not installled
-			# "{print $1 "/" $2, $4}" prints output nicely formatted.
-			pacman -Fsx --machinereadable "$file" | awk -F '\0' 'system( "pacman -Qq " $2 " &>/dev/null" ) == 1 {print $1 "/" $2 "  " $4}' >> /tmp/pacui-search-temp
+			# "system( "pacman -Qq " $2 " &>/dev/null" ) == 1" check exit status of "pacman -Qq <package name> &>/dev/null". if error occurs (==1), the package is printed to /tmp/pacui-search-temp
+			# "{print $1 "/" $2, $4}" prints output nicely formatted to /tmp/pacui-search-temp.
+			pacman -Fsx --machinereadable "$file" | awk -F '\0' 'system( "pacman -Qq " $2 " &>/dev/null" ) == 1 {print $1 "/" $2 "   " $4}' >> /tmp/pacui-search-temp
 			
 			# display results from file /tmp/pacui-search-temp in fzf.
-			cat /tmp/pacui-search-temp | fzf-tmux -m -e +s -i --ansi --reverse --query="$file" --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed package names and file paths > ' > /tmp/pacui-s
+			cat /tmp/pacui-search-temp | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Package names and package file paths containing \"${file}\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed package names and file paths > ' > /tmp/pacui-s
 									
 		fi
 }
