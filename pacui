@@ -345,8 +345,25 @@ function func_t
 		fi
 
 		local pkg
-		pkg=$( sort -u -i /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
-		
+		pkg=$( sort -u -i /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
+			then
+				if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
+				then
+					yaourt -Qi {}
+				else 				
+					pacaur -Qi {} --color always
+				fi
+			else									# do this if line is not locally installed
+				if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
+				then 
+					yaourt -Si {}
+				else 
+					pacaur -Si {} --color always
+				fi
+			fi
+			' --preview-window=right:50%:wrap  --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
+
 		# look in func_info for explanations
 		if [[ -n $pkg ]]
 		then
@@ -363,8 +380,15 @@ function func_t
 function func_rt 
 {
 		local pkg
-		pkg=$( pacman -Qq | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to show reverse tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
-		
+		pkg=$( pacman -Qq | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+			if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
+			then
+				yaourt -Qi {}
+			else 				
+				pacaur -Qi {} --color always
+			fi
+			' --preview-window=right:50%:wrap  --header="Press ENTER to show reverse tree. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
+
 		# look in func_info for explanations
 		if [[ -n $pkg ]]
 		then
@@ -384,8 +408,25 @@ function func_l
 		fi
 		
 		local pkg
-		pkg=$( sort -u -i /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
-		
+		pkg=$( sort -u -i /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
+			then
+				if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
+				then
+					yaourt -Qi {}
+				else 				
+					pacaur -Qi {} --color always
+				fi
+			else									# do this if line is not locally installed
+				if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
+				then 
+					yaourt -Si {}
+				else 
+					pacaur -Si {} --color always
+				fi
+			fi
+			' --preview-window=right:50%:wrap  --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
+
 		if [[ -n $pkg ]]
 		then
 			# next, it is checked, whether "pkg" is part of a list of all installed packages (pacman -Qq): the if-statement checks the exit code of the command "pacman -Qq $pkg &>/dev/null".
@@ -394,7 +435,7 @@ function func_l
 			
 				# "pacman -Ql" shows sometimes more files than "pacman -Fl". therefore, both commands have to be used!
 				# take the output of command "pacman -Qlq $pkg" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacui-list.
-				pacman -Ql "$pkg" --color always 2>/dev/null | grep -v "/$" | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed package name and file path > ' > /tmp/pacui-l
+				pacman -Ql "$pkg" --color always 2>/dev/null | grep -v "/$" | awk '{print $NF}' | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed file paths > ' > /tmp/pacui-l
 				
 			else
 				
@@ -402,10 +443,11 @@ function func_l
 				# in some cases, the local database has to be initialized with sudo pacman -Fyy
 				sudo pacman -Fy
 				
+				echo -e "\n\e[1mPackage files in Manjaro repositories: \e[0m"
 				# search in manjaro repositories with "pacman -Fl" --> machine readable version of output is easier to read for awk!
 				# the awk command is used to format output: "-F '\0'" set "\0" as separator. this makes it possible to easily use $1,$2,$3,$4 as syntax later.
-				# "{print $1 "/" $2, $4}" prints output nicely formatted.
-				pacman -Fl --machinereadable "$pkg" | awk -F '\0' '{print $1 "/" $2 "  " $4}' | grep -v "/$" | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed package name and file path > ' > /tmp/pacui-l
+				# "{print $1 "/" $2 "  " $4}" prints output nicely formatted.
+				pacman -Fl --machinereadable "$pkg" | grep -v "/$" | awk -F '\0' '{print $4}' | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed file paths > ' > /tmp/pacui-l
 				
 			fi
 		fi
@@ -1148,7 +1190,7 @@ Please note that all selected lines (toggle selection with your TAB key) will ge
 \e[36m"pacman -Ql <PACKAGE NAME>"
 \e[36m"sudo pacman -Fyl <PACKAGE NAME>" \e[0m(only for packages not installed on your system)
 These commands list all files contained in <PACKAGE NAME> including their path. The second command syncs the file database with the Manjaro repositories and then searches the file database for files, which get installed by <PACKAGE NAME>.
-As a result, <MANJARO REPOSITORY>/<PACKAGE NAME> and the complete path to the files gets displayed. <MANJARO REPOSITORY> gets only displayed, if <PACKAGE NAME> is not installed on your system. 
+As a result the complete path to the files gets displayed.
 Have you ever installed a program and did not know with which command it can be started/executed? Just look for files (and their names) in your /usr/bin/ directory using LIST PACKAGE FILES.
 By default, the results are filtered for files located in usr/bin/, but you can enter any filter term you want to. Delete the default filter term with BACKSPACE to see a complete list of files of <PACKAGE NAME>. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-l.
 \e[1mAttention\e[0m: On some systems, the file database has not been downloaded which results in an error message instead of search results from the Manjaro repositories. You can fix it by running "sudo pacman -Fyy" once and restarting LIST PACKAGE FILES.
