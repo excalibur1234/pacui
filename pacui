@@ -677,13 +677,33 @@ function func_fix
 				# echo ""
 				
 				# Manually download and install all keyring..
-				  echo "Installing all keyring ..."
+				
 				  cache=$(awk -F '=' '/CacheDir/ {gsub(" ","",$2); print $2}' '/etc/pacman.conf')
-				  keyring=$(pacman -Ssq '(-keyring)' | grep -v -i -E '(gnome|python|debian)')
-				  # Download all the keyring 
-				  sudo pacman -Syw $(keyring)
-				  # Then install them manually
-				  sudo pacman -U "${cache}${keyring}-${version}-any.pkg.tar.xz"
+				  
+				  
+				  echo "Lowering pacman securities (Allowing keyring to be installed) ..."
+				  
+				  sudo sh -c " sed -i -e '1 s/SigLevel/SigLevel          = Never #Required DatabaseOptional/; t' \ 
+				  -e '1,// s/SigLevel.*/SigLevel          = Never #Required DatabaseOptional/' \ 
+				  $(cache) ; \ 
+				  sed -i -e '1 s/LocalFileSigLevel/LocalFileSigLevel = Never #Optional/; t' \
+				  -e '1,// s/LocalFileSigLevel.*/LocalFileSigLevel = Never #Optional/' \
+				  $(cache) "
+				  
+				  echo "Installing all keyring ..."
+				  
+				  sudo pacman -Sy $(pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | sed s/-keyring// | paste -sd " " - )
+				  
+				  
+				  echo "Raising pacman securities back ..."
+				  
+				  sudo sh -c " sed -i -e '1 s/SigLevel/SigLevel          = Required DatabaseOptional/; t' \ 
+				  -e '1,// s/SigLevel.*/SigLevel          = Required DatabaseOptional/' \ 
+				  $(cache) ; \ 
+				  sed -i -e '1 s/LocalFileSigLevel/LocalFileSigLevel = Optional/; t' \
+				  -e '1,// s/LocalFileSigLevel.*/LocalFileSigLevel = Optional/' \
+				  $(cache) "
+		
 				  echo ""
 
 			echo "sudo pacman-key --init ..."
