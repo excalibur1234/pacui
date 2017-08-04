@@ -683,7 +683,7 @@ function func_fix
 				  # Download all the keyring 
 				  sudo pacman -Syw $(keyring)
 				  # Then install them manually
-				  sudo pacman -U "${cache}${keyring}-${cache}-any.pkg.tar.xz"
+				  sudo pacman -U "${cache}${keyring}-${version}-any.pkg.tar.xz"
 				  echo ""
 
 			echo "sudo pacman-key --init ..."
