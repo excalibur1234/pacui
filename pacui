@@ -678,17 +678,14 @@ function func_fix
 				
 				# Manually download and install all keyring..
 				
-				  cache=$(awk -F '=' '/CacheDir/ {gsub(" ","",$2); print $2}' '/etc/pacman.conf')
-				  
-				  
 				  echo "Lowering pacman securities (Allowing keyring to be installed) ..."
 				  
 				  sudo sh -c " sed -i -e '1 s/SigLevel/SigLevel          = Never #Required DatabaseOptional/; t' \ 
 				  -e '1,// s/SigLevel.*/SigLevel          = Never #Required DatabaseOptional/' \ 
-				  $(cache) ; \ 
+				  /etc/pacman.conf ; \ 
 				  sed -i -e '1 s/LocalFileSigLevel/LocalFileSigLevel = Never #Optional/; t' \
 				  -e '1,// s/LocalFileSigLevel.*/LocalFileSigLevel = Never #Optional/' \
-				  $(cache) "
+				  /etc/pacman.conf "
 				  
 				  echo "Installing all keyring ..."
 				  
@@ -699,10 +696,10 @@ function func_fix
 				  
 				  sudo sh -c " sed -i -e '1 s/SigLevel/SigLevel          = Required DatabaseOptional/; t' \ 
 				  -e '1,// s/SigLevel.*/SigLevel          = Required DatabaseOptional/' \ 
-				  $(cache) ; \ 
+				  /etc/pacman.conf ; \ 
 				  sed -i -e '1 s/LocalFileSigLevel/LocalFileSigLevel = Optional/; t' \
 				  -e '1,// s/LocalFileSigLevel.*/LocalFileSigLevel = Optional/' \
-				  $(cache) "
+				  /etc/pacman.conf "
 		
 				  echo ""
 
