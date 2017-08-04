@@ -678,7 +678,7 @@ function func_fix
 				
 				# Manually download and install all keyring..
 				  echo "Installing all keyring ..."
-				  cache=$(awk -F '=' '/^CacheDir/ {gsub(" ","",$2); print $2}' '/etc/pacman.conf')
+				  cache=$(awk -F '=' '/CacheDir/ {gsub(" ","",$2); print $2}' '/etc/pacman.conf')
 				  keyring=$(pacman -Ssq '(-keyring)' | grep -v -i -E '(gnome|python|debian)')
 				  # Download all the keyring 
 				  sudo pacman -Syw $(keyring)
