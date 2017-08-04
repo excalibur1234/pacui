@@ -435,7 +435,7 @@ function func_l
 			
 				# "pacman -Ql" shows sometimes more files than "pacman -Fl". therefore, both commands have to be used!
 				# take the output of command "pacman -Qlq $pkg" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacui-list.
-				pacman -Ql "$pkg" --color always 2>/dev/null | grep -v "/$" | awk '{print $NF}' | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed file paths > ' > /tmp/pacui-l
+				pacman -Ql "$pkg" --color always 2>/dev/null | grep -v "/$" | awk '{print $NF}' | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of local package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed file paths > ' > /tmp/pacui-l
 				
 			else
 				
@@ -447,7 +447,7 @@ function func_l
 				# search in manjaro repositories with "pacman -Fl" --> machine readable version of output is easier to read for awk!
 				# the awk command is used to format output: "-F '\0'" set "\0" as separator. this makes it possible to easily use $1,$2,$3,$4 as syntax later.
 				# "{print $1 "/" $2 "  " $4}" prints output nicely formatted.
-				pacman -Fl --machinereadable "$pkg" | grep -v "/$" | awk -F '\0' '{print $4}' | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed file paths > ' > /tmp/pacui-l
+				pacman -Fl --machinereadable "$pkg" | grep -v "/$" | awk -F '\0' '{print $4}' | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of remote package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed file paths > ' > /tmp/pacui-l
 				
 			fi
 		fi
