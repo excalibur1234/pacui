@@ -15,6 +15,13 @@
 #  Modified, adapted and improved by pekman, excalibur1234, Chrysostomus, and papajoker
 
 
+# ANSI Escape sequences used in this script:
+#  \e[31m	# red text
+#  \e[41m	# red background
+#  \e[0m	# no-colored, non-bold text without background color
+#  \e[1m	# bold text
+
+
 
 # all functions of pacui are defined here in the same order as they appear in pacui's UI:
 
@@ -1331,6 +1338,31 @@ Press "q" to quit this Help Page.
 
 # =======================
 
+# section for general bug fixes
+
+
+# bug #1:
+# when used with tmux and pacaur and $EDITOR variable is not set and vi is not installed: 
+# pacaur sometimes does not find an editor to use and the --preview window in fzf does not show any package information.
+
+# check, whether pacaur and vi is installed and $EDITOR variable does not exist.
+if [[ -e /usr/bin/pacaur ]] && ! [[ -e $XDG_CONFIG_HOME/pacaur/config ]] && ! [[ -z $EDITOR ]] && ! [[ -e /usr/bin/vi ]]
+then
+    # export "editor='${EDITOR:-nano}'" to config file. '${EDITOR:-nano}'" outputs "nano", if there is no $EDITOR variable set.
+    echo "editor='${EDITOR:-nano}'" >> $XDG_CONFIG_HOME/pacaur/config
+fi
+
+# check, whether pacaur is installed, but its config files does not exist and $EDITOR variable does not exist and vi is installed
+if [[ -e /usr/bin/pacaur ]] && ! [[ -e $XDG_CONFIG_HOME/pacaur/config ]] && ! [[ -z $EDITOR ]] && [[ -e /usr/bin/vi ]]
+then
+    # create directory and export editor setting from /etc/xdg/pacaur/config file to ~/.config/pacuar/config file
+    mkdir -p $XDG_CONFIG_HOME/pacaur/
+    echo "$(grep 'editor=' $XDG_CONFIG_DIRS/pacaur/config | awk '{print $1}' | sed 's/#//')" >> $XDG_CONFIG_HOME/pacaur/config
+fi
+
+
+# =======================
+
 
 # the following section of code gets executed when this script gets called directly from a terminal/tty without using the UI:
 
@@ -1374,11 +1406,13 @@ then
 fi
 
 
+# logic code is above
+# =======================
+# =======================
+# =======================
+# UI code is below
 
-# =======================
-# =======================
-# =======================
-
+# section for bug fixes related to UI:
 
 
 function pacui_clean 
@@ -1396,11 +1430,7 @@ function pacui_clean
 }
 
 
-# ANSI Escape sequences:
-#  \e[31m	# red text
-#  \e[41m	# red background
-#  \e[0m	# no-colored, non-bold text without background color
-#  \e[1m	# bold text
+# =======================
 
 
 # Run infinte loop for UI / menu, till the user quits.
