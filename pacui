@@ -56,7 +56,15 @@ function func_diff
 function func_c 
 {
 		echo "choosing fastest mirror ..."
-		sudo pacman-mirrors -g -y
+		if [[ -e /usr/bin/pacman-mirrors ]] # checks, whether file "pacman-mirrors" does not exist
+		then
+			sudo pacman-mirrors -g -y # If it does exists, then the mirror will sort by it
+		fi
+
+		if [[ -e /usr/bin/reflector ]] # checks, whether file "reflector" does not exist
+		then
+			sudo reflector -f 5 --sort age --save /etc/pacman.d/mirrorlist && sleep 20 && sudo pacman -Syy # If it does exists, then the mirror will sort by it
+		fi
 		echo ""
 		
 		
@@ -580,7 +588,16 @@ function func_fix
 		echo ""
 		
 		echo "fixing mirrors ..."
-		sudo pacman-mirrors -g -y
+		if [[ ! -e /usr/bin/pacman-mirrors ]]
+		then 
+			sudo pacman-mirrors -g -y
+		fi
+		
+		if [[ ! -e /usr/bin/reflector ]]
+		then
+			sudo reflector -f 5 --sort --save /etc/pacman.d/mirrorlist && sleep 20 $$ sudo pacman -Syy
+		fi
+		
 		echo ""
 
 		# check, whether manjaro mirror with the latest packages is reachable:  wget --spider http://mirror.netzspielplatz.de/manjaro/
@@ -645,22 +662,32 @@ function func_fix
 				wget "${url}" && sudo pacman -U "gnupg-${version}-${arch}.pkg.tar.xz" --noconfirm && sudo rm "gnupg-${version}-${arch}.pkg.tar.xz"
 				echo ""
 				
-				# manually download and install archlinux-keyring:
-				echo "installing archlinux-keyring ..."
-				version="$( lang=C pacman -Si archlinux-keyring | awk -F': ' '/^Version/ {print $2}' )"
-				url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/archlinux-keyring-${version}-any.pkg.tar.xz"
-				wget "${url}" && sudo pacman -U "archlinux-keyring-${version}-any.pkg.tar.xz" --noconfirm && sudo rm "archlinux-keyring-${version}-any.pkg.tar.xz"
-				echo ""
+				## manually download and install archlinux-keyring:
+				# echo "installing archlinux-keyring ..."
+				# version="$( lang=C pacman -Si archlinux-keyring | awk -F': ' '/^Version/ {print $2}' )"
+				# url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/archlinux-keyring-${version}-any.pkg.tar.xz"
+				# wget "${url}" && sudo pacman -U "archlinux-keyring-${version}-any.pkg.tar.xz" --noconfirm && sudo rm "archlinux-keyring-${version}-any.pkg.tar.xz"
+				# echo ""
 				
 				# manually download and install manjaro-keyring:
-				echo "installing manjaro-keyring ..."
-				version="$( lang=C pacman -Si manjaro-keyring | awk -F': ' '/^Version/ {print $2}' )"
-				url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/manjaro-keyring-${version}-any.pkg.tar.xz"
-				wget "${url}" && sudo pacman -U "manjaro-keyring-${version}-any.pkg.tar.xz" --noconfirm && sudo rm "manjaro-keyring-${version}-any.pkg.tar.xz"
-				echo ""
+				# echo "installing manjaro-keyring ..."
+				# version="$( lang=C pacman -Si manjaro-keyring | awk -F': ' '/^Version/ {print $2}' )"
+				# url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/manjaro-keyring-${version}-any.pkg.tar.xz"
+				# wget "${url}" && sudo pacman -U "manjaro-keyring-${version}-any.pkg.tar.xz" --noconfirm && sudo rm "manjaro-keyring-${version}-any.pkg.tar.xz"
+				# echo ""
+				
+				# Manually download and install all keyring..
+				  echo "Installing all keyring ..."
+				  cache=$(awk -F '=' '/^CacheDir/ {gsub(" ","",$2); print $2}' '/etc/pacman.conf')
+				  keyring=$(pacman -Ssq '(-keyring)' | grep -v -i -E '(gnome|python|debian)')
+				  # Download all the keyring 
+				  sudo pacman -Syw $(keyring)
+				  # Then install them manually
+				  sudo pacman -U "${cache}${keyring}-${cache}-any.pkg.tar.xz"
+				  echo ""
 
 			echo "sudo pacman-key --init ..."
-			sudo pacman-key --init && echo "" && echo "sudo pacman-key --populate archlinux manjaro ..." && sudo pacman-key --populate archlinux manjaro
+			sudo pacman-key --init && echo "" && echo "sudo pacman-key --populate $(pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | sed s/-keyring// ) ..." && sudo pacman-key --populate $(pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | sed s/-keyring// )
 			echo ""
 			
 			#automatically trust all keys from arch linux trusted users and manjaro developers - both for packages from the repositories and packages fom the AUR:
