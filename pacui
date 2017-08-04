@@ -187,8 +187,8 @@ function func_i
 		# check, whether file /tmp/pacui-packages-install already exists (the ! negates the result)
 		if  [[ ! -e /tmp/pacui-packages-install ]]
 		then
-			# alternative: "package-query -Sl -f '%n  %v  -  %d' " displays a list of all packages from the Manjaro repositories and formats them like "NAME  VERSION  -  DESCRIPTION".
 			# write package list of Manjaro repositories to /tmp/pacui-packages-install. then add all package groups to the bottom.
+			# alternative: "package-query -Sl -f '%n  %v  -  %d' " displays a list of all packages from the Manjaro repositories and formats them like "NAME  VERSION  -  DESCRIPTION".
 			pacman -Slq > /tmp/pacui-packages-install
 			pacman -Sg >> /tmp/pacui-packages-install
 						
