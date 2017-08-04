@@ -588,12 +588,12 @@ function func_fix
 		echo ""
 		
 		echo "fixing mirrors ..."
-		if [[ ! -e /usr/bin/pacman-mirrors ]]
+		if [[ -e /usr/bin/pacman-mirrors ]]
 		then 
 			sudo pacman-mirrors -g -y
 		fi
 		
-		if [[ ! -e /usr/bin/reflector ]]
+		if [[ -e /usr/bin/reflector ]]
 		then
 			sudo reflector -f 5 --sort --save /etc/pacman.d/mirrorlist && sleep 20 $$ sudo pacman -Syy
 		fi
