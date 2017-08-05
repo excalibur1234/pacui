@@ -56,7 +56,15 @@ function func_diff
 function func_c 
 {
 		echo "choosing fastest mirror ..."
-		sudo pacman-mirrors -g -y
+		if [[ -e /usr/bin/pacman-mirrors ]] # checks, whether file "pacman-mirrors" does not exist
+		then
+			sudo pacman-mirrors -g -y # If it does exists, then the mirror will sort by it
+		fi
+
+		if [[ -e /usr/bin/reflector ]] # checks, whether file "reflector" does not exist
+		then
+			sudo reflector -f 5 --sort age --save /etc/pacman.d/mirrorlist && sleep 20 && sudo pacman -Syy # If it does exists, then the mirror will sort by it
+		fi
 		echo ""
 		
 		
@@ -580,7 +588,16 @@ function func_fix
 		echo ""
 		
 		echo "fixing mirrors ..."
-		sudo pacman-mirrors -g -y
+		if [[ -e /usr/bin/pacman-mirrors ]]
+		then 
+			sudo pacman-mirrors -g -y
+		fi
+		
+		if [[ -e /usr/bin/reflector ]]
+		then
+			sudo reflector -f 5 --sort age --save /etc/pacman.d/mirrorlist && sleep 20 && sudo pacman -Syy
+		fi
+		
 		echo ""
 
 		# check, whether manjaro mirror with the latest packages is reachable:  wget --spider http://mirror.netzspielplatz.de/manjaro/
@@ -645,22 +662,46 @@ function func_fix
 				wget "${url}" && sudo pacman -U "gnupg-${version}-${arch}.pkg.tar.xz" --noconfirm && sudo rm "gnupg-${version}-${arch}.pkg.tar.xz"
 				echo ""
 				
-				# manually download and install archlinux-keyring:
-				echo "installing archlinux-keyring ..."
-				version="$( lang=C pacman -Si archlinux-keyring | awk -F': ' '/^Version/ {print $2}' )"
-				url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/archlinux-keyring-${version}-any.pkg.tar.xz"
-				wget "${url}" && sudo pacman -U "archlinux-keyring-${version}-any.pkg.tar.xz" --noconfirm && sudo rm "archlinux-keyring-${version}-any.pkg.tar.xz"
-				echo ""
+				## manually download and install archlinux-keyring:
+				# echo "installing archlinux-keyring ..."
+				# version="$( lang=C pacman -Si archlinux-keyring | awk -F': ' '/^Version/ {print $2}' )"
+				# url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/archlinux-keyring-${version}-any.pkg.tar.xz"
+				# wget "${url}" && sudo pacman -U "archlinux-keyring-${version}-any.pkg.tar.xz" --noconfirm && sudo rm "archlinux-keyring-${version}-any.pkg.tar.xz"
+				# echo ""
 				
 				# manually download and install manjaro-keyring:
-				echo "installing manjaro-keyring ..."
-				version="$( lang=C pacman -Si manjaro-keyring | awk -F': ' '/^Version/ {print $2}' )"
-				url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/manjaro-keyring-${version}-any.pkg.tar.xz"
-				wget "${url}" && sudo pacman -U "manjaro-keyring-${version}-any.pkg.tar.xz" --noconfirm && sudo rm "manjaro-keyring-${version}-any.pkg.tar.xz"
-				echo ""
+				# echo "installing manjaro-keyring ..."
+				# version="$( lang=C pacman -Si manjaro-keyring | awk -F': ' '/^Version/ {print $2}' )"
+				# url="http://mirror.netzspielplatz.de/manjaro/packages/${mybranch}/core/${arch}/manjaro-keyring-${version}-any.pkg.tar.xz"
+				# wget "${url}" && sudo pacman -U "manjaro-keyring-${version}-any.pkg.tar.xz" --noconfirm && sudo rm "manjaro-keyring-${version}-any.pkg.tar.xz"
+				# echo ""
+				
+				# Manually download and install all keyring..
+				
+				  echo "Lowering pacman securities (Allowing keyring to be installed) ..."
+				  echo "WARNING : NEVER LEAVE PACUI UNTIL THIS PROCESS ARE FINISHED! "
+				  
+				  # The command will edit /etc/pacman.conf, and replaces all "SigLevel[ ]*=" string into "SigLevel = Never #"
+				  
+				  sudo awk -i inplace ' { gsub( /SigLevel[ ]*=/ , "SigLevel = Never #" ) } ; {print} ' '/etc/pacman.conf'
+				  
+				  echo "Installing all keyring ..."
+				  
+				  # The command will install all keyrings from all avialable current repository
+				  
+				  sudo pacman -Sy $(pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | sed s/-keyring// | paste -sd " " - )
+				  
+				  
+				  echo "Raising pacman securities back ..."
+				  
+				  # The command will revert the change from previous awk command
+				  
+				  sudo awk -i inplace ' { gsub( /SigLevel[ ]*= Never #/ , "SigLevel =" ) } ; {print} ' '/etc/pacman.conf'
+		
+				  echo ""
 
 			echo "sudo pacman-key --init ..."
-			sudo pacman-key --init && echo "" && echo "sudo pacman-key --populate archlinux manjaro ..." && sudo pacman-key --populate archlinux manjaro
+			sudo pacman-key --init && echo "" && echo "sudo pacman-key --populate $(pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | sed s/-keyring// | paste -sd " " - ) ..." && sudo pacman-key --populate $(pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | sed s/-keyring// | paste -sd " " - )
 			echo ""
 			
 			#automatically trust all keys from arch linux trusted users and manjaro developers - both for packages from the repositories and packages fom the AUR:
@@ -1018,7 +1059,14 @@ The second command does the same as the first part, but with one exception: It a
 
 \e[1m2 - CLEAN SYSTEM
 \e[36m"sudo pacman-mirrors -g -y"
-This command generates a new mirrorslist of all available Manjaro repository mirrors/servers. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror. If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -g -y -c Germany,France". Alternatively, you can use the fasttrack argument and hope you get a good Manjaro mirror, e.g. "sudo pacman-mirrors -y -f 10".
+This command generates a new mirrorslist of all available repository mirrors/servers (For Manjaro).
+Then it resyncs database to match the mirrors
+
+
+\e[36m"sudo reflector -f 5 --sort age --save /etc/pacman.d/mirrorlist && sleep 20 && sudo pacman -Syy"
+This command generates a new mirrorslist of all available repository mirrors/servers (For Arch and other Arch-based distros a well).
+Then it resyncs database to match the mirrors
+
 
 \e[36m"yaourt -Qdt"
 This option lists all orphaned packages on your system. Orphaned packages are old and no longer needed dependencies (packages not explicitly installed by you), which were never removed from your system.
@@ -1131,7 +1179,12 @@ This command removes Pacmans database lock. The database lock prevents multiple 
 \e[1mAttention\e[0m: Only run this command when no other Pacman instance (e.g. Pacman, Yaourt, Pamac, Octopi, PacmanXG4, ...) is running.
 
 \e[36m"sudo pacman-mirrors -g -y"
-This command generates a new mirrorslist of all available Manjaro repository mirrors/servers. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror. If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -g -y -c Germany,France". Alternatively, you can use the fasttrack argument and hope you get a good Manjaro mirror, e.g. "sudo pacman-mirrors -y -f 10".
+This command generates a new mirrorslist of all available repository mirrors/servers (For Manjaro users only).
+Then it resyncs database to match the mirrors
+
+\e[36m"sudo reflector -f 5 --sort age --save /etc/pacman.d/mirrorlist && sleep 20 && sudo pacman -Syy"
+This command generates a new mirrorslist of all available repository mirrors/servers (For Arch users and other distro users that use reflector). 
+Then it resyncs database to match the mirrors
 
 \e[36m"sudo dirmngr </dev/null"
 Sometimes during key management the package "dirmngr" outputs error messages, which interrupt key management processes (such as the following commands). This command prevents any output from "dirmngr".
@@ -1153,15 +1206,15 @@ The third command is only run when the first and second command have been succes
 \e[1mAttention\e[0m: The last command is needed in order to prevent another services on your system to set your system clock according to your hardware clock in regular intervals. This may result in a hardware clock, which is not set to UTC anymore and/or a system clock, which shows the wrong time. If you encounter this problem read the Arch Linux Wiki article about time: "https://wiki.archlinux.org/index.php/Time"
 
 \e[36m"sudo rm -r /etc/pacman.d/gnupg"
-This command deletes your Pacman, Manjaro, and Arch key database. It does not output an error in case the package "gnupg" is not installed on your system.
+This command deletes your key database. It does not output an error in case the package "gnupg" is not installed on your system.
 \e[1mAttention\e[0m: This command will remove all keys from your system, including manually installed keys (with "sudo pacman-key --lsign-key <KEY>"). Please remember to reinstall those keys again after FIX PACMAN ERRORS has completed!
 
-\e[36m"sudo pacman -Sy gnupg archlinux-keyring manjaro-keyring"
-This command (re-)installs the "gnupg", "archlinux-keyring", and "manjaro-keyring" packages and keyrings for Arch Linux and Manjaro. PacUI actually does not use this command but instead downloads and installs this package manually in order to bypass key database and key chain errors.
+\e[36m"sudo pacman -Sy gnupg $(pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | sed s/-keyring// | paste -sd " " - )"
+This command (re-)installs the keyring packages. PacUI actually does not use this command but instead downloads and installs this package manually in order to bypass key database and key chain errors.
 \e[1mAttention\e[0m: If you want to execute this command on a system with key database problems, it will not work for you! In this case, connect manually (via your browser) to your Manjaro repository server, download these packages, and install these packages manually. PacUI will do all of this automatically for you. If this part of PacUI fails, please wait a couple of hours until your Manjaro mirror has synchronized with the main Manjaro repository and offers the latest version of these 4 packages: networkmanager-dispatcher-ntpd,gnupg, archlinux-keyring, manjaro-keyring.
 
-\e[36m"sudo pacman-key --init && sudo pacman-key --populate archlinux manjaro"
-These two commands create a fresh key for you and import and (re-)install all keys from Arch Linux and Manjaro. This will solve problems with your local key database and Manjaro's and Arch's key database. Such problems can occur when new new Arch Linux or Manjaro packagers get added, for example.
+\e[36m"sudo pacman-key --init && sudo pacman-key --populate $(pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | sed s/-keyring// | paste -sd " " - )"
+These two commands create a fresh key for you and import and (re-)install all keyrings. This will solve problems with your local key database and your distro's and Arch's key database. Such problems can occur when new new Arch Linux or your distro packagers get added, for example.
 \e[1mAttention\e[0m: This command might take a long time to complete. If your system appears to stop or hang, it searches for entropy in order to generate a new key for you. In this case, it might help to do file operations with a lot of reads and/or writes per minute (such as searching for files, copying large directories, etc.). Alternatively, you can open a browser and do some heavy surfing (with a lot of mouse movements, mouse klicks, and keyboard key presses): This can help to generate entropy much faster.
 
 \e[36m"echo 'keyring /etc/pacman.d/gnupg/pubring.gpg' >> $HOME/.gnupg/gpg.conf"
