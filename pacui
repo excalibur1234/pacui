@@ -679,8 +679,9 @@ function func_fix
 				# Manually download and install all keyring..
 				
 				  echo "Lowering pacman securities (Allowing keyring to be installed) ..."
+				  echo "WARNING : NEVER LEAVE PACUI UNTIL THIS PROCESS ARE FINISHED! "
 				  
-				  sudo -c " sed -i -e '1 s/SigLevel.*/SigLevel          = Never #Required DatabaseOptional/; t' -e '1,// s/SigLevel.*/SigLevel          = Never #Required DatabaseOptional/' /etc/pacman.conf ; sed -i -e '1 s/LocalFileSigLevel.*/LocalFileSigLevel = Never #Optional/; t' -e '1,// s/LocalFileSigLevel.*/LocalFileSigLevel = Never #Optional/' /etc/pacman.conf "
+				  sudo awk -i inplace ' { gsub( /SigLevel[ ]*=/ , "SigLevel = Never #" ) } ; {print} ' '/etc/pacman.conf'
 				  
 				  echo "Installing all keyring ..."
 				  
@@ -688,8 +689,8 @@ function func_fix
 				  
 				  
 				  echo "Raising pacman securities back ..."
-				  
-				  sudo -c " sed -i -e '1 s/SigLevel.*/SigLevel          = Required DatabaseOptional/; t' -e '1,// s/SigLevel.*/SigLevel          = Required DatabaseOptional/' /etc/pacman.conf ; sed -i -e '1 s/LocalFileSigLevel.*/LocalFileSigLevel = Optional/; t' -e '1,// s/LocalFileSigLevel.*/LocalFileSigLevel = Optional/' /etc/pacman.conf "
+		
+				  sudo awk -i inplace ' { gsub( /SigLevel[ ]*= Never #/ , "SigLevel =" ) } ; {print} ' '/etc/pacman.conf'
 		
 				  echo ""
 
