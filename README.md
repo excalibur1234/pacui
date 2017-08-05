@@ -104,6 +104,12 @@ pacui i cantat
 ```
 Since there is only one package found in the Manjaro repositories when searching for "cantat", the list view is skipped and you are immediately prompted to install "cantata".
 
+
+If the last argument contains special characters, it has to be quoted. For example when using regular expressions in order to search package file names ending with ".zsh":
+```
+pacui s ".zsh$"
+```
+
 ## Useful Tips and Recommended Settings
 It is highly recommended to use an utility, which notifies the user about available updates alongside of PacUI. Such a lightweight utility is for example [update-notifier](https://github.com/Chrysostomus/update-notifier).
 

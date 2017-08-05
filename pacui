@@ -450,7 +450,7 @@ function func_s
 			# list all files of all installed local packages using "pacman -Ql --color always"
 			# awk -v VAR="$file" '$NF ~ VAR' searches for $file (using regex) in the last field/column only. write resulting list to /tmp/pacui-search-temp
 			pacman -Ql --color always | awk -v VAR="$file" -F '/' '$NF ~ VAR' >> /tmp/pacui-search-temp
-			# write a list of packages (which install files containing "$file" string) to /tmp/pacui-search-packages-temp
+			# write a list of package names (which install files containing "$file" string) to /tmp/pacui-search-packages-temp
 			pacman -Ql --color always | awk -v VAR="$file" -F '/' '$NF ~ VAR' | awk -F '/' '{print $1}' | sort -u > /tmp/pacui-search-packages-temp
 						
 			# update local package database. this needs a long time when internet connection is slow.
@@ -462,10 +462,11 @@ function func_s
 			# the awk command is used to format output: "-F '\0'" set "\0" as separator. this makes it possible to easily use $1,$2,$3,$4 as syntax later.
 			# "system( "grep -q " $2 " /tmp/pacui-search-packages-temp" ) == 1" check exit status of "grep -q <package name> /tmp/pacui-search-packages-temp"(checks, if <package name> is part of list /tmp/pacui-search-packages-temp). if error occurs (==1), the package is printed to /tmp/pacui-search-temp
 			# "{print $1 "/" $2, $4}" prints output nicely formatted to /tmp/pacui-search-temp.
-			pacman -Fsx --machinereadable "$file" | awk -F '\0' 'system("grep -q " $2 " /tmp/pacui-search-packages-temp") == 1 {print $2 "   " $4}' >> /tmp/pacui-search-temp
+			# instead of regular ANSI escape sequences, i need to use \033[1m instead of \e[1m inside the awk command.
+			pacman -Fsx --machinereadable "$file" | awk -F '\0' 'system("grep -q " $2 " /tmp/pacui-search-packages-temp") == 1 {print  $1 "/" "\033[1m" $2 "\033[0m " $4}' >> /tmp/pacui-search-temp
 
 			# display results from file /tmp/pacui-search-temp in fzf.
-			cat /tmp/pacui-search-temp | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Package names and package file paths containing \"${file}\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed package names and file paths > ' > /tmp/pacui-s
+			cat /tmp/pacui-search-temp | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Package file names containing \"${file}\" with their full paths. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed package names and file paths > ' > /tmp/pacui-s
 									
 		fi
 }
@@ -1174,9 +1175,10 @@ By default, the results are filtered for files located in usr/bin/, but you can 
 \e[36m"pacman -Ql | grep <FILE NAME>"
 \e[36m"sudo pacman -Fysx <FILE NAME>" \e[0m(only for packages not installed on your system)
 In some situations, Pacman (e.g. during UPDATE SYSTEM) cannot find a file, for example a shared library. An error message is shown about <FILE NAME>. Use SEARCH PACKAGE FILES to find out, which package has installed <FILE NAME>. In most cases, you can fix the Pacman error by using one of the following options on that package: UPDATE SYSTEM, ROLL BACK SYSTEM, FORCE REMOVE PACKAGES and INSTALL PACKAGES, or FORCE UPDATE SYSTEM.
-The first command searches for <FILE NAME> in all your installed packages. <FILE NAME> can contain regular expressions.
+SEARCH PACKAGE FILES is in many ways a reverse LIST PACKAGE FILES. You can use it to find out which package you have to install in order to use the <FILE NAME> command in your terminal.
+The first command searches for <FILE NAME> in all your installed packages. <FILE NAME> can be only a part of an actual file name or contain regular expressions.
 The second command syncs the file database with the Manjaro repositories and then searches the file database for <FILE NAME>.
-As a result, <PACKAGE NAME> and the complete path to <FILE NAME> gets displayed using fzf. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-s.
+As a result, <MANJARO REPOSITORY>/<PACKAGE NAME> and the complete path to <FILE NAME> gets displayed using fzf. <PACKAGE NAME> is always printed in a bold font. <MANJARO REPOSITORY> only gets displayed for packages, which are not installed on your system. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-s.
 \e[1mAttention\e[0m: On some systems, the file database has not been downloaded which results in an error message instead of search results from the Manjaro repositories. You can fix it by running "sudo pacman -Fyy" once and restarting SEARCH PACKAGE FILES.
 
 
