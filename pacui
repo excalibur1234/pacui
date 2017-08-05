@@ -1359,7 +1359,7 @@ Press "q" to quit this Help Page.
 # section for general bug fixes
 
 
-# bug #1:
+# bug #2:
 # when used with tmux and pacaur and $EDITOR variable is not set and vi is not installed: 
 # pacaur sometimes does not find an editor to use and the --preview window in fzf does not show any package information.
 
@@ -1434,9 +1434,10 @@ fi
 # section for bug fixes related to UI:
 
 
+# bug #1:
+# the traditional "clear" command does not work as expected on all systems. solution: do everything i expect from "clear" manually:
 function pacui_clean 
 {
-		# the traditional "clear" command does not work as expected on all systems. solution: do everything i expect from "clear" manually:
 		# number of lines of the user's terminal.
 		lines=$( tput lines )
 		for (( i=1; i<=lines; i++ ))
