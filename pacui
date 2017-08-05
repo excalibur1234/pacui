@@ -976,7 +976,9 @@ function func_a
 
 function func_la 
 {
-		pacman -Qem --color always
+		# this command shows all packages from external, i.e. not in manjaro repositories, sources: 
+		# packages from the AUR and manually installed packages.
+		pacman -Qm --color always
 }
 
 
@@ -1168,7 +1170,8 @@ This command shows you a list of all recent Pacman actions sorted by date. Pleas
 
 \e[1m11 - FIX PACMAN ERRORS
 Multiple commands attempt to fix the most common issues Manjaro users have with Pacman. Force options (as in FORCE UPDATE SYSTEM) are excluded, even though they are essential in fixing some problems.
-A working internet connection is required.
+Please make sure that your root partition is not full. If you have doubts about this, run CLEAN SYSTEM before FIX PACMAN ERRORS.
+A working internet connection is required for FIX PACMAN ERRORS!
 
 \e[36m"sudo rm -f /var/lib/pacman/db.lck"
 This command removes Pacmans database lock. The database lock prevents multiple Pacman instances from running at the same time and interfering with each other.
@@ -1281,7 +1284,7 @@ The second command of FORCE UPDATE AUR forces a reinstall of ALL your developmen
 
 
 \e[1m18 - LIST INSTALLED FROM AUR
-\e[36m"pacman -Qem"
+\e[36m"pacman -Qm"
 This command lists all installed packages, which are from the AUR or which were manually installed.
 If you want a list of all installed packages use REMOVE PACKAGES + DEPS as described in this Help Page.
 
