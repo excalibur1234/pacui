@@ -595,7 +595,7 @@ function func_fix
 		
 		if [[ -e /usr/bin/reflector ]]
 		then
-			sudo reflector -f 5 --sort age --save /etc/pacman.d/mirrorlist && sleep 20 $$ sudo pacman -Syy
+			sudo reflector -f 5 --sort age --save /etc/pacman.d/mirrorlist && sleep 20 && sudo pacman -Syy
 		fi
 		
 		echo ""
