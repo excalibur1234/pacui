@@ -681,15 +681,21 @@ function func_fix
 				  echo "Lowering pacman securities (Allowing keyring to be installed) ..."
 				  echo "WARNING : NEVER LEAVE PACUI UNTIL THIS PROCESS ARE FINISHED! "
 				  
+				  # The command will edit /etc/pacman.conf, and replaces all "SigLevel[ ]*=" string into "SigLevel = Never #"
+				  
 				  sudo awk -i inplace ' { gsub( /SigLevel[ ]*=/ , "SigLevel = Never #" ) } ; {print} ' '/etc/pacman.conf'
 				  
 				  echo "Installing all keyring ..."
+				  
+				  # The command will install all keyrings from all avialable current repository
 				  
 				  sudo pacman -Sy $(pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | sed s/-keyring// | paste -sd " " - )
 				  
 				  
 				  echo "Raising pacman securities back ..."
-		
+				  
+				  # The command will revert the change from previous awk command
+				  
 				  sudo awk -i inplace ' { gsub( /SigLevel[ ]*= Never #/ , "SigLevel =" ) } ; {print} ' '/etc/pacman.conf'
 		
 				  echo ""
@@ -1053,11 +1059,13 @@ The second command does the same as the first part, but with one exception: It a
 
 \e[1m2 - CLEAN SYSTEM
 \e[36m"sudo pacman-mirrors -g -y"
-This command generates a new mirrorslist of all available repository mirrors/servers (For Manjaro Users). Then it resyncs database to match the mirror
+This command generates a new mirrorslist of all available repository mirrors/servers (For Manjaro).
+Then it resyncs database to match the mirrors
 
 
 \e[36m"sudo reflector -f 5 --sort age --save /etc/pacman.d/mirrorlist && sleep 20 && sudo pacman -Syy"
-This command generates a new mirrorslist of all available repository mirrors/servers (For Arch Users). Then it resyncs database to match the mirrors
+This command generates a new mirrorslist of all available repository mirrors/servers (For Arch and other Arch-based distros a well).
+Then it resyncs database to match the mirrors
 
 
 \e[36m"yaourt -Qdt"
@@ -1171,10 +1179,13 @@ This command removes Pacmans database lock. The database lock prevents multiple 
 \e[1mAttention\e[0m: Only run this command when no other Pacman instance (e.g. Pacman, Yaourt, Pamac, Octopi, PacmanXG4, ...) is running.
 
 \e[36m"sudo pacman-mirrors -g -y"
-This command generates a new mirrorslist of all available repository mirrors/servers (For Manjaro Users). Then it resyncs database to match the mirrors
+This command generates a new mirrorslist of all available repository mirrors/servers (For Manjaro users only).
+Then it resyncs database to match the mirrors
 
 \e[36m"sudo reflector -f 5 --sort age --save /etc/pacman.d/mirrorlist && sleep 20 && sudo pacman -Syy"
-This command generates a new mirrorslist of all available repository mirrors/servers (For Arch Users). Then it resyncs database to match the mirrors
+This command generates a new mirrorslist of all available repository mirrors/servers (For Arch users and other distro users that use reflector). 
+Then it resyncs database to match the mirrors
+
 \e[36m"sudo dirmngr </dev/null"
 Sometimes during key management the package "dirmngr" outputs error messages, which interrupt key management processes (such as the following commands). This command prevents any output from "dirmngr".
 
@@ -1195,11 +1206,11 @@ The third command is only run when the first and second command have been succes
 \e[1mAttention\e[0m: The last command is needed in order to prevent another services on your system to set your system clock according to your hardware clock in regular intervals. This may result in a hardware clock, which is not set to UTC anymore and/or a system clock, which shows the wrong time. If you encounter this problem read the Arch Linux Wiki article about time: "https://wiki.archlinux.org/index.php/Time"
 
 \e[36m"sudo rm -r /etc/pacman.d/gnupg"
-This command deletes your Pacman, Manjaro, and Arch key database. It does not output an error in case the package "gnupg" is not installed on your system.
+This command deletes your key database. It does not output an error in case the package "gnupg" is not installed on your system.
 \e[1mAttention\e[0m: This command will remove all keys from your system, including manually installed keys (with "sudo pacman-key --lsign-key <KEY>"). Please remember to reinstall those keys again after FIX PACMAN ERRORS has completed!
 
 \e[36m"sudo pacman -Sy gnupg $(pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | sed s/-keyring// | paste -sd " " - )"
-This command (re-)installs the "gnupg", "archlinux-keyring", and "manjaro-keyring" packages and all important keyrings. PacUI actually does not use this command but instead downloads and installs this package manually in order to bypass key database and key chain errors.
+This command (re-)installs the keyring packages. PacUI actually does not use this command but instead downloads and installs this package manually in order to bypass key database and key chain errors.
 \e[1mAttention\e[0m: If you want to execute this command on a system with key database problems, it will not work for you! In this case, connect manually (via your browser) to your Manjaro repository server, download these packages, and install these packages manually. PacUI will do all of this automatically for you. If this part of PacUI fails, please wait a couple of hours until your Manjaro mirror has synchronized with the main Manjaro repository and offers the latest version of these 4 packages: networkmanager-dispatcher-ntpd,gnupg, archlinux-keyring, manjaro-keyring.
 
 \e[36m"sudo pacman-key --init && sudo pacman-key --populate $(pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | sed s/-keyring// | paste -sd " " - )"
