@@ -999,9 +999,15 @@ function func_a
 
 function func_la 
 {
-		# this command shows all packages from external, i.e. not in manjaro repositories, sources: 
-		# packages from the AUR and manually installed packages.
-		pacman -Qm --color always
+		# this command shows all packages from external, i.e. not in manjaro repositories, sources:
+		# packages from the AUR and manually installed packages
+		# "pacman -Qm --color always"
+		pacman -Qqm --color always | fzf-tmux -m -e +s -i -1 --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+			pacman -Qi {} --color always
+			' --preview-window=right:50%:wrap  --header="List of AUR and manually installed packages. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-la
+
+
+
 }
 
 
@@ -1307,7 +1313,7 @@ The second command of FORCE UPDATE AUR forces a reinstall of ALL your developmen
 
 \e[1m18 - LIST INSTALLED FROM AUR
 \e[36m"pacman -Qm"
-This command lists all installed packages, which are from the AUR or which were manually installed.
+This command lists all installed packages, which are from the AUR or which were manually installed. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-la.
 If you want a list of all installed packages use REMOVE PACKAGES + DEPS as described in this Help Page.
 
 
@@ -1321,7 +1327,7 @@ This command displays a lot of information about <PACKAGE NAME>. Different piece
 This command lists all packages on your system sorted by their installation size. Both explicitly installed packages and dependencies are displayed. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-ls.
 
 
-\e[1m9 - PACMAN LOG
+\e[1mPACMAN LOG
 \e[36m"tail -5000 /var/log/pacman.log"
 The Pacman Log contains all updates, installations, and removals (also in the AUR) you have done. Whenever something breaks on your system (e.g. after an udpate), but you do not remember anymore which packages were changed recently (e.g. during the last update), take a look at your Pacman Log and find out. Then, ROLL BACK SYSTEM, and downgrade the packages you think might be broken.
 This command displays the last 5000 lines of your Pacman Log and makes it searchable with fzf. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-log.
@@ -1610,8 +1616,6 @@ do
 		18|la|listaur)
 			func_la
 			echo
-			echo -e " All locally installed packages listed. To return to PacUI press ENTER "
-			read
 			;;
 		a|aur)
 			func_a
