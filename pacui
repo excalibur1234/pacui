@@ -123,12 +123,12 @@ function func_c
 		then
 			wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null && gunzip -f /tmp/aur/packages.gz
 		fi
-		cat /tmp/aur/packages > /tmp/pacui-aur-check
+		sort -u /tmp/aur/packages > /tmp/pacui-aur-check
 
 		local pkg
 		# the "comm" command compares 2 files and outputs the differences between them
 		# "pacman -Qqm | sort" outputs a list of all installed packages from the AUR
-		pkg=$( comm -23 <(pacman -Qqm | sort) < /tmp/pacui-aur-check )
+		pkg=$(  comm -23 <(pacman -Qqm | sort) <(cat /tmp/pacui-aur-check)  )
 		# only run the command inside the if-statement, if $pkg variable is not empty
 		if [[ -n $pkg ]]
 		then
