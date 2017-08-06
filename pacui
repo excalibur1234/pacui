@@ -888,7 +888,7 @@ function func_fi
 		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		# the --preview option of fzf displays information about the currently selected line
-		pkg=$( sort -u -i /tmp/pacui-packages-install | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+		pkg=$( sort -u -i /tmp/pacui-packages-group-manjaro | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
 			then
 				if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
