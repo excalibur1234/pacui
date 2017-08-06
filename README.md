@@ -36,19 +36,19 @@ Home Screen of PacUI's UI:
 ![Screenshot 01](https://s27.postimg.org/oy4cz7z2r/Untitled.png)
 
 
-Installing the package "cantata" from the Manjaro repositories:
+Installing the package "cantata" from system repositories:
 
 ![Screenshot 02](https://s3.postimg.org/xvgqwhe1f/install.gif)
 
 
 ## Installation
 
-Simply install the stable version of PacUI from the Manjaro repositories:
+In Manjaro, you can simply install the stable version of PacUI:
 ```
 sudo pacman -S pacui
 ```
 
-Alternatively, you can also install the latest version of PacUI:
+Alternatively, you can also install the latest version of PacUI from the AUR:
 ```
 yaourt -S pacui-git
 ```
@@ -58,7 +58,7 @@ This will install PacUI including the latest commits on Github. If you ever enco
 Please note that PacUI requires also Pacaur or Yaourt to work properly. Both AUR helpers are only listed as optional dependencies, but you should install at least one of them. If Pacaur is installed, it gets used by default over Yaourt.
 
 ### Execute without prior Installation
-Alternatively, it is possible to download and start PacUI without prior installation using the following commands:
+Because PacUI is contained within one file, it is possible to download and start it without prior installation:
 ```
 wget https://raw.githubusercontent.com/excalibur1234/pacui/master/pacui
 ```
@@ -128,18 +128,18 @@ pacui conf pacman.conf
 ```
 
 ### Limit Mirrors Check to Countries Near You
-Whenever pacman-mirrors is used by PacUI, e.g. in the "Clean System" option, your ping is checked to all Manjaro servers/mirrors. By limiting this check to mirrors near you, you can dramatically speed up this process.
+In Manjaro, pacman-mirrors is used by PacUI. For example, in the "Clean System" option, your ping is checked to all Manjaro servers/mirrors. By limiting this check to mirrors near you, you can dramatically speed up this process.
 You can achieve this by uncommenting and editing the line according to the tips above the following line in your /etc/pacman-mirrors.conf file:
 ```
 #OnlyCountry =
 ```
-A very easy way to edit this file by using PacUI is:
+A very easy way to edit this file using PacUI is:
 ```
 pacui --conf
 ```
 
 ### Alias
-If you use PacUI without the UI it is recommended to use an alias for PacUI to reduce the amount of necessary typing. Do this by adding the following line to your ~.bashrc file (if you use bash):
+If you use PacUI without the UI it is recommended to use an alias for PacUI to reduce the amount of necessary typing. Do this by adding the following line to your ~/.bashrc file (if you use bash):
 ```
 alias p='pacui'
 ```
