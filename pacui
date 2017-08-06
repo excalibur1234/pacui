@@ -209,8 +209,8 @@ function func_i
 		# check, whether file /tmp/pacui-packages-install already exists (the ! negates the result)
 		if  [[ ! -e /tmp/pacui-packages-install ]]
 		then
-			# write package list of Manjaro repositories to /tmp/pacui-packages-install. then add all package groups to the bottom.
-			# alternative: "package-query -Sl -f '%n  %v  -  %d' " displays a list of all packages from the Manjaro repositories and formats them like "NAME  VERSION  -  DESCRIPTION".
+			# write package list of system repositories to /tmp/pacui-packages-install. then add all package groups to the bottom.
+			# alternative: "package-query -Sl -f '%n  %v  -  %d' " displays a list of all packages from system repositories and formats them like "NAME  VERSION  -  DESCRIPTION".
 			pacman -Slq > /tmp/pacui-packages-install
 			pacman -Sg >> /tmp/pacui-packages-install
 						
@@ -350,7 +350,7 @@ function func_t
 		# check, whether file /tmp/pacui-packages-local already exists (the ! negates the result)
 		if [[ ! -e /tmp/pacui-packages-local ]]
 		then
-			# write package list of Manjaro repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
+			# write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
 			pacman -Slq > /tmp/pacui-packages-local
 			pacman -Qq >> /tmp/pacui-packages-local
 		fi
@@ -403,7 +403,7 @@ function func_l
 		# check, whether file /tmp/pacui-packages-local already exists (the ! negates the result)
 		if [[ ! -e /tmp/pacui-packages-local ]]
 		then
-			# write package list of Manjaro repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
+			# write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
 			pacman -Slq > /tmp/pacui-packages-local
 			pacman -Qq >> /tmp/pacui-packages-local
 		fi
@@ -439,8 +439,8 @@ function func_l
 				# in some cases, the local database has to be initialized with sudo pacman -Fyy
 				sudo pacman -Fy
 				
-				echo -e "\n\e[1mPackage files in Manjaro repositories: \e[0m"
-				# search in manjaro repositories with "pacman -Fl" --> machine readable version of output is easier to read for awk!
+				echo -e "\n\e[1mPackage files in system repositories: \e[0m"
+				# search in system repositories with "pacman -Fl" --> machine readable version of output is easier to read for awk!
 				# the awk command is used to format output: "-F '\0'" set "\0" as separator. this makes it possible to easily use $1,$2,$3,$4 as syntax later.
 				# "{print $1 "/" $2 "  " $4}" prints output nicely formatted.
 				pacman -Fl --machinereadable "$pkg" | grep -v "/$" | awk -F '\0' '{print $4}' | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of remote package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed file paths > ' > /tmp/pacui-l
@@ -479,8 +479,8 @@ function func_s
 			# in some cases, the local database has to be initialized with sudo pacman -Fyy
 			sudo pacman -Fy
 			
-			echo -e "\n\e[1mPackage files in Manjaro repositories: \e[0m" >> /tmp/pacui-search-temp
-			# search in manjaro repositories with "pacman -Fsx" --> machine readable version of output is easier to read for awk!
+			echo -e "\n\e[1mPackage files in system repositories: \e[0m" >> /tmp/pacui-search-temp
+			# search in system repositories with "pacman -Fsx" --> machine readable version of output is easier to read for awk!
 			# the awk command is used to format output: "-F '\0'" set "\0" as separator. this makes it possible to easily use $1,$2,$3,$4 as syntax later.
 			# "system( "grep -q " $2 " /tmp/pacui-search-packages-temp" ) == 1" check exit status of "grep -q <package name> /tmp/pacui-search-packages-temp"(checks, if <package name> is part of list /tmp/pacui-search-packages-temp). if error occurs (==1), the package is printed to /tmp/pacui-search-temp
 			# "{print $1 "/" $2, $4}" prints output nicely formatted to /tmp/pacui-search-temp.
@@ -508,7 +508,7 @@ function func_d
 		# check, whether file /tmp/pacui-packages-local already exists (the ! negates the result)
 		if [[ ! -e /tmp/pacui-packages-local ]]
 		then
-			# write package list of Manjaro repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
+			# write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
 			pacman -Slq > /tmp/pacui-packages-local
 			pacman -Qq >> /tmp/pacui-packages-local
 		fi
@@ -724,7 +724,7 @@ function func_fix
 			sudo pacman-key --init && echo "" && sudo pacman-key --populate $(pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | sed 's/-keyring//' | paste -sd " " )
 			echo ""
 			
-			#automatically trust all keys from arch linux trusted users and manjaro developers - both for packages from the repositories and packages fom the AUR:
+			#automatically trust all keys from arch linux trusted users (and manjaro developers) - both for packages from the repositories and packages fom the AUR:
 			local temp
 			temp=$( grep "/etc/pacman.d/gnupg/pubring.gpg" "$HOME/.gnupg/gpg.conf" )
 			if [[ -n $temp ]]   # check, whether $temp variable is empty
@@ -876,19 +876,19 @@ function func_e
 
 function func_fi 
 {
-		# check, whether file /tmp/pacui-packages-group-manjaro already exists (the ! negates the result)
-		if [[ ! -e /tmp/pacui-packages-group-manjaro ]]
+		# check, whether file /tmp/pacui-packages-group-repo already exists (the ! negates the result)
+		if [[ ! -e /tmp/pacui-packages-group-repo ]]
 		then
-			# write formatted package list of Manjaro repositories to /tmp/pacui-packages-group-manjaro. then add all package groups to the bottom.
-			pacman -Slq > /tmp/pacui-packages-group-manjaro
-			pacman -Sg >> /tmp/pacui-packages-group-manjaro
+			# write formatted package list of repositories to /tmp/pacui-packages-group-repo. then add all package groups to the bottom.
+			pacman -Slq > /tmp/pacui-packages-group-repo
+			pacman -Sg >> /tmp/pacui-packages-group-repo
 		fi
 		
 		local pkg
 		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		# the --preview option of fzf displays information about the currently selected line
-		pkg=$( sort -u -i /tmp/pacui-packages-group-manjaro | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+		pkg=$( sort -u -i /tmp/pacui-packages-group-repo | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
 			then
 				if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
@@ -999,7 +999,7 @@ function func_a
 
 function func_la 
 {
-		# this command shows all packages from external, i.e. not in manjaro repositories, sources:
+		# this command shows all packages from external, i.e. not in system repositories, sources:
 		# packages from the AUR and manually installed packages
 		# "pacman -Qm --color always"
 		pacman -Qqm --color always | fzf-tmux -m -e +s -i -1 --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
@@ -1064,9 +1064,9 @@ Most options in PacUI use Fuzzy Finder (fzf), which lets you search the displaye
 
 \e[1mHOME SCREEN
 PacUI's home screen is split into three parts:
-The first part focuses on updates, maintenance, installations, and removals of packages from Manjaros repositories. It includes useful tools for these actions, too.
+The first part focuses on updates, maintenance, installations, and removals of packages from system repositories. It includes useful tools for these actions, too.
 The second part includes options for fixing your system. Options, which can break your system, are marked in red.
-The last part offers Arch User Repository (AUR) management options.
+The last part offers options exclusive to Arch User Repository (AUR) management.
 
 
 \e[1m00 - HELP
@@ -1082,7 +1082,7 @@ This will clear your terminal and quit PacUI.
 \e[1m1 - UPDATE SYSTEM
 \e[36m"sudo pacman -Syu"
 \e[36m"yaourt -Syua"
-The first command compares a list of all installed packages with package database on your Manjaro repository mirror/server. If an updated package is available from the Manjaro repositories, it will get downloaded and installed on your system.
+The first command compares a list of all installed packages with package database on your system repository mirror/server. If an updated package is available from your system repositories, it will get downloaded and installed on your system.
 The second command does the same as the first part, but with one exception: It also downloads, compiles, and installs all packages from the Arch User Repository (AUR), which have an updated PKGBUILD file. The first command is still needed occasionaly, because major Pacman and Yaourt updates require "pacman -Syu" and will fail when started with Yaourt.
 \e[1mAttention\e[0m: When a new version of an AUR package is available, sometimes the PKGBUILD file is not updated. If you want to install the latest version of a single AUR package, (re-)install it with INSTALL PACKAGES. If you want to install the latest versions of ALL AUR packages use FORCE UPDATE AUR.
 
@@ -1112,7 +1112,7 @@ This command displays a list of broken symbolic links on your system. These link
 This command checks your local package repository for consistency and shows missing packages, dependencies, or other errors. Please refer to "man pacman" for a more detailed explanation.
 
 \e[36m"comm -23 <(pacman -Qqm | sort) <(curl https://aur.archlinux.org/packages.gz | gzip -cd | sort)"
-This command compares 2 lists: The first list contains packages, which were not installed from the Manjaro repository. The second list contains all AUR package names. By comparing these 2 lists, it is possible to find EOL packages, which will never receive any updates.
+This command compares 2 lists: The first list contains packages, which were not installed from your system repository. The second list contains all AUR package names. By comparing these 2 lists, it is possible to find EOL packages, which will never receive any updates.
 These EOL packages can be either manually installed or they were initially installed from the AUR but have been removed from there in the meantime.
 Unless you know exactly what you are doing, it is recommended to remove these EOL packages.
 
@@ -1121,11 +1121,11 @@ This command limits all log files in journalctl to a combined size of 50 megabyt
 
 \e[36m"paccache -ruvk1"
 \e[36m"paccache -rvk3"
-By default Pacman uses this cache directory for downloading packages: /var/cache/pacman/pkg/... . No cached packages get deleted automatically. The package cache of an old and actively used Manjaro installation can become quite large. Clean it to regain space on your root partition.
+By default Pacman uses this cache directory for downloading packages: /var/cache/pacman/pkg/... . No cached packages get deleted automatically. The package cache of an old and actively used installation can become quite large. Clean it to regain space on your root partition.
 The first command removes all packages from cache, which are not installed (anymore) on your system, except the latest version. 
 The second command removes all old packages from your cache except the 3 latest versions: The version you have currently installed on your system and 2 previous versions. Old package versions are kept to enable you to use ROLL BACK SYSTEM (or to manually downgrade packages) even without a working internet connection.
 
-\e[36m"sudo pacman-optimize" \e[0m(only when Manjaro is installed on a HDD)
+\e[36m"sudo pacman-optimize" \e[0m(only when installed on a HDD)
 This command effectively defragments your Pacman database.
 On traditional hard drives (HDD) this command can speed up all actions related to Pacman. 
 \e[1mAttention\e[0m: It is NOT recommended to use this command on modern solid state hard drives (SSDs)!
@@ -1139,7 +1139,7 @@ By comparing both outputs, it is possible to extract a list of so called end-of-
 
 \e[1m3 - INSTALL PACKAGES
 \e[36m"yaourt -S <PACKAGE NAME>"
-This option downloads and installs <PACKAGE NAME> on your system. The list of packages shows packages from the Manjaro repository with their version number and description while package groups or packages from the AUR are only shown with their name.
+This option downloads and installs <PACKAGE NAME> on your system. The list of packages shows packages from your system repository with their version number and description while package groups or packages from the AUR are only shown with their name.
 \e[1mAttention\e[0m: Experienced users can install packages from the AUR without the need to answer questions all the time by using the command "yaourt -S <PACKAGE NAME> --noconfirm". The "--noconfirm" flag is great for quick and dirty installations of AUR packages on non-secure systems. Please keep always in mind that the AUR can contain any sort of package - including malicious and destructive (parts of) packages. Therefore, it is recommended to always check the PKGBUILD and .INSTALL file manually before installing a package from the AUR.
 
 
@@ -1155,7 +1155,7 @@ Please note that folders in your home (~) directory and created by the program <
 
 \e[1m5 - DEPENDENCY TREE
 \e[36m"pactree -s <PACKAGE NAME>"\e[0m or \e[36m"pactree <PACKAGE NAME>"
-This command will display a complete tree of all dependencies of <PACKAGE NAME>. <PACKAGE NAME> can be an installed package or a package from the Manjaro repositories. Dependencies are packages required by <PACKAGE NAME> in order to function. When you install <PACKAGE NAME>, all its dependencies get installed, too.
+This command will display a complete tree of all dependencies of <PACKAGE NAME>. <PACKAGE NAME> can be an installed package or a package from your system repositories. Dependencies are packages required by <PACKAGE NAME> in order to function. When you install <PACKAGE NAME>, all its dependencies get installed, too.
 Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-t.
 
 
@@ -1169,11 +1169,11 @@ Please note that all selected lines (toggle selection with your TAB key) will ge
 \e[1m7 - LIST PACKAGE FILES
 \e[36m"pacman -Ql <PACKAGE NAME>"
 \e[36m"sudo pacman -Fyl <PACKAGE NAME>" \e[0m(only for packages not installed on your system)
-These commands list all files contained in <PACKAGE NAME> including their path. The second command syncs the file database with the Manjaro repositories and then searches the file database for files, which get installed by <PACKAGE NAME>.
+These commands list all files contained in <PACKAGE NAME> including their path. The second command syncs the file database with your system repositories and then searches the file database for files, which get installed by <PACKAGE NAME>.
 As a result the complete path to the files gets displayed.
 Have you ever installed a program and did not know with which command it can be started/executed? Just look for files (and their names) in your /usr/bin/ directory using LIST PACKAGE FILES.
 By default, the results are filtered for files located in usr/bin/, but you can enter any filter term you want to. Delete the default filter term with BACKSPACE to see a complete list of files of <PACKAGE NAME>. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-l.
-\e[1mAttention\e[0m: On some systems, the file database has not been downloaded which results in an error message instead of search results from the Manjaro repositories. You can fix it by running "sudo pacman -Fyy" once and restarting LIST PACKAGE FILES.
+\e[1mAttention\e[0m: On some systems, the file database has not been downloaded which results in an error message instead of search results from your system repositories. You can fix it by running "sudo pacman -Fyy" once and restarting LIST PACKAGE FILES.
 
 
 \e[1m8 - SEARCH PACKAGE FILES
@@ -1182,22 +1182,22 @@ By default, the results are filtered for files located in usr/bin/, but you can 
 In some situations, Pacman (e.g. during UPDATE SYSTEM) cannot find a file, for example a shared library. An error message is shown about <FILE NAME>. Use SEARCH PACKAGE FILES to find out, which package has installed <FILE NAME>. In most cases, you can fix the Pacman error by using one of the following options on that package: UPDATE SYSTEM, ROLL BACK SYSTEM, FORCE REMOVE PACKAGES and INSTALL PACKAGES, or FORCE UPDATE SYSTEM.
 SEARCH PACKAGE FILES is in many ways a reverse LIST PACKAGE FILES. You can use it to find out which package you have to install in order to use the <FILE NAME> command in your terminal.
 The first command searches for <FILE NAME> in all your installed packages. <FILE NAME> can be only a part of an actual file name or contain regular expressions.
-The second command syncs the file database with the Manjaro repositories and then searches the file database for <FILE NAME>.
-As a result, <MANJARO REPOSITORY>/<PACKAGE NAME> and the complete path to <FILE NAME> gets displayed using fzf. <PACKAGE NAME> is always printed in a bold font. <MANJARO REPOSITORY> only gets displayed for packages, which are not installed on your system. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-s.
-\e[1mAttention\e[0m: On some systems, the file database has not been downloaded which results in an error message instead of search results from the Manjaro repositories. You can fix it by running "sudo pacman -Fyy" once and restarting SEARCH PACKAGE FILES.
+The second command syncs the file database with your system repositories and then searches the file database for <FILE NAME>.
+As a result, <REPOSITORY>/<PACKAGE NAME> and the complete path to <FILE NAME> gets displayed using fzf. <PACKAGE NAME> is always printed in a bold font. <REPOSITORY> only gets displayed for packages, which are not installed on your system. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-s.
+\e[1mAttention\e[0m: On some systems, the file database has not been downloaded which results in an error message instead of search results from your system repositories. You can fix it by running "sudo pacman -Fyy" once and restarting SEARCH PACKAGE FILES.
 
 
 \e[1m9 - ROLL BACK SYSTEM
 \e[36m"sudo pacman -Rdd <PACKAGE NAME> --noconfirm" \e[0m(only for installed packages)
 \e[36m"sudo pacman -U <PACKAGE NAME> --noconfirm" \e[0m(only for removed packages: Installs latest version in Pacman cache)
 \e[36m"sudo pacman -U <FILE NAME> --noconfirm" \e[0m(only for upgraded packages: Installs previous version from Pacman cache)
-Manjaro uses a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. Sometimes, things go wrong during UPDATE SYSTEM and you should roll back the last update. In case the latest version of a single package is broken, rolling back (a.k.a. downgrading) that package can work.
+Manjaro and Arch Linux use a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. Sometimes, things go wrong during UPDATE SYSTEM and you should roll back the last update. In case the latest version of a single package is broken, rolling back (a.k.a. downgrading) that package can work.
 This command shows you a list of all recent Pacman actions sorted by date (using parts of this command: "tail -5000 /var/log/pacman.log"). Please select all Pacman actions you want to roll back. Installed packages will be removed from your system, removed packages will be reinstalled, and upgraded packages will be downgraded to the previous version (if this version is available in your local package cache). If you select multiple upgrades of the same package, the package gets downgraded multiple times (if this version is available in your local package cache).
 \e[1mAttention\e[0m: After downgrading a broken package to a working version, it is recommended to add the package name to your Ignore List ( "IgnorePkg" option in /etc/pacman.conf ). This will prevent Pacman from showing any available updates for this package. The package needs to be removed manually from your Ignore List in order to receive automatic updates again. Alternatively, you can run future updates with the command "sudo pacman -Syu --ignore <PACKAGE NAME>" until a fixed version of that package gets released.
 
 
 \e[1m10 - FIX PACMAN ERRORS
-Multiple commands attempt to fix the most common issues Manjaro users have with Pacman. Force options (as in FORCE UPDATE SYSTEM) are excluded, even though they are essential in fixing some problems.
+Multiple commands attempt to fix the most common issues Manjaro users have with Pacman. This should also work for Arch-based distributions, but to a lesser degree. Force options (as in FORCE UPDATE SYSTEM) are excluded, even though they are essential in fixing some problems.
 Please make sure that your root partition is not full. If you have doubts about this, run CLEAN SYSTEM before FIX PACMAN ERRORS.
 A working internet connection is required for FIX PACMAN ERRORS!
 
@@ -1263,13 +1263,13 @@ The first command updates - if necessary - systemd including important component
 The second command simply does nothing for 30 seconds before the update of all other packages get started. It is only here as precaution.
 
 \e[36m"sudo pacman -Syyuu"
-This last command forces a redownload of the latest package database from the best Manjaro repository mirror. Then, all your installed packages are checked against this latest package database. If an updated package is available from the Manjaro repositories, it will get downloaded and installed on your system. If an installed package is newer than the same package in the Manjaro repositories, the installed package will get downgraded. This behavior ensures your packages are always in sync with the Manajro repositories, even if you have just switched the Manjaro mirror or switched from unstable to stable branch.
+This last command forces a redownload of the latest package database from the best repository mirror. Then, all your installed packages are checked against this latest package database. If an updated package is available from your system repositories, it will get downloaded and installed on your system. If an installed package is newer than the same package in your system repositories, the installed package will get downgraded. This behavior ensures your packages are always in sync with your system repositories, even if you have just switched the repository mirror or switched from branches.
 
 \e[36m"sudo pacman -Suu"
 This command makes abolutely sure all downloaded packages get installed and downgraded if necessary. The user has to manually allow downgrades of packages, if downgrades are available.
 
 \e[36m"sudo pacman -Fyy"
-This command forces a sync of the file database of the Manjaro repository with the chosen mirror. The file database is a separate from the package database. The file database enables SEARCH PACKAGE FILES and LIST PACKAGE FILES of packages from the Manjaro repository, which are not installed on your system.
+This command forces a sync of the file database of your system repository with your used repository mirror server. The file database is separate from the package database. The file database enables SEARCH PACKAGE FILES and LIST PACKAGE FILES of packages, which are not installed on your system but only available on your system repository.
 
 
 \e[1m11 - CONFIGURE SYSTEM
@@ -1292,7 +1292,7 @@ This command will empty your entire package cache by deleting ALL packages.
 
 \e[1;31m15 - FORCE INSTALL PACKAGES
 \e[36m"sudo pacman -S --force <PACKAGE NAME>"
-This command does the same as INSTALL PACKAGES for packages from the Manjaro repositories exclusively. The installation of <PACKAGE NAME> is forced.
+This command does the same as INSTALL PACKAGES for packages from your system repositories exclusively. The installation of <PACKAGE NAME> is forced.
 
 
 \e[1;31m16 - FORCE REMOVE PACKAGES
@@ -1319,7 +1319,7 @@ If you want a list of all installed packages use REMOVE PACKAGES + DEPS as descr
 
 \e[1mPACKAGE INFORMATION
 \e[36m"yaourt -Sii <PACKAGE NAME>"\e[0m or \e[36m"yaourt -Qii <PACKAGE NAME>"
-This command displays a lot of information about <PACKAGE NAME>. Different pieces of information get displayed depending on package source (Manjaro repository or AUR) and package state (installed or not installed).
+This command displays a lot of information about <PACKAGE NAME>. Different pieces of information get displayed depending on package source (system repository or AUR) and package state (installed or not installed).
 
 
 \e[1mLIST PACKAGES BY SIZE
@@ -1335,17 +1335,17 @@ This command displays the last 5000 lines of your Pacman Log and makes it search
 
 \e[1mDOWNGRADE PACKAGES
 \e[36m"downgrade <PACKAGE NAME>"
-Manjaro uses a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. If the latest version of a packages does not work on your system, you can downgrade that package to an earlier, working version.
+Manjaro and Arch Linux use a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. If the latest version of a packages does not work on your system, you can downgrade that package to an earlier, working version.
 This command downgrades <PACKAGE NAME> and offers you a list of old <PACKAGE NAME> versions to choose from. This list includes all old <PACKAGE NAME> versions from your local package cache and online sources (if you have a working internet connection). 
 After a successful downgrade, you can add <PACKAGE NAME> to your Ignore List ( "IgnorePkg" option in /etc/pacman.conf ). This will prevent Pacman from showing any available updates for <PACKAGE NAME>. <PACKAGE NAME> needs to be removed manually from your Ignore List in order to receive automatic updates of <PACKAGE NAME> again.
 Alternatively, you can run future updates with the command "sudo pacman -Syu --ignore <PACKAGE NAME>" until a fixed version of <PACKAGE NAME> gets released.
-\e[1mAttention\e[0m: Be careful when downgrading to <PACKAGE NAME> from online sources, because these are old versions from the Arch Linux repositories and not the Manjaro repositories: In the worst case, this can brake your system! Therefore, it is recommended to limit downgrading to (old versions of) local packages, if possible.
+\e[1mAttention\e[0m: Be careful when using Manjaro and downgrading to <PACKAGE NAME> from online sources, because these are old versions from the Arch Linux repositories only: In the worst case, this can brake your system! Therefore, it is recommended to limit downgrading to (old versions of) local packages, if possible.
 \e[1mAttention\e[0m: Downgrading to a working version of <PACKAGE NAME> can break your system in in rare cases like the following: The latest system update has replaced a dependency of <PACKAGE NAME> with a different package and <PACKAGE NAME> is an important system package. Downgrading <PACKAGE NAME> will NOT reinstall the dependency of <PACKAGE NAME>, because it conflicts with the already installled different package. This can result in a broken system. Please keep these kind of conflicts in mind when using DOWNGRADE PACKAGES.
 
 
 \e[1mSEARCH + INSTALL FROM AUR
 \e[36m"yaourt <PACKAGE NAME>"
-This command searches for <PACKAGE NAME> in all Manjaro repositories and the Arch User Repository (AUR). It searches for package names and package descriptions. 
+This command searches for <PACKAGE NAME> in all system repositories and the Arch User Repository (AUR). It searches for package names and package descriptions. 
 Example: You can search for "web browser" and you will find Firefox and other web browsers. One or multiple search results can be installed on your system.
 If you want to exit this mode without installing any packages, simply press CTRL+C or ENTER.
 
