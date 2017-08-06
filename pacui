@@ -460,7 +460,7 @@ function func_s
 			file=$"$input2" 
 		else
 			# do this if pacui is used with UI or no argument is specified in "pacui s" command:
-			echo "Enter (parts of) the file name to be searched. Then press ENTER."
+			echo "Enter (parts of) the file name to be searched (regex supported). Then press ENTER."
 			read -r file
 			echo
 		fi
@@ -488,7 +488,7 @@ function func_s
 			pacman -Fsx --machinereadable "$file" | awk -F '\0' 'system("grep -q " $2 " /tmp/pacui-search-packages-temp") == 1 {print  $1 "/" "\033[1m" $2 "\033[0m " $4}' >> /tmp/pacui-search-temp
 
 			# display results from file /tmp/pacui-search-temp in fzf.
-			cat /tmp/pacui-search-temp | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Package file names containing \"${file}\" with their full paths. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed package names and file paths > ' > /tmp/pacui-s
+			cat /tmp/pacui-search-temp | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Package file names (with path) containing \"${file}\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed package names and file paths > ' > /tmp/pacui-s
 									
 		fi
 }
@@ -499,7 +499,7 @@ function func_s
 
 function func_log 
 {
-		tail -5000 /var/log/pacman.log | fzf-tmux -m -e +s -i --query="[ALPM] " --tac --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed logs > ' > /tmp/pacui-log
+		tail -5000 /var/log/pacman.log | fzf-tmux -m -e +s -i --tac --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed logs > ' > /tmp/pacui-log
 }
 
 
@@ -533,7 +533,7 @@ function func_b
 		fi
 
 		# 1. get list of last installs/upgrades/removes from pacman log and display result in fzf. in the end, fzf saves all selected package names (including the words "installed/upgraded/removed/downgraded" to file /tmp/pacui-cache-packages
-		tail -2000 /var/log/pacman.log | grep "\[ALPM\]" | grep "installed\|removed\|upgraded" | sed 's/\[ALPM\] //g' | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --tac --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to roll back. ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}' > /tmp/pacui-cache-packages
+		tail -3000 /var/log/pacman.log | grep "\[ALPM\]" | grep "installed\|removed\|upgraded" | sed 's/\[ALPM\] //g' | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --tac --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to roll back. ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}' > /tmp/pacui-cache-packages
 		
 		# only run the command inside the if-statement, if file /tmp/pacui-cache-packages is not empty and exists - this happens when fzf is quit with ESC or CTRL+C
 		if [[ -s /tmp/pacui-cache-packages ]]
@@ -674,6 +674,7 @@ function func_fix
 			echo -e "\e[1mWARNING : LET PACUI FINISH THIS PROCESS! \e[0m"
 			echo ""
 			# This command will edit /etc/pacman.conf, and replaces all "SigLevel =" strings with "SigLevel = Never #":
+			# general comment about "sed" usage in scripts: in order to avoid breakage, it is recommended to escape all the following characters /\.*[]^$ with a \ character!
 			sudo sed -i 's/SigLevel[ ]*=/SigLevel = Never #/' /etc/pacman.conf
 
 
@@ -1023,7 +1024,6 @@ function func_h
 			echo -e "  pacui	l     - \e[1mL\e[0mist Package Files"
 			echo -e "  pacui	s     - \e[1mS\e[0mearch Package Files"
 			echo
-			echo -e "  pacui	log   - Pacman \e[1mLog\e[0m"
 			echo -e "  pacui	b     - Roll \e[1mB\e[0mack System"
 			echo -e "  pacui	fix   - \e[1mFix\e[0m Pacman Errors"
 			echo -e "  pacui	conf  - \e[1mConf\e[0migure System"
@@ -1037,6 +1037,7 @@ function func_h
 			echo
 			echo -e "  pacui	info  - Package \e[1mInfo\e[0mrmation"
 			echo -e "  pacui	ls    - \e[1mL\e[0mist Packages by \e[1mS\e[0mize"
+			echo -e "  pacui	log   - Pacman \e[1mLog\e[0m"
 			echo -e "  pacui	d     - \e[1mD\e[0mowngrade Packages"
 			echo -e "  pacui	a     - Search + Install from \e[1mA\e[0mUR"
 			echo
@@ -1180,22 +1181,16 @@ As a result, <MANJARO REPOSITORY>/<PACKAGE NAME> and the complete path to <FILE 
 \e[1mAttention\e[0m: On some systems, the file database has not been downloaded which results in an error message instead of search results from the Manjaro repositories. You can fix it by running "sudo pacman -Fyy" once and restarting SEARCH PACKAGE FILES.
 
 
-\e[1m9 - PACMAN LOG
-\e[36m"tail -5000 /var/log/pacman.log"
-The Pacman Log contains all updates, installations, and removals (also in the AUR) you have done. Whenever something breaks on your system (e.g. after an udpate), but you do not remember anymore which packages were changed recently (e.g. during the last update), take a look at your Pacman Log and find out. Then, ROLL BACK SYSTEM, and downgrade the packages you think might be broken.
-This command displays the last 5000 lines of your Pacman Log and makes it searchable with fzf. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-log.
-
-
-\e[1m10 - ROLL BACK SYSTEM
+\e[1m9 - ROLL BACK SYSTEM
 \e[36m"sudo pacman -Rdd <PACKAGE NAME> --noconfirm" \e[0m(only for installed packages)
 \e[36m"sudo pacman -U <PACKAGE NAME> --noconfirm" \e[0m(only for removed packages: Installs latest version in Pacman cache)
 \e[36m"sudo pacman -U <FILE NAME> --noconfirm" \e[0m(only for upgraded packages: Installs previous version from Pacman cache)
-Manjaro uses a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. Sometimes, things go wrong during UPDATE SYSTEM and you should roll back the last update.
-This command shows you a list of all recent Pacman actions sorted by date. Please select all Pacman actions you want to roll back. Installed packages will be removed from your system, removed packages will be reinstalled, and upgraded packages will be downgraded to the previous version (if this version is available in your local package cache). If you select multiple upgrades of the same package, the package gets downgraded multiple times (if this version is available in your local package cache).
-\e[1mAttention\e[0m: After downgrading a broken package to a working version, it is recommended to add the package name to your Ignore List ( "IgnorePkg" option in /etc/pacman.conf ). This will prevent Pacman from showing any available updates for this package. The package needs to be removed manually from your Ignore List in order to receive automatic updates  for it again. Alternatively, you can run future updates with the command "sudo pacman -Syu --ignore <PACKAGE NAME>" until a fixed version of that package gets released.
+Manjaro uses a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. Sometimes, things go wrong during UPDATE SYSTEM and you should roll back the last update. In case the latest version of a single package is broken, rolling back (a.k.a. downgrading) that package can work.
+This command shows you a list of all recent Pacman actions sorted by date (using parts of this command: "tail -5000 /var/log/pacman.log"). Please select all Pacman actions you want to roll back. Installed packages will be removed from your system, removed packages will be reinstalled, and upgraded packages will be downgraded to the previous version (if this version is available in your local package cache). If you select multiple upgrades of the same package, the package gets downgraded multiple times (if this version is available in your local package cache).
+\e[1mAttention\e[0m: After downgrading a broken package to a working version, it is recommended to add the package name to your Ignore List ( "IgnorePkg" option in /etc/pacman.conf ). This will prevent Pacman from showing any available updates for this package. The package needs to be removed manually from your Ignore List in order to receive automatic updates again. Alternatively, you can run future updates with the command "sudo pacman -Syu --ignore <PACKAGE NAME>" until a fixed version of that package gets released.
 
 
-\e[1m11 - FIX PACMAN ERRORS
+\e[1m10 - FIX PACMAN ERRORS
 Multiple commands attempt to fix the most common issues Manjaro users have with Pacman. Force options (as in FORCE UPDATE SYSTEM) are excluded, even though they are essential in fixing some problems.
 Please make sure that your root partition is not full. If you have doubts about this, run CLEAN SYSTEM before FIX PACMAN ERRORS.
 A working internet connection is required for FIX PACMAN ERRORS!
@@ -1271,7 +1266,7 @@ This command makes abolutely sure all downloaded packages get installed and down
 This command forces a sync of the file database of the Manjaro repository with the chosen mirror. The file database is a separate from the package database. The file database enables SEARCH PACKAGE FILES and LIST PACKAGE FILES of packages from the Manjaro repository, which are not installed on your system.
 
 
-\e[1m12 - CONFIGURE SYSTEM
+\e[1m11 - CONFIGURE SYSTEM
 \e[36m"$EDITOR <FILE NAME>"
 This command opens <FILE NAME> in your default text editor. You can choose between multiple important system configuration files. Files in the root directory are opened with root privileges.
 By default the text editor Nano gets used, except a custom $EDITOR variable has been exported. In the text editor Nano, Press CTRL+O to save your changes, ENTER to choose a directory, and CTRL+X to quit Nano.
@@ -1324,6 +1319,12 @@ This command displays a lot of information about <PACKAGE NAME>. Different piece
 \e[1mLIST PACKAGES BY SIZE
 \e[36m"package-query -Q --rsort 2 -f '%2 - %n %v'"
 This command lists all packages on your system sorted by their installation size. Both explicitly installed packages and dependencies are displayed. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-ls.
+
+
+\e[1m9 - PACMAN LOG
+\e[36m"tail -5000 /var/log/pacman.log"
+The Pacman Log contains all updates, installations, and removals (also in the AUR) you have done. Whenever something breaks on your system (e.g. after an udpate), but you do not remember anymore which packages were changed recently (e.g. during the last update), take a look at your Pacman Log and find out. Then, ROLL BACK SYSTEM, and downgrade the packages you think might be broken.
+This command displays the last 5000 lines of your Pacman Log and makes it searchable with fzf. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-log.
 
 
 \e[1mDOWNGRADE PACKAGES
@@ -1473,8 +1474,8 @@ do
 	echo -e " │    5   Dependency \e[1mT\e[0mree               6   \e[1mR\e[0meverse Dependency \e[1mT\e[0mree    │"
 	echo -e " │    7   \e[1mL\e[0mist Package Files            8   \e[1mS\e[0mearch Package Files       │"
 	echo -e " └─────────────────────────────────────────────────────────────────────┘"
-	echo -e "      9   Pacman \e[1mLog\e[0m                   10   Roll \e[1mB\e[0mack System            "
-	echo -e "     11   \e[1mFix\e[0m Pacman Errors            12   \e[1mConf\e[0migure System            "
+	echo -e "      9   Roll \e[1mB\e[0mack System             10   \e[1mFix\e[0m Pacman Errors           "
+	echo -e "     11   \e[1mConf\e[0migure System             "
 	echo -e "   \e[31m  13   \e[1mF\e[0;31morce \e[1mU\e[0;31mpdate System          14   \e[1mE\e[0;31mmpty Package Cache       \e[0m "
 	echo -e "   \e[31m  15   \e[1mF\e[0;31morce \e[1mI\e[0;31mnstall Packages       16   \e[1mF\e[0;31morce \e[1mR\e[0;31memove Packages     \e[0m "
 	echo -e " ┌─────────────────────────────────────────────────────────────────────┐"
@@ -1548,7 +1549,7 @@ do
 			;;
 
 
-		9|log)
+		log)
 			func_log
 			echo
 			;;	
@@ -1558,19 +1559,19 @@ do
 			echo -e " Downgrade finished. To return to PacUI press ENTER "
 			read
 			;;	
-		10|b|back)
+		9|b|back)
 			func_b
 			echo
 			echo -e " System roll back finished. To return to PacUI press ENTER "
 			read
 			;;
-		11|fix)
+		10|fix)
 			func_fix
 			echo
 			echo -e " Operation finished. To return to PacUI press ENTER "
 			read
 			;;
-		12|conf|config|configure)
+		11|conf|config|configure)
 			func_conf
 			echo
 			;;
