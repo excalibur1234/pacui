@@ -674,7 +674,7 @@ function func_fix
 			echo -e "\e[1mWARNING : LET PACUI FINISH THIS PROCESS! \e[0m"
 			echo ""
 			# This command will edit /etc/pacman.conf, and replaces all "SigLevel =" strings with "SigLevel = Never #":
-			sudo awk -i inplace ' { gsub( /SigLevel[ ]*=/ , "SigLevel = Never #" ) } ; {print} ' '/etc/pacman.conf'
+			sudo sed -i 's/SigLevel[ ]*=/SigLevel = Never #/' /etc/pacman.conf
 
 
 			if [[ $(cat /proc/1/comm) == "systemd" ]]          # if init system is systemd
@@ -715,7 +715,7 @@ function func_fix
 
 			echo "Raising pacman securities back ..."
 			# This command will revert the change from previous awk command
-			sudo awk -i inplace ' { gsub( /SigLevel[ ]*= Never #/ , "SigLevel =" ) } ; {print} ' '/etc/pacman.conf'
+			sudo sed -i 's/SigLevel = Never #/SigLevel =/' /etc/pacman.conf
 			echo ""
 
 
@@ -1213,9 +1213,9 @@ This command generates a new mirrorslist of all available repository mirrors/ser
 \e[36m"sudo dirmngr </dev/null"
 Sometimes during key management the package "dirmngr" outputs error messages, which interrupt key management processes (such as the following commands). This command prevents any output from "dirmngr".
 
-\e[36m"sudo awk -i inplace ' { gsub( /SigLevel[ ]*=/ , "SigLevel = Never #" ) } ; {print} ' '/etc/pacman.conf'"
+\e[36m"sudo sed -i 's/SigLevel[ ]*=/SigLevel = Never #/' /etc/pacman.conf "
 The following commands delete and reinstall some essential packages. If your keyring is broken, no packages could be installed because of a key mismatch. Therefore, it is important to disable Pacman's key check before continuing.
-This command disables the signature check of packages by Pacman.
+This command disables the signature key check of packages by Pacman.
 
 \e[36m"sudo systemctl stop ntpd.service"
 This command stops (temporarily) the Network Time Protocol daemon service NTPD (if it is installed and running). In case NTPD is not installed, the output is ignored.
@@ -1240,7 +1240,7 @@ This command deletes your key database. It does not output an error in case the 
 \e[36m"sudo pacman -Sy gnupg $(pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | paste -sd " " )"
 This command (re-)installs the gnupg and keyring packages. PacUI actually does not use this command but instead downloads and installs this package manually in order to bypass key database and key chain errors.
 
-\e[36m"sudo awk -i inplace ' { gsub( /SigLevel[ ]*= Never #/ , "SigLevel =" ) } ; {print} ' '/etc/pacman.conf' "
+\e[36m"sudo sed -i 's/SigLevel = Never #/SigLevel =/' /etc/pacman.conf "
 This command enables the signature check of packages by Pacman again.
 \e[1mAttention\e[0m: If this command fails or the PacUI script is exited after the signature check has been disabled and this command, it is highly recommended to manually check your /etc/pacman.conf file and remove all "Never #" strings you can find. Only by doing this, you can trust package installations on your system again!
 
