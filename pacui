@@ -805,7 +805,8 @@ function func_conf
 		[[ -e /etc/sysctl.d ]]                     && echo "/etc/sysctl.d/*                   - Configure kernel parameters at runtime in multiple files." >> /tmp/pacui-conf
 		[[ -e /etc/mkinitcpio.conf ]]              && echo "\e[31m/etc/mkinitcpio.conf              - Configure initial ramdisk environment.\e[0m" >> /tmp/pacui-conf
 		[[ -e /etc/default/grub ]]                 && echo "\e[31m/etc/default/grub                 - Configure GRUB boot loader.\e[0m" >> /tmp/pacui-conf
-		[[ -e /boot/loader/entries/manjaro.conf ]] && echo "\e[31m/boot/loader/entries/manjaro.conf - Configure systemd-boot boot loader.\e[0m" >> /tmp/pacui-conf
+		[[ -e /boot/loader/loader.conf ]]          && echo "\e[31m/boot/loader/loader.conf          - Configure systemd-boot boot loader.\e[0m" >> /tmp/pacui-conf
+		[[ -e /boot/loader/entries ]]              && echo "\e[31m/boot/loader/entries/*.conf       - Configure systemd-boot boot loader entries.\e[0m" >> /tmp/pacui-conf
 		[[ -e /boot/refind_linux.conf ]]           && echo "\e[31m/boot/refind_linux.conf           - Configure rEFInd boot loader.\e[0m" >> /tmp/pacui-conf
 		[[ -e /boot/EFI/refind/refind.conf ]]      && echo "\e[31m/boot/EFI/refind/refind.conf      - Configure rEFInd boot loader.\e[0m" >> /tmp/pacui-conf
 		[[ -e /boot/EFI/CLOVER/config.plist ]]     && echo "\e[31m/boot/EFI/CLOVER/config.plist     - Configure Clover boot loader.\e[0m" >> /tmp/pacui-conf
