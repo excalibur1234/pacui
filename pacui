@@ -277,12 +277,12 @@ function func_r
 		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		pkg=$( sort -u -i /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-			if ( pacman -Sgq {} &>/dev/null )		# check, if selected line in fzf is a package group
+			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
 			then
+				pacman -Qi {} --color always
+			else
 				echo -e "\e[1m{} group has the following members: \e[0m"
 				pacman -Sgq {}
-			else									# selected line has to be a locally installed pacakge in all other cases
-				pacman -Qi {} --color always
 			fi
 			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
         
@@ -896,12 +896,7 @@ function func_fi
 		pkg=$( sort -u -i /tmp/pacui-packages-group-repo | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
 			then
-				if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
-				then
-					yaourt -Qi {}
-				else 				
-					pacaur -Qi {} --color always
-				fi
+				pacman -Qi {} --color always
 			elif ( pacman -Sgq {} &>/dev/null )		# check, if selected line in fzf is a package group
 			then
 				echo -e "\e[1m{} group has the following members: \e[0m"
@@ -937,18 +932,12 @@ function func_fr
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		# the --preview option of fzf displays information about the currently selected line
 		pkg=$( sort -u -i /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-			if ( pacman -Sgq {} &>/dev/null )		# check, if selected line in fzf is a package group
+			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
 			then
+				pacman -Qi {} --color always
+			else
 				echo -e "\e[1m{} group has the following members: \e[0m"
 				pacman -Sgq {}
-			else									# selected line has to be a locally installed pacakge in all other cases
-				if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
-				then
-					yaourt -Qi {}
-				else 				
-					pacaur -Qi {} --color always
-				fi
-
 			fi
 			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
 		
