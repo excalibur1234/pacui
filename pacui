@@ -341,7 +341,7 @@ function func_info
 function func_ls
 {
 		# list all packages on local system sorted by their installed size using "expac" and "sort". then, display the result using fzf.
-		expac -H M -Q '%m - \e[1m%n\e[0m %v' | sort -n -r | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-ls
+		expac -H M -Q '%m - \e[1m%n\e[0m %v' | sort -n -r | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-ls	
 		# alternative command to "expac" and "sort": package-query -Q --rsort 2 -f "%2 - \e[1m%n \e[0m%v" | numfmt --to=iec 
 }
 
@@ -1006,7 +1006,7 @@ function func_la
 		# this command shows all packages from external, i.e. not in system repositories, sources:
 		# packages from the AUR and manually installed packages
 		# "pacman -Qm --color always"
-		pacman -Qqm --color always | fzf-tmux -m -e +s -i -1 --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+		pacman -Qqm --color always | fzf-tmux -m -e +s -i --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			pacman -Qi {} --color always
 			' --preview-window=right:50%:wrap  --header="List of AUR and manually installed packages. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-la
 
