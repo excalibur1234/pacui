@@ -1,7 +1,7 @@
 
 # PacUI
 
-PacUI is a CLI tool, which provides useful and advanced Pacman and Pacaur/Yaourt commands in an easy to use text interface. 
+PacUI provides useful and advanced Pacman and Pacaur/Yaourt commands in a convenient and easy to use text interface. 
 
 PacUI is aimed at experienced/intermediate/advanced users of Manjaro or Arch Linux, who have at least basic knowledge of the structure of their Linux system and how Pacman and Pacaur/Yaourt work. Absolute beginners are probably overwhelmed by the amount of choices PacUI offers.
 
@@ -149,7 +149,7 @@ p u
 ```
 
 ### Search syntax
-PacUI uses [fuzzy finder (fzf)](https://github.com/junegunn/fzf) to display lists of items (such as packages, package groups, logs, patchs, etc.) and by starting to type, you can easily search/filter those lists. Advanced users can use regular expressions to improve their search results. Simply type in multiple search terms delimited by spaces. e.g. `^music git$ sbtrkt !fire`
+PacUI uses [fuzzy finder (fzf)](https://github.com/junegunn/fzf) to display lists of items (such as packages, package groups, logs, patchs, etc.) and by starting to type, you can easily search/filter those lists. Advanced users can use regular expressions to improve their search results. fzf accepts multiple search terms (with regular expressions) delimited by spaces. e.g. `^music git$ sbtrkt !fire`
 
 | Search Term | Description                       |
 | ----------- | --------------------------------- |
