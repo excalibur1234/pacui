@@ -210,16 +210,19 @@ function func_i
 		if  [[ ! -e /tmp/pacui-packages-install ]]
 		then
 			# write package list of system repositories to /tmp/pacui-packages-install. then add all package groups to the bottom.
+			# delete all spaces with "tr". this is important for installing multiple packages at the same time!
 			# alternative: "package-query -Sl -f '%n  %v  -  %d' " displays a list of all packages from system repositories and formats them like "NAME  VERSION  -  DESCRIPTION".
-			pacman -Slq > /tmp/pacui-packages-install
-			pacman -Sg >> /tmp/pacui-packages-install
+			pacman -Slq | tr -d " " > /tmp/pacui-packages-install
+			pacman -Sg | tr -d " " >> /tmp/pacui-packages-install
 						
 			# finally, download AUR package list (only when not already downloaded), unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages-install.
 			if  [[ ! -e /tmp/aur/packages ]]
 			then
 				wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null && gunzip -f /tmp/aur/packages.gz
 			fi
-			cat /tmp/aur/packages >> /tmp/pacui-packages-install
+			# remove line with download date from list of AUR packages with "grep"
+			# delete all spaces with "tr". this is important for installing multiple packages at the same time!
+			cat /tmp/aur/packages | grep -v "#" | tr -d " " >> /tmp/pacui-packages-install
 		fi
 		
 		local pkg
@@ -263,10 +266,10 @@ function func_i
 function func_r 
 {
 		# write package list of local repository to /tmp/pacui-packages-group. then add all installed package groups to the bottom.
-		pacman -Qq > /tmp/pacui-packages-group
+		pacman -Qq | tr -d " " > /tmp/pacui-packages-group
 		# this expac command prints a list of package groups of installed packages 
 		# awk 'NF != 0'  only displays lines where the number of fields is not zero (i.e. non-empty lines)
-		expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-group
+		expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' | tr -d " " >> /tmp/pacui-packages-group
 		# alternative command: package-query -Qg | awk '{print $1}' >> /tmp/pacui-packages-group
 		
 		local pkg
@@ -303,7 +306,7 @@ function func_info
 			then
 				wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null && gunzip -f /tmp/aur/packages.gz
 			fi
-			cat /tmp/aur/packages >> /tmp/pacui-packages
+			cat /tmp/aur/packages | grep -v "#" >> /tmp/pacui-packages
 		fi
 			
 		# the following command lets you search through the file "/tmp/pacui-packages" with fzf and save your selection in "pkg"
@@ -352,8 +355,8 @@ function func_t
 		if [[ ! -e /tmp/pacui-packages-local ]]
 		then
 			# write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
-			pacman -Slq > /tmp/pacui-packages-local
-			pacman -Qq >> /tmp/pacui-packages-local
+			pacman -Slq | tr -d " " > /tmp/pacui-packages-local
+			pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
 		fi
 
 		local pkg
@@ -405,8 +408,8 @@ function func_l
 		if [[ ! -e /tmp/pacui-packages-local ]]
 		then
 			# write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
-			pacman -Slq > /tmp/pacui-packages-local
-			pacman -Qq >> /tmp/pacui-packages-local
+			pacman -Slq | tr -d " " > /tmp/pacui-packages-local
+			pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
 		fi
 		
 		local pkg
@@ -510,8 +513,8 @@ function func_d
 		if [[ ! -e /tmp/pacui-packages-local ]]
 		then
 			# write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
-			pacman -Slq > /tmp/pacui-packages-local
-			pacman -Qq >> /tmp/pacui-packages-local
+			pacman -Slq | tr -d " " > /tmp/pacui-packages-local
+			pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
 		fi
 		
 		local pkg
@@ -882,8 +885,8 @@ function func_fi
 		if [[ ! -e /tmp/pacui-packages-group-repo ]]
 		then
 			# write formatted package list of repositories to /tmp/pacui-packages-group-repo. then add all package groups to the bottom.
-			pacman -Slq > /tmp/pacui-packages-group-repo
-			pacman -Sg >> /tmp/pacui-packages-group-repo
+			pacman -Slq | tr -d " " > /tmp/pacui-packages-group-repo
+			pacman -Sg | tr -d " " >> /tmp/pacui-packages-group-repo
 		fi
 		
 		local pkg
@@ -923,10 +926,10 @@ function func_fi
 function func_fr 
 {
 		# write package list of local repository to /tmp/pacui-packages-group. then add all installed package groups to the bottom.
-		pacman -Qq > /tmp/pacui-packages-group
+		pacman -Qq | tr -d " " > /tmp/pacui-packages-group
 		# this expac command prints a list of package groups of installed packages 
 		# awk 'NF != 0'  only displays lines where the number of fields is not zero (i.e. non-empty lines)
-		expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-group
+		expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' | tr -d " " >> /tmp/pacui-packages-group
 		# alternative command: package-query -Qg | awk '{print $1}' >> /tmp/pacui-packages-group
 
 		local pkg
