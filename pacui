@@ -266,6 +266,7 @@ function func_r
 		pacman -Qq > /tmp/pacui-packages-group
 		# package-query is the only way to display a list of installed package groups that i know of.
 		package-query -Qg | awk '{print $1}' >> /tmp/pacui-packages-group
+		# comment: it is possible to replace "package-query" here with expac (which is part of pacman): " expac -Qg %G | sort -u | sed 's/ /\n/g' | awk 'NF != 0' | sort -u " == " package-query -Qg | awk '{print $1}' "
 		
 		local pkg
 		
@@ -340,7 +341,7 @@ function func_ls
 {
 		# list all packages on local system sorted by their installed size using package-query. then, convert to human-readable format using numfmt and displaying the result using fzf.
 		package-query -Q --rsort 2 -f "%2 - \e[1m%n \e[0m%v" | numfmt --to=iec | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-ls
-
+		# comment: this package-query command can be replaced by expac: " expac -H M -Q '%m - \e[1m%n\e[0m %v' | sort -n -r " == " package-query -Q --rsort 2 -f "%2 - \e[1m%n \e[0m%v" | numfmt --to=iec "
 
 }
 
