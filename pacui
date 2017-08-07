@@ -264,9 +264,10 @@ function func_r
 {
 		# write package list of local repository to /tmp/pacui-packages-group. then add all installed package groups to the bottom.
 		pacman -Qq > /tmp/pacui-packages-group
-		# package-query is the only way to display a list of installed package groups that i know of.
-		package-query -Qg | awk '{print $1}' >> /tmp/pacui-packages-group
-		# comment: it is possible to replace "package-query" here with expac (which is part of pacman): " expac -Qg %G | sort -u | sed 's/ /\n/g' | awk 'NF != 0' | sort -u " == " package-query -Qg | awk '{print $1}' "
+		# this expac command prints a list of package groups of installed packages 
+		# awk 'NF != 0'  only displays lines where the number of fields is not zero (i.e. non-empty lines)
+		expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-group
+		# alternative command: package-query -Qg | awk '{print $1}' >> /tmp/pacui-packages-group
 		
 		local pkg
 		
@@ -339,10 +340,9 @@ function func_info
 
 function func_ls
 {
-		# list all packages on local system sorted by their installed size using package-query. then, convert to human-readable format using numfmt and displaying the result using fzf.
-		package-query -Q --rsort 2 -f "%2 - \e[1m%n \e[0m%v" | numfmt --to=iec | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-ls
-		# comment: this package-query command can be replaced by expac: " expac -H M -Q '%m - \e[1m%n\e[0m %v' | sort -n -r " == " package-query -Q --rsort 2 -f "%2 - \e[1m%n \e[0m%v" | numfmt --to=iec "
-
+		# list all packages on local system sorted by their installed size using "expac" and "sort". then, display the result using fzf.
+		expac -H M -Q '%m - \e[1m%n\e[0m %v' | sort -n -r | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-ls
+		# alternative command to "expac" and "sort": package-query -Q --rsort 2 -f "%2 - \e[1m%n \e[0m%v" | numfmt --to=iec 
 }
 
 
@@ -923,7 +923,10 @@ function func_fr
 {
 		# write package list of local repository to /tmp/pacui-packages-group. then add all installed package groups to the bottom.
 		pacman -Qq > /tmp/pacui-packages-group
-		package-query -Qg | awk '{print $1}' >> /tmp/pacui-packages-group
+		# this expac command prints a list of package groups of installed packages 
+		# awk 'NF != 0'  only displays lines where the number of fields is not zero (i.e. non-empty lines)
+		expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-group
+		# alternative command: package-query -Qg | awk '{print $1}' >> /tmp/pacui-packages-group
 
 		local pkg
 		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
@@ -1324,7 +1327,7 @@ This command displays a lot of information about <PACKAGE NAME>. Different piece
 
 
 \e[1mLIST PACKAGES BY SIZE
-\e[36m"package-query -Q --rsort 2 -f '%2 - %n %v'"
+\e[36m"expac -Q '%m - %n %v' | sort -n -r "
 This command lists all packages on your system sorted by their installation size. Both explicitly installed packages and dependencies are displayed. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-ls.
 
 
