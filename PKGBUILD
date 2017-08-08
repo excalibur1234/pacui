@@ -17,7 +17,7 @@ optdepends=('pacaur: Needed for AUR support. If installed, it gets used by defau
         'reflector: Needed for Arch Linux mirror support'
         'downgrade: Needed for hidden "downgrade" option.')
 source=("$url/archive/$pkgver.tar.gz")
-md5sums=('6298f8f3a33b4e338b11607b89532291')
+md5sums=('0ffc7c6d2f5250180965f62fd778bffa')
 
 # how to get md5sum:
 #  do "updpkgsums" inside the folder of PKGBUILD
