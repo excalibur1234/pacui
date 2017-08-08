@@ -485,6 +485,7 @@ function func_s
 			
 			echo -e "\n\e[1mPackage files in system repositories: \e[0m" >> /tmp/pacui-search-temp
 			# search in system repositories with "pacman -Fsx" --> machine readable version of output is easier to read for awk!
+			# comment: possible improvement: use "pv -ptb" to show progress bar (useful for large searches)
 			# the awk command is used to format output: "-F '\0'" set "\0" as separator. this makes it possible to easily use $1,$2,$3,$4 as syntax later.
 			# "system( "grep -q " $2 " /tmp/pacui-search-packages-temp" ) == 1" check exit status of "grep -q <package name> /tmp/pacui-search-packages-temp"(checks, if <package name> is part of list /tmp/pacui-search-packages-temp). if error occurs (==1), the package is printed to /tmp/pacui-search-temp
 			# "{print $1 "/" $2, $4}" prints output nicely formatted to /tmp/pacui-search-temp.
@@ -1477,8 +1478,8 @@ do
 	echo -e " │    5   Dependency \e[1mT\e[0mree               6   \e[1mR\e[0meverse Dependency \e[1mT\e[0mree    │"
 	echo -e " │    7   \e[1mL\e[0mist Package Files            8   \e[1mS\e[0mearch Package Files       │"
 	echo -e " └─────────────────────────────────────────────────────────────────────┘"
-	echo -e "      9   Roll \e[1mB\e[0mack System             10   \e[1mFix\e[0m Pacman Errors           "
-	echo -e "     11   \e[1mConf\e[0migure System             "
+	echo -e "      9   Roll \e[1mB\e[0mack System             10   \e[1mFix\e[0m Pacman Errors "
+	echo -e "     11   \e[1mConf\e[0migure System "
 	echo -e "   \e[31m  13   \e[1mF\e[0;31morce \e[1mU\e[0;31mpdate System          14   \e[1mE\e[0;31mmpty Package Cache       \e[0m "
 	echo -e "   \e[31m  15   \e[1mF\e[0;31morce \e[1mI\e[0;31mnstall Packages       16   \e[1mF\e[0;31morce \e[1mR\e[0;31memove Packages     \e[0m "
 	echo -e " ┌─────────────────────────────────────────────────────────────────────┐"
