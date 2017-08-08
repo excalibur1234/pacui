@@ -1469,7 +1469,7 @@ do
 	pacui_clean
 	
 	# draw UI / menu. please note the use of ANSI Escape sequences mentioned above. The text/code can be hard to read...
-	#echo
+	echo
 	echo -e "                      .:\e[7m PacUI - Package manager \e[0m:.                     "
 	echo -e " ┌─────────────────────────────────────────────────────────────────────┐"
 	echo -e " │    1   \e[1mU\e[0mpdate System                 2   \e[1mC\e[0mlean System               │"
