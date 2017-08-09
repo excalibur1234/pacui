@@ -210,7 +210,7 @@ function func_i
 		if  [[ ! -e /tmp/pacui-packages-install ]]
 		then
 			# write package list of system repositories to /tmp/pacui-packages-install. then add all package groups to the bottom.
-			# delete all spaces with "tr". this is important for installing multiple packages at the same time!
+			# delete all spaces with "tr" (there are spaces after each package name!). this is important for installing multiple packages at the same time! command equivalent to "awk '{print $1}'"
 			# alternative: "package-query -Sl -f '%n  %v  -  %d' " displays a list of all packages from system repositories and formats them like "NAME  VERSION  -  DESCRIPTION".
 			pacman -Slq | tr -d " " > /tmp/pacui-packages-install
 			pacman -Sg | tr -d " " >> /tmp/pacui-packages-install
@@ -897,13 +897,13 @@ function func_fi
 			pacman -Sg | tr -d " " >> /tmp/pacui-packages-group-repo
 		fi
 		
-		# to prevent errors: remove file and hide all output of remove operation
-		rm /tmp/pacui-fi &>/dev/null
+		local pkg
+		local pkg_install
 
 		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		# the --preview option of fzf displays information about the currently selected line
-		( sort -u -i /tmp/pacui-packages-group-repo | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+		pkg=$( sort -u -i /tmp/pacui-packages-group-repo | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
 			then
 				pacman -Qi {} --color always
@@ -919,11 +919,14 @@ function func_fi
 					pacaur -Si {} --color always
 				fi
 			fi
-			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' ) > /tmp/pacui-fi
+			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
 		
-		if [[ -s /tmp/pacui-fi ]]		# check, whether file /tmp/pacui-fi is empty - this happens when fzf is quit with ESC or CTRL+C
+		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
+		pkg_install=$(echo $pkg | paste -sd " " -)
+		
+		if [[ -n $pkg ]]		# check, whether variable $pkg is empty - this happens when fzf is quit with ESC or CTRL+C
 		then
-			sudo pacman -S --force $(cat /tmp/pacui-fi) --color always
+			sudo pacman -S --force $pkg_install --color always
 		fi
 }
 
