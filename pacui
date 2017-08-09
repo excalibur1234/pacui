@@ -249,8 +249,8 @@ function func_i
 			fi
 			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' ) > /tmp/pacui-i
 		
-		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
-		if [[ -s /tmp/pacui-i ]]	# check, whether file is non zero-size
+		# only run the command inside the if-statement, if file /tmp/pacui-i is not empty - this happens when fzf is quit with ESC or CTRL+C
+		if [[ -s /tmp/pacui-i ]]
 		then
 			
 			if [[ ! -e /usr/bin/pacaur ]]	              # checks, whether file "pacaur" does not exist
@@ -921,7 +921,7 @@ function func_fi
 			fi
 			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' ) > /tmp/pacui-fi
 		
-		if [[ -s /tmp/pacui-fi ]]
+		if [[ -s /tmp/pacui-fi ]]		# check, whether file /tmp/pacui-fi is empty - this happens when fzf is quit with ESC or CTRL+C
 		then
 			sudo pacman -S --force $(cat /tmp/pacui-fi) --color always
 		fi
