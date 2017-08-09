@@ -225,12 +225,13 @@ function func_i
 			cat /tmp/aur/packages | grep -v "#" | tr -d " " >> /tmp/pacui-packages-install
 		fi
 		
-		local pkg
+		# to prevent errors: remove file and hide all output of remove operation
+		rm /tmp/pacui-i &>/dev/null
 		
 		# the package list in /tmp/pacui-packages-install gets sorted and displayed by fzf. look in "man fzf" for what fzf's arguments are used.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		# the --preview option of fzf displays information about the currently selected line
-		pkg=$( sort -u -i /tmp/pacui-packages-install | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+		( sort -u -i /tmp/pacui-packages-install | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
 			then
 				pacman -Qi {} --color always
@@ -246,17 +247,17 @@ function func_i
 					pacaur -Si {} --color always
 				fi
 			fi
-			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
+			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' ) > /tmp/pacui-i
 		
 		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
-		if [[ -n $pkg ]]
+		if [[ -s /tmp/pacui-i ]]	# check, whether file is non zero-size
 		then
 			
 			if [[ ! -e /usr/bin/pacaur ]]	              # checks, whether file "pacaur" does not exist
 			then
-				yaourt -S "$pkg"
+				yaourt -S $( cat /tmp/pacui-i )
 			else
-				pacaur -S "$pkg" --color always
+				pacaur -S $( cat /tmp/pacui-i ) --color always
 			fi
 			
 		fi
@@ -272,11 +273,12 @@ function func_r
 		expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' | tr -d " " >> /tmp/pacui-packages-group
 		# alternative command: package-query -Qg | awk '{print $1}' >> /tmp/pacui-packages-group
 		
-		local pkg
-		
+		# to prevent errors: remove file and hide all output of remove operation
+		rm /tmp/pacui-r &>/dev/null
+
 		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
-		pkg=$( sort -u -i /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+		( sort -u -i /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
 			then
 				pacman -Qi {} --color always
@@ -284,11 +286,11 @@ function func_r
 				echo -e "\e[1m{} group has the following members: \e[0m"
 				pacman -Sgq {}
 			fi
-			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
+			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' ) > /tmp/pacui-r
         
-		if [[ -n $pkg ]]
+		if [[ -s /tmp/pacui-r ]]	# check, whether file is non zero-size
 		then
-			sudo pacman -Rsn "$pkg" --color always
+			sudo pacman -Rsn $( cat /tmp/pacui-r ) --color always
 		fi
 }
 
@@ -518,10 +520,15 @@ function func_d
 			pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
 		fi
 		
-		local pkg
-		pkg=$( sort -u -i /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to downgrade. ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
+		# to prevent errors: remove file and hide all output of remove operation
+		rm /tmp/pacui-d &>/dev/null
+
+		( sort -u -i /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to downgrade. ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' ) > /tmp/pacui-d
 		
-		downgrade "$pkg"
+		if [[ -s /tmp/pacui-d ]]
+		then
+			downgrade $(cat /tmp/pacui-d)
+		fi
 }
 
 
@@ -890,11 +897,13 @@ function func_fi
 			pacman -Sg | tr -d " " >> /tmp/pacui-packages-group-repo
 		fi
 		
-		local pkg
+		# to prevent errors: remove file and hide all output of remove operation
+		rm /tmp/pacui-fi &>/dev/null
+
 		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		# the --preview option of fzf displays information about the currently selected line
-		pkg=$( sort -u -i /tmp/pacui-packages-group-repo | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+		( sort -u -i /tmp/pacui-packages-group-repo | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
 			then
 				pacman -Qi {} --color always
@@ -910,11 +919,11 @@ function func_fi
 					pacaur -Si {} --color always
 				fi
 			fi
-			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
+			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' ) > /tmp/pacui-fi
 		
-		if [[ -n $pkg ]]
+		if [[ -s /tmp/pacui-fi ]]
 		then
-			sudo pacman -S --force "$pkg" --color always
+			sudo pacman -S --force $(cat /tmp/pacui-fi) --color always
 		fi
 }
 
@@ -928,11 +937,13 @@ function func_fr
 		expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' | tr -d " " >> /tmp/pacui-packages-group
 		# alternative command: package-query -Qg | awk '{print $1}' >> /tmp/pacui-packages-group
 
-		local pkg
+		# to prevent errors: remove file and hide all output of remove operation
+		rm /tmp/pacui-fr &>/dev/null
+
 		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		# the --preview option of fzf displays information about the currently selected line
-		pkg=$( sort -u -i /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+		( sort -u -i /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
 			then
 				pacman -Qi {} --color always
@@ -940,11 +951,11 @@ function func_fr
 				echo -e "\e[1m{} group has the following members: \e[0m"
 				pacman -Sgq {}
 			fi
-			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
+			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' ) > /tmp/pacui-fr
 		
-		if [[ -n $pkg ]]
+		if [[ -s /tmp/pacui-fr ]]
 		then
-			sudo pacman -Rdd "$pkg" --color always
+			sudo pacman -Rdd $(cat /tmp/pacui-fr) --color always
 		fi
 }
 
