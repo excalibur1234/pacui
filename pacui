@@ -225,13 +225,13 @@ function func_i
 			cat /tmp/aur/packages | grep -v "#" | tr -d " " >> /tmp/pacui-packages-install
 		fi
 		
-		# to prevent errors: remove file and hide all output of remove operation
-		rm /tmp/pacui-i &>/dev/null
+		local pkg
+		local pkg_install
 		
 		# the package list in /tmp/pacui-packages-install gets sorted and displayed by fzf. look in "man fzf" for what fzf's arguments are used.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		# the --preview option of fzf displays information about the currently selected line
-		( sort -u -i /tmp/pacui-packages-install | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+		pkg=$( sort -u -i /tmp/pacui-packages-install | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
 			then
 				pacman -Qi {} --color always
@@ -247,17 +247,20 @@ function func_i
 					pacaur -Si {} --color always
 				fi
 			fi
-			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' ) > /tmp/pacui-i
+			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
 		
-		# only run the command inside the if-statement, if file /tmp/pacui-i is not empty - this happens when fzf is quit with ESC or CTRL+C
-		if [[ -s /tmp/pacui-i ]]
+		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
+		pkg_install=$(echo $pkg | paste -sd " ")
+
+		# only run the command inside the if-statement, if variable $pkg is not empty - this happens when fzf is quit with ESC or CTRL+C
+		if [[ -n $pkg ]]
 		then
 			
-			if [[ ! -e /usr/bin/pacaur ]]	              # checks, whether file "pacaur" does not exist
+			if [[ ! -e /usr/bin/pacaur ]]					# checks, whether file "pacaur" does not exist
 			then
-				yaourt -S $( cat /tmp/pacui-i )
+				yaourt -S $pkg_install						# !!! this command does not work when $pkg_install is quoted !!! (i do not know why)
 			else
-				pacaur -S $( cat /tmp/pacui-i ) --color always
+				pacaur -S $pkg_install --color always
 			fi
 			
 		fi
@@ -273,12 +276,12 @@ function func_r
 		expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' | tr -d " " >> /tmp/pacui-packages-group
 		# alternative command: package-query -Qg | awk '{print $1}' >> /tmp/pacui-packages-group
 		
-		# to prevent errors: remove file and hide all output of remove operation
-		rm /tmp/pacui-r &>/dev/null
+		local pkg
+		local pkg_install
 
 		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
-		( sort -u -i /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+		pkg=$( sort -u -i /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
 			then
 				pacman -Qi {} --color always
@@ -286,11 +289,14 @@ function func_r
 				echo -e "\e[1m{} group has the following members: \e[0m"
 				pacman -Sgq {}
 			fi
-			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' ) > /tmp/pacui-r
+			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
         
-		if [[ -s /tmp/pacui-r ]]	# check, whether file is non zero-size
+		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
+		pkg_install=$(echo $pkg | paste -sd " ")
+
+		if [[ -n $pkg ]]	# check, whether file is non zero-size
 		then
-			sudo pacman -Rsn $( cat /tmp/pacui-r ) --color always
+			sudo pacman -Rsn $pkg_install --color always
 		fi
 }
 
@@ -520,14 +526,17 @@ function func_d
 			pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
 		fi
 		
-		# to prevent errors: remove file and hide all output of remove operation
-		rm /tmp/pacui-d &>/dev/null
+		local pkg
+		local pkg_install
 
-		( sort -u -i /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to downgrade. ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' ) > /tmp/pacui-d
+		pkg=$( sort -u -i /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to downgrade. ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
-		if [[ -s /tmp/pacui-d ]]
+		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
+		pkg_install=$(echo $pkg | paste -sd " ")
+
+		if [[ -n $pkg ]]
 		then
-			downgrade $(cat /tmp/pacui-d)
+			downgrade $pkg_install
 		fi
 }
 
@@ -922,7 +931,7 @@ function func_fi
 			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
 		
 		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
-		pkg_install=$(echo $pkg | paste -sd " " -)
+		pkg_install=$(echo $pkg | paste -sd " ")
 		
 		if [[ -n $pkg ]]		# check, whether variable $pkg is empty - this happens when fzf is quit with ESC or CTRL+C
 		then
@@ -940,13 +949,13 @@ function func_fr
 		expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' | tr -d " " >> /tmp/pacui-packages-group
 		# alternative command: package-query -Qg | awk '{print $1}' >> /tmp/pacui-packages-group
 
-		# to prevent errors: remove file and hide all output of remove operation
-		rm /tmp/pacui-fr &>/dev/null
+		local pkg
+		local pkg_install
 
 		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		# the --preview option of fzf displays information about the currently selected line
-		( sort -u -i /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+		pkg=$( sort -u -i /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
 			then
 				pacman -Qi {} --color always
@@ -954,11 +963,14 @@ function func_fr
 				echo -e "\e[1m{} group has the following members: \e[0m"
 				pacman -Sgq {}
 			fi
-			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' ) > /tmp/pacui-fr
+			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
 		
-		if [[ -s /tmp/pacui-fr ]]
+		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
+		pkg_install=$(echo $pkg | paste -sd " ")
+
+		if [[ -n $pkg ]]
 		then
-			sudo pacman -Rdd $(cat /tmp/pacui-fr) --color always
+			sudo pacman -Rdd $pkg_install --color always
 		fi
 }
 
@@ -1109,7 +1121,7 @@ This command generates a new mirrorslist of all available repository mirrors/ser
 \e[36m"yaourt -Qdt"
 This option lists all orphaned packages on your system. Orphaned packages are old and no longer needed dependencies (packages not explicitly installed by you), which were never removed from your system.
 
-\e[36m"pacdiff"
+\e[36m"sudo pacdiff"
 A .pacnew file may be created during a package upgrade to avoid overwriting a file (e.g. a config file) which already exists and was previously modified by the user. A .pacsave file may be created during a package removal, or by a package installation (the package must be removed first). When the pacman database has record that a certain file owned by the package should be backed up it will create a .pacsave file. These files require manual intervention from the user and it is good practice to handle them regularly. If left unhandled, improper configurations can result in improper function of the software, or the software being unable to run altogether. 
 This command offers you a choice, whether you want to keep the original file (in most cases, these are config files) or the .pacnew/.pacsave file. Simply view both files by choosing "v". 
 If you keep the original file, the program could not recognize the old syntax anymore, because it uses now a new syntax. In the worst case, your program could brake or stop working. If you remove the original file and use the new file without any changes, all your configurations might be reset to the default values. 
