@@ -1395,23 +1395,16 @@ Press "q" to quit this Help Page.
 
 
 # bug #2:
-# when used with tmux and pacaur and $EDITOR variable is not set and vi is not installed: 
+# when used with tmux and pacaur and $EDITOR variable is not set and vi is not installed ("vi" is the default editor used by pacaur): 
 # pacaur sometimes does not find an editor to use and the --preview window in fzf does not show any package information.
+# instead, it shows "::editor variable unset".
 
-# check, whether pacaur and vi is installed and $EDITOR variable does exist.
+# check, whether pacaur is installed, user config file exists, $EDITOR variable is empty, "vi" is not installed:
 if [[ -e /usr/bin/pacaur ]] && [[ ! -e $XDG_CONFIG_HOME/pacaur/config ]] && [[ ! -n $EDITOR ]] && [[ ! -e /usr/bin/vi ]]
 then
     # export "editor='${EDITOR:-nano}'" to config file. '${EDITOR:-nano}'" outputs "nano", if there is no $EDITOR variable set.
 	mkdir -p $XDG_CONFIG_HOME/pacaur/
     echo "editor='${EDITOR:-nano}'" >> $XDG_CONFIG_HOME/pacaur/config
-fi
-
-# check, whether pacaur is installed, but its config files does not exist and $EDITOR variable does exist and vi is installed
-if [[ -e /usr/bin/pacaur ]] && [[ ! -e $XDG_CONFIG_HOME/pacaur/config ]] && [[ ! -n $EDITOR ]] && [[ -e /usr/bin/vi ]]
-then
-    # create directory and export editor setting from /etc/xdg/pacaur/config file to ~/.config/pacuar/config file
-    mkdir -p $XDG_CONFIG_HOME/pacaur/
-    echo "$(grep 'editor=' $XDG_CONFIG_DIRS/pacaur/config | awk '{print $1}' | sed 's/#//')" >> $XDG_CONFIG_HOME/pacaur/config
 fi
 
 
