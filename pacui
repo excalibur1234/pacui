@@ -1080,10 +1080,10 @@ function func_h
 
 \e[1mWelcome to PacUIs Help Page
 
-PacUI is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Pacaur/Yaourt as back ends. If Pacaur is installed on your system, PacUI uses it by default. PacUI offers you the most common and useful features for managing your packages.
+PacUI is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Pacaur/Yaourt as back ends. If Pacaur is installed on your system, PacUI uses it by default.
 
 Navigate this help page with your Arrow Keys, PageUp/PageDown Keys, SpaceBar, or your Mouse Wheel. To search this Help Page, enter /<SEARCH TERM> and press ENTER. For example, enter the following (without quotes " ") in order to search for the word "update": "/update". Press "n" key to continue searching for "/update". Search is not case sensitive. To exit this Help Page, press your "q" key.
-Most options in PacUI use Fuzzy Finder (fzf), which lets you search the displayed list by starting to type. Advanced users can even use regular expressions to search in fzf. Use your TAB key to select multiple items from the list and your ENTER key to choose your selection. Navigate fzf's list the same way you navigate this help page.
+PacUI uses Fuzzy Finder (fzf) to display selectable lists, which can be easily searched by starting to type. Advanced users can even use regular expressions to search in fzf. Use your TAB key to select multiple items from the list and your ENTER key to choose your selection. Navigate fzf's list the same way you navigate this help page.
 
 
 \e[1mHOME SCREEN
@@ -1098,7 +1098,7 @@ Display this help page.
 This help page only gets displayed when entered from PacUIs UI. If "pacui h" or "pacui -h" is executed in a terminal, a very short help page gets displayed. Quit this help page by pressing the "q" key.
 
 
-\e[1m0 - QUIT PacUI
+\e[1m0 - QUIT
 \e[36m"clear && exit"
 This will clear your terminal and quit PacUI.
 
@@ -1512,7 +1512,7 @@ do
 	echo -e " │   17   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR             18   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
 	echo -e " └─────────────────────────────────────────────────────────────────────┘"
 	echo
-	echo -e "  Enter number or marked letter(s)   -   00   \e[1mH\e[0melp   -   0   \e[1mQ\e[0muit PacUI "
+	echo -e "  Enter number or marked letter(s)        -   00   \e[1mH\e[0melp   -    0   \e[1mQ\e[0muit "
 	
 	# save entered numbers/letters in varialbe "choice"
 	read -r choice
