@@ -1399,7 +1399,7 @@ Press "q" to quit this Help Page.
 # pacaur sometimes does not find an editor to use and the --preview window in fzf does not show any package information.
 
 # check, whether pacaur and vi is installed and $EDITOR variable does exist.
-if [[ -e /usr/bin/pacaur ]] && [[ ! -e $XDG_CONFIG_HOME/pacaur/config ]] && [[ ! -z $EDITOR ]] && [[ ! -e /usr/bin/vi ]]
+if [[ -e /usr/bin/pacaur ]] && [[ ! -e $XDG_CONFIG_HOME/pacaur/config ]] && [[ ! -n $EDITOR ]] && [[ ! -e /usr/bin/vi ]]
 then
     # export "editor='${EDITOR:-nano}'" to config file. '${EDITOR:-nano}'" outputs "nano", if there is no $EDITOR variable set.
 	mkdir -p $XDG_CONFIG_HOME/pacaur/
@@ -1407,7 +1407,7 @@ then
 fi
 
 # check, whether pacaur is installed, but its config files does not exist and $EDITOR variable does exist and vi is installed
-if [[ -e /usr/bin/pacaur ]] && [[ ! -e $XDG_CONFIG_HOME/pacaur/config ]] && [[ ! -z $EDITOR ]] && [[ -e /usr/bin/vi ]]
+if [[ -e /usr/bin/pacaur ]] && [[ ! -e $XDG_CONFIG_HOME/pacaur/config ]] && [[ ! -n $EDITOR ]] && [[ -e /usr/bin/vi ]]
 then
     # create directory and export editor setting from /etc/xdg/pacaur/config file to ~/.config/pacuar/config file
     mkdir -p $XDG_CONFIG_HOME/pacaur/
