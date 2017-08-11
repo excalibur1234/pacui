@@ -1489,23 +1489,23 @@ do
 	
 	# draw UI / menu. please note the use of ANSI Escape sequences mentioned above. The text/code can be hard to read...
 	echo
-	echo -e "                      .:\e[7m PacUI - Package manager \e[0m:.                     "
-	echo -e " ┌─────────────────────────────────────────────────────────────────────┐"
-	echo -e " │    1   \e[1mU\e[0mpdate System                 2   \e[1mC\e[0mlean System               │"
-	echo -e " │    3   \e[1mI\e[0mnstall Packages              4   \e[1mR\e[0memove Packages + Deps     │"
-	echo -e " │---------------------------------------------------------------------│"
-	echo -e " │    5   Dependency \e[1mT\e[0mree               6   \e[1mR\e[0meverse Dependency \e[1mT\e[0mree    │"
-	echo -e " │    7   \e[1mL\e[0mist Package Files            8   \e[1mS\e[0mearch Package Files       │"
-	echo -e " └─────────────────────────────────────────────────────────────────────┘"
-	echo -e "      9   Roll \e[1mB\e[0mack System             10   \e[1mFix\e[0m Pacman Errors "
+	echo -e "                     .:\e[7m PacUI - Package manager \e[0m:.                    "
+	echo -e " ┌───────────────────────────────────────────────────────────────────┐"
+	echo -e " │    1   \e[1mU\e[0mpdate System               2   \e[1mC\e[0mlean System               │"
+	echo -e " │    3   \e[1mI\e[0mnstall Packages            4   \e[1mR\e[0memove Packages + Deps     │"
+	echo -e " │-------------------------------------------------------------------│"
+	echo -e " │    5   Dependency \e[1mT\e[0mree             6   \e[1mR\e[0meverse Dependency \e[1mT\e[0mree    │"
+	echo -e " │    7   \e[1mL\e[0mist Package Files          8   \e[1mS\e[0mearch Package Files       │"
+	echo -e " └───────────────────────────────────────────────────────────────────┘"
+	echo -e "      9   Roll \e[1mB\e[0mack System           10   \e[1mFix\e[0m Pacman Errors "
 	echo -e "     11   \e[1mConf\e[0migure System "
-	echo -e "   \e[31m  13   \e[1mF\e[0;31morce \e[1mU\e[0;31mpdate System          14   \e[1mE\e[0;31mmpty Package Cache       \e[0m "
-	echo -e "   \e[31m  15   \e[1mF\e[0;31morce \e[1mI\e[0;31mnstall Packages       16   \e[1mF\e[0;31morce \e[1mR\e[0;31memove Packages     \e[0m "
-	echo -e " ┌─────────────────────────────────────────────────────────────────────┐"
-	echo -e " │   17   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR             18   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
-	echo -e " └─────────────────────────────────────────────────────────────────────┘"
+	echo -e "   \e[31m  13   \e[1mF\e[0;31morce \e[1mU\e[0;31mpdate System        14   \e[1mE\e[0;31mmpty Package Cache       \e[0m "
+	echo -e "   \e[31m  15   \e[1mF\e[0;31morce \e[1mI\e[0;31mnstall Packages     16   \e[1mF\e[0;31morce \e[1mR\e[0;31memove Packages     \e[0m "
+	echo -e " ┌───────────────────────────────────────────────────────────────────┐"
+	echo -e " │   17   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR           18   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
+	echo -e " └───────────────────────────────────────────────────────────────────┘"
 	echo
-	echo -e "  Enter number or marked letter(s)        -   00   \e[1mH\e[0melp   -    0   \e[1mQ\e[0muit "
+	echo -e "  Enter number or marked letter(s)      -   00   \e[1mH\e[0melp   -    0   \e[1mQ\e[0muit "
 	
 	# save entered numbers/letters in varialbe "choice"
 	read -r choice
