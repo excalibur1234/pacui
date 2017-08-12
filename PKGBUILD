@@ -2,8 +2,8 @@
 # Maintainer: excalibur1234 @forum.manjaro.org
 
 pkgname=pacui
-pkgver=1.6
-pkgrel=2
+pkgver=1.6.1
+pkgrel=1
 pkgdesc="A simple and interative Bash Frontend for Pacman/Pacaur/Yaourt"
 arch=(any)
 url="https://github.com/excalibur1234/$pkgname"
@@ -17,10 +17,11 @@ optdepends=('pacaur: Needed for AUR support. If installed, it gets used by defau
         'reflector: Needed for Arch Linux mirror support'
         'downgrade: Needed for hidden "downgrade" option.')
 source=("$url/archive/$pkgver.tar.gz")
-md5sums=('0ffc7c6d2f5250180965f62fd778bffa')
+md5sums=('1a36034db48ce0d93fa350e031534ee6')
 
 # how to get md5sum:
-#  do "updpkgsums" inside the folder of PKGBUILD
+#  1. do "updpkgsums" inside the folder of PKGBUILD
+#  2. delete ...tar.gz file
 
 package () {
 	cd $srcdir
