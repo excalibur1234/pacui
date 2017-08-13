@@ -247,7 +247,7 @@ function func_i
 				then 
 					yaourt -Si {}
 				else 
-					pacaur -Si {} --color always
+					pacaur -Si {} --color always | grep -v "not found in repositories"      # grep command removes error being displayed in pacaur only
 				fi
 			fi
 			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
@@ -344,7 +344,7 @@ function func_info
 				then
 					yaourt -Sii "$pkg"		    # execute this command when "pkg" is not installed on system
 				else
-					pacaur -Sii "$pkg" --color always
+					pacaur -Sii "$pkg" --color always | grep -v "not found in repositories" 
 				fi
 			
 			fi
