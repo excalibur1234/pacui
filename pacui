@@ -544,7 +544,7 @@ function func_d
 function func_b
 {
 		# declare local variables
-		local {cache,cachePACAUR,pkgR,pkgI,pkgD,line,temp1,temp2,temp3,pacui_cache_packages,pacui_cache_install,pacui_cache_downgrade,pacui_cache_downgrade_counted}
+		local {cache,cachePACAUR,pkgR,pkgI,pkgD,line,temp1,temp2,temp3,pacui_cache_packages,pacui_cache_install,pacui_install,pacui_cache_downgrade,pacui_cache_downgrade_counted}
 		
 		# get cache directory from file /etc/pacman.conf (without any white spaces) and write results to variable $cache:
 		cache=$( awk -F '=' '/^CacheDir/ {gsub(" ","",$2); print $2}' '/etc/pacman.conf' )
@@ -589,32 +589,27 @@ function func_b
 			
 			if [[ ! -z "$pacui_cache_install" ]]     # this if-condition avoids error messages when no package gets installed (and variable $pacui_cache_install is empty)
 			then
-			
-			      # the file /tmp/pacui-install will later contain a list of file names of (old versions of) packages in cache. it has to be empty in the beginning!
-				[[ -e /tmp/pacui-install ]] && rm /tmp/pacui-install       # check, whether file exists and delete it.
-							
+					
 				# read line by line from variable $pacui_cache_install in while loop and save that line to variable $line
-				while IFS='' read -r line || [[ -n "$line" ]]
+				pacui_install=$(while IFS='' read -r line || [[ -n "$line" ]]
 				do
 					# write name of latest version in cache into file /tmp/pacui-install ("sort" puts latest version on top, which is then selected): 	
-					find $cache -name "${line}-[0-9]*[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r | sed -n '1p' >> /tmp/pacui-install
+					find $cache -name "${line}-[0-9]*[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r | sed -n '1p'
 					
-					if [[ -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" exists, i.e. pacaur is installed
-					then 
-						# do the same as above for files from pacaur's cache directory.
-						# the problem here is that AUR packages are not named/numbered in a constant and easy sortable way. therefore, we search for all files and output their modification date in an easy searchable format (and then, the file name).
-						# then, "grep" is used to get only package files. then, the list is sorted (by the modification date).
-						# awk gets rid of the modification date. grep filters for the file name $line. sed only chooses the first/top line.
-						find "$cachePACAUR" -maxdepth 2 -mindepth 2 -type f -printf "%T+\t%p\n" | grep ".pkg.tar.[gx]z$" | sort -rn | awk '{print $2}' | grep "$line""-" | sed -n '1p' >> /tmp/pacui-temp-downgrade
-					fi
+					#if [[ -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" exists, i.e. pacaur is installed
+					#then 
+						## do the same as above for files from pacaur's cache directory.
+						## the problem here is that AUR packages are not named/numbered in a constant and easy sortable way. therefore, we search for all files and output their modification date in an easy searchable format (and then, the file name).
+						## then, "grep" is used to get only package files. then, the list is sorted (by the modification date).
+						## awk gets rid of the modification date. grep filters for the file name $line. sed only chooses the first/top line.
+						#find "$cachePACAUR" -maxdepth 2 -mindepth 2 -type f -printf "%T+\t%p\n" | grep ".pkg.tar.[gx]z$" | sort -rn | awk '{print $2}' | grep "$line""-" | sed -n '1p' >> /tmp/pacui-temp-downgrade
+					#fi
 					
 					
-				done < <(echo "${pacui_cache_install}")
+				done < <(echo "${pacui_cache_install}"))
 				
 				# write file into variable $pkgI (otherwise, the "sudo pacman -U" command does not work) and unique sort /tmp/pacui-install (=remove duplicate lines without ordering the output) 	
-				pkgI=$( sort -u /tmp/pacui-install | paste -sd " ")
-				
-				[[ -e /tmp/pacui-install ]] && rm /tmp/pacui-install
+				pkgI=$( echo "${pacui_install}" | sort -u | paste -sd " ")
 				
 				# install cannot be done as dependency, because sometimes packages are simply replaced by other packages. in this case, installing as dependency would be bad!
 				sudo pacman -U "$pkgI" --color always --noconfirm
