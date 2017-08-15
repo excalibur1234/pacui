@@ -544,94 +544,56 @@ function func_d
 function func_b
 {
 		# declare local variables
-
 		local {cache,pkgR,pkgI,pkgD,line,temp1,temp2,temp3,pacui_cache_packages,pacui_cache_install,pacui_cache_downgrade,pacui_cache_downgrade_counted}
-
-		
 		# get cache directory from file /etc/pacman.conf (without any white spaces) and write results to variable $cache:
-
 		cache=$( awk -F '=' '/^CacheDir/ {gsub(" ","",$2); print $2}' '/etc/pacman.conf' )
-
-
 		# set variable $cache to default directory, if  variable $cache is empty:
-
 		if [[ -z $cache ]]  # if "cache" variable is empty
-
 		then
-
 			cache="/var/cache/pacman/pkg/"
-
 		fi
 
-
-
 		# 1. get list of last installs/upgrades/removes from pacman log and display result in fzf. in the end, fzf saves all selected package names (including the words "installed/upgraded/removed/downgraded" to variable $pacui_cache_packages
-
 		pacui_cache_packages="$(tail -3000 /var/log/pacman.log | grep "\[ALPM\]" | grep "installed\|removed\|upgraded" | sed 's/\[ALPM\] //g' | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --tac --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to roll back. ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}')"
 		
-		
-
-
 		# only run the command inside the if-statement, if variable $pacui_cache_packages is not empty and exists - this happens when fzf is quit with ESC or CTRL+C
-
 		if [[ ! -z "$pacui_cache_packages" ]]
-
-
 		then
 
 			
 			# 2. in case of conflicting packages, packages have to be first removed (with the force option, because other packages might still depend on them).
 			#filter variable $pacui_cache_packages for the word "installed" and write package names to variable $pkgR
-
-
 			pkgR="$(echo "${pacui_cache_packages}" | awk '/installed/ {print $2}' | sort -u | paste -sd " " )"
 
-			
 			if [[ ! -z "$pkgR" ]]     # this if-condition avoids error message when no package gets removed (and $pkgR is empty)
-
 			then
-
 				sudo pacman -Rdd "$pkgR" --color always --noconfirm
-
 			fi
 
 
 			# 3. in case an "upgraded" package needs a package as dependency, the "removed" packages have to be installed.
-
 			#filter variable $pacui_cache_packages for the word "removed" and write package names to variable $pacui_cache_install
-
 			pacui_cache_install="$(echo "${pacui_cache_packages}" | awk '/removed/ {print $2}' )"
 			
 			if [[ ! -z "$pacui_cache_install" ]]     # this if-condition avoids error messages when no package gets installed (and variable $pacui_cache_install is empty)
-
-
 			then
 			
 			      # the file /tmp/pacui-install will later contain a list of file names of (old versions of) packages in cache. it has to be empty in the beginning!
-				
 				[[ -e /tmp/pacui-install ]] && rm /tmp/pacui-install       # check, whether file exists and delete it.
-			
-				
+							
 				# read line by line from variable $pacui_cache_install in while loop and save that line to variable $line
-				
 				while IFS='' read -r line || [[ -n "$line" ]]
-				
 				do
-					# write name of latest version in cache into file /tmp/pacui-install ("sort" puts latest version on top, which is then selected): 
-					
+					# write name of latest version in cache into file /tmp/pacui-install ("sort" puts latest version on top, which is then selected): 	
 					find $cache -name "${line}-[0-9]*[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r | sed -n '1p' >> /tmp/pacui-install
-					
-				
 				done < <(echo "${pacui_cache_install}")
 				
-				# write file into variable $pkgI (otherwise, the "sudo pacman -U" command does not work) and unique sort /tmp/pacui-install (=remove duplicate lines without ordering the output) 
-				
+				# write file into variable $pkgI (otherwise, the "sudo pacman -U" command does not work) and unique sort /tmp/pacui-install (=remove duplicate lines without ordering the output) 	
 				pkgI=$( sort -u /tmp/pacui-install | paste -sd " ")
 				
 				[[ -e /tmp/pacui-install ]] && rm /tmp/pacui-install
 				
 				# install cannot be done as dependency, because sometimes packages are simply replaced by other packages. in this case, installing as dependency would be bad!
-				
 				sudo pacman -U "$pkgI" --color always --noconfirm
 				
 			fi
@@ -639,74 +601,52 @@ function func_b
 
 			# 4. filter variable $pacui_cache_packages file for the word "upgraded" and write package names to variable $pacui_cache_downgrade
 			# variable $pacui_cache_packages contains list of package names to be downgraded!
-			
 			pacui_cache_downgrade="$(echo "${pacui_cache_packages}" | awk '/upgraded/ {print $2}' )"
 			
 			if [[ ! -z "$pacui_cache_downgrade" ]]     # this if-condition avoids error messages when no package gets downgraded (and variable $pacui_cache_downgrade is empty)
-			
-			
 			then
 				
 				# first, count the number of times the package name appears in file /tmp/pacui-cache-downgrade:
-				
 				pacui_cache_downgrade_counted="$(echo "${pacui_cache_downgrade}" | sort | uniq -c )"
-				
 				# first argument in variable $pacui_cache_downgrade_counted is the number of times the package name appears and the second is the package name.
 				
 				# the file /tmp/pacui-downgrade will later contain a list of file names of (old versions of) packages in cache. it has to be empty in the beginning!
-				
 				[[ -e /tmp/pacui-downgrade ]] && rm /tmp/pacui-downgrade           # check, whether file exists and delete it.
 				
 				# read line by line from variable $pacui_cache_downgrade_counted in while loop and save that line to variable $line
-				
 				while read -r line && [[ -n "$line" ]]
-				
 				do
 					
 					# attention, the following variables can be empty:
-					
 					temp1=$( echo "$line" | awk '{print $1}' )   # this variable is the no. of times a package has to be downgraded
-					
 					temp2=$( echo "$line" | awk '{print $2}' )   # this variable is the package name to be downgraded
 					
 					if [[ -n $temp2 ]]   # checks, if variable is not empty
-					
 					then
 						# write list with all versions of package in cache into file /tmp/pacui-temp-downgrade (sorted - newest package version is on top)
-						
 						find $cache -name "${temp2}-[0-9]*[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r > /tmp/pacui-temp-downgrade
-						
+					
 						# temp3 is supposed to be "2p" when temp1=1 and "3p" when temp1=2 ...  --> needed for "sed" command below
-						
 						temp3="$(( temp1 + 1 ))p"
 						
 						# the next line moves the $((temp3-1))-th version below the currently installed package version to file /tmp/pacui-downgrade. if no such old version is available, nothing happens.
-						
 						# this command determines the currently installed verions of package $temp2:  pacman -Q "$temp2" | awk '{print $2}'
-						
 						grep "$( pacman -Q "$temp2" | awk '{print $2}' )" -A 100 "/tmp/pacui-temp-downgrade" | sed -n "$temp3" >> /tmp/pacui-downgrade
-						
 					fi
 				
 				done < <(echo "${pacui_cache_downgrade_counted}")
 				
 				# write file into variable (otherwise, the "sudo pacman -U" command does not work)
-
 				pkgD=$( cat /tmp/pacui-downgrade | sort -u | paste -sd " ")
-				
+			
 				[[ -e /tmp/pacui-downgrade ]] && rm /tmp/pacui-downgrade
 				[[ -e /tmp/pacui-temp-downgrade ]] && rm /tmp/pacui-temp-downgrade
 				
 				# the following if-statement prevents the following error, in case there is no older package version available: "error: no targets specified (use -h for help)"
-
 				if [[ ! -z $pkgD ]]   # checks, if variable is not empty
-
 				then
-
 					# downgrade packages by manually installing them: (sudo pacman -U --noconfirm --color always )
-
 					sudo pacman -U "$pkgD" --color always --noconfirm
-
 				fi
 			
 			fi
