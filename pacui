@@ -1094,7 +1094,7 @@ function func_h
 			echo -e "  pacui	      - \e[1mPacUI\e[0m with User Interface"
 			echo
 			echo -e "  pacui	u     - \e[1mU\e[0mpdate System"
-			echo -e "  pacui	c     - \e[1mC\e[0mlean System"
+			echo -e "  pacui	m     - \e[1mM\e[0maintain System"
 			echo -e "  pacui	i     - \e[1mI\e[0mnstall Packages"
 			echo -e "  pacui	r     - \e[1mR\e[0memove Packages + Deps"
 			echo -e "  pacui	t     - Dependency \e[1mT\e[0mree"
@@ -1104,7 +1104,7 @@ function func_h
 			echo
 			echo -e "  pacui	b     - Roll \e[1mB\e[0mack System"
 			echo -e "  pacui	fix   - \e[1mFix\e[0m Pacman Errors"
-			echo -e "  pacui	conf  - \e[1mConf\e[0migure System"
+			echo -e "  pacui	c     - Edit \e[1mC\e[0monfig Files"
 			echo -e "  \e[31mpacui	fu    \e[0m- \e[1mF\e[0morce \e[1mU\e[0mpdate System"
 			echo -e "  \e[31mpacui	e     \e[0m- \e[1mE\e[0mmpty Package Cache"
 			echo -e "  \e[31mpacui	fi    \e[0m- \e[1mF\e[0morce \e[1mI\e[0mnstall Packages"
@@ -1159,7 +1159,7 @@ The second command does the same as the first part, but with one exception: It a
 \e[1mAttention\e[0m: When a new version of an AUR package is available, sometimes the PKGBUILD file is not updated. If you want to install the latest version of a single AUR package, (re-)install it with INSTALL PACKAGES. If you want to install the latest versions of ALL AUR packages use FORCE UPDATE AUR.
 
 
-\e[1m2 - CLEAN SYSTEM
+\e[1m2 - MAINTAIN SYSTEM
 \e[36m"sudo pacman-mirrors -g -y" \e[0m(for Manjaro)
 This command generates a new mirrorslist of all available Manjaro repository mirrors/servers. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror. If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -g -y -c Germany,France". Alternatively, you can use the fasttrack argument and hope you get a good Manjaro mirror, e.g. "sudo pacman-mirrors -y -f 10".
 
@@ -1344,7 +1344,7 @@ This command makes abolutely sure all downloaded packages get installed and down
 This command forces a sync of the file database of your system repository with your used repository mirror server. The file database is separate from the package database. The file database enables SEARCH PACKAGE FILES and LIST PACKAGE FILES of packages, which are not installed on your system but only available on your system repository.
 
 
-\e[1m11 - CONFIGURE SYSTEM
+\e[1m11 - EDIT CONFIG FILES
 \e[36m"$EDITOR <FILE NAME>"
 This command opens <FILE NAME> in your default text editor. You can choose between multiple important system configuration files. Files in the root directory are opened with root privileges.
 By default the text editor Nano gets used, except a custom $EDITOR variable has been exported. In the text editor Nano, Press CTRL+O to save your changes, ENTER to choose a directory, and CTRL+X to quit Nano.
@@ -1546,7 +1546,7 @@ do
 	echo -e " │    7   \e[1mL\e[0mist Package Files          8   \e[1mS\e[0mearch Package Files       │"
 	echo -e " └───────────────────────────────────────────────────────────────────┘"
 	echo -e "      9   Roll \e[1mB\e[0mack System           10   \e[1mFix\e[0m Pacman Errors "
-	echo -e "     11   \e[1mC\e[0monfigure System "
+	echo -e "     11   Edit \e[1mC\e[0monfig Files "
 	echo -e "   \e[31m  13   \e[1mF\e[0;31morce \e[1mU\e[0;31mpdate System        14   \e[1mE\e[0;31mmpty Package Cache       \e[0m "
 	echo -e "   \e[31m  15   \e[1mF\e[0;31morce \e[1mI\e[0;31mnstall Packages     16   \e[1mF\e[0;31morce \e[1mR\e[0;31memove Packages     \e[0m "
 	echo -e " ┌───────────────────────────────────────────────────────────────────┐"
@@ -1577,7 +1577,7 @@ do
 		2|m|maintain)
 			func_m
 			echo
-			echo -e " System cleaned. To return to PacUI press ENTER "
+			echo -e " System maintenance finished. To return to PacUI press ENTER "
 			read
 			;;
 		3|i|install)
@@ -1642,7 +1642,7 @@ do
 			echo -e " Operation finished. To return to PacUI press ENTER "
 			read
 			;;
-		11|c|conf|config|configure)
+		11|c|conf|config)
 			func_c
 			echo
 			;;
