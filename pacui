@@ -544,7 +544,7 @@ function func_d
 function func_b
 {
 		# declare local variables
-		local {cache,cachePACAUR,pkgR,pkgI,pkgD,line,temp1,temp2,temp3,pacui_cache_packages,pacui_cache_install,pacui_install,pacui_cache_downgrade,pacui_cache_downgrade_counted}
+		local {cache,cachePACAUR,pkgR,pkgI,pkgD,line,temp1,temp2,temp3,pacui_cache_packages,pacui_cache_install,pacui_cache_downgrade,pacui_cache_downgrade_counted,pacui_install,pacui_downgrade}
 		
 		# get cache directory from file /etc/pacman.conf (without any white spaces) and write results to variable $cache:
 		cache=$( awk -F '=' '/^CacheDir/ {gsub(" ","",$2); print $2}' '/etc/pacman.conf' )
@@ -628,11 +628,8 @@ function func_b
 				pacui_cache_downgrade_counted="$(echo "${pacui_cache_downgrade}" | sort | uniq -c )"
 				# first argument in variable $pacui_cache_downgrade_counted is the number of times the package name appears and the second is the package name.
 				
-				# the file /tmp/pacui-downgrade will later contain a list of file names of (old versions of) packages in cache. it has to be empty in the beginning!
-				[[ -e /tmp/pacui-downgrade ]] && rm /tmp/pacui-downgrade           # check, whether file exists and delete it.
-				
 				# read line by line from variable $pacui_cache_downgrade_counted in while loop and save that line to variable $line
-				while read -r line && [[ -n "$line" ]]
+				pacui_downgrade=$(while read -r line && [[ -n "$line" ]]
 				do
 					
 					# attention, the following variables can be empty:
@@ -658,15 +655,14 @@ function func_b
 						
 						# the next line moves the $((temp3-1))-th version below the currently installed package version to file /tmp/pacui-downgrade. if no such old version is available, nothing happens.
 						# this command determines the currently installed verions of package $temp2:  pacman -Q "$temp2" | awk '{print $2}'
-						grep "$( pacman -Q "$temp2" | awk '{print $2}' )" -A 100 "/tmp/pacui-temp-downgrade" | sed -n "$temp3" >> /tmp/pacui-downgrade
+						grep "$( pacman -Q "$temp2" | awk '{print $2}' )" -A 100 "/tmp/pacui-temp-downgrade" | sed -n "$temp3"
 					fi
 				
-				done < <(echo "${pacui_cache_downgrade_counted}")
+				done < <(echo "${pacui_cache_downgrade_counted}"))
 				
 				# write file into variable (otherwise, the "sudo pacman -U" command does not work)
-				pkgD=$( cat /tmp/pacui-downgrade | sort -u | paste -sd " ")
-			
-				[[ -e /tmp/pacui-downgrade ]] && rm /tmp/pacui-downgrade
+				pkgD=$( echo "${pacui_downgrade}" | sort -u | paste -sd " ")
+
 				[[ -e /tmp/pacui-temp-downgrade ]] && rm /tmp/pacui-temp-downgrade
 				
 				# the following if-statement prevents the following error, in case there is no older package version available: "error: no targets specified (use -h for help)"
