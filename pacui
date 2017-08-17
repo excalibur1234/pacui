@@ -857,6 +857,7 @@ function func_conf
 		[[ -e $HOME/.zshrc ]]                      && echo "~/.zshrc                          - Configure zsh shell." >> /tmp/pacui-conf
 		[[ -e $HOME/.config/fish ]]                && echo "~/.config/fish/*                  - Configure fish shell." >> /tmp/pacui-conf
 		[[ -e $HOME/.xinitrc ]]                    && echo "\e[31m~/.xinitrc                        - Configure X server startup.\e[0m" >> /tmp/pacui-conf
+		[[ -e $HOME/.Xresources ]]                 && echo "\e[31m~/.Xresources                     - Configure X client applications.\e[0m" >> /tmp/pacui-conf
 		[[ -e /etc/fstab ]]                        && echo "\e[31m/etc/fstab                        - Configure file system mount table.\e[0m" >> /tmp/pacui-conf
 		[[ -e /etc/crypttab ]]                     && echo "\e[31m/etc/crypttab                     - Configure encrypted file system mount table.\e[0m" >> /tmp/pacui-conf
 		[[ -e /etc/sudoers ]]                      && echo "\e[31m/etc/sudoers                      - Configure sudo.\e[0m" >> /tmp/pacui-conf
