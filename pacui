@@ -556,7 +556,7 @@ function func_b
 		
             if [[ -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" exists, i.e. pacaur is installed
 		then 
-			# the cache location of pacaur is important for downgrading packages installed from the AUR:
+			# the cache location of pacaur is important for downgrading packages installed from the AUR or reinstalling removed pacakges from the AUR:
 			if [[ -z $AURDEST ]]    # $AURDEST is environment variable for changing pacaur's default cache directory. check, if "AURDEST" variable is empty
 			then
 				cachePACAUR="$HOME/.cache/pacaur/"
@@ -566,7 +566,7 @@ function func_b
 		fi
 		
 		# 1. get list of last installs/upgrades/removes from pacman log and display result in fzf. in the end, fzf saves all selected package names (including the words "installed/upgraded/removed/downgraded" to variable $pacui_cache_packages
-		pacui_cache_packages="$(tail -3000 /var/log/pacman.log | grep "\[ALPM\]" | grep "installed\|removed\|upgraded" | sed 's/\[ALPM\] //g' | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --tac --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to roll back. ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}')"
+		pacui_cache_packages="$( tail -3000 /var/log/pacman.log | grep "\[ALPM\]" | grep "installed\|removed\|upgraded" | sed 's/\[ALPM\] //g' | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --tac --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to roll back. ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}' )"
 		
 		# only run the command inside the if-statement, if variable $pacui_cache_packages is not empty and exists - this happens when fzf is quit with ESC or CTRL+C
 		if [[ ! -z "$pacui_cache_packages" ]]
@@ -574,8 +574,8 @@ function func_b
 
 			
 			# 2. in case of conflicting packages, packages have to be first removed (with the force option, because other packages might still depend on them).
-			#filter variable $pacui_cache_packages for the word "installed" and write package names to variable $pkgR
-			pkgR="$(echo "${pacui_cache_packages}" | awk '/installed/ {print $2}' | sort -u | paste -sd " " )"
+			# filter variable $pacui_cache_packages for the word "installed" and write package names to variable $pkgR
+			pkgR="$( echo "${pacui_cache_packages}" | awk '/installed/ {print $2}' | sort -u | paste -sd " " )"
 
 			if [[ ! -z "$pkgR" ]]     # this if-condition avoids error message when no package gets removed (and $pkgR is empty)
 			then
@@ -584,43 +584,45 @@ function func_b
 
 
 			# 3. in case an "upgraded" package needs a package as dependency, the "removed" packages have to be installed.
-			#filter variable $pacui_cache_packages for the word "removed" and write package names to variable $pacui_cache_install
-			pacui_cache_install="$(echo "${pacui_cache_packages}" | awk '/removed/ {print $2}' )"
+			# filter variable $pacui_cache_packages for the word "removed" and write package names to variable $pacui_cache_install
+			pacui_cache_install="$( echo "${pacui_cache_packages}" | awk '/removed/ {print $2}' )"
 			
 			if [[ ! -z "$pacui_cache_install" ]]     # this if-condition avoids error messages when no package gets installed (and variable $pacui_cache_install is empty)
 			then
+
 				if [[ -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" exists, i.e. pacaur is installed
-				then
-				
-				        pacui_aur_install=$(while IFS='' read -r line || [[ -n "$line" ]]
-				        do
-				            ## do the same as above for files from pacaur's cache directory.
+				then	
+					# the while-loop here is needed to read the content of every line of $pacui_cache_install variable and save that line to variable $line.	
+				    pacui_aur_install=$( while IFS='' read -r line || [[ -n "$line" ]]
+				    do
 						## the problem here is that AUR packages are not named/numbered in a constant and easy sortable way. therefore, we search for all files and output their modification date in an easy searchable format (and then, the file name).
 						## then, "grep" is used to get only package files. then, the list is sorted (by the modification date).
 						## awk gets rid of the modification date. grep filters for the file name $line. sed only chooses the first/top line.
 						find "$cachePACAUR" -maxdepth 2 -mindepth 2 -type f -printf "%T+\t%p\n" | grep ".pkg.tar.[gx]z$" | sort -rn | awk '{print $2}' | grep "$line""-" | sed -n '1p'
-				        done < <(echo "${pacui_cache_install}"))
+				    done < <(echo "${pacui_cache_install}") )
 				fi
 					
 				# read line by line from variable $pacui_cache_install in while loop and save that line to variable $line
-				pacui_install=$(while IFS='' read -r line || [[ -n "$line" ]]
+				pacui_install=$( while IFS='' read -r line || [[ -n "$line" ]]
 				do
 					# write name of latest version in cache into file /tmp/pacui-install ("sort" puts latest version on top, which is then selected): 	
 					find $cache -name "${line}-[0-9]*[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r | sed -n '1p'
+				done < <(echo "${pacui_cache_install}") )
 				
-				done < <(echo "${pacui_cache_install}"))
-				
+				# sort output to suit pacman's syntax. pacman needs a list of package names separated by single spaces.
 				if [[ ! -z "$pacui_aur_install" ]]
-				then 
-				      pkgI=$( printf "${pacui_install}\n${pacui_aur_install}" | sort -u | paste -sd " ")
+				then
+					# if AUR packages should be installed, the lists of package names are first combined before they get sorted and rearranged to space separated lists.
+				    pkgI=$( printf "${pacui_install}\n${pacui_aur_install}" | sort -u | paste -sd " " )
 				else
-				      pkgI=$( echo "${pacui_install}" | sort -u | paste -sd " ")
+				    pkgI=$( echo "${pacui_install}" | sort -u | paste -sd " " )
 				fi
 				
-			      	if [[ ! -z "$pkgI" ]]
-			      	then
-				      # install cannot be done as dependency, because sometimes packages are simply replaced by other packages. in this case, installing as dependency would be bad!
-				      sudo pacman -U "$pkgI" --color always --noconfirm
+				# finally, all packages get installed manually using "pacman -U":
+			    if [[ ! -z "$pkgI" ]]
+			    then
+				    # install cannot be done as dependency, because sometimes packages are simply replaced by other packages. in this case, installing as dependency would be bad!
+				    sudo pacman -U "$pkgI" --color always --noconfirm
 				fi
 				
 			fi
@@ -628,23 +630,26 @@ function func_b
 
 			# 4. filter variable $pacui_cache_packages file for the word "upgraded" and write package names to variable $pacui_cache_downgrade
 			# variable $pacui_cache_packages contains list of package names to be downgraded!
-			pacui_cache_downgrade="$(echo "${pacui_cache_packages}" | awk '/upgraded/ {print $2}' )"
+			pacui_cache_downgrade="$( echo "${pacui_cache_packages}" | awk '/upgraded/ {print $2}' )"
 			
 			if [[ ! -z "$pacui_cache_downgrade" ]]     # this if-condition avoids error messages when no package gets downgraded (and variable $pacui_cache_downgrade is empty)
 			then
 				
-				# Create temp file with mktemp command (Important for security)
-				pacui_tmp_downgrade=$(mktemp /tmp/pacui-tmp-downgrade.XXXXXXXX)
+				# here, it is impossible to use variables instead of temporary files. therefore, the temporary files should be as tamper-proof as possible.
+				# Create temp file with mktemp command (Important for security). the XXXXXXXX indicates numbers assigned by "mktemp" command.
+				# the XXXXXXXXX numbers make it necessary to call the temporary file in the code below with " ${pacui_tmp_downgrade} " (without ")!
+				pacui_tmp_downgrade=$( mktemp /tmp/pacui-tmp-downgrade.XXXXXXXX )
 				
-				# add trap command to immediately rm upon ctrl+c for security purposes
+				# add trap command to immediately rm upon ctrl+c (or any other case this function quits in the middle) for security purposes
+				# this is the normal syntax for "trap" command.
 				trap "rm -rf $pacui_tmp_downgrade" EXIT
 				
 				# first, count the number of times the package name appears in file /tmp/pacui-cache-downgrade:
-				pacui_cache_downgrade_counted="$(echo "${pacui_cache_downgrade}" | sort | uniq -c )"
-				# first argument in variable $pacui_cache_downgrade_counted is the number of times the package name appears and the second is the package name.
+				pacui_cache_downgrade_counted="$( echo "${pacui_cache_downgrade}" | sort | uniq -c )"
+				# "uniq" command: first argument in variable $pacui_cache_downgrade_counted is the number of times the package name appears and the second is the package name.
 				
 				# read line by line from variable $pacui_cache_downgrade_counted in while loop and save that line to variable $line
-				pacui_downgrade=$(while read -r line && [[ -n "$line" ]]
+				pacui_downgrade=$( while read -r line && [[ -n "$line" ]]
 				do
 					
 					# attention, the following variables can be empty:
@@ -658,7 +663,7 @@ function func_b
 					      
 					      if [[ -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" exists, i.e. pacaur is installed
 						then 
-							# do the same as above for files from pacaur's cache directory.
+							# do the same as below for files from pacaur's cache directory.
 							# the problem here is that AUR packages are not named/numbered in a constant and easy sortable way. therefore, we search for all files and output their modification date in an easy searchable format (and then, the file name).
 							# then, "grep" is used to get only package files. then, the list is sorted (by the modification date).
 							# awk gets rid of the modification date. grep filters for the file name $temp2.
@@ -673,11 +678,12 @@ function func_b
 						grep "$( pacman -Q "$temp2" | awk '{print $2}' )" -A 100 "$pacui_tmp_downgrade" | sed -n "$temp3"
 					fi
 				
-				done < <(echo "${pacui_cache_downgrade_counted}"))
+				done < <(echo "${pacui_cache_downgrade_counted}") )
 				
-				# write file into variable (otherwise, the "sudo pacman -U" command does not work)
+				# sort output to suit pacman's syntax. pacman needs a list of package names separated by single spaces.
 				pkgD=$( echo "${pacui_downgrade}" | sort -u | paste -sd " ")
 				
+				# remove temporary file
 				rm ${pacui_tmp_downgrade}
 
 				# the following if-statement prevents the following error, in case there is no older package version available: "error: no targets specified (use -h for help)"
