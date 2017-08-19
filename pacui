@@ -534,8 +534,8 @@ function func_d
 function func_b
 {
 		# declare local variables
-		local {cache,cachePACAUR,pkgR,pkgI,pkgD,line,temp1,temp2,temp3,pacui_cache_packages,pacui_cache_install,pacui_cache_downgrade,pacui_cache_downgrade_counted,pacui_tmp_downgrade,pacui_aur_install,pacui_install,pacui_downgrade}
-		
+		local {cache,cachePACAUR,pkgR,pkgI,pkgD,pkgU,line,temp1,temp2,temp3,pacui_cache_packages,pacui_cache_install,pacui_cache_downgrade,pacui_cache_downgrade_counted,pacui_tmp_downgrade,pacui_aur_install,pacui_install,pacui_downgrade,pacui_cache_upgrade,pacui_cache_upgrade_counted,pacui_tmp_upgrade,pacui_upgrade}
+
 		# get cache directory from file /etc/pacman.conf (without any white spaces) and write results to variable $cache:
 		cache=$( awk -F '=' '/^CacheDir/ {gsub(" ","",$2); print $2}' '/etc/pacman.conf' )
 		# set variable $cache to default directory, if  variable $cache is empty:
@@ -555,6 +555,7 @@ function func_b
 			fi
 		fi
 		
+
 		# 1. get list of last installs/upgrades/removes from pacman log and display result in fzf. in the end, fzf saves all selected package names (including the words "installed/upgraded/removed/downgraded" to variable $pacui_cache_packages
 		pacui_cache_packages="$( tail -3000 /var/log/pacman.log | grep "\[ALPM\]" | grep "installed\|removed\|upgraded\|downgraded" | sed 's/\[ALPM\] //g' | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --tac --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to roll back. ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}' )"
 		
@@ -743,7 +744,7 @@ function func_b
 				
 				# remove temporary file
 				rm ${pacui_tmp_upgrade}
-				
+
 				# the following if-statement prevents the following error, in case there is no older package version available: "error: no targets specified (use -h for help)"
 				if [[ ! -z $pkgU ]]   # checks, if variable is not empty
 				then
