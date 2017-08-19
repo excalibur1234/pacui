@@ -301,62 +301,6 @@ function func_r
 }
 
 
-function func_info 
-{
-		# check, whether file /tmp/pacui-packages already exists (the ! negates the result)
-		if [[ ! -e /tmp/pacui-packages ]]
-		then
-			# write package list of repositories to /tmp/pacui-packages: download AUR package list to /tmp/aur/packages.gz, unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages.
-			pacman -Slq > /tmp/pacui-packages
-
-			# download AUR package list (only when not already downloaded), unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages-install.
-			if  [[ ! -e /tmp/aur/packages ]]
-			then
-				wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null && gunzip -f /tmp/aur/packages.gz
-			fi
-			cat /tmp/aur/packages | grep -v "#" >> /tmp/pacui-packages
-		fi
-			
-		# the following command lets you search through the file "/tmp/pacui-packages" with fzf and save your selection in "pkg"
-		local pkg
-		pkg=$( sort -u -i /tmp/pacui-packages | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to display info. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
-		
-		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
-		if [[ -n $pkg ]]
-		then
-			# next, it is checked, whether "pkg" is part of a list of all installed packages (pacman -Qq).
-			if ( pacman -Qq "$pkg" 2>/dev/null )
-			then
-			
-				if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
-				then
-					yaourt -Qii "$pkg"		    # execute this command when "pkg" is already installed on system
-				else
-					pacaur -Qii "$pkg" --color always
-				fi
-			
-			else
-			
-				if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
-				then
-					yaourt -Sii "$pkg"		    # execute this command when "pkg" is not installed on system
-				else
-					pacaur -Sii "$pkg" --color always | grep -v "not found in repositories" 
-				fi
-			
-			fi
-		fi
-}
-
-
-function func_ls
-{
-		# list all packages on local system sorted by their installed size using "expac" and "sort". then, display the result using fzf.
-		expac -H M -Q '%m - \e[1m%n\e[0m %v' | sort -n -r | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-ls	
-		# alternative command to "expac" and "sort": package-query -Q --rsort 2 -f "%2 - \e[1m%n \e[0m%v" | numfmt --to=iec 
-}
-
-
 function func_t 
 {
 		# write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
@@ -502,33 +446,6 @@ function func_s
 
 
 # =======================
-
-
-function func_log 
-{
-		tail -5000 /var/log/pacman.log | fzf-tmux -m -e +s -i --tac --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed logs > ' > /tmp/pacui-log
-}
-
-
-function func_d
-{
-		# write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
-		pacman -Slq | tr -d " " > /tmp/pacui-packages-local
-		pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
-		
-		local pkg
-		local pkg_install
-
-		pkg=$( sort -u -i /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to downgrade. ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
-		
-		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
-		pkg_install=$(echo $pkg | paste -sd " ")
-
-		if [[ -n $pkg ]]
-		then
-			downgrade $pkg_install
-		fi
-}
 
 
 function func_b
@@ -1099,6 +1016,106 @@ function func_ua
 }
 
 
+function func_la 
+{
+		# this command shows all packages from external, i.e. not in system repositories, sources:
+		# packages from the AUR and manually installed packages
+		# "pacman -Qm --color always"
+		pacman -Qqm --color always | fzf-tmux -m -e +s -i --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+			pacman -Qi {} --color always
+			' --preview-window=right:50%:wrap  --header="List of AUR and manually installed packages. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-la
+
+
+
+}
+
+
+# =======================
+
+
+function func_info 
+{
+		# check, whether file /tmp/pacui-packages already exists (the ! negates the result)
+		if [[ ! -e /tmp/pacui-packages ]]
+		then
+			# write package list of repositories to /tmp/pacui-packages: download AUR package list to /tmp/aur/packages.gz, unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages.
+			pacman -Slq > /tmp/pacui-packages
+
+			# download AUR package list (only when not already downloaded), unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages-install.
+			if  [[ ! -e /tmp/aur/packages ]]
+			then
+				wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null && gunzip -f /tmp/aur/packages.gz
+			fi
+			cat /tmp/aur/packages | grep -v "#" >> /tmp/pacui-packages
+		fi
+			
+		# the following command lets you search through the file "/tmp/pacui-packages" with fzf and save your selection in "pkg"
+		local pkg
+		pkg=$( sort -u -i /tmp/pacui-packages | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to display info. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
+		
+		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
+		if [[ -n $pkg ]]
+		then
+			# next, it is checked, whether "pkg" is part of a list of all installed packages (pacman -Qq).
+			if ( pacman -Qq "$pkg" 2>/dev/null )
+			then
+			
+				if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
+				then
+					yaourt -Qii "$pkg"		    # execute this command when "pkg" is already installed on system
+				else
+					pacaur -Qii "$pkg" --color always
+				fi
+			
+			else
+			
+				if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
+				then
+					yaourt -Sii "$pkg"		    # execute this command when "pkg" is not installed on system
+				else
+					pacaur -Sii "$pkg" --color always | grep -v "not found in repositories" 
+				fi
+			
+			fi
+		fi
+}
+
+
+function func_ls
+{
+		# list all packages on local system sorted by their installed size using "expac" and "sort". then, display the result using fzf.
+		expac -H M -Q '%m - \e[1m%n\e[0m %v' | sort -n -r | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-ls	
+		# alternative command to "expac" and "sort": package-query -Q --rsort 2 -f "%2 - \e[1m%n \e[0m%v" | numfmt --to=iec 
+}
+
+
+function func_log 
+{
+		tail -5000 /var/log/pacman.log | fzf-tmux -m -e +s -i --tac --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed logs > ' > /tmp/pacui-log
+}
+
+
+function func_d
+{
+		# write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
+		pacman -Slq | tr -d " " > /tmp/pacui-packages-local
+		pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
+		
+		local pkg
+		local pkg_install
+
+		pkg=$( sort -u -i /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to downgrade. ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
+		
+		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
+		pkg_install=$(echo $pkg | paste -sd " ")
+
+		if [[ -n $pkg ]]
+		then
+			downgrade $pkg_install
+		fi
+}
+
+
 function func_a 
 {
 		local pkg
@@ -1131,19 +1148,7 @@ function func_a
 }
 
 
-function func_la 
-{
-		# this command shows all packages from external, i.e. not in system repositories, sources:
-		# packages from the AUR and manually installed packages
-		# "pacman -Qm --color always"
-		pacman -Qqm --color always | fzf-tmux -m -e +s -i --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-			pacman -Qi {} --color always
-			' --preview-window=right:50%:wrap  --header="List of AUR and manually installed packages. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-la
-
-
-
-}
-
+# =======================
 
 
 function func_h
@@ -1279,7 +1284,7 @@ This option downloads and installs <PACKAGE NAME> on your system. The list of pa
 
 \e[1m4 - REMOVE PACKAGES + DEPS
 \e[36m"sudo pacman -Rsn <PACKAGE NAME>"
-This command removes <PACKAGE NAME> from your system including all dependencies, which are no longer needed by other packages. A copy of <PACKAGE NAME> will be kept in your package cache: Run CLEAN SYSTEM to remove it.
+This command removes <PACKAGE NAME> from your system including all dependencies, which are no longer needed by other packages. A copy of <PACKAGE NAME> will be kept in your package cache: Run MAINTAIN SYSTEM to remove it.
 Please note that folders in your home (~) directory and created by the program <PACKAGE NAME> will not get removed from your system. Look for such folders in these places and remove them manually:
 ~/
 ~/.config/
@@ -1332,7 +1337,7 @@ This command shows you a list of all recent Pacman actions sorted by date (using
 
 \e[1m10 - FIX PACMAN ERRORS
 Multiple commands attempt to fix the most common issues Manjaro users have with Pacman. This should also work for Arch-based distributions, but to a lesser degree. Force options (as in FORCE UPDATE SYSTEM) are excluded, even though they are essential in fixing some problems.
-Please make sure that your root partition is not full. If you have doubts about this, run CLEAN SYSTEM before FIX PACMAN ERRORS.
+Please make sure that your root partition is not full. If you have doubts about this, run MAINTAIN SYSTEM before FIX PACMAN ERRORS.
 A working internet connection is required for FIX PACMAN ERRORS!
 
 \e[36m"sudo rm -f /var/lib/pacman/db.lck"
@@ -1431,7 +1436,7 @@ This command does the same as INSTALL PACKAGES for packages from your system rep
 
 \e[1;31m16 - FORCE REMOVE PACKAGES
 \e[36m"pacman -Rdd <PACKAGE NAME>"
-This command removes <PACKAGE NAME> without checking the dependencies of <PACKAGE NAME> first. This enables experienced users to remove packages and dependencies of packages. This command only removes <PACKAGE NAME> from your system. All dependencies and orphans are left: run CLEAN SYSTEM afterwards to remove them.
+This command removes <PACKAGE NAME> without checking the dependencies of <PACKAGE NAME> first. This enables experienced users to remove packages and dependencies of packages. This command only removes <PACKAGE NAME> from your system. All dependencies and orphans are left: run MAINTAIN SYSTEM afterwards to remove them.
 \e[1mAttention\e[0m: This command can break pacakges on your system or even your entire system.
 
 
