@@ -671,12 +671,12 @@ function func_b
 				
 				done < <(echo "${pacui_cache_downgrade_counted}") )
 
+				# remove temporary file. it is no longer needed an should not be left on the system.
+				rm ${pacui_tmp_downgrade}
+
 				# sort output to suit pacman's syntax. pacman needs a list of package names separated by single spaces.
 				pkgD=$( echo "${pacui_downgrade}" | sort -u | paste -sd " ")
 				
-				# remove temporary file
-				rm ${pacui_tmp_downgrade}
-
 				# the following if-statement prevents the following error, in case there is no older package version available: "error: no targets specified (use -h for help)"
 				if [[ ! -z $pkgD ]]   # checks, if variable is not empty
 				then
@@ -739,11 +739,11 @@ function func_b
 				
 				done < <(echo "${pacui_cache_upgrade_counted}") )
 				
+				# remove temporary file. it is no longer needed an should not be left on the system.
+				rm ${pacui_tmp_upgrade}
+
 				# sort output to suit pacman's syntax. pacman needs a list of package names separated by single spaces.
 				pkgU=$( echo "${pacui_upgrade}" | sort -u | paste -sd " ")
-				
-				# remove temporary file
-				rm ${pacui_tmp_upgrade}
 
 				# the following if-statement prevents the following error, in case there is no older package version available: "error: no targets specified (use -h for help)"
 				if [[ ! -z $pkgU ]]   # checks, if variable is not empty
@@ -1323,10 +1323,10 @@ As a result, <REPOSITORY>/<PACKAGE NAME> and the complete path to <FILE NAME> ge
 
 \e[1m9 - ROLL BACK SYSTEM
 \e[36m"sudo pacman -Rdd <PACKAGE NAME> --noconfirm" \e[0m(only for installed packages)
-\e[36m"sudo pacman -U <PACKAGE NAME> --noconfirm" \e[0m(only for removed packages: Installs latest version in Pacman cache)
-\e[36m"sudo pacman -U <FILE NAME> --noconfirm" \e[0m(only for upgraded packages: Installs previous version from Pacman cache)
+\e[36m"sudo pacman -U <PACKAGE NAME> --noconfirm" \e[0m(only for removed, upgraded, or downgraded packages: Installs appropriate version from Pacman/Pacaur cache)
 Manjaro and Arch Linux use a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. Sometimes, things go wrong during UPDATE SYSTEM and you should roll back the last update. In case the latest version of a single package is broken, rolling back (a.k.a. downgrading) that package can work.
-This command shows you a list of all recent Pacman actions sorted by date (using parts of this command: "tail -5000 /var/log/pacman.log"). Please select all Pacman actions you want to roll back. Installed packages will be removed from your system, removed packages will be reinstalled, and upgraded packages will be downgraded to the previous version (if this version is available in your local package cache). If you select multiple upgrades of the same package, the package gets downgraded multiple times (if this version is available in your local package cache).
+This command shows you a list of all recent Pacman actions sorted by date (using parts of this command: "tail -5000 /var/log/pacman.log"). Please select all Pacman actions you want to roll back. Installed packages will be removed from your system. Removed packages will be reinstalled as the latest version available in your Pacman/Pacaur cache. Upgraded packages will be downgraded to the previous version (if this version is available in your local Pacman/Pacaur cache). Downgraded packages will be Upgraded to a later version. If you select multiple upgrades/downgrades of the same package, the package gets downgraded/upgraded multiple times (if this version is available in your local Pacman/Pacaur cache).
+\e[1mAttention\e[0m: It is strongly recommended to always roll back <PACKAGE NAME> including ALL its dependencies. Otherwise, your system could be left in a broken state. If you are in doubt about that, rolling back all changes made on your system in a short time intervall should be sufficient.
 \e[1mAttention\e[0m: After downgrading a broken package to a working version, it is recommended to add the package name to your Ignore List ( "IgnorePkg" option in /etc/pacman.conf ). This will prevent Pacman from showing any available updates for this package. The package needs to be removed manually from your Ignore List in order to receive automatic updates again. Alternatively, you can run future updates with the command "sudo pacman -Syu --ignore <PACKAGE NAME>" until a fixed version of that package gets released.
 
 
@@ -1475,6 +1475,7 @@ After a successful downgrade, you can add <PACKAGE NAME> to your Ignore List ( "
 Alternatively, you can run future updates with the command "sudo pacman -Syu --ignore <PACKAGE NAME>" until a fixed version of <PACKAGE NAME> gets released.
 \e[1mAttention\e[0m: Be careful when using Manjaro and downgrading to <PACKAGE NAME> from online sources, because these are old versions from the Arch Linux repositories only: In the worst case, this can brake your system! Therefore, it is recommended to limit downgrading to (old versions of) local packages, if possible.
 \e[1mAttention\e[0m: Downgrading to a working version of <PACKAGE NAME> can break your system in in rare cases like the following: The latest system update has replaced a dependency of <PACKAGE NAME> with a different package and <PACKAGE NAME> is an important system package. Downgrading <PACKAGE NAME> will NOT reinstall the dependency of <PACKAGE NAME>, because it conflicts with the already installled different package. This can result in a broken system. Please keep these kind of conflicts in mind when using DOWNGRADE PACKAGES.
+\e[1mAttention\e[0m: DOWNGRADE PACKAGES will show you a selection of packages you can downgrade. If you are using Pacaur to install AUR packages, you will not be able to downgrade AUR pacakges using DOWNGRADE PACKAGES! instead, the ROLL BACK SYSTEM option is recommended.
 
 
 \e[1mSEARCH + INSTALL FROM AUR
