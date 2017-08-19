@@ -188,9 +188,9 @@ function func_m
 			if ! [[ -z $(cat /tmp/.available_kernels) ]]   # make sure that file is not empty
 			then
 				# write all kernels, which are installed and still available to /tmp/.uptodate_kernels
-				grep -f /tmp/.available_kernels /tmp/.installed_kernels > /tmp/.uptodate_kernels
+				comm -12 /tmp/.available_kernels /tmp/.installed_kernels > /tmp/.uptodate_kernels
 				# write all kernels, which are NOT up-to-date anymore, but which are still installed to /tmp/.eol_kernels
-				grep -v -f /tmp/.uptodate_kernels /tmp/.installed_kernels > /tmp/.eol_kernels
+				comm -13 /tmp/.uptodate_kernels /tmp/.installed_kernels > /tmp/.eol_kernels
 				if ! [[ -z $(cat /tmp/.eol_kernels) ]]   # make sure that file is not empty
 				then
 					echo -e "\e[1mThe following Linux kernels have reached their end-of-live status. \e[0m"
@@ -428,7 +428,7 @@ function func_s
 			# update local package database. this needs a long time when internet connection is slow.
 			# in some cases, the local database has to be initialized with sudo pacman -Fyy
 			sudo pacman -Fy
-			
+
 
 			echo -e "\n\e[1mPackage files in system repositories: \e[0m" >> /tmp/pacui-search-temp
 			# search in system repositories with "pacman -Fsx" --> machine readable version of output is easier to read for awk!
