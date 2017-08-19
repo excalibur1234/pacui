@@ -214,7 +214,6 @@ function func_i
 			# alternative: "package-query -Sl -f '%n  %v  -  %d' " displays a list of all packages from system repositories and formats them like "NAME  VERSION  -  DESCRIPTION".
 			expac -S "%n - %d" > /tmp/pacui-packages-install
 			expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' | tr -d " " >> /tmp/pacui-packages-install
-
 						
 			# finally, download AUR package list (only when not already downloaded), unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages-install.
 			if  [[ ! -e /tmp/aur/packages ]]
@@ -232,7 +231,7 @@ function func_i
 		# the package list in /tmp/pacui-packages-install gets sorted and displayed by fzf. look in "man fzf" for what fzf's arguments are used.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		# the --preview option of fzf displays information about the currently selected line
-		pkg=$( sort -u /tmp/pacui-packages-install | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+		pkg=$( sort -k1,1 -u /tmp/pacui-packages-install | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			if ( pacman -Qq $( echo {} | cut -d " " -f 1 ) &>/dev/null )		# check, if selected line is a locally installed package
 			then
 				pacman -Qi $( echo {} | cut -d " " -f 1 ) --color always
