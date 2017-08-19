@@ -423,8 +423,8 @@ function func_s
 			# awk -v VAR="$file" '$NF ~ VAR' searches for $file (using regex) in the last field/column only. write resulting list to /tmp/pacui-search-temp
 			pacman -Ql --color always | awk -v VAR="$file" -F '/' '$NF ~ VAR' >> /tmp/pacui-search-temp
 			# write a list of package names (which install files containing "$file" string) to /tmp/pacui-search-packages-temp
-			pacman -Ql --color always | awk -v VAR="$file" -F '/' '$NF ~ VAR' | awk -F '/' '{print $1}' | sort -u > /tmp/pacui-search-packages-temp
-						
+			pacman -Ql | awk -v VAR="$file" -F '/' '$NF ~ VAR' | awk -F '/' '{print $1}' | sort -u | tr -d " " > /tmp/pacui-search-packages-temp
+
 			# update local package database. this needs a long time when internet connection is slow.
 			# in some cases, the local database has to be initialized with sudo pacman -Fyy
 			sudo pacman -Fy
@@ -437,7 +437,7 @@ function func_s
 			# "{print $1 "/" $2, $4}" prints output nicely formatted to /tmp/pacui-search-temp.
 			# instead of regular ANSI escape sequences, i need to use \033[1m instead of \e[1m inside the awk command.
 			pacman -Fsx --machinereadable "$file" | awk -F '\0' 'system("grep -q " $2 " /tmp/pacui-search-packages-temp") == 1 {print  $1 "/" "\033[1m" $2 "\033[0m " $4}' >> /tmp/pacui-search-temp
-
+			
 			# display results from file /tmp/pacui-search-temp in fzf.
 			cat /tmp/pacui-search-temp | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Package file names (with path) containing \"${file}\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed package names and file paths > ' > /tmp/pacui-s
 									
