@@ -579,7 +579,7 @@ function func_b
 
 			if [[ ! -z "$pkgR" ]]     # this if-condition avoids error message when no package gets removed (and $pkgR is empty)
 			then
-				sudo pacman -Rdd "$pkgR" --color always --noconfirm
+				sudo pacman -Rdd ${pkgR} --color always --noconfirm
 			fi
 
 
@@ -622,7 +622,7 @@ function func_b
 			    if [[ ! -z "$pkgI" ]]
 			    then
 				    # install cannot be done as dependency, because sometimes packages are simply replaced by other packages. in this case, installing as dependency would be bad!
-				    sudo pacman -U "$pkgI" --color always --noconfirm
+				    sudo pacman -U ${pkgI} --color always --noconfirm
 				fi
 				
 			fi
@@ -690,7 +690,7 @@ function func_b
 				if [[ ! -z $pkgD ]]   # checks, if variable is not empty
 				then
 					# downgrade packages by manually installing them: (sudo pacman -U --noconfirm --color always )
-					sudo pacman -U "$pkgD" --color always --noconfirm
+					sudo pacman -U ${pkgD} --color always --noconfirm
 				fi
 			
 			fi
@@ -758,7 +758,7 @@ function func_b
 				if [[ ! -z $pkgU ]]   # checks, if variable is not empty
 				then
 					# upgrade packages by manually installing them: (sudo pacman -U --noconfirm --color always )
-					sudo pacman -U "$pkgU" --color always --noconfirm
+					sudo pacman -U ${pkgU} --color always --noconfirm
 				fi
 			
 			fi
