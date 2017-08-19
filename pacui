@@ -359,15 +359,12 @@ function func_ls
 
 function func_t 
 {
-		# check, whether file /tmp/pacui-packages-local already exists (the ! negates the result)
-		if [[ ! -e /tmp/pacui-packages-local ]]
-		then
-			# write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
-			pacman -Slq | tr -d " " > /tmp/pacui-packages-local
-			pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
-		fi
+		# write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
+		pacman -Slq | tr -d " " > /tmp/pacui-packages-local
+		pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
 
 		local pkg
+
 		pkg=$( sort -u -i /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
 			then
@@ -412,15 +409,12 @@ function func_rt
 
 function func_l 
 {
-		# check, whether file /tmp/pacui-packages-local already exists (the ! negates the result)
-		if [[ ! -e /tmp/pacui-packages-local ]]
-		then
-			# write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
-			pacman -Slq | tr -d " " > /tmp/pacui-packages-local
-			pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
-		fi
+		# write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
+		pacman -Slq | tr -d " " > /tmp/pacui-packages-local
+		pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
 		
 		local pkg
+
 		pkg=$( sort -u -i /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
 			then
@@ -518,13 +512,9 @@ function func_log
 
 function func_d
 {
-		# check, whether file /tmp/pacui-packages-local already exists (the ! negates the result)
-		if [[ ! -e /tmp/pacui-packages-local ]]
-		then
-			# write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
-			pacman -Slq | tr -d " " > /tmp/pacui-packages-local
-			pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
-		fi
+		# write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
+		pacman -Slq | tr -d " " > /tmp/pacui-packages-local
+		pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
 		
 		local pkg
 		local pkg_install
@@ -753,7 +743,7 @@ function func_b
 				
 				# remove temporary file
 				rm ${pacui_tmp_upgrade}
-
+				
 				# the following if-statement prevents the following error, in case there is no older package version available: "error: no targets specified (use -h for help)"
 				if [[ ! -z $pkgU ]]   # checks, if variable is not empty
 				then
