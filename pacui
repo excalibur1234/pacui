@@ -209,10 +209,10 @@ function func_i
 		# check, whether file /tmp/pacui-packages-install already exists (the ! negates the result)
 		if  [[ ! -e /tmp/pacui-packages-install ]]
 		then
-			# write package list of system repositories to /tmp/pacui-packages-install. then add all package groups to the bottom.
+			# write package list of system repositories (package name and description) to /tmp/pacui-packages-install. then add all package groups to the bottom.
 			# delete all spaces with "tr" (there are spaces after each package name!). this is important for installing multiple packages at the same time! command equivalent to "awk '{print $1}'"
-			# alternative: "package-query -Sl -f '%n  %v  -  %d' " displays a list of all packages from system repositories and formats them like "NAME  VERSION  -  DESCRIPTION".
-			expac -S "%n \t %d" > /tmp/pacui-packages-install
+			# awk 'NF != 0' removes all empty lines ("number of fields" in one line has to be non-zero)
+			expac -S "%n\t\t%d" > /tmp/pacui-packages-install
 			expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' | tr -d " " >> /tmp/pacui-packages-install
 						
 			# finally, download AUR package list (only when not already downloaded), unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages-install.
@@ -299,6 +299,7 @@ function func_r
 			sudo pacman -Rsn $pkg_install --color always
 		fi
 }
+
 
 
 function func_t 
@@ -1295,7 +1296,7 @@ By comparing both outputs, it is possible to extract a list of so called end-of-
 
 \e[1m3 - INSTALL PACKAGES
 \e[36m"yaourt -S <PACKAGE NAME>"
-This option downloads and installs <PACKAGE NAME> on your system. The list of packages shows packages from your system repository with their version number and description while package groups or packages from the AUR are only shown with their name.
+This option downloads and installs <PACKAGE NAME> on your system. The list of packages shows packages from your system repository with their description while package groups or packages from the AUR are only shown with their name.
 \e[1mAttention\e[0m: Experienced users can install packages from the AUR without the need to answer questions all the time by using the command "yaourt -S <PACKAGE NAME> --noconfirm". The "--noconfirm" flag is great for quick and dirty installations of AUR packages on non-secure systems. Please keep always in mind that the AUR can contain any sort of package - including malicious and destructive (parts of) packages. Therefore, it is recommended to always check the PKGBUILD and .INSTALL file manually before installing a package from the AUR.
 
 
@@ -1344,8 +1345,8 @@ As a result, <REPOSITORY>/<PACKAGE NAME> and the complete path to <FILE NAME> ge
 
 
 \e[1m9 - ROLL BACK SYSTEM
-\e[36m"sudo pacman -Rdd <PACKAGE NAME> --noconfirm" \e[0m(only for installed packages)
-\e[36m"sudo pacman -U <PACKAGE NAME> --noconfirm" \e[0m(only for removed, upgraded, or downgraded packages: Installs appropriate version from Pacman/Pacaur cache)
+\e[36m"sudo pacman -Rdd <PACKAGE NAME> --noconfirm" \e[0m(only for rolling back package installations)
+\e[36m"sudo pacman -U <PACKAGE NAME IN PACMAN/PACAUR CACHE> --noconfirm" \e[0m(only for rolling back package removals, upgrades, or downgrades.)
 Manjaro and Arch Linux use a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. Sometimes, things go wrong during UPDATE SYSTEM and you should roll back the last update. In case the latest version of a single package is broken, rolling back (a.k.a. downgrading) that package can work.
 This command shows you a list of all recent Pacman actions sorted by date (using parts of this command: "tail -5000 /var/log/pacman.log"). Please select all Pacman actions you want to roll back. Installed packages will be removed from your system. Removed packages will be reinstalled as the latest version available in your Pacman/Pacaur cache. Upgraded packages will be downgraded to the previous version (if this version is available in your local Pacman/Pacaur cache). Downgraded packages will be Upgraded to a later version. If you select multiple upgrades/downgrades of the same package, the package gets downgraded/upgraded multiple times (if this version is available in your local Pacman/Pacaur cache).
 \e[1mAttention\e[0m: It is strongly recommended to always roll back <PACKAGE NAME> including ALL its dependencies. Otherwise, your system could be left in a broken state. If you are in doubt about that, rolling back all changes made on your system in a short time intervall should be sufficient.
