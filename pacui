@@ -232,19 +232,19 @@ function func_i
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		# the --preview option of fzf displays information about the currently selected line
 		pkg=$( sort -k1,1 -u /tmp/pacui-packages-install | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-			if ( pacman -Qq $( echo {} | cut -d " " -f 1 ) &>/dev/null )		# check, if selected line is a locally installed package. "$( echo {} | cut -d " " -f 1 )" extracts the first field/argument/element from the selected line in fzf.
+			if ( pacman -Qq {1} &>/dev/null )		# check, if 1. field of selected line is a locally installed package.
 			then
-				pacman -Qi $( echo {} | cut -d " " -f 1 ) --color always
-			elif ( pacman -Sgq $( echo {} | cut -d " " -f 1 ) &>/dev/null )		# check, if selected line in fzf is a package group
+				pacman -Qi {1} --color always
+			elif ( pacman -Sgq {1} &>/dev/null )		# check, if 1. field of selected line in fzf is a package group
 			then
 				echo -e "\e[1m{} group has the following members: \e[0m"
-				pacman -Sgq {}
+				pacman -Sgq {1}
 			else									# do this if line is neither a group nor locally installed
 				if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
 				then 
-					yaourt -Si $( echo {} | cut -d " " -f 1 )
+					yaourt -Si {1}
 				else 
-					pacaur -Si $( echo {} | cut -d " " -f 1 ) --color always | grep -v "not found in repositories"      # grep command removes error being displayed in pacaur only
+					pacaur -Si {1} --color always | grep -v "not found in repositories"      # grep command removes error (in english locale) being displayed in pacaur only
 				fi
 			fi
 			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
