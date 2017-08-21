@@ -213,7 +213,7 @@ function func_i
 			# delete all spaces with "tr" (there are spaces after each package name!). this is important for installing multiple packages at the same time! command equivalent to "awk '{print $1}'"
 			# awk 'NF != 0' removes all empty lines ("number of fields" in one line has to be non-zero)
 			expac -S "%n\t\t%d" > /tmp/pacui-packages-install
-			expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' | tr -d " " >> /tmp/pacui-packages-install
+			expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-install
 						
 			# finally, download AUR package list (only when not already downloaded), unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages-install.
 			if  [[ ! -e /tmp/aur/packages ]]
@@ -237,7 +237,7 @@ function func_i
 				pacman -Qi {1} --color always
 			elif ( pacman -Sgq {1} &>/dev/null )		# check, if 1. field of selected line in fzf is a package group
 			then
-				echo -e "\e[1m{} group has the following members: \e[0m"
+				echo -e "\e[1m{1} group has the following members: \e[0m"
 				pacman -Sgq {1}
 			else									# do this if line is neither a group nor locally installed
 				if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
@@ -270,11 +270,11 @@ function func_i
 function func_r 
 {
 		# write package list of local repository to /tmp/pacui-packages-group. then add all installed package groups to the bottom.
-		pacman -Qq | tr -d " " > /tmp/pacui-packages-group
+		#pacman -Qq | tr -d " " > /tmp/pacui-packages-group
+		expac -Q "%n\t\t%d" > /tmp/pacui-packages-group
 		# this expac command prints a list of package groups of installed packages 
 		# awk 'NF != 0'  only displays lines where the number of fields is not zero (i.e. non-empty lines)
-		expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' | tr -d " " >> /tmp/pacui-packages-group
-		# alternative command: package-query -Qg | awk '{print $1}' >> /tmp/pacui-packages-group
+		expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-group
 		
 		local pkg
 		local pkg_install
@@ -282,14 +282,14 @@ function func_r
 		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		pkg=$( sort -u -i /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
+			if ( pacman -Qq {1} &>/dev/null )		# check, if selected line is a locally installed package
 			then
-				pacman -Qi {} --color always
+				pacman -Qi {1} --color always
 			else
-				echo -e "\e[1m{} group has the following members: \e[0m"
-				pacman -Sgq {}
+				echo -e "\e[1m{1} group has the following members: \e[0m"
+				pacman -Sgq {1}
 			fi
-			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
+			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
         
 		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
 		pkg_install=$(echo $pkg | paste -sd " ")
@@ -305,24 +305,26 @@ function func_r
 function func_t 
 {
 		# write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
-		pacman -Slq | tr -d " " > /tmp/pacui-packages-local
-		pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
+		#pacman -Slq | tr -d " " > /tmp/pacui-packages-local
+		expac -S "%n\t\t%d" > /tmp/pacui-packages-local
+		#pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
+		expac -Q "%n\t\t%d" >> /tmp/pacui-packages-local
 
 		local pkg
 
 		pkg=$( sort -u -i /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
+			if ( pacman -Qq {1} &>/dev/null )		# check, if selected line is a locally installed package
 			then
-				pacman -Qi {} --color always
+				pacman -Qi {1} --color always
 			else									# do this if line is not locally installed
 				if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
 				then 
-					yaourt -Si {}
+					yaourt -Si {1}
 				else 
-					pacaur -Si {} --color always
+					pacaur -Si {1} --color always | grep -v "not found in repositories"      # grep command removes error (in english locale) being displayed in pacaur only
 				fi
 			fi
-			' --preview-window=right:50%:wrap  --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
+			' --preview-window=right:50%:wrap  --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
 		# look in func_info for explanations
 		if [[ -n $pkg ]]
@@ -355,24 +357,26 @@ function func_rt
 function func_l 
 {
 		# write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
-		pacman -Slq | tr -d " " > /tmp/pacui-packages-local
-		pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
+		#pacman -Slq | tr -d " " > /tmp/pacui-packages-local
+		expac -S "%n\t\t%d" > /tmp/pacui-packages-local
+		#pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
+		expac -Q "%n\t\t%d" >> /tmp/pacui-packages-local
 		
 		local pkg
 
 		pkg=$( sort -u -i /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
+			if ( pacman -Qq {1} &>/dev/null )		# check, if selected line is a locally installed package
 			then
-				pacman -Qi {} --color always		# for local packages, "pacman" is sufficient.
+				pacman -Qi {1} --color always		# for local packages, "pacman" is sufficient.
 			else									# do this if line is not locally installed
 				if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
 				then 
-					yaourt -Si {}
+					yaourt -Si {1}
 				else 
-					pacaur -Si {} --color always
+					pacaur -Si {1} --color always | grep -v "not found in repositories"      # grep command removes error (in english locale) being displayed in pacaur only
 				fi
 			fi
-			' --preview-window=right:50%:wrap  --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
+			' --preview-window=right:50%:wrap  --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
 		if [[ -n $pkg ]]
 		then
@@ -947,8 +951,10 @@ function func_fi
 		if [[ ! -e /tmp/pacui-packages-group-repo ]]
 		then
 			# write formatted package list of repositories to /tmp/pacui-packages-group-repo. then add all package groups to the bottom.
-			pacman -Slq | tr -d " " > /tmp/pacui-packages-group-repo
-			pacman -Sg | tr -d " " >> /tmp/pacui-packages-group-repo
+			#pacman -Slq | tr -d " " > /tmp/pacui-packages-group-repo
+			expac -S "%n\t\t%d"  > /tmp/pacui-packages-group-repo
+			#pacman -Sg | tr -d " " >> /tmp/pacui-packages-group-repo
+			expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-group-repo
 		fi
 		
 		local pkg
@@ -958,22 +964,22 @@ function func_fi
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		# the --preview option of fzf displays information about the currently selected line
 		pkg=$( sort -u -i /tmp/pacui-packages-group-repo | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
+			if ( pacman -Qq {1} &>/dev/null )		# check, if selected line is a locally installed package
 			then
-				pacman -Qi {} --color always
-			elif ( pacman -Sgq {} &>/dev/null )		# check, if selected line in fzf is a package group
+				pacman -Qi {1} --color always
+			elif ( pacman -Sgq {1} &>/dev/null )		# check, if selected line in fzf is a package group
 			then
-				echo -e "\e[1m{} group has the following members: \e[0m"
-				pacman -Sgq {}
+				echo -e "\e[1m{1} group has the following members: \e[0m"
+				pacman -Sgq {1}
 			else									# do this if line is neither a group nor locally installed
 				if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
 				then 
-					yaourt -Si {}
+					yaourt -Si {1}
 				else 
-					pacaur -Si {} --color always
+					pacaur -Si {1} --color always | grep -v "not found in repositories"      # grep command removes error (in english locale) being displayed in pacaur only
 				fi
 			fi
-			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
+			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 		
 		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
 		pkg_install=$(echo $pkg | paste -sd " ")
@@ -988,11 +994,11 @@ function func_fi
 function func_fr 
 {
 		# write package list of local repository to /tmp/pacui-packages-group. then add all installed package groups to the bottom.
-		pacman -Qq | tr -d " " > /tmp/pacui-packages-group
+		#pacman -Qq | tr -d " " > /tmp/pacui-packages-group
+		expac -Q "%n\t\t%d"  > /tmp/pacui-packages-group
 		# this expac command prints a list of package groups of installed packages 
 		# awk 'NF != 0'  only displays lines where the number of fields is not zero (i.e. non-empty lines)
 		expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' | tr -d " " >> /tmp/pacui-packages-group
-		# alternative command: package-query -Qg | awk '{print $1}' >> /tmp/pacui-packages-group
 
 		local pkg
 		local pkg_install
@@ -1001,14 +1007,14 @@ function func_fr
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		# the --preview option of fzf displays information about the currently selected line
 		pkg=$( sort -u -i /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
+			if ( pacman -Qq {1} &>/dev/null )		# check, if selected line is a locally installed package
 			then
-				pacman -Qi {} --color always
+				pacman -Qi {1} --color always
 			else
-				echo -e "\e[1m{} group has the following members: \e[0m"
-				pacman -Sgq {}
+				echo -e "\e[1m{1} group has the following members: \e[0m"
+				pacman -Sgq {1}
 			fi
-			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
+			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 		
 		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
 		pkg_install=$(echo $pkg | paste -sd " ")
@@ -1091,7 +1097,7 @@ function func_info
 				then
 					yaourt -Sii "$pkg"		    # execute this command when "pkg" is not installed on system
 				else
-					pacaur -Sii "$pkg" --color always | grep -v "not found in repositories" 
+					pacaur -Sii "$pkg" --color always | grep -v "not found in repositories"      # grep command removes error (in english locale) being displayed in pacaur only
 				fi
 			
 			fi
@@ -1146,7 +1152,7 @@ function func_a
 				# do this if variable "input" is not empty:
 				yaourt "$input2"
 			else
-				pacaur -Ss "$input2" --color always
+				pacaur -Ss "$input2" --color always | grep -v "not found in repositories"      # grep command removes error (in english locale) being displayed in pacaur only
 			fi				
 				
 		else
@@ -1159,7 +1165,7 @@ function func_a
 			then
 				yaourt "$pkg"
 			else
-				pacaur -Ss "$pkg" --color always
+				pacaur -Ss "$pkg" --color always | grep -v "not found in repositories"      # grep command removes error (in english locale) being displayed in pacaur only
 			fi
 			
 		fi
