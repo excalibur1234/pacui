@@ -212,7 +212,7 @@ function func_i
 			# write package list of system repositories (package name and description) to /tmp/pacui-packages-install. then add all package groups to the bottom.
 			# delete all spaces with "tr" (there are spaces after each package name!). this is important for installing multiple packages at the same time! command equivalent to "awk '{print $1}'"
 			# awk 'NF != 0' removes all empty lines ("number of fields" in one line has to be non-zero)
-			expac -S "%n\t\t%d" > /tmp/pacui-packages-install
+			expac -S "%n\t\t\t%d" > /tmp/pacui-packages-install
 			expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-install
 						
 			# finally, download AUR package list (only when not already downloaded), unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages-install.
@@ -271,7 +271,7 @@ function func_r
 {
 		# write package list of local repository to /tmp/pacui-packages-group. then add all installed package groups to the bottom.
 		#pacman -Qq | tr -d " " > /tmp/pacui-packages-group
-		expac -Q "%n\t\t%d" > /tmp/pacui-packages-group
+		expac -Q "%n\t\t\t%d" > /tmp/pacui-packages-group
 		# this expac command prints a list of package groups of installed packages 
 		# awk 'NF != 0'  only displays lines where the number of fields is not zero (i.e. non-empty lines)
 		expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-group
@@ -281,7 +281,7 @@ function func_r
 
 		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
-		pkg=$( sort -u -i /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+		pkg=$( sort -k1,1 -u /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			if ( pacman -Qq {1} &>/dev/null )		# check, if selected line is a locally installed package
 			then
 				pacman -Qi {1} --color always
@@ -306,13 +306,13 @@ function func_t
 {
 		# write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
 		#pacman -Slq | tr -d " " > /tmp/pacui-packages-local
-		expac -S "%n\t\t%d" > /tmp/pacui-packages-local
+		expac -S "%n\t\t\t%d" > /tmp/pacui-packages-local
 		#pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
-		expac -Q "%n\t\t%d" >> /tmp/pacui-packages-local
+		expac -Q "%n\t\t\t%d" >> /tmp/pacui-packages-local
 
 		local pkg
 
-		pkg=$( sort -u -i /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+		pkg=$( sort -k1,1 -u /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			if ( pacman -Qq {1} &>/dev/null )		# check, if selected line is a locally installed package
 			then
 				pacman -Qi {1} --color always
@@ -342,9 +342,9 @@ function func_t
 function func_rt 
 {
 		local pkg
-		pkg=$( expac -Q "%n\t\t\t\t%d" | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+		pkg=$( expac -Q "%n\t\t\t%d" | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			pacman -Qi {1} --color always
-			' --preview-window=right:50%:wrap  --header="Press ENTER to show reverse tree. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
+			' --preview-window=right:50%:wrap  --header="Press ENTER to show reverse tree. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
 		# look in func_info for explanations
 		if [[ -n $pkg ]]
@@ -358,13 +358,13 @@ function func_l
 {
 		# write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
 		#pacman -Slq | tr -d " " > /tmp/pacui-packages-local
-		expac -S "%n\t\t%d" > /tmp/pacui-packages-local
+		expac -S "%n\t\t\t%d" > /tmp/pacui-packages-local
 		#pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
-		expac -Q "%n\t\t%d" >> /tmp/pacui-packages-local
+		expac -Q "%n\t\t\t%d" >> /tmp/pacui-packages-local
 		
 		local pkg
 
-		pkg=$( sort -u -i /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+		pkg=$( sort -k1,1 -u /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			if ( pacman -Qq {1} &>/dev/null )		# check, if selected line is a locally installed package
 			then
 				pacman -Qi {1} --color always		# for local packages, "pacman" is sufficient.
@@ -952,7 +952,7 @@ function func_fi
 		then
 			# write formatted package list of repositories to /tmp/pacui-packages-group-repo. then add all package groups to the bottom.
 			#pacman -Slq | tr -d " " > /tmp/pacui-packages-group-repo
-			expac -S "%n\t\t%d"  > /tmp/pacui-packages-group-repo
+			expac -S "%n\t\t\t%d"  > /tmp/pacui-packages-group-repo
 			#pacman -Sg | tr -d " " >> /tmp/pacui-packages-group-repo
 			expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-group-repo
 		fi
@@ -963,7 +963,7 @@ function func_fi
 		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		# the --preview option of fzf displays information about the currently selected line
-		pkg=$( sort -u -i /tmp/pacui-packages-group-repo | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+		pkg=$( sort -k1,1 -u /tmp/pacui-packages-group-repo | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			if ( pacman -Qq {1} &>/dev/null )		# check, if selected line is a locally installed package
 			then
 				pacman -Qi {1} --color always
@@ -995,7 +995,7 @@ function func_fr
 {
 		# write package list of local repository to /tmp/pacui-packages-group. then add all installed package groups to the bottom.
 		#pacman -Qq | tr -d " " > /tmp/pacui-packages-group
-		expac -Q "%n\t\t%d"  > /tmp/pacui-packages-group
+		expac -Q "%n\t\t\t%d"  > /tmp/pacui-packages-group
 		# this expac command prints a list of package groups of installed packages 
 		# awk 'NF != 0'  only displays lines where the number of fields is not zero (i.e. non-empty lines)
 		expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' | tr -d " " >> /tmp/pacui-packages-group
@@ -1006,7 +1006,7 @@ function func_fr
 		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		# the --preview option of fzf displays information about the currently selected line
-		pkg=$( sort -u -i /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+		pkg=$( sort -k1,1 -u /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			if ( pacman -Qq {1} &>/dev/null )		# check, if selected line is a locally installed package
 			then
 				pacman -Qi {1} --color always
@@ -1075,7 +1075,7 @@ function func_info
 			
 		# the following command lets you search through the file "/tmp/pacui-packages" with fzf and save your selection in "pkg"
 		local pkg
-		pkg=$( sort -u -i /tmp/pacui-packages | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to display info. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
+		pkg=$( sort -k1,1 -u /tmp/pacui-packages | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to display info. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
 		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $pkg ]]
@@ -1128,7 +1128,7 @@ function func_d
 		local pkg
 		local pkg_install
 
-		pkg=$( sort -u -i /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to downgrade. ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
+		pkg=$( sort -k1,1 -u /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to downgrade. ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
 		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
 		pkg_install=$(echo $pkg | paste -sd " ")
