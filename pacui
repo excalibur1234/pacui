@@ -244,10 +244,10 @@ function func_i
 				then 
 					yaourt -Si {1}
 				else 
-					pacaur -Si {1} --color always | grep -v "not found in repositories"      # grep command removes error (in english locale) being displayed in pacaur only
+					pacaur -Si {1} --color always | grep -v "::"      # grep command removes errors being displayed in pacaur only
 				fi
 			fi
-			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+			' --preview-window=right:60%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 		
 		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
 		pkg_install=$( echo $pkg | paste -sd " " )
@@ -289,7 +289,7 @@ function func_r
 				echo -e "\e[1m{1} group has the following members: \e[0m"
 				pacman -Sgq {1}
 			fi
-			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+			' --preview-window=right:60%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
         
 		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
 		pkg_install=$(echo $pkg | paste -sd " ")
@@ -321,10 +321,10 @@ function func_t
 				then 
 					yaourt -Si {1}
 				else 
-					pacaur -Si {1} --color always | grep -v "not found in repositories"      # grep command removes error (in english locale) being displayed in pacaur only
+					pacaur -Si {1} --color always | grep -v "::"      # grep command removes errors being displayed in pacaur only
 				fi
 			fi
-			' --preview-window=right:50%:wrap  --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+			' --preview-window=right:60%:wrap  --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
 		# look in func_info for explanations
 		if [[ -n $pkg ]]
@@ -344,7 +344,7 @@ function func_rt
 		local pkg
 		pkg=$( expac -Q "%n\t\t\t%d" | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			pacman -Qi {1} --color always
-			' --preview-window=right:50%:wrap  --header="Press ENTER to show reverse tree. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+			' --preview-window=right:60%:wrap  --header="Press ENTER to show reverse tree. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
 		# look in func_info for explanations
 		if [[ -n $pkg ]]
@@ -373,10 +373,10 @@ function func_l
 				then 
 					yaourt -Si {1}
 				else 
-					pacaur -Si {1} --color always | grep -v "not found in repositories"      # grep command removes error (in english locale) being displayed in pacaur only
+					pacaur -Si {1} --color always | grep -v "::"      # grep command removes errors being displayed in pacaur only
 				fi
 			fi
-			' --preview-window=right:50%:wrap  --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+			' --preview-window=right:60%:wrap  --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
 		if [[ -n $pkg ]]
 		then
@@ -976,10 +976,10 @@ function func_fi
 				then 
 					yaourt -Si {1}
 				else 
-					pacaur -Si {1} --color always | grep -v "not found in repositories"      # grep command removes error (in english locale) being displayed in pacaur only
+					pacaur -Si {1} --color always | grep -v "::"      # grep command removes errors being displayed in pacaur only
 				fi
 			fi
-			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+			' --preview-window=right:60%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 		
 		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
 		pkg_install=$(echo $pkg | paste -sd " ")
@@ -1014,7 +1014,7 @@ function func_fr
 				echo -e "\e[1m{1} group has the following members: \e[0m"
 				pacman -Sgq {1}
 			fi
-			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+			' --preview-window=right:60%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 		
 		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
 		pkg_install=$(echo $pkg | paste -sd " ")
@@ -1047,7 +1047,7 @@ function func_la
 		# "pacman -Qm --color always"
 		pacman -Qqm --color always | fzf-tmux -m -e +s -i --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			pacman -Qi {} --color always
-			' --preview-window=right:50%:wrap  --header="List of AUR and manually installed packages. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-la
+			' --preview-window=right:60%:wrap  --header="List of AUR and manually installed packages. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-la
 
 
 
@@ -1097,7 +1097,7 @@ function func_info
 				then
 					yaourt -Sii "$pkg"		    # execute this command when "pkg" is not installed on system
 				else
-					pacaur -Sii "$pkg" --color always | grep -v "not found in repositories"      # grep command removes error (in english locale) being displayed in pacaur only
+					pacaur -Sii "$pkg" --color always | grep -v "::"      # grep command removes errors being displayed in pacaur only
 				fi
 			
 			fi
@@ -1152,7 +1152,7 @@ function func_a
 				# do this if variable "input" is not empty:
 				yaourt "$input2"
 			else
-				pacaur -Ss "$input2" --color always | grep -v "not found in repositories"      # grep command removes error (in english locale) being displayed in pacaur only
+				pacaur -Ss "$input2" --color always | grep -v "::"      # grep command removes errors being displayed in pacaur only
 			fi				
 				
 		else
@@ -1165,7 +1165,7 @@ function func_a
 			then
 				yaourt "$pkg"
 			else
-				pacaur -Ss "$pkg" --color always | grep -v "not found in repositories"      # grep command removes error (in english locale) being displayed in pacaur only
+				pacaur -Ss "$pkg" --color always | grep -v "::"      # grep command removes errors being displayed in pacaur only
 			fi
 			
 		fi
