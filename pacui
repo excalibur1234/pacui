@@ -222,11 +222,10 @@ function func_i
 			fi
 			# remove line with download date from list of AUR packages with "grep"
 			# delete all spaces with "tr". this is important for installing multiple packages at the same time!
-			cat /tmp/aur/packages | grep -v "#" | tr -d " " >> /tmp/pacui-packages-install
+			grep -v "#" /tmp/aur/packages | tr -d " " >> /tmp/pacui-packages-install
 		fi
 		
-		local pkg
-		local pkg_install
+		local {pkg,pkg_install}
 		
 		# the package list in /tmp/pacui-packages-install gets sorted (by "sort" - only first column gets used for sorting) and displayed by fzf. look in "man fzf" for what fzf's arguments are used.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
@@ -276,8 +275,7 @@ function func_r
 		# awk 'NF != 0'  only displays lines where the number of fields is not zero (i.e. non-empty lines)
 		expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-group
 		
-		local pkg
-		local pkg_install
+		local {pkg,pkg_install}
 
 		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
@@ -957,8 +955,7 @@ function func_fi
 			expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-group-repo
 		fi
 		
-		local pkg
-		local pkg_install
+		local {pkg,pkg_install}
 
 		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
@@ -1000,8 +997,7 @@ function func_fr
 		# awk 'NF != 0'  only displays lines where the number of fields is not zero (i.e. non-empty lines)
 		expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' | tr -d " " >> /tmp/pacui-packages-group
 
-		local pkg
-		local pkg_install
+		local {pkg,pkg_install}
 
 		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
@@ -1213,9 +1209,13 @@ function func_h
 			echo -e "  pacui	h     - \e[1mH\e[0melp. For detailed help, please start User Interface first."
 			
 		else
+
+			# if help file does not exist, create it
+			if  [[ ! -e /tmp/pacui-help ]]
+			then
 			
-			# this "heredoc" command pushes all the following lines into "cat" (and "cat pushed it to file /tmp/pacui-help) until a line with "EOF" is encountered
-			cat > /tmp/pacui-help <<- "EOF"
+				# this "heredoc" command pushes all the following lines into "cat" (and "cat pushed it to file /tmp/pacui-help) until a line with "EOF" is encountered
+				cat > /tmp/pacui-help <<- "EOF"
 
 \e[1mWelcome to PacUIs Help Page
 
@@ -1519,7 +1519,9 @@ If you want to exit this mode without installing any packages, simply press CTRL
 Press "q" to quit this Help Page.
 
 
-			EOF
+				EOF
+			
+			fi
 			
 			# display /tmp/pacui-help file in "less" and interpret all ANSI escape sequences in it (which only works with "echo -e ..."
 			echo -e "$( cat '/tmp/pacui-help' )" | less -RMi
