@@ -3,8 +3,8 @@
 
 pkgname=pacui
 pkgver=1.6.1
-pkgrel=1
-pkgdesc="A simple and interative Bash Frontend for Pacman/Pacaur/Yaourt"
+pkgrel=2
+pkgdesc="Bash script providing advanced Pacman and Pacaur/Yaourt functionality in a simple UI"
 arch=(any)
 url="https://github.com/excalibur1234/$pkgname"
 license=('GPL3')
@@ -19,9 +19,9 @@ optdepends=('pacaur: Needed for AUR support. If installed, it gets used by defau
 source=("$url/archive/$pkgver.tar.gz")
 md5sums=('1a36034db48ce0d93fa350e031534ee6')
 
-# how to get md5sum:
-#  1. do "updpkgsums" inside the folder of PKGBUILD
-#  2. delete ...tar.gz file
+# how to update md5sum:
+#  1. do "updpkgsums" inside the folder with PKGBUILD file
+#  2. delete .tar.gz file
 
 package () {
 	cd $srcdir

@@ -16,10 +16,10 @@
 
 
 # ANSI Escape sequences used in this script:
-#  \e[31m	# red text
-#  \e[41m	# red background
-#  \e[0m	# no-colored, non-bold text without background color
-#  \e[1m	# bold text
+#  \e[31m				# red text
+#  \e[41m				# red background
+#  \e[0m	\033[0m		# non-colored, non-bold text without background color (second possiblity has to be used in "awk")
+#  \e[1m	\033[1m		# bold text (second possiblity has to be used in "awk")
 
 
 
@@ -48,7 +48,7 @@ function func_diff
 		local {temp,temp2,temp3}                                          # define local variables - these variables will be automatically deleted after the function is finished/exited.
 		temp2="$( echo "$input2" | awk '{print $1}' )"                    # write second argument of "pacui diff temp2 temp3" to variable temp2. 
 		temp3="$( echo "$input2" | awk '{print $2}' )"                    # write third argument of "pacui diff temp2 temp3"to variable temp3.
-		temp="$(( ( $(tput cols) - ${#temp2} + ${#temp3} ) / 2 ))"        # calculates half the width of the terminal window ( $(tput cols)=width of terminal window )
+		temp="$(( ( $(tput cols) - ${#temp2} + ${#temp3} ) / 2 ))"        # calculates half the width of the terminal window ( $(tput cols)=width of terminal window ; ${#temp2}=width of second argument )
 		
 		# insert extra line with file paths above the diff viewer output:
 		echo -n -e "\e[31;1m$temp2"                                       # print first argument (without \newline at the end) = file path of file1 . use ANSI escape sequence to print file names in this line bold and red.
@@ -106,7 +106,7 @@ function func_m
 
 		if [[ -n $(sudo find -xtype l -print) ]]  # only run, if output of "sudo find -xtype l -print" is not empty
 		then
-			echo "The following symbolic links are broken, please fix them manually:"
+			echo -e "\e[1mThe following symbolic links are broken, please fix them manually:\e[0m"
 			sudo find -xtype l -print
 		fi
 		echo ""
@@ -159,7 +159,7 @@ function func_m
 		
 		# 1. extract the name of hard drive the / partition is installed on and write it to the "disk" variatble"
 		local disk		# declare local variable
-		disk=$(lsblk -o "name,mountpoint" -pa | sed -n '/^\//h;/\/$/{g;p}' | cut -d/ -f3)
+		disk=$( lsblk -o "name,mountpoint" -pa | sed -n '/^\//h;/\/$/{g;p}' | cut -d/ -f3 )
 		disk="${disk:0:3}"
 		# 2. check, whether "disk" is not empty and whether the path to "disk" exists
 		if [[ -n $disk && -e "/dev/$disk" ]]
@@ -188,9 +188,9 @@ function func_m
 			if ! [[ -z $(cat /tmp/.available_kernels) ]]   # make sure that file is not empty
 			then
 				# write all kernels, which are installed and still available to /tmp/.uptodate_kernels
-				grep -f /tmp/.available_kernels /tmp/.installed_kernels > /tmp/.uptodate_kernels
+				comm -12 /tmp/.available_kernels /tmp/.installed_kernels > /tmp/.uptodate_kernels
 				# write all kernels, which are NOT up-to-date anymore, but which are still installed to /tmp/.eol_kernels
-				grep -v -f /tmp/.uptodate_kernels /tmp/.installed_kernels > /tmp/.eol_kernels
+				comm -13 /tmp/.uptodate_kernels /tmp/.installed_kernels > /tmp/.eol_kernels
 				if ! [[ -z $(cat /tmp/.eol_kernels) ]]   # make sure that file is not empty
 				then
 					echo -e "\e[1mThe following Linux kernels have reached their end-of-live status. \e[0m"
@@ -209,11 +209,11 @@ function func_i
 		# check, whether file /tmp/pacui-packages-install already exists (the ! negates the result)
 		if  [[ ! -e /tmp/pacui-packages-install ]]
 		then
-			# write package list of system repositories to /tmp/pacui-packages-install. then add all package groups to the bottom.
+			# write package list of system repositories (package name and description) to /tmp/pacui-packages-install. %-30n uses printf support in expac to format out put nicely (reserve a 32 character wide field for package name). then add all package groups to the bottom.
 			# delete all spaces with "tr" (there are spaces after each package name!). this is important for installing multiple packages at the same time! command equivalent to "awk '{print $1}'"
-			# alternative: "package-query -Sl -f '%n  %v  -  %d' " displays a list of all packages from system repositories and formats them like "NAME  VERSION  -  DESCRIPTION".
-			pacman -Slq | tr -d " " > /tmp/pacui-packages-install
-			pacman -Sg | tr -d " " >> /tmp/pacui-packages-install
+			# awk 'NF != 0' removes all empty lines ("number of fields" in one line has to be non-zero)
+			expac -S "%-30n\t%d" > /tmp/pacui-packages-install
+			expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-install
 						
 			# finally, download AUR package list (only when not already downloaded), unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages-install.
 			if  [[ ! -e /tmp/aur/packages ]]
@@ -222,35 +222,34 @@ function func_i
 			fi
 			# remove line with download date from list of AUR packages with "grep"
 			# delete all spaces with "tr". this is important for installing multiple packages at the same time!
-			cat /tmp/aur/packages | grep -v "#" | tr -d " " >> /tmp/pacui-packages-install
+			grep -v "#" /tmp/aur/packages | tr -d " " >> /tmp/pacui-packages-install
 		fi
 		
-		local pkg
-		local pkg_install
+		local {pkg,pkg_install}
 		
-		# the package list in /tmp/pacui-packages-install gets sorted and displayed by fzf. look in "man fzf" for what fzf's arguments are used.
+		# the package list in /tmp/pacui-packages-install gets sorted (by "sort" - only first column gets used for sorting) and displayed by fzf. look in "man fzf" for what fzf's arguments are used.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		# the --preview option of fzf displays information about the currently selected line
-		pkg=$( sort -u -i /tmp/pacui-packages-install | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
+		pkg=$( sort -k1,1 -u /tmp/pacui-packages-install | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+			if ( pacman -Qq {1} &>/dev/null )		# check, if 1. field of selected line is a locally installed package.
 			then
-				pacman -Qi {} --color always
-			elif ( pacman -Sgq {} &>/dev/null )		# check, if selected line in fzf is a package group
+				pacman -Qi {1} --color always
+			elif ( pacman -Sgq {1} &>/dev/null )		# check, if 1. field of selected line in fzf is a package group
 			then
-				echo -e "\e[1m{} group has the following members: \e[0m"
-				pacman -Sgq {}
+				echo -e "\e[1m{1} group has the following members: \e[0m"
+				pacman -Sgq {1}
 			else									# do this if line is neither a group nor locally installed
 				if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
 				then 
-					yaourt -Si {}
+					yaourt -Si {1}
 				else 
-					pacaur -Si {} --color always | grep -v "not found in repositories"      # grep command removes error being displayed in pacaur only
+					pacaur -Si {1} --color always | grep -v "::"      # grep command removes errors being displayed in pacaur
 				fi
 			fi
-			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
+			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 		
 		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
-		pkg_install=$(echo $pkg | paste -sd " ")
+		pkg_install=$( echo $pkg | paste -sd " " )
 
 		# only run the command inside the if-statement, if variable $pkg is not empty - this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $pkg ]]
@@ -270,26 +269,25 @@ function func_i
 function func_r 
 {
 		# write package list of local repository to /tmp/pacui-packages-group. then add all installed package groups to the bottom.
-		pacman -Qq | tr -d " " > /tmp/pacui-packages-group
+		#pacman -Qq | tr -d " " > /tmp/pacui-packages-group
+		expac -Q "%-30n\t%d" > /tmp/pacui-packages-group
 		# this expac command prints a list of package groups of installed packages 
 		# awk 'NF != 0'  only displays lines where the number of fields is not zero (i.e. non-empty lines)
-		expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' | tr -d " " >> /tmp/pacui-packages-group
-		# alternative command: package-query -Qg | awk '{print $1}' >> /tmp/pacui-packages-group
+		expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-group
 		
-		local pkg
-		local pkg_install
+		local {pkg,pkg_install}
 
 		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
-		pkg=$( sort -u -i /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
+		pkg=$( sort -k1,1 -u /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+			if ( pacman -Qq {1} &>/dev/null )		# check, if selected line is a locally installed package
 			then
-				pacman -Qi {} --color always
+				pacman -Qi {1} --color always
 			else
-				echo -e "\e[1m{} group has the following members: \e[0m"
-				pacman -Sgq {}
+				echo -e "\e[1m{1} group has the following members: \e[0m"
+				pacman -Sgq {1}
 			fi
-			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
+			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
         
 		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
 		pkg_install=$(echo $pkg | paste -sd " ")
@@ -301,36 +299,39 @@ function func_r
 }
 
 
+
 function func_t 
 {
 		# write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
-		pacman -Slq | tr -d " " > /tmp/pacui-packages-local
-		pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
+		#pacman -Slq | tr -d " " > /tmp/pacui-packages-local
+		expac -S "%-30n\t%d" > /tmp/pacui-packages-local
+		#pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
+		expac -Q "%-30n\t%d" >> /tmp/pacui-packages-local
 
 		local pkg
 
-		pkg=$( sort -u -i /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
+		pkg=$( sort -k1,1 -u /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+			if ( pacman -Qq {1} &>/dev/null )		# check, if selected line is a locally installed package
 			then
-				pacman -Qi {} --color always
+				pacman -Qi {1} --color always
 			else									# do this if line is not locally installed
 				if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
 				then 
-					yaourt -Si {}
+					yaourt -Si {1}
 				else 
-					pacaur -Si {} --color always
+					pacaur -Si {1} --color always | grep -v "::"      # grep command removes errors being displayed in pacaur
 				fi
 			fi
-			' --preview-window=right:50%:wrap  --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
+			' --preview-window=right:50%:wrap  --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
 		# look in func_info for explanations
 		if [[ -n $pkg ]]
 		then
 			if ( pacman -Qq "$pkg" &>/dev/null )
 			then
-				pactree -c "$pkg" | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Dependency Tree of installed package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-t
+				pactree -c "$pkg" | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Dependency Tree of installed package \"$pkg\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-t
 			else
-				pactree -c -s "$pkg" | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Dependency Tree of remote package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-t
+				pactree -c -s "$pkg" | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Dependency Tree of remote package \"$pkg\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-t
 			fi
 		fi
 }
@@ -339,14 +340,14 @@ function func_t
 function func_rt 
 {
 		local pkg
-		pkg=$( pacman -Qq | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-			pacman -Qi {} --color always
-			' --preview-window=right:50%:wrap  --header="Press ENTER to show reverse tree. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
+		pkg=$( expac -Q "%-30n\t%d" | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+			pacman -Qi {1} --color always
+			' --preview-window=right:50%:wrap  --header="Press ENTER to show reverse tree. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
 		# look in func_info for explanations
 		if [[ -n $pkg ]]
 		then
-			pactree -c -r "$pkg" | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Reverse Dependency Tree of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-rt
+			pactree -c -r "$pkg" | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Reverse Dependency Tree of package \"$pkg\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-rt
 		fi
 }
 
@@ -354,24 +355,26 @@ function func_rt
 function func_l 
 {
 		# write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
-		pacman -Slq | tr -d " " > /tmp/pacui-packages-local
-		pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
+		#pacman -Slq | tr -d " " > /tmp/pacui-packages-local
+		expac -S "%-30n\t%d" > /tmp/pacui-packages-local
+		#pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
+		expac -Q "%-30n\t%d" >> /tmp/pacui-packages-local
 		
 		local pkg
 
-		pkg=$( sort -u -i /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
+		pkg=$( sort -k1,1 -u /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+			if ( pacman -Qq {1} &>/dev/null )		# check, if selected line is a locally installed package
 			then
-				pacman -Qi {} --color always		# for local packages, "pacman" is sufficient.
+				pacman -Qi {1} --color always		# for local packages, "pacman" is sufficient.
 			else									# do this if line is not locally installed
 				if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
 				then 
-					yaourt -Si {}
+					yaourt -Si {1}
 				else 
-					pacaur -Si {} --color always
+					pacaur -Si {1} --color always | grep -v "::"      # grep command removes errors being displayed in pacaur
 				fi
 			fi
-			' --preview-window=right:50%:wrap  --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
+			' --preview-window=right:50%:wrap  --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
 		if [[ -n $pkg ]]
 		then
@@ -381,7 +384,7 @@ function func_l
 			
 				# "pacman -Ql" shows sometimes more files than "pacman -Fl". therefore, both commands have to be used!
 				# take the output of command "pacman -Qlq $pkg" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacui-list.
-				pacman -Ql "$pkg" --color always 2>/dev/null | grep -v "/$" | awk '{print $NF}' | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of local package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed file paths > ' > /tmp/pacui-l
+				pacman -Ql "$pkg" --color always 2>/dev/null | grep -a -v "/$" | awk '{print $NF}' | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of local package \"$pkg\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed file paths > ' > /tmp/pacui-l
 				
 			else
 				
@@ -389,11 +392,11 @@ function func_l
 				# in some cases, the local database has to be initialized with sudo pacman -Fyy
 				sudo pacman -Fy
 				
-				echo -e "\n\e[1mPackage files in system repositories: \e[0m"
 				# search in system repositories with "pacman -Fl" --> machine readable version of output is easier to read for awk!
+				# grep -a is used, because "pacman -Fl --machinereadable" returns a file starting with non-text data. the "-a" option ignores that.
 				# the awk command is used to format output: "-F '\0'" set "\0" as separator. this makes it possible to easily use $1,$2,$3,$4 as syntax later.
 				# "{print $1 "/" $2 "  " $4}" prints output nicely formatted.
-				pacman -Fl --machinereadable "$pkg" | grep -v "/$" | awk -F '\0' '{print $4}' | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of remote package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed file paths > ' > /tmp/pacui-l
+				pacman -Fl --machinereadable "$pkg" | grep -a -v "/$" | awk -F '\0' '{print $4}' | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of remote package \"$pkg\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed file paths > ' > /tmp/pacui-l
 				
 			fi
 		fi
@@ -422,24 +425,41 @@ function func_s
 			# list all files of all installed local packages using "pacman -Ql --color always"
 			# awk -v VAR="$file" '$NF ~ VAR' searches for $file (using regex) in the last field/column only. write resulting list to /tmp/pacui-search-temp
 			pacman -Ql --color always | awk -v VAR="$file" -F '/' '$NF ~ VAR' >> /tmp/pacui-search-temp
-			# write a list of package names (which install files containing "$file" string) to /tmp/pacui-search-packages-temp
-			pacman -Ql --color always | awk -v VAR="$file" -F '/' '$NF ~ VAR' | awk -F '/' '{print $1}' | sort -u > /tmp/pacui-search-packages-temp
-						
+			# write a list of package names (which install files containing "$file" string) to /tmp//tmp/pacui-search-temp-local
+			pacman -Ql | awk -v VAR="$file" -F '/' '$NF ~ VAR' | awk -F '/' '{print $1}' | sort -u | tr -d " " > /tmp/pacui-search-temp-local
+
 			# update local package database. this needs a long time when internet connection is slow.
 			# in some cases, the local database has to be initialized with sudo pacman -Fyy
 			sudo pacman -Fy
-			
+
+
 			echo -e "\n\e[1mPackage files in system repositories: \e[0m" >> /tmp/pacui-search-temp
 			# search in system repositories with "pacman -Fsx" --> machine readable version of output is easier to read for awk!
 			# comment: possible improvement: use "pv -ptb" to show progress bar (useful for large searches)
 			# the awk command is used to format output: "-F '\0'" set "\0" as separator. this makes it possible to easily use $1,$2,$3,$4 as syntax later.
-			# "system( "grep -q " $2 " /tmp/pacui-search-packages-temp" ) == 1" check exit status of "grep -q <package name> /tmp/pacui-search-packages-temp"(checks, if <package name> is part of list /tmp/pacui-search-packages-temp). if error occurs (==1), the package is printed to /tmp/pacui-search-temp
+
+			# store raw output of "pacman -Fsx" in file /tmp/pacui-search-temp-repo, because this process is quite slow
+			pacman -Fsx --machinereadable "$file" > /tmp/pacui-search-temp-repo
+
+			# create new file /tmp/pacui-search-temp-repo2 ,which only contains package names
+			cat /tmp/pacui-search-temp-repo | awk -F "\0" '{print $2}' | sort -u | tr -d " " > /tmp/pacui-search-temp-repo2
+
+			# compare list of package names and only keep package names in system repository (in file /tmp/pacui-search-temp-repo2):
+			comm -13 /tmp/pacui-search-temp-local /tmp/pacui-search-temp-repo2 > /tmp/pacui-search-temp-only-in-repo2
+
+			# grep all package names from file /tmp/pacui-search-temp-only-in-repo2 and search for them in file /tmp/pacui-search-temp-repo
+			# next, awk formats the list to the desired style
+			cat "/tmp/pacui-search-temp-repo" | grep -a -f "/tmp/pacui-search-temp-only-in-repo2" | awk -F '\0' '{print  $1 "/" "\033[1m" $2 "\033[0m " $4}' >> /tmp/pacui-search-temp
+
+			### the last command (above) is REALLY fast, but the result is much less exact than desired!!! if an exact result is needed, the following command at the end of this comment block can provide it.
+			# "system( "grep -q " $2 " /tmp//tmp/pacui-search-temp-local" ) == 1" check exit status of "grep -q <package name> /tmp//tmp/pacui-search-temp-local"(checks, if <package name> is part of list /tmp//tmp/pacui-search-temp-local). if error occurs (==1), the package is printed to /tmp/pacui-search-temp
 			# "{print $1 "/" $2, $4}" prints output nicely formatted to /tmp/pacui-search-temp.
 			# instead of regular ANSI escape sequences, i need to use \033[1m instead of \e[1m inside the awk command.
-			pacman -Fsx --machinereadable "$file" | awk -F '\0' 'system("grep -q " $2 " /tmp/pacui-search-packages-temp") == 1 {print  $1 "/" "\033[1m" $2 "\033[0m " $4}' >> /tmp/pacui-search-temp
+			#pacman -Fsx --machinereadable "$file" | awk -F '\0' 'system("grep -q " $2 " /tmp//tmp/pacui-search-temp-local") == 1 {print  $1 "/" "\033[1m" $2 "\033[0m " $4}' >> /tmp/pacui-search-temp
+
 
 			# display results from file /tmp/pacui-search-temp in fzf.
-			cat /tmp/pacui-search-temp | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Package file names (with path) containing \"${file}\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed package names and file paths > ' > /tmp/pacui-s
+			cat /tmp/pacui-search-temp | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Package file names (with path) containing \"$file\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed package names and file paths > ' > /tmp/pacui-s
 									
 		fi
 }
@@ -473,7 +493,8 @@ function func_b
 		fi
 		
 
-		# 1. get list of last installs/upgrades/removes from pacman log and display result in fzf. in the end, fzf saves all selected package names (including the words "installed/upgraded/removed/downgraded" to variable $pacui_cache_packages
+		# 1. get list of last installs/upgrades/removals/downgrades from pacman log and display result in fzf. 
+		# when fzf quits, only selected package names (including the words "installed/upgraded/removed/downgraded") are saved to variable $pacui_cache_packages
 		pacui_cache_packages="$( tail -3000 /var/log/pacman.log | grep "\[ALPM\]" | grep "installed\|removed\|upgraded\|downgraded" | sed 's/\[ALPM\] //g' | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --tac --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to roll back. ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}' )"
 		
 		# only run the command inside the if-statement, if variable $pacui_cache_packages is not empty and exists - this happens when fzf is quit with ESC or CTRL+C
@@ -487,6 +508,7 @@ function func_b
 
 			if [[ ! -z "$pkgR" ]]     # this if-condition avoids error message when no package gets removed (and $pkgR is empty)
 			then
+				# remove packages with pacman command. use parameter substitution with ${...} (without quotes!!!) for it, because otherwise the pacman command fails!
 				sudo pacman -Rdd ${pkgR} --color always --noconfirm
 			fi
 
@@ -494,7 +516,7 @@ function func_b
 			# 3. in case an "upgraded" package needs a package as dependency, the "removed" packages have to be installed.
 			# filter variable $pacui_cache_packages for the word "removed" and write package names to variable $pacui_cache_install
 			pacui_cache_install="$( echo "${pacui_cache_packages}" | awk '/removed/ {print $2}' )"
-			
+
 			if [[ ! -z "$pacui_cache_install" ]]     # this if-condition avoids error messages when no package gets installed (and variable $pacui_cache_install is empty)
 			then
 
@@ -509,18 +531,19 @@ function func_b
 						find "$cachePACAUR" -maxdepth 2 -mindepth 2 -type f -printf "%T+\t%p\n" | grep ".pkg.tar.[gx]z$" | sort -rn | awk '{print $2}' | grep "$line""-" | sed -n '1p'
 				    done < <(echo "${pacui_cache_install}") )
 				fi
-					
+
 				# read line by line from variable $pacui_cache_install in while loop and save that line to variable $line
 				pacui_install=$( while IFS='' read -r line || [[ -n "$line" ]]
 				do
 					# write name of latest version in cache into file /tmp/pacui-install ("sort" puts latest version on top, which is then selected): 	
-					find $cache -name "${line}-[0-9]*[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r | sed -n '1p'
+					find $cache -name "${line}-[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r | sed -n '1p'
 				done < <(echo "${pacui_cache_install}") )
-				
+
 				# sort output to suit pacman's syntax. pacman needs a list of package names separated by single spaces.
 				if [[ ! -z "$pacui_aur_install" ]]
 				then
 					# if AUR packages should be installed, the lists of package names are first combined before they get sorted and rearranged to space separated lists.
+					# use parameter substitution to combine 2 lists of packages.
 				    pkgI=$( printf "${pacui_install}\n${pacui_aur_install}" | sort -u | paste -sd " " )
 				else
 				    pkgI=$( echo "${pacui_install}" | sort -u | paste -sd " " )
@@ -545,12 +568,12 @@ function func_b
 				
 				# here, it is impossible to use variables instead of temporary files. therefore, the temporary files should be as tamper-proof as possible.
 				# Create temp file with mktemp command (Important for security). the XXXXXXXX indicates numbers assigned by "mktemp" command.
-				# the XXXXXXXXX numbers make it necessary to call the temporary file in the code below with " ${pacui_tmp_downgrade} " (without ")!
+				# the XXXXXXXXX numbers make it necessary to call the temporary file in the code below with ${pacui_tmp_downgrade} (without quotes)!
 				pacui_tmp_downgrade=$( mktemp /tmp/pacui-tmp-downgrade.XXXXXXXX )
 				
 				# add trap command to immediately rm upon ctrl+c (or any other case this function quits in the middle) for security purposes
 				# this is the normal syntax for "trap" command.
-				trap "rm -rf $pacui_tmp_downgrade" EXIT
+				trap "rm -rf ${pacui_tmp_downgrade}" EXIT
 				
 				# first, count the number of times the package name appears in file /tmp/pacui-cache-downgrade:
 				pacui_cache_downgrade_counted="$( echo "${pacui_cache_downgrade}" | sort | uniq -c )"
@@ -567,7 +590,7 @@ function func_b
 					if [[ -n $temp2 ]]   # checks, if variable is not empty
 					then
 						# write list with all versions of package in cache into file /tmp/pacui-temp-downgrade (sorted - newest package version is on top)
-						find $cache -name "${temp2}-[0-9]*[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r > ${pacui_tmp_downgrade}
+						find $cache -name "${temp2}-[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r > ${pacui_tmp_downgrade}
 					      
 					    if [[ -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" exists, i.e. pacaur is installed
 						then 
@@ -618,7 +641,7 @@ function func_b
 				
 				# add trap command to immediately rm upon ctrl+c (or any other case this function quits in the middle) for security purposes
 				# this is the normal syntax for "trap" command.
-				trap "rm -rf $pacui_tmp_upgrade" EXIT
+				trap "rm -rf ${pacui_tmp_upgrade}" EXIT
 				
 				# first, count the number of times the package name appears in file /tmp/pacui-cache-upgrade:
 				pacui_cache_upgrade_counted="$( echo "${pacui_cache_upgrade}" | sort | uniq -c )"
@@ -635,7 +658,7 @@ function func_b
 					if [[ -n $temp2 ]]   # checks, if variable is not empty
 					then
 						# write list with all versions of package in cache into file /tmp/pacui-temp-upgrade (sorted - newest package version is on top)
-						find $cache -name "${temp2}-[0-9]*[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r > ${pacui_tmp_upgrade}
+						find $cache -name "${temp2}-[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r > ${pacui_tmp_upgrade}
 					      
 					    if [[ -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" exists, i.e. pacaur is installed
 						then 
@@ -702,11 +725,11 @@ function func_fix
 
 			local server
 			# extract mirror/repository server url from /etc/pacman.d/mirrorlist file:
-			server=$(grep "^Server =" -m 1 /etc/pacman.d/mirrorlist | awk '{print $3}')
+			server=$( grep "^Server =" -m 1 /etc/pacman.d/mirrorlist | awk '{print $3}' )
 
   			echo -e "\e[41m Either there is something wrong with your internet connection or with your mirror/repository server: "$server" \e[0m"
 			echo -e "\e[1;41m Please make sure both are ok and rerun this part of PacUI! \e[0m"
-			echo ""
+			echo -e ""
 
 		else
 
@@ -717,9 +740,9 @@ function func_fix
 
 
 			# "SigLevel = Never" in pacman.conf lets us download and install ALL packages, even if the keyring is broken!
-			echo "Lowering pacman securities (In case keyring is broken) ..."
+			echo -e "Lowering pacman securities (In case keyring is broken) ..."
 			echo -e "\e[1mWARNING : LET PACUI FINISH THIS PROCESS! \e[0m"
-			echo ""
+			echo -e ""
 			# This command will edit /etc/pacman.conf, and replaces all "SigLevel =" strings with "SigLevel = Never #":
 			# general comment about "sed" usage in scripts: in order to avoid breakage, it is recommended to escape all the following characters /\.*[]^$ with a \ character!
 			sudo sed -i 's/SigLevel[ ]*=/SigLevel = Never #/' /etc/pacman.conf
@@ -810,54 +833,54 @@ function func_c
 		touch /tmp/pacui-conf
         
 		# if file /etc/default/tlp exists, push string "/etc/default/tlp              - Configure power management." into /tmp/pacui-conf file.
-		[[ -e /etc/default/tlp ]]                  && echo "/etc/default/tlp                  - Configure power management." >> /tmp/pacui-conf
-		[[ -e /etc/default/cpupower ]]             && echo "/etc/default/cpupower             - Configure CPU power management." >> /tmp/pacui-conf
-		[[ -e /etc/profile.d/freetype2.sh ]]       && echo "/etc/profile.d/freetype2.sh       - Configure TrueType interpreter, including Infinality mode." >> /tmp/pacui-conf
-		[[ -e /etc/pulse/daemon.conf ]]            && echo "/etc/pulse/daemon.conf            - Configure PulseAudio daemon." >> /tmp/pacui-conf
-		[[ -e /etc/pacman.conf ]]                  && echo "\e[31m/etc/pacman.conf                  - Configure Pacman.\e[0m" >> /tmp/pacui-conf
-		[[ -e /etc/pacman-mirrors.conf ]]          && echo "/etc/pacman-mirrors.conf          - Configure Manjaro's pacman-mirrors." >> /tmp/pacui-conf
-		[[ -e /etc/pacman.d/mirrorlist ]]          && echo "/etc/pacman.d/mirrorlist          - Configure mirror list manually." >> /tmp/pacui-conf
-		[[ -e /etc/yaourtrc ]]                     && echo "/etc/yaourtrc                     - Configure Yaourt." >> /tmp/pacui-conf
-		[[ -e $XDG_CONFIG_DIRS/pacaur/config ]]    && echo "$XDG_CONFIG_DIRS/pacaur/config            - Configure Pacaur." >> /tmp/pacui-conf
-		[[ -e /etc/makepkg.conf ]]                 && echo "/etc/makepkg.conf                 - Configure package compilation." >> /tmp/pacui-conf
-		[[ -e /etc/resolv.conf ]]                  && echo "/etc/resolv.conf                  - Configure DNS servers." >> /tmp/pacui-conf
-		[[ -e /etc/hostname ]]                     && echo "/etc/hostname                     - Configure your network hostname" >> /tmp/pacui-conf
-		[[ -e /etc/hosts ]]                        && echo "/etc/hosts                        - Configure local DNS." >> /tmp/pacui-conf
-		[[ -e /etc/environment ]]                  && echo "/etc/environment                  - Configure system-wide environment variables." >> /tmp/pacui-conf
-		[[ -e /etc/slim.conf ]]                    && echo "/etc/slim.conf                    - Configure slim display manager." >> /tmp/pacui-conf
-		[[ -e /etc/lightdm.conf ]]                 && echo "/etc/lightdm.conf                 - Configure lightdm display manager." >> /tmp/pacui-conf
-		[[ -e /etc/sddm.conf ]]                    && echo "/etc/sddm.conf                    - Configure sddm display manager." >> /tmp/pacui-conf
-		[[ -e /etc/mdm/mdm.conf ]]                 && echo "/etc/mdm/mdm.conf                 - Configure mdm display manager." >> /tmp/pacui-conf
-		[[ -e /etc/lxdm/lxdm.conf ]]               && echo "/etc/lxdm/lxdm.conf               - Configure lxdm display manager." >> /tmp/pacui-conf
-		[[ -e /etc/gdm/custom.conf ]]              && echo "/etc/gdm/custom.conf              - Configure gdm display manager." >> /tmp/pacui-conf
-		[[ -e /etc/entrance/entrance.conf ]]       && echo "/etc/entrance/entrance.conf       - Configure entrance display manager." >> /tmp/pacui-conf
-		[[ -e /etc/conf.d/xdm ]]                   && echo "/etc/conf.d/xdm                   - Configure xdm display manager." >> /tmp/pacui-conf
-		[[ -e $HOME/.bashrc ]]                     && echo "~/.bashrc                         - Configure bash shell." >> /tmp/pacui-conf
-		[[ -e $HOME/.zshrc ]]                      && echo "~/.zshrc                          - Configure zsh shell." >> /tmp/pacui-conf
-		[[ -e $HOME/.config/fish ]]                && echo "~/.config/fish/*                  - Configure fish shell." >> /tmp/pacui-conf
-		[[ -e $HOME/.xinitrc ]]                    && echo "\e[31m~/.xinitrc                        - Configure X server startup.\e[0m" >> /tmp/pacui-conf
-		[[ -e $HOME/.Xresources ]]                 && echo "\e[31m~/.Xresources                     - Configure X client applications.\e[0m" >> /tmp/pacui-conf
-		[[ -e /etc/fstab ]]                        && echo "\e[31m/etc/fstab                        - Configure file system mount table.\e[0m" >> /tmp/pacui-conf
-		[[ -e /etc/crypttab ]]                     && echo "\e[31m/etc/crypttab                     - Configure encrypted file system mount table.\e[0m" >> /tmp/pacui-conf
-		[[ -e /etc/sudoers ]]                      && echo "\e[31m/etc/sudoers                      - Configure sudo.\e[0m" >> /tmp/pacui-conf
-		[[ -e /etc/systemd/swap.conf ]]            && echo "/etc/systemd/swap.conf            - Configure systemd swap." >> /tmp/pacui-conf
-		[[ -e /etc/systemd/logind.conf ]]          && echo "/etc/systemd/logind.conf          - Configure systemd user logins." >> /tmp/pacui-conf
-		[[ -e /etc/systemd/journald.conf ]]        && echo "/etc/systemd/journald.conf        - Configure systemd logging." >> /tmp/pacui-conf
-		[[ -e /etc/systemd/coredump.conf ]]        && echo "/etc/systemd/coredump.conf        - Configure systemd coredumps." >> /tmp/pacui-conf
-		[[ -e /etc/systemd/system.conf ]]          && echo "/etc/systemd/system.conf          - Configure systemd system." >> /tmp/pacui-conf
-		[[ -e /usr/lib/systemd/system  ]]          && echo "/usr/lib/systemd/system/*.service - Configure all systemd services in user directory." >> /tmp/pacui-conf
-		[[ -e /usr/lib/systemd/system  ]]          && echo "/usr/lib/systemd/system/*.timer   - Configure all systemd timers in user directory." >> /tmp/pacui-conf
-		[[ -e /etc/X11/xorg.conf.d ]]              && echo "\e[31m/etc/X11/xorg.conf.d/*            - Configure Xorg display server in multiple files.\e[0m" >> /tmp/pacui-conf
-		[[ -e $HOME/.config/weston.ini ]]          && echo "~/.config/weston.ini              - Configure Weston compositor." >> /tmp/pacui-conf
-		[[ -e /etc/sysctl.d ]]                     && echo "/etc/sysctl.d/*                   - Configure kernel parameters at runtime in multiple files." >> /tmp/pacui-conf
-		[[ -e /etc/mkinitcpio.conf ]]              && echo "\e[31m/etc/mkinitcpio.conf              - Configure initial ramdisk environment.\e[0m" >> /tmp/pacui-conf
-		[[ -e /etc/default/grub ]]                 && echo "\e[31m/etc/default/grub                 - Configure GRUB boot loader.\e[0m" >> /tmp/pacui-conf
-		[[ -e /boot/loader/loader.conf ]]          && echo "\e[31m/boot/loader/loader.conf          - Configure systemd-boot boot loader.\e[0m" >> /tmp/pacui-conf
-		[[ -e /boot/loader/entries ]]              && echo "\e[31m/boot/loader/entries/*.conf       - Configure systemd-boot boot loader entries.\e[0m" >> /tmp/pacui-conf
-		[[ -e /boot/refind_linux.conf ]]           && echo "\e[31m/boot/refind_linux.conf           - Configure rEFInd boot loader.\e[0m" >> /tmp/pacui-conf
-		[[ -e /boot/EFI/refind/refind.conf ]]      && echo "\e[31m/boot/EFI/refind/refind.conf      - Configure rEFInd boot loader.\e[0m" >> /tmp/pacui-conf
-		[[ -e /boot/EFI/CLOVER/config.plist ]]     && echo "\e[31m/boot/EFI/CLOVER/config.plist     - Configure Clover boot loader.\e[0m" >> /tmp/pacui-conf
-		[[ -e /boot/syslinux/syslinux.cfg ]]       && echo "\e[31m/boot/syslinux/syslinux.cfg       - Configure syslinux boot loaders.\e[0m" >> /tmp/pacui-conf
+		[[ -e /etc/default/tlp ]]                  && echo -e "/etc/default/tlp                  - Configure power management." >> /tmp/pacui-conf
+		[[ -e /etc/default/cpupower ]]             && echo -e "/etc/default/cpupower             - Configure CPU power management." >> /tmp/pacui-conf
+		[[ -e /etc/profile.d/freetype2.sh ]]       && echo -e "/etc/profile.d/freetype2.sh       - Configure TrueType interpreter, including Infinality mode." >> /tmp/pacui-conf
+		[[ -e /etc/pulse/daemon.conf ]]            && echo -e "/etc/pulse/daemon.conf            - Configure PulseAudio daemon." >> /tmp/pacui-conf
+		[[ -e /etc/pacman.conf ]]                  && echo -e "\e[31m/etc/pacman.conf                  - Configure Pacman.\e[0m" >> /tmp/pacui-conf
+		[[ -e /etc/pacman-mirrors.conf ]]          && echo -e "/etc/pacman-mirrors.conf          - Configure Manjaro's pacman-mirrors." >> /tmp/pacui-conf
+		[[ -e /etc/pacman.d/mirrorlist ]]          && echo -e "/etc/pacman.d/mirrorlist          - Configure mirror list manually." >> /tmp/pacui-conf
+		[[ -e /etc/yaourtrc ]]                     && echo -e "/etc/yaourtrc                     - Configure Yaourt." >> /tmp/pacui-conf
+		[[ -e $XDG_CONFIG_DIRS/pacaur/config ]]    && echo -e "$XDG_CONFIG_DIRS/pacaur/config            - Configure Pacaur." >> /tmp/pacui-conf
+		[[ -e /etc/makepkg.conf ]]                 && echo -e "/etc/makepkg.conf                 - Configure package compilation." >> /tmp/pacui-conf
+		[[ -e /etc/resolv.conf ]]                  && echo -e "/etc/resolv.conf                  - Configure DNS servers." >> /tmp/pacui-conf
+		[[ -e /etc/hostname ]]                     && echo -e "/etc/hostname                     - Configure your network hostname" >> /tmp/pacui-conf
+		[[ -e /etc/hosts ]]                        && echo -e "/etc/hosts                        - Configure local DNS." >> /tmp/pacui-conf
+		[[ -e /etc/environment ]]                  && echo -e "/etc/environment                  - Configure system-wide environment variables." >> /tmp/pacui-conf
+		[[ -e /etc/slim.conf ]]                    && echo -e "/etc/slim.conf                    - Configure slim display manager." >> /tmp/pacui-conf
+		[[ -e /etc/lightdm.conf ]]                 && echo -e "/etc/lightdm.conf                 - Configure lightdm display manager." >> /tmp/pacui-conf
+		[[ -e /etc/sddm.conf ]]                    && echo -e "/etc/sddm.conf                    - Configure sddm display manager." >> /tmp/pacui-conf
+		[[ -e /etc/mdm/mdm.conf ]]                 && echo -e "/etc/mdm/mdm.conf                 - Configure mdm display manager." >> /tmp/pacui-conf
+		[[ -e /etc/lxdm/lxdm.conf ]]               && echo -e "/etc/lxdm/lxdm.conf               - Configure lxdm display manager." >> /tmp/pacui-conf
+		[[ -e /etc/gdm/custom.conf ]]              && echo -e "/etc/gdm/custom.conf              - Configure gdm display manager." >> /tmp/pacui-conf
+		[[ -e /etc/entrance/entrance.conf ]]       && echo -e "/etc/entrance/entrance.conf       - Configure entrance display manager." >> /tmp/pacui-conf
+		[[ -e /etc/conf.d/xdm ]]                   && echo -e "/etc/conf.d/xdm                   - Configure xdm display manager." >> /tmp/pacui-conf
+		[[ -e $HOME/.bashrc ]]                     && echo -e "~/.bashrc                         - Configure bash shell." >> /tmp/pacui-conf
+		[[ -e $HOME/.zshrc ]]                      && echo -e "~/.zshrc                          - Configure zsh shell." >> /tmp/pacui-conf
+		[[ -e $HOME/.config/fish ]]                && echo -e "~/.config/fish/*                  - Configure fish shell." >> /tmp/pacui-conf
+		[[ -e $HOME/.xinitrc ]]                    && echo -e "\e[31m~/.xinitrc                        - Configure X server startup.\e[0m" >> /tmp/pacui-conf
+		[[ -e $HOME/.Xresources ]]                 && echo -e "\e[31m~/.Xresources                     - Configure X client applications.\e[0m" >> /tmp/pacui-conf
+		[[ -e /etc/fstab ]]                        && echo -e "\e[31m/etc/fstab                        - Configure file system mount table.\e[0m" >> /tmp/pacui-conf
+		[[ -e /etc/crypttab ]]                     && echo -e "\e[31m/etc/crypttab                     - Configure encrypted file system mount table.\e[0m" >> /tmp/pacui-conf
+		[[ -e /etc/sudoers ]]                      && echo -e "\e[31m/etc/sudoers                      - Configure sudo.\e[0m" >> /tmp/pacui-conf
+		[[ -e /etc/systemd/swap.conf ]]            && echo -e "/etc/systemd/swap.conf            - Configure systemd swap." >> /tmp/pacui-conf
+		[[ -e /etc/systemd/logind.conf ]]          && echo -e "/etc/systemd/logind.conf          - Configure systemd user logins." >> /tmp/pacui-conf
+		[[ -e /etc/systemd/journald.conf ]]        && echo -e "/etc/systemd/journald.conf        - Configure systemd logging." >> /tmp/pacui-conf
+		[[ -e /etc/systemd/coredump.conf ]]        && echo -e "/etc/systemd/coredump.conf        - Configure systemd coredumps." >> /tmp/pacui-conf
+		[[ -e /etc/systemd/system.conf ]]          && echo -e "/etc/systemd/system.conf          - Configure systemd system." >> /tmp/pacui-conf
+		[[ -e /usr/lib/systemd/system  ]]          && echo -e "/usr/lib/systemd/system/*.service - Configure all systemd services in user directory." >> /tmp/pacui-conf
+		[[ -e /usr/lib/systemd/system  ]]          && echo -e "/usr/lib/systemd/system/*.timer   - Configure all systemd timers in user directory." >> /tmp/pacui-conf
+		[[ -e /etc/X11/xorg.conf.d ]]              && echo -e "\e[31m/etc/X11/xorg.conf.d/*            - Configure Xorg display server in multiple files.\e[0m" >> /tmp/pacui-conf
+		[[ -e $HOME/.config/weston.ini ]]          && echo -e "~/.config/weston.ini              - Configure Weston compositor." >> /tmp/pacui-conf
+		[[ -e /etc/sysctl.d ]]                     && echo -e "/etc/sysctl.d/*                   - Configure kernel parameters at runtime in multiple files." >> /tmp/pacui-conf
+		[[ -e /etc/mkinitcpio.conf ]]              && echo -e "\e[31m/etc/mkinitcpio.conf              - Configure initial ramdisk environment.\e[0m" >> /tmp/pacui-conf
+		[[ -e /etc/default/grub ]]                 && echo -e "\e[31m/etc/default/grub                 - Configure GRUB boot loader.\e[0m" >> /tmp/pacui-conf
+		[[ -e /boot/loader/loader.conf ]]          && echo -e "\e[31m/boot/loader/loader.conf          - Configure systemd-boot boot loader.\e[0m" >> /tmp/pacui-conf
+		[[ -e /boot/loader/entries ]]              && echo -e "\e[31m/boot/loader/entries/*.conf       - Configure systemd-boot boot loader entries.\e[0m" >> /tmp/pacui-conf
+		[[ -e /boot/refind_linux.conf ]]           && echo -e "\e[31m/boot/refind_linux.conf           - Configure rEFInd boot loader.\e[0m" >> /tmp/pacui-conf
+		[[ -e /boot/EFI/refind/refind.conf ]]      && echo -e "\e[31m/boot/EFI/refind/refind.conf      - Configure rEFInd boot loader.\e[0m" >> /tmp/pacui-conf
+		[[ -e /boot/EFI/CLOVER/config.plist ]]     && echo -e "\e[31m/boot/EFI/CLOVER/config.plist     - Configure Clover boot loader.\e[0m" >> /tmp/pacui-conf
+		[[ -e /boot/syslinux/syslinux.cfg ]]       && echo -e "\e[31m/boot/syslinux/syslinux.cfg       - Configure syslinux boot loaders.\e[0m" >> /tmp/pacui-conf
 		
 		local file
 
@@ -929,33 +952,34 @@ function func_fi
 		if [[ ! -e /tmp/pacui-packages-group-repo ]]
 		then
 			# write formatted package list of repositories to /tmp/pacui-packages-group-repo. then add all package groups to the bottom.
-			pacman -Slq | tr -d " " > /tmp/pacui-packages-group-repo
-			pacman -Sg | tr -d " " >> /tmp/pacui-packages-group-repo
+			#pacman -Slq | tr -d " " > /tmp/pacui-packages-group-repo
+			expac -S "%-30n\t%d"  > /tmp/pacui-packages-group-repo
+			#pacman -Sg | tr -d " " >> /tmp/pacui-packages-group-repo
+			expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-group-repo
 		fi
 		
-		local pkg
-		local pkg_install
+		local {pkg,pkg_install}
 
 		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		# the --preview option of fzf displays information about the currently selected line
-		pkg=$( sort -u -i /tmp/pacui-packages-group-repo | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
+		pkg=$( sort -k1,1 -u /tmp/pacui-packages-group-repo | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+			if ( pacman -Qq {1} &>/dev/null )		# check, if selected line is a locally installed package
 			then
-				pacman -Qi {} --color always
-			elif ( pacman -Sgq {} &>/dev/null )		# check, if selected line in fzf is a package group
+				pacman -Qi {1} --color always
+			elif ( pacman -Sgq {1} &>/dev/null )		# check, if selected line in fzf is a package group
 			then
-				echo -e "\e[1m{} group has the following members: \e[0m"
-				pacman -Sgq {}
+				echo -e "\e[1m{1} group has the following members: \e[0m"
+				pacman -Sgq {1}
 			else									# do this if line is neither a group nor locally installed
 				if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
 				then 
-					yaourt -Si {}
+					yaourt -Si {1}
 				else 
-					pacaur -Si {} --color always
+					pacaur -Si {1} --color always | grep -v "::"      # grep command removes errors being displayed in pacaur
 				fi
 			fi
-			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
+			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 		
 		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
 		pkg_install=$(echo $pkg | paste -sd " ")
@@ -970,27 +994,26 @@ function func_fi
 function func_fr 
 {
 		# write package list of local repository to /tmp/pacui-packages-group. then add all installed package groups to the bottom.
-		pacman -Qq | tr -d " " > /tmp/pacui-packages-group
+		#pacman -Qq | tr -d " " > /tmp/pacui-packages-group
+		expac -Q "%-30n\t%d"  > /tmp/pacui-packages-group
 		# this expac command prints a list of package groups of installed packages 
 		# awk 'NF != 0'  only displays lines where the number of fields is not zero (i.e. non-empty lines)
 		expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' | tr -d " " >> /tmp/pacui-packages-group
-		# alternative command: package-query -Qg | awk '{print $1}' >> /tmp/pacui-packages-group
 
-		local pkg
-		local pkg_install
+		local {pkg,pkg_install}
 
 		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		# the --preview option of fzf displays information about the currently selected line
-		pkg=$( sort -u -i /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-			if ( pacman -Qq {} &>/dev/null )		# check, if selected line is a locally installed package
+		pkg=$( sort -k1,1 -u /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+			if ( pacman -Qq {1} &>/dev/null )		# check, if selected line is a locally installed package
 			then
-				pacman -Qi {} --color always
+				pacman -Qi {1} --color always
 			else
-				echo -e "\e[1m{} group has the following members: \e[0m"
-				pacman -Sgq {}
+				echo -e "\e[1m{1} group has the following members: \e[0m"
+				pacman -Sgq {1}
 			fi
-			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' )
+			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 		
 		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
 		pkg_install=$(echo $pkg | paste -sd " ")
@@ -1051,7 +1074,7 @@ function func_info
 			
 		# the following command lets you search through the file "/tmp/pacui-packages" with fzf and save your selection in "pkg"
 		local pkg
-		pkg=$( sort -u -i /tmp/pacui-packages | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to display info. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
+		pkg=$( sort -k1,1 -u /tmp/pacui-packages | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to display info. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
 		
 		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $pkg ]]
@@ -1073,7 +1096,7 @@ function func_info
 				then
 					yaourt -Sii "$pkg"		    # execute this command when "pkg" is not installed on system
 				else
-					pacaur -Sii "$pkg" --color always | grep -v "not found in repositories" 
+					pacaur -Sii "$pkg" --color always | grep -v "::"      # grep command removes errors being displayed in pacaur
 				fi
 			
 			fi
@@ -1083,9 +1106,10 @@ function func_info
 
 function func_ls
 {
-		# list all packages on local system sorted by their installed size using "expac" and "sort". then, display the result using fzf.
-		expac -H M -Q '%m - \e[1m%n\e[0m %v' | sort -n -r | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-ls	
-		# alternative command to "expac" and "sort": package-query -Q --rsort 2 -f "%2 - \e[1m%n \e[0m%v" | numfmt --to=iec 
+		# list all packages on local system sorted by their installed size using "expac" and "sort".
+		# $( comm -23 <(pacman -Qq | sort) <(pacman -Qqg base base-devel | sort) )  only shows packages, which are not part of "base" or "base-devel" group.
+		expac -H M -Q '%12m - \e[1m%n\e[0m %v' $( comm -23 <(pacman -Qq | sort) <(pacman -Qqg base base-devel | sort) ) | sort -n -r | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-ls	
+		# alternative command to "expac" and "sort": package-query -Qe --rsort 2 -f "%2 - \e[1m%n \e[0m%v" | numfmt --to=iec 
 }
 
 
@@ -1104,7 +1128,7 @@ function func_d
 		local pkg
 		local pkg_install
 
-		pkg=$( sort -u -i /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to downgrade. ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
+		pkg=$( sort -k1,1 -u /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to downgrade. ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
 		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
 		pkg_install=$(echo $pkg | paste -sd " ")
@@ -1128,7 +1152,7 @@ function func_a
 				# do this if variable "input" is not empty:
 				yaourt "$input2"
 			else
-				pacaur -Ss "$input2" --color always
+				pacaur -Ss "$input2" --color always | grep -v "::"      # grep command removes errors being displayed in pacaur
 			fi				
 				
 		else
@@ -1141,7 +1165,7 @@ function func_a
 			then
 				yaourt "$pkg"
 			else
-				pacaur -Ss "$pkg" --color always
+				pacaur -Ss "$pkg" --color always | grep -v "::"      # grep command removes errors being displayed in pacaur
 			fi
 			
 		fi
@@ -1189,9 +1213,13 @@ function func_h
 			echo -e "  pacui	h     - \e[1mH\e[0melp. For detailed help, please start User Interface first."
 			
 		else
+
+			# if help file does not exist, create it
+			if  [[ ! -e /tmp/pacui-help ]]
+			then
 			
-			# this "heredoc" command pushes all the following lines into "cat" (and "cat pushed it to file /tmp/pacui-help) until a line with "EOF" is encountered
-			cat > /tmp/pacui-help <<- "EOF"
+				# this "heredoc" command pushes all the following lines into "cat" (and "cat pushed it to file /tmp/pacui-help) until a line with "EOF" is encountered
+				cat > /tmp/pacui-help <<- "EOF"
 
 \e[1mWelcome to PacUIs Help Page
 
@@ -1239,10 +1267,11 @@ This option lists all orphaned packages on your system. Orphaned packages are ol
 \e[36m"sudo pacdiff"
 A .pacnew file may be created during a package upgrade to avoid overwriting a file (e.g. a config file) which already exists and was previously modified by the user. A .pacsave file may be created during a package removal, or by a package installation (the package must be removed first). When the pacman database has record that a certain file owned by the package should be backed up it will create a .pacsave file. These files require manual intervention from the user and it is good practice to handle them regularly. If left unhandled, improper configurations can result in improper function of the software, or the software being unable to run altogether. 
 This command offers you a choice, whether you want to keep the original file (in most cases, these are config files) or the .pacnew/.pacsave file. Simply view both files by choosing "v". 
-If you keep the original file, the program could not recognize the old syntax anymore, because it uses now a new syntax. In the worst case, your program could brake or stop working. If you remove the original file and use the new file without any changes, all your configurations might be reset to the default values. 
+If you keep the original file, the program could not recognize the old syntax anymore, because it uses now a new syntax. In the worst case, your program could brake or stop working. If you remove the original file and use the new file without any changes, all your configurations might be reset to the default values. This can result in a changed system behavior, including removing passowrds or even sudo capability. 
 In most cases, the syntax does not change and you can simply remove the new file (with the default configuration settings).
 If you notice a syntax change, it is highly recommended to solve this conflict in another way (e.g. by manually editing one of those files and deleting the other).
 \e[1mAttention\e[0m: This command requires a default file difference viewer by setting the environment variable DIFFPROG. If this varialbe is not set, a minimal default is provided by PacUI using "diff".
+\e[1mAttention\e[0m: In severe and rare cases, removing your old config file (and using the new .pacnew config file) OR keeping your old config file (and deleting the .pacnew config file) can result in a broken system. PLEASE BE CAUTIOUS WHEN USING THIS COMMAND!
 
 \e[36m"sudo find -xtype l -print" \e[0m(only if there are broken symlinks)
 This command displays a list of broken symbolic links on your system. These links are not deleted by default. You have to decide yourself what to do with them. When you have doubt about deleting them, leave them on your system. They can sometimes cause problems, but they hardly use any hard drive space.
@@ -1278,7 +1307,7 @@ By comparing both outputs, it is possible to extract a list of so called end-of-
 
 \e[1m3 - INSTALL PACKAGES
 \e[36m"yaourt -S <PACKAGE NAME>"
-This option downloads and installs <PACKAGE NAME> on your system. The list of packages shows packages from your system repository with their version number and description while package groups or packages from the AUR are only shown with their name.
+This option downloads and installs <PACKAGE NAME> on your system. The list of packages shows packages from your system repository with their description while package groups or packages from the AUR are only shown with their name.
 \e[1mAttention\e[0m: Experienced users can install packages from the AUR without the need to answer questions all the time by using the command "yaourt -S <PACKAGE NAME> --noconfirm". The "--noconfirm" flag is great for quick and dirty installations of AUR packages on non-secure systems. Please keep always in mind that the AUR can contain any sort of package - including malicious and destructive (parts of) packages. Therefore, it is recommended to always check the PKGBUILD and .INSTALL file manually before installing a package from the AUR.
 
 
@@ -1327,8 +1356,8 @@ As a result, <REPOSITORY>/<PACKAGE NAME> and the complete path to <FILE NAME> ge
 
 
 \e[1m9 - ROLL BACK SYSTEM
-\e[36m"sudo pacman -Rdd <PACKAGE NAME> --noconfirm" \e[0m(only for installed packages)
-\e[36m"sudo pacman -U <PACKAGE NAME> --noconfirm" \e[0m(only for removed, upgraded, or downgraded packages: Installs appropriate version from Pacman/Pacaur cache)
+\e[36m"sudo pacman -Rdd <PACKAGE NAME> --noconfirm" \e[0m(only for rolling back package installations)
+\e[36m"sudo pacman -U <PACKAGE NAME IN PACMAN/PACAUR CACHE> --noconfirm" \e[0m(only for rolling back package removals, upgrades, or downgrades.)
 Manjaro and Arch Linux use a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. Sometimes, things go wrong during UPDATE SYSTEM and you should roll back the last update. In case the latest version of a single package is broken, rolling back (a.k.a. downgrading) that package can work.
 This command shows you a list of all recent Pacman actions sorted by date (using parts of this command: "tail -5000 /var/log/pacman.log"). Please select all Pacman actions you want to roll back. Installed packages will be removed from your system. Removed packages will be reinstalled as the latest version available in your Pacman/Pacaur cache. Upgraded packages will be downgraded to the previous version (if this version is available in your local Pacman/Pacaur cache). Downgraded packages will be Upgraded to a later version. If you select multiple upgrades/downgrades of the same package, the package gets downgraded/upgraded multiple times (if this version is available in your local Pacman/Pacaur cache).
 \e[1mAttention\e[0m: It is strongly recommended to always roll back <PACKAGE NAME> including ALL its dependencies. Otherwise, your system could be left in a broken state. If you are in doubt about that, rolling back all changes made on your system in a short time intervall should be sufficient.
@@ -1463,7 +1492,7 @@ This command displays a lot of information about <PACKAGE NAME>. Different piece
 
 \e[1mLIST PACKAGES BY SIZE
 \e[36m"expac -Q '%m - %n %v' | sort -n -r "
-This command lists all packages on your system sorted by their installation size. Both explicitly installed packages and dependencies are displayed. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-ls.
+This command lists packages on your system sorted by their installation size. Both explicitly installed packages and dependencies are displayed. Important system packages part of the "base" or "base-devel" group are not displayed. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-ls.
 
 
 \e[1mPACMAN LOG
@@ -1493,9 +1522,10 @@ If you want to exit this mode without installing any packages, simply press CTRL
 
 Press "q" to quit this Help Page.
 
-
-			EOF
+				EOF
 			
+			fi
+
 			# display /tmp/pacui-help file in "less" and interpret all ANSI escape sequences in it (which only works with "echo -e ..."
 			echo -e "$( cat '/tmp/pacui-help' )" | less -RMi
 			
@@ -1533,7 +1563,7 @@ fi
 # write first argument of "pacui ..." (= option of pacui) to "input" variable.
 input=$1
 # wirte all other arguments of "pacui $1 ..." (= often (parts of) package or file names) to "input2" variable. all arguments gets combined into one variable with spaces, but no breaks. 
-#fzf will always display search results for "input2", if it exists (and "input" is a valid function"). if "input2" is not found in fzf's list, NOTHING is displayed.
+# fzf will always display search results for "input2", if it exists (and "input" is a valid function"). if "input2" is not found in fzf's list, NOTHING is displayed.
 input2=${*:2}
 
 # if "input" starts with a "-" or "--" dash symbol, the dash(es) gets removed from the beginnig of "input" variable
@@ -1541,11 +1571,11 @@ input=${input#-}
 input=${input#-}
 
 # convert content of "input" variable to lowercase
-input=$(echo "$input" | tr '[:upper:]' '[:lower:]' )
+input=$( echo "$input" | tr '[:upper:]' '[:lower:]' )
 
 
 # the following code checks, whether a prefix (func_) + varialbe "input" is a valid function defined above. after the function is done an "exit" command is needed to prevent the UI from loading.
-if [[ $(type -t "func_$input") == "function" ]] 
+if [[ $( type -t "func_$input") == "function" ]] 
 then
 		
 		"func_$input" 1		# pass the parameter "1" with the funciton when it gets called directly from terminal.
@@ -1597,7 +1627,7 @@ function pacui_clean
 # =======================
 
 
-# Run infinte loop for UI / menu, till the user quits.
+# Run infinte loop for UI / menu, till the user quits using the "quit" option or CTRL+C.
 while true
 do
 	
@@ -1622,7 +1652,7 @@ do
 	echo -e " └───────────────────────────────────────────────────────────────────┘"
 	echo
 	echo -e "  Enter number or marked letter(s)      -   00   \e[1mH\e[0melp   -    0   \e[1mQ\e[0muit "
-	
+
 	# save entered numbers/letters in varialbe "choice"
 	read -r choice
 	# convert "choice" variable to lowercase:
@@ -1638,38 +1668,28 @@ do
 			# call function "func_u"
 			func_u
 			echo
-			echo -e " System updated. To return to PacUI press ENTER "
+			echo " System updated. To return to PacUI press ENTER "
 			# wait for input, e.g. by pressing ENTER:
 			read
 			;;
 		2|m|maintain)
 			func_m
 			echo
-			echo -e " System maintenance finished. To return to PacUI press ENTER "
+			echo " System maintenance finished. To return to PacUI press ENTER "
 			read
 			;;
 		3|i|install)
 			func_i
 			echo
-			echo -e " Package installation finished. To return to PacUI press ENTER "
+			echo " Package installation finished. To return to PacUI press ENTER "
 			read
 			;;
 		4|r|remove)
 			func_r
 			echo
-			echo -e " Package(s) including all unneeded dependencies removed. To return to PacUI press ENTER "
+			echo " Package(s) including all unneeded dependencies removed. To return to PacUI press ENTER "
 			read
 			;;
-		info|information)
-			func_info
-			echo
-			echo -e " Package information displayed. To return to PacUI press ENTER "
-			read
-			;;
-		ls|listsizes)
-			func_ls
-			echo
-			;;	
 		5|t|tree)
 			func_t
 			echo
@@ -1688,54 +1708,46 @@ do
 			;;
 
 
-		log)
-			func_log
-			echo
-			;;	
-		d|down|downgrade)
-			func_d
-			echo
-			echo -e " Downgrade finished. To return to PacUI press ENTER "
-			read
-			;;	
 		9|b|back)
 			func_b
 			echo
-			echo -e " System roll back finished. To return to PacUI press ENTER "
+			echo " System roll back finished. To return to PacUI press ENTER "
 			read
 			;;
 		10|fix)
 			func_fix
 			echo
-			echo -e " Operation finished. To return to PacUI press ENTER "
+			echo " Operation finished. To return to PacUI press ENTER "
 			read
 			;;
 		11|c|conf|config)
 			func_c
 			echo
+			echo " Configuration files edited. To return to PacUI press ENTER "
+			read
 			;;
 		13|fu|forceupdate)
 			func_fu
 			echo
-			echo -e " System updated in force mode. To return to PacUI press ENTER "
+			echo " System updated in force mode. To return to PacUI press ENTER "
 			read
 			;;
 		14|e|empty)
 			func_e
 			echo
-			echo -e " Entire package cache emptied. To return to PacUI press ENTER "
+			echo " Entire package cache emptied. To return to PacUI press ENTER "
 			read
 			;;
 		15|fi|forceinstall)
 			func_fi
 			echo
-			echo -e " Package installation in force mode finished. To return to PacUI press ENTER "
+			echo " Package installation in force mode finished. To return to PacUI press ENTER "
 			read
 			;;
 		16|fr|forceremove)
 			func_fr
 			echo
-			echo -e " Package(s) removed in force mode. To return to PacUI press ENTER "
+			echo " Package(s) removed in force mode. To return to PacUI press ENTER "
 			read
 			;;
 
@@ -1743,17 +1755,39 @@ do
 		17|ua|fua|forceupdateaur|updateaur)
 			func_ua
 			echo
-			echo -e " All AUR packages updated and reinstalled. To return to PacUI press ENTER "
+			echo " All AUR packages updated and reinstalled. To return to PacUI press ENTER "
 			read
 			;;
 		18|la|listaur)
 			func_la
 			echo
 			;;
+
+
+		info|information)
+			func_info
+			echo
+			echo " Package information displayed. To return to PacUI press ENTER "
+			read
+			;;
+		ls|listsizes)
+			func_ls
+			echo
+			;;
+		log)
+			func_log
+			echo
+			;;
+		d|down|downgrade)
+			func_d
+			echo
+			echo " Downgrade finished. To return to PacUI press ENTER "
+			read
+			;;
 		a|aur)
 			func_a
 			echo
-			echo -e " Installation from AUR finished. To return to PacUI press ENTER "
+			echo " Installation from AUR finished. To return to PacUI press ENTER "
 			read
 			;;
 
@@ -1769,9 +1803,10 @@ do
 
 		*)
 			echo -e " \e[41m Wrong option \e[0m"
-			echo -e "  Wait and try again later..."
+			echo -e "  Please try again...  "
 			sleep 2
 			;;
-            
+
+
 	esac    # close case-loop
 done        # close while-loop
