@@ -516,7 +516,7 @@ function func_b
 			# 3. in case an "upgraded" package needs a package as dependency, the "removed" packages have to be installed.
 			# filter variable $pacui_cache_packages for the word "removed" and write package names to variable $pacui_cache_install
 			pacui_cache_install="$( echo "${pacui_cache_packages}" | awk '/removed/ {print $2}' )"
-			
+
 			if [[ ! -z "$pacui_cache_install" ]]     # this if-condition avoids error messages when no package gets installed (and variable $pacui_cache_install is empty)
 			then
 
@@ -531,14 +531,14 @@ function func_b
 						find "$cachePACAUR" -maxdepth 2 -mindepth 2 -type f -printf "%T+\t%p\n" | grep ".pkg.tar.[gx]z$" | sort -rn | awk '{print $2}' | grep "$line""-" | sed -n '1p'
 				    done < <(echo "${pacui_cache_install}") )
 				fi
-					
+
 				# read line by line from variable $pacui_cache_install in while loop and save that line to variable $line
 				pacui_install=$( while IFS='' read -r line || [[ -n "$line" ]]
 				do
 					# write name of latest version in cache into file /tmp/pacui-install ("sort" puts latest version on top, which is then selected): 	
-					find $cache -name "${line}-[0-9]*[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r | sed -n '1p'
+					find $cache -name "${line}-[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r | sed -n '1p'
 				done < <(echo "${pacui_cache_install}") )
-				
+
 				# sort output to suit pacman's syntax. pacman needs a list of package names separated by single spaces.
 				if [[ ! -z "$pacui_aur_install" ]]
 				then
@@ -590,7 +590,7 @@ function func_b
 					if [[ -n $temp2 ]]   # checks, if variable is not empty
 					then
 						# write list with all versions of package in cache into file /tmp/pacui-temp-downgrade (sorted - newest package version is on top)
-						find $cache -name "${temp2}-[0-9]*[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r > ${pacui_tmp_downgrade}
+						find $cache -name "${temp2}-[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r > ${pacui_tmp_downgrade}
 					      
 					    if [[ -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" exists, i.e. pacaur is installed
 						then 
@@ -658,7 +658,7 @@ function func_b
 					if [[ -n $temp2 ]]   # checks, if variable is not empty
 					then
 						# write list with all versions of package in cache into file /tmp/pacui-temp-upgrade (sorted - newest package version is on top)
-						find $cache -name "${temp2}-[0-9]*[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r > ${pacui_tmp_upgrade}
+						find $cache -name "${temp2}-[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r > ${pacui_tmp_upgrade}
 					      
 					    if [[ -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" exists, i.e. pacaur is installed
 						then 
