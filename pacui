@@ -48,7 +48,7 @@ function func_diff
 		local {temp,temp2,temp3}                                          # define local variables - these variables will be automatically deleted after the function is finished/exited.
 		temp2="$( echo "$input2" | awk '{print $1}' )"                    # write second argument of "pacui diff temp2 temp3" to variable temp2. 
 		temp3="$( echo "$input2" | awk '{print $2}' )"                    # write third argument of "pacui diff temp2 temp3"to variable temp3.
-		temp="$(( ( $(tput cols) - ${#temp2} + ${#temp3} ) / 2 ))"        # calculates half the width of the terminal window ( $(tput cols)=width of terminal window )
+		temp="$(( ( $(tput cols) - ${#temp2} + ${#temp3} ) / 2 ))"        # calculates half the width of the terminal window ( $(tput cols)=width of terminal window ; ${#temp2}=width of second argument )
 		
 		# insert extra line with file paths above the diff viewer output:
 		echo -n -e "\e[31;1m$temp2"                                       # print first argument (without \newline at the end) = file path of file1 . use ANSI escape sequence to print file names in this line bold and red.
@@ -159,7 +159,7 @@ function func_m
 		
 		# 1. extract the name of hard drive the / partition is installed on and write it to the "disk" variatble"
 		local disk		# declare local variable
-		disk=$(lsblk -o "name,mountpoint" -pa | sed -n '/^\//h;/\/$/{g;p}' | cut -d/ -f3)
+		disk=$( lsblk -o "name,mountpoint" -pa | sed -n '/^\//h;/\/$/{g;p}' | cut -d/ -f3 )
 		disk="${disk:0:3}"
 		# 2. check, whether "disk" is not empty and whether the path to "disk" exists
 		if [[ -n $disk && -e "/dev/$disk" ]]
@@ -243,7 +243,7 @@ function func_i
 				then 
 					yaourt -Si {1}
 				else 
-					pacaur -Si {1} --color always | grep -v "::"      # grep command removes errors being displayed in pacaur only
+					pacaur -Si {1} --color always | grep -v "::"      # grep command removes errors being displayed in pacaur
 				fi
 			fi
 			' --preview-window=right:60%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
@@ -319,7 +319,7 @@ function func_t
 				then 
 					yaourt -Si {1}
 				else 
-					pacaur -Si {1} --color always | grep -v "::"      # grep command removes errors being displayed in pacaur only
+					pacaur -Si {1} --color always | grep -v "::"      # grep command removes errors being displayed in pacaur
 				fi
 			fi
 			' --preview-window=right:60%:wrap  --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
@@ -329,9 +329,9 @@ function func_t
 		then
 			if ( pacman -Qq "$pkg" &>/dev/null )
 			then
-				pactree -c "$pkg" | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Dependency Tree of installed package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-t
+				pactree -c "$pkg" | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Dependency Tree of installed package \"$pkg\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-t
 			else
-				pactree -c -s "$pkg" | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Dependency Tree of remote package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-t
+				pactree -c -s "$pkg" | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Dependency Tree of remote package \"$pkg\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-t
 			fi
 		fi
 }
@@ -347,7 +347,7 @@ function func_rt
 		# look in func_info for explanations
 		if [[ -n $pkg ]]
 		then
-			pactree -c -r "$pkg" | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Reverse Dependency Tree of package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-rt
+			pactree -c -r "$pkg" | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Reverse Dependency Tree of package \"$pkg\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-rt
 		fi
 }
 
@@ -371,7 +371,7 @@ function func_l
 				then 
 					yaourt -Si {1}
 				else 
-					pacaur -Si {1} --color always | grep -v "::"      # grep command removes errors being displayed in pacaur only
+					pacaur -Si {1} --color always | grep -v "::"      # grep command removes errors being displayed in pacaur
 				fi
 			fi
 			' --preview-window=right:60%:wrap  --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
@@ -384,7 +384,7 @@ function func_l
 			
 				# "pacman -Ql" shows sometimes more files than "pacman -Fl". therefore, both commands have to be used!
 				# take the output of command "pacman -Qlq $pkg" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacui-list.
-				pacman -Ql "$pkg" --color always 2>/dev/null | grep -a -v "/$" | awk '{print $NF}' | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of local package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed file paths > ' > /tmp/pacui-l
+				pacman -Ql "$pkg" --color always 2>/dev/null | grep -a -v "/$" | awk '{print $NF}' | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of local package \"$pkg\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed file paths > ' > /tmp/pacui-l
 				
 			else
 				
@@ -396,7 +396,7 @@ function func_l
 				# grep -a is used, because "pacman -Fl --machinereadable" returns a file starting with non-text data. the "-a" option ignores that.
 				# the awk command is used to format output: "-F '\0'" set "\0" as separator. this makes it possible to easily use $1,$2,$3,$4 as syntax later.
 				# "{print $1 "/" $2 "  " $4}" prints output nicely formatted.
-				pacman -Fl --machinereadable "$pkg" | grep -a -v "/$" | awk -F '\0' '{print $4}' | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of remote package \"${pkg}\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed file paths > ' > /tmp/pacui-l
+				pacman -Fl --machinereadable "$pkg" | grep -a -v "/$" | awk -F '\0' '{print $4}' | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of remote package \"$pkg\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed file paths > ' > /tmp/pacui-l
 				
 			fi
 		fi
@@ -459,7 +459,7 @@ function func_s
 
 
 			# display results from file /tmp/pacui-search-temp in fzf.
-			cat /tmp/pacui-search-temp | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Package file names (with path) containing \"${file}\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed package names and file paths > ' > /tmp/pacui-s
+			cat /tmp/pacui-search-temp | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Package file names (with path) containing \"$file\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed package names and file paths > ' > /tmp/pacui-s
 									
 		fi
 }
@@ -493,7 +493,8 @@ function func_b
 		fi
 		
 
-		# 1. get list of last installs/upgrades/removes from pacman log and display result in fzf. in the end, fzf saves all selected package names (including the words "installed/upgraded/removed/downgraded" to variable $pacui_cache_packages
+		# 1. get list of last installs/upgrades/removals/downgrades from pacman log and display result in fzf. 
+		# when fzf quits, only selected package names (including the words "installed/upgraded/removed/downgraded") are saved to variable $pacui_cache_packages
 		pacui_cache_packages="$( tail -3000 /var/log/pacman.log | grep "\[ALPM\]" | grep "installed\|removed\|upgraded\|downgraded" | sed 's/\[ALPM\] //g' | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --tac --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to roll back. ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}' )"
 		
 		# only run the command inside the if-statement, if variable $pacui_cache_packages is not empty and exists - this happens when fzf is quit with ESC or CTRL+C
@@ -507,6 +508,7 @@ function func_b
 
 			if [[ ! -z "$pkgR" ]]     # this if-condition avoids error message when no package gets removed (and $pkgR is empty)
 			then
+				# remove packages with pacman command. use parameter substitution with ${...} (without quotes!!!) for it, because otherwise the pacman command fails!
 				sudo pacman -Rdd ${pkgR} --color always --noconfirm
 			fi
 
@@ -541,6 +543,7 @@ function func_b
 				if [[ ! -z "$pacui_aur_install" ]]
 				then
 					# if AUR packages should be installed, the lists of package names are first combined before they get sorted and rearranged to space separated lists.
+					# use parameter substitution to combine 2 lists of packages.
 				    pkgI=$( printf "${pacui_install}\n${pacui_aur_install}" | sort -u | paste -sd " " )
 				else
 				    pkgI=$( echo "${pacui_install}" | sort -u | paste -sd " " )
@@ -565,12 +568,12 @@ function func_b
 				
 				# here, it is impossible to use variables instead of temporary files. therefore, the temporary files should be as tamper-proof as possible.
 				# Create temp file with mktemp command (Important for security). the XXXXXXXX indicates numbers assigned by "mktemp" command.
-				# the XXXXXXXXX numbers make it necessary to call the temporary file in the code below with " ${pacui_tmp_downgrade} " (without ")!
+				# the XXXXXXXXX numbers make it necessary to call the temporary file in the code below with ${pacui_tmp_downgrade} (without quotes)!
 				pacui_tmp_downgrade=$( mktemp /tmp/pacui-tmp-downgrade.XXXXXXXX )
 				
 				# add trap command to immediately rm upon ctrl+c (or any other case this function quits in the middle) for security purposes
 				# this is the normal syntax for "trap" command.
-				trap "rm -rf $pacui_tmp_downgrade" EXIT
+				trap "rm -rf ${pacui_tmp_downgrade}" EXIT
 				
 				# first, count the number of times the package name appears in file /tmp/pacui-cache-downgrade:
 				pacui_cache_downgrade_counted="$( echo "${pacui_cache_downgrade}" | sort | uniq -c )"
@@ -638,7 +641,7 @@ function func_b
 				
 				# add trap command to immediately rm upon ctrl+c (or any other case this function quits in the middle) for security purposes
 				# this is the normal syntax for "trap" command.
-				trap "rm -rf $pacui_tmp_upgrade" EXIT
+				trap "rm -rf ${pacui_tmp_upgrade}" EXIT
 				
 				# first, count the number of times the package name appears in file /tmp/pacui-cache-upgrade:
 				pacui_cache_upgrade_counted="$( echo "${pacui_cache_upgrade}" | sort | uniq -c )"
@@ -973,7 +976,7 @@ function func_fi
 				then 
 					yaourt -Si {1}
 				else 
-					pacaur -Si {1} --color always | grep -v "::"      # grep command removes errors being displayed in pacaur only
+					pacaur -Si {1} --color always | grep -v "::"      # grep command removes errors being displayed in pacaur
 				fi
 			fi
 			' --preview-window=right:60%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
@@ -1093,7 +1096,7 @@ function func_info
 				then
 					yaourt -Sii "$pkg"		    # execute this command when "pkg" is not installed on system
 				else
-					pacaur -Sii "$pkg" --color always | grep -v "::"      # grep command removes errors being displayed in pacaur only
+					pacaur -Sii "$pkg" --color always | grep -v "::"      # grep command removes errors being displayed in pacaur
 				fi
 			
 			fi
@@ -1148,7 +1151,7 @@ function func_a
 				# do this if variable "input" is not empty:
 				yaourt "$input2"
 			else
-				pacaur -Ss "$input2" --color always | grep -v "::"      # grep command removes errors being displayed in pacaur only
+				pacaur -Ss "$input2" --color always | grep -v "::"      # grep command removes errors being displayed in pacaur
 			fi				
 				
 		else
@@ -1161,7 +1164,7 @@ function func_a
 			then
 				yaourt "$pkg"
 			else
-				pacaur -Ss "$pkg" --color always | grep -v "::"      # grep command removes errors being displayed in pacaur only
+				pacaur -Ss "$pkg" --color always | grep -v "::"      # grep command removes errors being displayed in pacaur
 			fi
 			
 		fi
@@ -1518,11 +1521,10 @@ If you want to exit this mode without installing any packages, simply press CTRL
 
 Press "q" to quit this Help Page.
 
-
 				EOF
 			
 			fi
-			
+
 			# display /tmp/pacui-help file in "less" and interpret all ANSI escape sequences in it (which only works with "echo -e ..."
 			echo -e "$( cat '/tmp/pacui-help' )" | less -RMi
 			
@@ -1560,7 +1562,7 @@ fi
 # write first argument of "pacui ..." (= option of pacui) to "input" variable.
 input=$1
 # wirte all other arguments of "pacui $1 ..." (= often (parts of) package or file names) to "input2" variable. all arguments gets combined into one variable with spaces, but no breaks. 
-#fzf will always display search results for "input2", if it exists (and "input" is a valid function"). if "input2" is not found in fzf's list, NOTHING is displayed.
+# fzf will always display search results for "input2", if it exists (and "input" is a valid function"). if "input2" is not found in fzf's list, NOTHING is displayed.
 input2=${*:2}
 
 # if "input" starts with a "-" or "--" dash symbol, the dash(es) gets removed from the beginnig of "input" variable
@@ -1568,11 +1570,11 @@ input=${input#-}
 input=${input#-}
 
 # convert content of "input" variable to lowercase
-input=$(echo "$input" | tr '[:upper:]' '[:lower:]' )
+input=$( echo "$input" | tr '[:upper:]' '[:lower:]' )
 
 
 # the following code checks, whether a prefix (func_) + varialbe "input" is a valid function defined above. after the function is done an "exit" command is needed to prevent the UI from loading.
-if [[ $(type -t "func_$input") == "function" ]] 
+if [[ $( type -t "func_$input") == "function" ]] 
 then
 		
 		"func_$input" 1		# pass the parameter "1" with the funciton when it gets called directly from terminal.
