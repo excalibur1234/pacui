@@ -106,7 +106,7 @@ function func_m
 
 		if [[ -n $(sudo find -xtype l -print) ]]  # only run, if output of "sudo find -xtype l -print" is not empty
 		then
-			echo "The following symbolic links are broken, please fix them manually:"
+			echo -e "\e[1mThe following symbolic links are broken, please fix them manually:\e[0m"
 			sudo find -xtype l -print
 		fi
 		echo ""
@@ -1627,7 +1627,7 @@ function pacui_clean
 # =======================
 
 
-# Run infinte loop for UI / menu, till the user quits.
+# Run infinte loop for UI / menu, till the user quits using the "quit" option or CTRL+C.
 while true
 do
 	
@@ -1690,16 +1690,6 @@ do
 			echo " Package(s) including all unneeded dependencies removed. To return to PacUI press ENTER "
 			read
 			;;
-		info|information)
-			func_info
-			echo
-			echo " Package information displayed. To return to PacUI press ENTER "
-			read
-			;;
-		ls|listsizes)
-			func_ls
-			echo
-			;;	
 		5|t|tree)
 			func_t
 			echo
@@ -1718,16 +1708,6 @@ do
 			;;
 
 
-		log)
-			func_log
-			echo
-			;;	
-		d|down|downgrade)
-			func_d
-			echo
-			echo " Downgrade finished. To return to PacUI press ENTER "
-			read
-			;;	
 		9|b|back)
 			func_b
 			echo
@@ -1743,6 +1723,8 @@ do
 		11|c|conf|config)
 			func_c
 			echo
+			echo " Configuration files edited. To return to PacUI press ENTER "
+			read
 			;;
 		13|fu|forceupdate)
 			func_fu
@@ -1780,6 +1762,28 @@ do
 			func_la
 			echo
 			;;
+
+
+		info|information)
+			func_info
+			echo
+			echo " Package information displayed. To return to PacUI press ENTER "
+			read
+			;;
+		ls|listsizes)
+			func_ls
+			echo
+			;;
+		log)
+			func_log
+			echo
+			;;
+		d|down|downgrade)
+			func_d
+			echo
+			echo " Downgrade finished. To return to PacUI press ENTER "
+			read
+			;;
 		a|aur)
 			func_a
 			echo
@@ -1802,6 +1806,7 @@ do
 			echo -e "  Please try again...  "
 			sleep 2
 			;;
-            
+
+
 	esac    # close case-loop
 done        # close while-loop
