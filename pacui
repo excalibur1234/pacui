@@ -209,10 +209,10 @@ function func_i
 		# check, whether file /tmp/pacui-packages-install already exists (the ! negates the result)
 		if  [[ ! -e /tmp/pacui-packages-install ]]
 		then
-			# write package list of system repositories (package name and description) to /tmp/pacui-packages-install. then add all package groups to the bottom.
+			# write package list of system repositories (package name and description) to /tmp/pacui-packages-install. %-30n uses printf support in expac to format out put nicely (reserve a 32 character wide field for package name). then add all package groups to the bottom.
 			# delete all spaces with "tr" (there are spaces after each package name!). this is important for installing multiple packages at the same time! command equivalent to "awk '{print $1}'"
 			# awk 'NF != 0' removes all empty lines ("number of fields" in one line has to be non-zero)
-			expac -S "%n\t\t\t%d" > /tmp/pacui-packages-install
+			expac -S "%-30n\t%d" > /tmp/pacui-packages-install
 			expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-install
 						
 			# finally, download AUR package list (only when not already downloaded), unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages-install.
@@ -246,7 +246,7 @@ function func_i
 					pacaur -Si {1} --color always | grep -v "::"      # grep command removes errors being displayed in pacaur
 				fi
 			fi
-			' --preview-window=right:60%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 		
 		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
 		pkg_install=$( echo $pkg | paste -sd " " )
@@ -270,7 +270,7 @@ function func_r
 {
 		# write package list of local repository to /tmp/pacui-packages-group. then add all installed package groups to the bottom.
 		#pacman -Qq | tr -d " " > /tmp/pacui-packages-group
-		expac -Q "%n\t\t\t%d" > /tmp/pacui-packages-group
+		expac -Q "%-30n\t%d" > /tmp/pacui-packages-group
 		# this expac command prints a list of package groups of installed packages 
 		# awk 'NF != 0'  only displays lines where the number of fields is not zero (i.e. non-empty lines)
 		expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-group
@@ -287,7 +287,7 @@ function func_r
 				echo -e "\e[1m{1} group has the following members: \e[0m"
 				pacman -Sgq {1}
 			fi
-			' --preview-window=right:60%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
         
 		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
 		pkg_install=$(echo $pkg | paste -sd " ")
@@ -304,9 +304,9 @@ function func_t
 {
 		# write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
 		#pacman -Slq | tr -d " " > /tmp/pacui-packages-local
-		expac -S "%n\t\t\t%d" > /tmp/pacui-packages-local
+		expac -S "%-30n\t%d" > /tmp/pacui-packages-local
 		#pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
-		expac -Q "%n\t\t\t%d" >> /tmp/pacui-packages-local
+		expac -Q "%-30n\t%d" >> /tmp/pacui-packages-local
 
 		local pkg
 
@@ -322,7 +322,7 @@ function func_t
 					pacaur -Si {1} --color always | grep -v "::"      # grep command removes errors being displayed in pacaur
 				fi
 			fi
-			' --preview-window=right:60%:wrap  --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+			' --preview-window=right:50%:wrap  --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
 		# look in func_info for explanations
 		if [[ -n $pkg ]]
@@ -340,9 +340,9 @@ function func_t
 function func_rt 
 {
 		local pkg
-		pkg=$( expac -Q "%n\t\t\t%d" | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+		pkg=$( expac -Q "%-30n\t%d" | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			pacman -Qi {1} --color always
-			' --preview-window=right:60%:wrap  --header="Press ENTER to show reverse tree. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+			' --preview-window=right:50%:wrap  --header="Press ENTER to show reverse tree. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
 		# look in func_info for explanations
 		if [[ -n $pkg ]]
@@ -356,9 +356,9 @@ function func_l
 {
 		# write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
 		#pacman -Slq | tr -d " " > /tmp/pacui-packages-local
-		expac -S "%n\t\t\t%d" > /tmp/pacui-packages-local
+		expac -S "%-30n\t%d" > /tmp/pacui-packages-local
 		#pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
-		expac -Q "%n\t\t\t%d" >> /tmp/pacui-packages-local
+		expac -Q "%-30n\t%d" >> /tmp/pacui-packages-local
 		
 		local pkg
 
@@ -374,7 +374,7 @@ function func_l
 					pacaur -Si {1} --color always | grep -v "::"      # grep command removes errors being displayed in pacaur
 				fi
 			fi
-			' --preview-window=right:60%:wrap  --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+			' --preview-window=right:50%:wrap  --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
 		if [[ -n $pkg ]]
 		then
@@ -953,7 +953,7 @@ function func_fi
 		then
 			# write formatted package list of repositories to /tmp/pacui-packages-group-repo. then add all package groups to the bottom.
 			#pacman -Slq | tr -d " " > /tmp/pacui-packages-group-repo
-			expac -S "%n\t\t\t%d"  > /tmp/pacui-packages-group-repo
+			expac -S "%-30n\t%d"  > /tmp/pacui-packages-group-repo
 			#pacman -Sg | tr -d " " >> /tmp/pacui-packages-group-repo
 			expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-group-repo
 		fi
@@ -979,7 +979,7 @@ function func_fi
 					pacaur -Si {1} --color always | grep -v "::"      # grep command removes errors being displayed in pacaur
 				fi
 			fi
-			' --preview-window=right:60%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 		
 		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
 		pkg_install=$(echo $pkg | paste -sd " ")
@@ -995,7 +995,7 @@ function func_fr
 {
 		# write package list of local repository to /tmp/pacui-packages-group. then add all installed package groups to the bottom.
 		#pacman -Qq | tr -d " " > /tmp/pacui-packages-group
-		expac -Q "%n\t\t\t%d"  > /tmp/pacui-packages-group
+		expac -Q "%-30n\t%d"  > /tmp/pacui-packages-group
 		# this expac command prints a list of package groups of installed packages 
 		# awk 'NF != 0'  only displays lines where the number of fields is not zero (i.e. non-empty lines)
 		expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' | tr -d " " >> /tmp/pacui-packages-group
@@ -1013,7 +1013,7 @@ function func_fr
 				echo -e "\e[1m{1} group has the following members: \e[0m"
 				pacman -Sgq {1}
 			fi
-			' --preview-window=right:60%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 		
 		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
 		pkg_install=$(echo $pkg | paste -sd " ")
@@ -1046,7 +1046,7 @@ function func_la
 		# "pacman -Qm --color always"
 		pacman -Qqm --color always | fzf-tmux -m -e +s -i --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			pacman -Qi {} --color always
-			' --preview-window=right:60%:wrap  --header="List of AUR and manually installed packages. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-la
+			' --preview-window=right:50%:wrap  --header="List of AUR and manually installed packages. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-la
 
 
 
@@ -1106,9 +1106,10 @@ function func_info
 
 function func_ls
 {
-		# list all packages on local system sorted by their installed size using "expac" and "sort". then, display the result using fzf.
-		expac -H M -Q '%m - \e[1m%n\e[0m %v' | sort -n -r | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-ls	
-		# alternative command to "expac" and "sort": package-query -Q --rsort 2 -f "%2 - \e[1m%n \e[0m%v" | numfmt --to=iec 
+		# list all packages on local system sorted by their installed size using "expac" and "sort".
+		# $( comm -23 <(pacman -Qq | sort) <(pacman -Qqg base base-devel | sort) )  only shows packages, which are not part of "base" or "base-devel" group.
+		expac -H M -Q '%12m - \e[1m%n\e[0m %v' $( comm -23 <(pacman -Qq | sort) <(pacman -Qqg base base-devel | sort) ) | sort -n -r | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-ls	
+		# alternative command to "expac" and "sort": package-query -Qe --rsort 2 -f "%2 - \e[1m%n \e[0m%v" | numfmt --to=iec 
 }
 
 
@@ -1491,7 +1492,7 @@ This command displays a lot of information about <PACKAGE NAME>. Different piece
 
 \e[1mLIST PACKAGES BY SIZE
 \e[36m"expac -Q '%m - %n %v' | sort -n -r "
-This command lists all packages on your system sorted by their installation size. Both explicitly installed packages and dependencies are displayed. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-ls.
+This command lists packages on your system sorted by their installation size. Both explicitly installed packages and dependencies are displayed. Important system packages part of the "base" or "base-devel" group are not displayed. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-ls.
 
 
 \e[1mPACMAN LOG
