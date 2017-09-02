@@ -48,11 +48,11 @@ function func_diff
 		local {temp,temp2,temp3}                                          # define local variables - these variables will be automatically deleted after the function is finished/exited.
 		temp2="$( echo "$input2" | awk '{print $1}' )"                    # write second argument of "pacui diff temp2 temp3" to variable temp2. 
 		temp3="$( echo "$input2" | awk '{print $2}' )"                    # write third argument of "pacui diff temp2 temp3"to variable temp3.
-		temp="$(( ( $(tput cols) - ${#temp2} + ${#temp3} ) / 2 ))"        # calculates half the width of the terminal window ( $(tput cols)=width of terminal window ; ${#temp2}=width of second argument )
+		temp="$(( ( $(tput cols) / 2 ) - ${#temp2} + ${#temp3} ))"        # calculates half the width of the terminal window ( $(tput cols)=width of terminal window ; ${#temp2}=width of second argument )
 		
 		# insert extra line with file paths above the diff viewer output:
-		echo -n -e "\e[31;1m$temp2"                                       # print first argument (without \newline at the end) = file path of file1 . use ANSI escape sequence to print file names in this line bold and red.
-		printf "%*s\n" "$temp" "$temp3"                                   # print second argument (flushed half terminal width to the right) = file path of file2
+		echo -n -e "\e[31;1m$temp2"                                       # print $temp2 (without \newline at the end) = file path of file1 . use ANSI escape sequence to print file names in this line bold and red.
+		printf "%*s\n" "$temp" "$temp3"                                   # print $temp3 ( = file path of file2) with $temp number of spaces in front and \newline at the end.
 		tput sgr0                                                         # printf does not support any ANSI escape sequences, so output (= red and bold text) has to be reset manually using "tput".
 		
 		# use "diff" as a file difference viewer with many options, which make it look good. "diff" takes 2 arguments (=the files, which are supposed to be compared)
@@ -1635,7 +1635,7 @@ do
 	
 	# draw UI / menu. please note the use of ANSI Escape sequences mentioned above. The text/code can be hard to read...
 	echo
-	echo -e "                     .:\e[7m PacUI - Package manager \e[0m:.                    "
+	echo -e "                       \e[7m PacUI - Package manager \e[0m                      "
 	echo -e " ┌───────────────────────────────────────────────────────────────────┐"
 	echo -e " │    1   \e[1mU\e[0mpdate System               2   \e[1mM\e[0maintain System            │"
 	echo -e " │    3   \e[1mI\e[0mnstall Packages            4   \e[1mR\e[0memove Packages + Deps     │"
