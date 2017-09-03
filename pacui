@@ -496,7 +496,7 @@ function func_b
 		# 1. get list of last installs/upgrades/removals/downgrades from pacman log and display result in fzf. 
 		# when fzf quits, only selected package names (including the words " installed/upgraded/removed/downgraded") are saved to variable $pacui_cache_packages
 		#  the space in front of "installed" prevents reinstallations being displayed (otherwise, they would be removed)! the ] in "] installed" prevents config file changes being displayed, e.g. "warning: /etc/sddm.conf installed as /etc/sddm.conf.pacnew"
-		pacui_cache_packages="$( tail -3000 /var/log/pacman.log | grep "\[ALPM\]" | grep "] installed\|removed\|upgraded\|downgraded" | sed 's/\[ALPM\] //g' | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --tac --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to roll back. ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}' )"
+		pacui_cache_packages="$( tail -5000 /var/log/pacman.log | grep "\[ALPM\]" | grep "] installed\|removed\|upgraded\|downgraded" | sed 's/\[ALPM\] //g' | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --tac --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to roll back. ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}' )"
 		
 		# only run the command inside the if-statement, if variable $pacui_cache_packages is not empty and exists - this happens when fzf is quit with ESC or CTRL+C
 		if [[ ! -z "$pacui_cache_packages" ]]
