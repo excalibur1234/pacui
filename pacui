@@ -48,11 +48,11 @@ function func_diff
 		local {temp,temp2,temp3}                                          # define local variables - these variables will be automatically deleted after the function is finished/exited.
 		temp2="$( echo "$input2" | awk '{print $1}' )"                    # write second argument of "pacui diff temp2 temp3" to variable temp2. 
 		temp3="$( echo "$input2" | awk '{print $2}' )"                    # write third argument of "pacui diff temp2 temp3"to variable temp3.
-		temp="$(( ( $(tput cols) - ${#temp2} + ${#temp3} ) / 2 ))"        # calculates half the width of the terminal window ( $(tput cols)=width of terminal window ; ${#temp2}=width of second argument )
+		temp="$(( ( $(tput cols) / 2 ) - ${#temp2} + ${#temp3} ))"        # calculates half the width of the terminal window ( $(tput cols)=width of terminal window ; ${#temp2}=width of second argument )
 		
 		# insert extra line with file paths above the diff viewer output:
-		echo -n -e "\e[31;1m$temp2"                                       # print first argument (without \newline at the end) = file path of file1 . use ANSI escape sequence to print file names in this line bold and red.
-		printf "%*s\n" "$temp" "$temp3"                                   # print second argument (flushed half terminal width to the right) = file path of file2
+		echo -n -e "\e[31;1m$temp2"                                       # print $temp2 (without \newline at the end) = file path of file1 . use ANSI escape sequence to print file names in this line bold and red.
+		printf "%*s\n" "$temp" "$temp3"                                   # print $temp3 ( = file path of file2) with $temp number of spaces in front and \newline at the end.
 		tput sgr0                                                         # printf does not support any ANSI escape sequences, so output (= red and bold text) has to be reset manually using "tput".
 		
 		# use "diff" as a file difference viewer with many options, which make it look good. "diff" takes 2 arguments (=the files, which are supposed to be compared)
@@ -494,8 +494,9 @@ function func_b
 		
 
 		# 1. get list of last installs/upgrades/removals/downgrades from pacman log and display result in fzf. 
-		# when fzf quits, only selected package names (including the words "installed/upgraded/removed/downgraded") are saved to variable $pacui_cache_packages
-		pacui_cache_packages="$( tail -3000 /var/log/pacman.log | grep "\[ALPM\]" | grep "installed\|removed\|upgraded\|downgraded" | sed 's/\[ALPM\] //g' | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --tac --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to roll back. ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}' )"
+		# when fzf quits, only selected package names (including the words " installed/upgraded/removed/downgraded") are saved to variable $pacui_cache_packages
+		#  the space in front of "installed" prevents reinstallations being displayed (otherwise, they would be removed)! the ] in "] installed" prevents config file changes being displayed, e.g. "warning: /etc/sddm.conf installed as /etc/sddm.conf.pacnew"
+		pacui_cache_packages="$( tail -5000 /var/log/pacman.log | grep "\[ALPM\]" | grep "] installed\|removed\|upgraded\|downgraded" | sed 's/\[ALPM\] //g' | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --tac --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to roll back. ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}' )"
 		
 		# only run the command inside the if-statement, if variable $pacui_cache_packages is not empty and exists - this happens when fzf is quit with ESC or CTRL+C
 		if [[ ! -z "$pacui_cache_packages" ]]
@@ -890,13 +891,13 @@ function func_c
 		# only run the command inside the if-statement, if $file variable is not empty <-- this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $file ]]
 		then
-			if [[ $( echo "$file" | cut -c1 ) == "~" ]]
+			if [[ $( echo $file | cut -c1 ) == "~" ]]
 			# if "file"'s first character is a "~" (tilde), the "file" should NOT be opened as root!
 			then
 				# if $EDITOR variable does not exist, set it to 'nano'
 				[[ -z "$EDITOR" ]] && EDITOR='nano'
-				# open "file" in "EDITOR": (attention: "$file" (including " symbols) does NOT WORK!!!)
-				$EDITOR "$file"
+				# open "file" in "EDITOR": (attention: "$file" (including " symbols) does NOT WORK!!!, but strangely $file (without " symbols") works fine.)
+				$EDITOR $file
 			elif [[ $file == "/etc/sudoers" ]]
 			then
 				# the sudoers file should never be edited directly! if something goes wrong, sudo stops working. instead, visudo should be used. this is much safer.
@@ -906,22 +907,22 @@ function func_c
 				# if $EDITOR variable does not exist, set it to 'nano'
 				[[ -z "$EDITOR" ]] && EDITOR='nano'
 				# open "file" in "EDITOR": (attention: "$file" (including " symbols) does NOT WORK!!!)
-				sudo $EDITOR "$file"
+				sudo $EDITOR $file
 				sudo pacman -Syy                                                     # apply changes
 			elif [[ $file == "/etc/mkinitcpio.conf" ]]
 			then
 				[[ -z "$EDITOR" ]] && EDITOR='nano'
-				sudo $EDITOR "$file"
+				sudo $EDITOR $file
 				sudo mkinitcpio -P && sudo grub-mkconfig -o /boot/grub/grub.cfg      # apply changes   # "grub-mkconfig -o /boot/grub/grub.cfg" == "udpate-grub" (in manjaro)
 			elif [[ $file == "/etc/default/grub" ]]
 			then
 				[[ -z "$EDITOR" ]] && EDITOR='nano'
-				sudo $EDITOR "$file"
+				sudo $EDITOR $file
 				sudo grub-mkconfig -o /boot/grub/grub.cfg                            # apply changes   # "grub-mkconfig -o /boot/grub/grub.cfg" == "udpate-grub" (in manjaro)
 			else
 				# start "sudo nano $file" for all other files (not mentioned separately in elif-statements above)
 				[[ -z "$EDITOR" ]] && EDITOR='nano'
-				sudo $EDITOR "$file"
+				sudo $EDITOR $file
 			fi
 		fi
 		rm /tmp/pacui-conf
@@ -1635,7 +1636,7 @@ do
 	
 	# draw UI / menu. please note the use of ANSI Escape sequences mentioned above. The text/code can be hard to read...
 	echo
-	echo -e "                     .:\e[7m PacUI - Package manager \e[0m:.                    "
+	echo -e "                       \e[7m PacUI - Package manager \e[0m                      "
 	echo -e " ┌───────────────────────────────────────────────────────────────────┐"
 	echo -e " │    1   \e[1mU\e[0mpdate System               2   \e[1mM\e[0maintain System            │"
 	echo -e " │    3   \e[1mI\e[0mnstall Packages            4   \e[1mR\e[0memove Packages + Deps     │"
