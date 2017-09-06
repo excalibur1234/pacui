@@ -1067,12 +1067,6 @@ function func_ls
 }
 
 
-function func_log 
-{
-		tail -5000 /var/log/pacman.log | fzf-tmux -m -e +s -i --tac --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed logs > ' > /tmp/pacui-log
-}
-
-
 function func_d
 {
 		# write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
@@ -1159,7 +1153,6 @@ function func_h
 			echo -e "  pacui	la    - \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
 			echo
 			echo -e "  pacui	ls    - \e[1mL\e[0mist Packages by \e[1mS\e[0mize"
-			echo -e "  pacui	log   - Pacman \e[1mLog\e[0m"
 			echo -e "  pacui	d     - \e[1mD\e[0mowngrade Packages"
 			echo -e "  pacui	a     - Search + Install from \e[1mA\e[0mUR"
 			echo
@@ -1443,12 +1436,6 @@ If you want a list of all installed packages use REMOVE PACKAGES + DEPS as descr
 This command lists packages on your system sorted by their installation size. Both explicitly installed packages and dependencies are displayed. Important system packages part of the "base" or "base-devel" group are not displayed. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-ls.
 
 
-\e[1mPACMAN LOG
-\e[36m"tail -5000 /var/log/pacman.log"
-The Pacman Log contains all updates, installations, and removals (also in the AUR) you have done. Whenever something breaks on your system (e.g. after an udpate), but you do not remember anymore which packages were changed recently (e.g. during the last update), take a look at your Pacman Log and find out. Then, ROLL BACK SYSTEM, and downgrade the packages you think might be broken.
-This command displays the last 5000 lines of your Pacman Log and makes it searchable with fzf. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-log.
-
-
 \e[1mDOWNGRADE PACKAGES
 \e[36m"downgrade <PACKAGE NAME>"
 Manjaro and Arch Linux use a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. If the latest version of a packages does not work on your system, you can downgrade that package to an earlier, working version.
@@ -1714,10 +1701,6 @@ do
 
 		ls|listsizes)
 			func_ls
-			echo
-			;;
-		log)
-			func_log
 			echo
 			;;
 		d|down|downgrade)
