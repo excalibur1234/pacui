@@ -1,26 +1,28 @@
 # Maintainer: excalibur1234 @forum.manjaro.org
 
-_pkgname=pacui
-pkgname=$_pkgname-git
-pkgver=1.6.1
-pkgrel=2
+pkgname=pacui
+pkgver=1.7
+pkgrel=1
 pkgdesc="Bash script providing advanced Pacman and Pacaur/Yaourt functionality in a simple UI"
 arch=(any)
-url="https://github.com/excalibur1234/pacui"
+url="https://github.com/excalibur1234/$pkgname"
 license=('GPL3')
 depends=('expac' 'wget' 'sudo' 'fzf')
 makedepends=('git')
-conflicts=("$_pkgname" 'pacli-simple-git')
-replaces=('pacli-simple-git')
+conflicts=("pacui-git" 'pacli-simple-git')
 optdepends=('pacaur: Needed for AUR support. If installed, it gets used by default over Yaourt.'
         'yaourt: Needed for AUR support.'
         'pacman-mirrors: Needed for Manjaro mirror support'
         'reflector: Needed for Arch Linux mirror support'
         'downgrade: Needed for hidden "downgrade" option.')
-source=("$_pkgname::git+https://github.com/excalibur1234/$_pkgname.git")
-md5sums=('SKIP')
+source=("$pkgname::git+https://github.com/excalibur1234/$pkgname.git")
+md5sums=('1a36034db48ce0d93fa350e031534ee6')
+
+# how to update md5sum:
+#  1. do "updpkgsums" inside the folder with PKGBUILD file
+#  2. delete .tar.gz file
 
 package () {
 	cd "$srcdir"
-        install -Dm755 "$srcdir/$_pkgname/pacui" "$pkgdir/usr/bin/pacui"
+        install -Dm755 "$srcdir/$pkgname/pacui" "$pkgdir/usr/bin/pacui"
 }
