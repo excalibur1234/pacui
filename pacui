@@ -17,6 +17,7 @@
 
 # ANSI Escape sequences used in this script:
 #  \e[31m				# red text
+#  \e[36m				# cyan text
 #  \e[41m				# red background
 #  \e[0m	\033[0m		# non-colored, non-bold text without background color (second possiblity has to be used in "awk")
 #  \e[1m	\033[1m		# bold text (second possiblity has to be used in "awk")
@@ -1057,66 +1058,12 @@ function func_la
 # =======================
 
 
-function func_info 
-{
-		# check, whether file /tmp/pacui-packages already exists (the ! negates the result)
-		if [[ ! -e /tmp/pacui-packages ]]
-		then
-			# write package list of repositories to /tmp/pacui-packages: download AUR package list to /tmp/aur/packages.gz, unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages.
-			pacman -Slq > /tmp/pacui-packages
-
-			# download AUR package list (only when not already downloaded), unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages-install.
-			if  [[ ! -e /tmp/aur/packages ]]
-			then
-				wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null && gunzip -f /tmp/aur/packages.gz
-			fi
-			cat /tmp/aur/packages | grep -v "#" >> /tmp/pacui-packages
-		fi
-			
-		# the following command lets you search through the file "/tmp/pacui-packages" with fzf and save your selection in "pkg"
-		local pkg
-		pkg=$( sort -k1,1 -u /tmp/pacui-packages | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="Press ENTER to display info. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ')
-		
-		# only run the command inside the if-statement, if $pkg variable is not empty - this happens when fzf is quit with ESC or CTRL+C
-		if [[ -n $pkg ]]
-		then
-			# next, it is checked, whether "pkg" is part of a list of all installed packages (pacman -Qq).
-			if ( pacman -Qq "$pkg" 2>/dev/null )
-			then
-			
-				if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
-				then
-					yaourt -Qii "$pkg"		    # execute this command when "pkg" is already installed on system
-				else
-					pacaur -Qii "$pkg" --color always
-				fi
-			
-			else
-			
-				if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
-				then
-					yaourt -Sii "$pkg"		    # execute this command when "pkg" is not installed on system
-				else
-					pacaur -Sii "$pkg" --color always | grep -v "::"      # grep command removes errors being displayed in pacaur
-				fi
-			
-			fi
-		fi
-}
-
-
 function func_ls
 {
 		# list all packages on local system sorted by their installed size using "expac" and "sort".
 		# $( comm -23 <(pacman -Qq | sort) <(pacman -Qqg base base-devel | sort) )  only shows packages, which are not part of "base" or "base-devel" group.
 		expac -H M -Q '%12m - \e[1m%n\e[0m %v' $( comm -23 <(pacman -Qq | sort) <(pacman -Qqg base base-devel | sort) ) | sort -n -r | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-ls	
 		# alternative command to "expac" and "sort": package-query -Qe --rsort 2 -f "%2 - \e[1m%n \e[0m%v" | numfmt --to=iec 
-}
-
-
-function func_log 
-{
-		tail -5000 /var/log/pacman.log | fzf-tmux -m -e +s -i --tac --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed logs > ' > /tmp/pacui-log
 }
 
 
@@ -1205,9 +1152,7 @@ function func_h
 			echo -e "  pacui	ua    - Force \e[1mU\e[0mpdate \e[1mA\e[0mUR"
 			echo -e "  pacui	la    - \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
 			echo
-			echo -e "  pacui	info  - Package \e[1mInfo\e[0mrmation"
 			echo -e "  pacui	ls    - \e[1mL\e[0mist Packages by \e[1mS\e[0mize"
-			echo -e "  pacui	log   - Pacman \e[1mLog\e[0m"
 			echo -e "  pacui	d     - \e[1mD\e[0mowngrade Packages"
 			echo -e "  pacui	a     - Search + Install from \e[1mA\e[0mUR"
 			echo
@@ -1486,20 +1431,9 @@ This command lists all installed packages, which are from the AUR or which were 
 If you want a list of all installed packages use REMOVE PACKAGES + DEPS as described in this Help Page.
 
 
-\e[1mPACKAGE INFORMATION
-\e[36m"yaourt -Sii <PACKAGE NAME>"\e[0m or \e[36m"yaourt -Qii <PACKAGE NAME>"
-This command displays a lot of information about <PACKAGE NAME>. Different pieces of information get displayed depending on package source (system repository or AUR) and package state (installed or not installed).
-
-
 \e[1mLIST PACKAGES BY SIZE
 \e[36m"expac -Q '%m - %n %v' | sort -n -r "
 This command lists packages on your system sorted by their installation size. Both explicitly installed packages and dependencies are displayed. Important system packages part of the "base" or "base-devel" group are not displayed. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-ls.
-
-
-\e[1mPACMAN LOG
-\e[36m"tail -5000 /var/log/pacman.log"
-The Pacman Log contains all updates, installations, and removals (also in the AUR) you have done. Whenever something breaks on your system (e.g. after an udpate), but you do not remember anymore which packages were changed recently (e.g. during the last update), take a look at your Pacman Log and find out. Then, ROLL BACK SYSTEM, and downgrade the packages you think might be broken.
-This command displays the last 5000 lines of your Pacman Log and makes it searchable with fzf. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-log.
 
 
 \e[1mDOWNGRADE PACKAGES
@@ -1765,18 +1699,8 @@ do
 			;;
 
 
-		info|information)
-			func_info
-			echo
-			echo " Package information displayed. To return to PacUI press ENTER "
-			read
-			;;
 		ls|listsizes)
 			func_ls
-			echo
-			;;
-		log)
-			func_log
 			echo
 			;;
 		d|down|downgrade)
