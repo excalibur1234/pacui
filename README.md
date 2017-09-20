@@ -83,7 +83,7 @@ PacUI does not care, whether you use upper or lower case letters as options or w
 - `pacui -rt`
 - `pacui --rt`
 
-This principle can be used with all of PacUI's options. Here is another random example (of PacUI's "Pacman Log" option):
+This principle can be used with all of PacUI's options. Here is another random example (of PacUI's "List Packages by Size" hidden option):
 - `pacui ls`
 - `pacui -ls`
 - `pacui --ls`
