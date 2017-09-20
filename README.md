@@ -77,13 +77,16 @@ pacui
 
 ### Start PacUI without UI: Using Options
 For example, you want to display the **r**everse dependency **t**ree of a package. Please first note the marked letters "R" and "T" in PacUI's corresponding option when starting PacUI with UI.
-PacUI does not care, whether you use upper or lower case letters as options or whether you use none, one or two dashes in front. Now, type one of the four equivalent choices into your terminal and press "ENTER": 
+PacUI does not care, whether you use upper or lower case letters as options or whether you use no, one or two dashes in front. Now, type one of the four equivalent choices into your terminal and press "ENTER": 
 - `pacui RT`
 - `pacui rt`
 - `pacui -rt`
 - `pacui --rt`
 
 This principle can be used with all of PacUI's options. Here is another random example (of PacUI's "List Packages by Size" hidden option):
+- `pacui LS`
+- `pacui -LS`
+- `pacui --LS`
 - `pacui ls`
 - `pacui -ls`
 - `pacui --ls`
