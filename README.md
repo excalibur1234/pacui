@@ -84,12 +84,9 @@ PacUI does not care, whether you use upper or lower case letters as options or w
 - `pacui --rt`
 
 This principle can be used with all of PacUI's options. Here is another random example (of PacUI's "Pacman Log" option):
-- `pacui LOG`
-- `pacui -LOG`
-- `pacui --LOG`
-- `pacui log`
-- `pacui -log`
-- `pacui --log`
+- `pacui ls`
+- `pacui -ls`
+- `pacui --ls`
 
 ### Start PacUI without UI: Using Options and Package Names
 
@@ -124,7 +121,7 @@ A fancy list view for all pacman updates can be enabled by uncommenting the foll
 ```
 A very easy way to edit this file by using PacUI is:
 ```
-pacui conf pacman.conf
+pacui c pacman.conf
 ```
 
 ### Limit Mirrors Check to Countries Near You
@@ -135,7 +132,7 @@ You can achieve this by uncommenting and editing the line according to the tips 
 ```
 A very easy way to edit this file using PacUI is:
 ```
-pacui --conf
+pacui -c
 ```
 
 ### Alias
