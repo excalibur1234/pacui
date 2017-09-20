@@ -910,6 +910,13 @@ function func_c
 				# open "file" in "EDITOR": (attention: "$file" (including " symbols) does NOT WORK!!!)
 				sudo $EDITOR $file
 				sudo pacman -Syy                                                     # apply changes
+			elif [[ $file == "/etc/fstab" ]]
+			then
+				# if $EDITOR variable does not exist, set it to 'nano'
+				[[ -z "$EDITOR" ]] && EDITOR='nano'
+				# open "file" in "EDITOR": (attention: "$file" (including " symbols) does NOT WORK!!!)
+				sudo $EDITOR $file
+				sudo mount -a	                                                     # mount all drives/partitions in /etc/fstab file. this shows immediately mistakes in your /etc/fstab file and prevents non-working systems.
 			elif [[ $file == "/etc/mkinitcpio.conf" ]]
 			then
 				[[ -z "$EDITOR" ]] && EDITOR='nano'
