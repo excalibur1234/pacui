@@ -5,9 +5,9 @@ PacUI provides useful and advanced Pacman and Pacaur/Yaourt commands in a conven
 
 PacUI is aimed at experienced/intermediate/advanced users of Manjaro or Arch Linux, who have at least basic knowledge of the structure of their Linux system and how Pacman and Pacaur/Yaourt work. Absolute beginners are probably overwhelmed by the amount of choices PacUI offers.
 
-This fork of an [old version of pacli](https://github.com/Manjaro-Pek/pacli/tree/f98e9226eb75ea00217481f436399328fe73d3ae) called PacUI follows the KISS principle: The whole program is contained within one file, which consists of easy to read bash code with many helpful comments. PacUI provides more functionality than pacli, except for a separate settings file and translations. PacUI does not require the use of the UI but can be used by terminal commands directly: This way of using PacUI is much faster!
+This fork of an [old version of pacli](https://github.com/Manjaro-Pek/pacli/tree/f98e9226eb75ea00217481f436399328fe73d3ae) called PacUI follows the KISS principle: The whole program is contained within one file, which consists of easy to read bash code with many helpful comments. PacUI provides more functionality than pacli, except for a separate settings file and translations. PacUI does not require the use of the UI but can be used by terminal commands directly.
 
-​
+
 Table of Contents
 -----------------
 
@@ -31,7 +31,7 @@ Table of Contents
 
 ## Screenshots
 
-Home Screen of PacUI's UI:
+UI of PacUI:
 
 ![Screenshot 01](https://s27.postimg.org/oy4cz7z2r/Untitled.png)
 
@@ -48,17 +48,17 @@ In Manjaro, you can simply install the stable version of PacUI:
 sudo pacman -S pacui
 ```
 
-Alternatively, you can also install the latest version of PacUI from the AUR:
+Both the stable version and the latest git version of PacUI are available on the AUR:
 ```
 yaourt -S pacui-git
 ```
 
-This will install PacUI including the latest commits on Github. If you ever encounter any bugs, please reinstall (and thereby update) PacUI with the same command and check whether the bug is still there before reporting it.
+This will install PacUI including the latest commits on Github. If you ever encounter any bugs, please reinstall (and thereby update) PacUI with the this command and check whether the bug is still there before reporting it.
 
 Please note that PacUI requires also Pacaur or Yaourt to work properly. Both AUR helpers are only listed as optional dependencies, but you should install at least one of them. If Pacaur is installed, it gets used by default over Yaourt.
 
 ### Execute without prior Installation
-Because PacUI is contained within one file, it is possible to download and start it without prior installation:
+Because PacUI is contained within one file, it is easy to download and start it without prior installation:
 ```
 wget https://raw.githubusercontent.com/excalibur1234/pacui/master/pacui
 ```
@@ -70,20 +70,22 @@ bash pacui
 ## Usage
 
 ### Start PacUI with UI
-After successful installation, type the following command into your terminal in order to start PacUI with a nice UI:
+After successful installation, type the following command into your terminal in order to start PacUI with a simple UI:
 ```
 pacui
 ```
 
 ### Start PacUI without UI: Using Options
-For example, you want to display the **r**everse dependency **t**ree of a package. Please first note the marked letters "R" and "T" in PacUI's corresponding option when starting PacUI with UI.
-PacUI does not care, whether you use upper or lower case letters as options or whether you use no, one or two dashes in front. Now, type one of the four equivalent choices into your terminal and press "ENTER": 
+Using PacUI without its UI requires less keystrokes and can therefore be much quicker. An overview of all PacUI options is displayed with `pacui h`.
+
+For example, you want to display the **R**everse dependency **T**ree of a package. Please note the marked letters "R" and "T" in PacUI's corresponding UI option.
+PacUI does not care, whether you use upper or lower case letters as options or whether you use no, one or two dashes in front. Therefore, the following four commands are equivalent: 
 - `pacui RT`
 - `pacui rt`
 - `pacui -rt`
 - `pacui --rt`
 
-This principle can be used with all of PacUI's options. Here is another random example (of PacUI's "List Packages by Size" hidden option):
+This principle can be used with all of PacUI's options. Here is another random example (of PacUI's hidden "List Packages by Size" option):
 - `pacui LS`
 - `pacui -LS`
 - `pacui --LS`
@@ -95,17 +97,9 @@ This principle can be used with all of PacUI's options. Here is another random e
 
 You can also use package names in addition to options. For example, you want to install the package "cantata". Then, you can use a command like
 ```
-pacui i cant
+pacui i cantata
 ```
-Instead of a list of all available packages, a much shorter already filtered list is displayed. Simply select the "cantata" package and press ENTER in order to install it.
-
-
-Alternatively, you can use the command
-```
-pacui i cantat
-```
-Since there is only one package found in the Manjaro repositories when searching for "cantat", the list view is skipped and you are immediately prompted to install "cantata".
-
+Instead of a list of all available packages, a much shorter already filtered list is displayed. Simply select the "cantata" package you want to install and press ENTER in order to install it.
 
 If the last argument contains special characters, it has to be quoted. For example when using regular expressions in order to search package file names starting with "zsh":
 ```
@@ -127,16 +121,6 @@ A very easy way to edit this file by using PacUI is:
 pacui c pacman.conf
 ```
 
-### Limit Mirrors Check to Countries Near You
-In Manjaro, pacman-mirrors is used by PacUI. For example, in the "Clean System" option, your ping is checked to all Manjaro servers/mirrors. By limiting this check to mirrors near you, you can dramatically speed up this process.
-You can achieve this by uncommenting and editing the line according to the tips above the following line in your /etc/pacman-mirrors.conf file:
-```
-#OnlyCountry =
-```
-A very easy way to edit this file using PacUI is:
-```
-pacui -c
-```
 
 ### Alias
 If you use PacUI without the UI it is recommended to use an alias for PacUI to reduce the amount of necessary typing. Do this by adding the following line to your ~/.bashrc file (if you use bash):
@@ -149,7 +133,7 @@ p u
 ```
 
 ### Search syntax
-PacUI uses [fuzzy finder (fzf)](https://github.com/junegunn/fzf) to display lists of items (such as packages, package groups, logs, patchs, etc.) and by starting to type, you can easily search/filter those lists. Advanced users can use regular expressions to improve their search results. fzf accepts multiple search terms (with regular expressions) delimited by spaces. e.g. `^music git$ sbtrkt !fire`
+PacUI uses [fuzzy finder (fzf)](https://github.com/junegunn/fzf) to display lists of items (such as packages, package groups, logs, patchs, etc.) and by starting to type, you can easily search/filter those lists. Regular expressions can be used to improve the search results. fzf accepts multiple search terms (with regular expressions) delimited by spaces. e.g. `^music git$ sbtrkt !fire`
 
 | Search Term | Description                       |
 | ----------- | --------------------------------- |
@@ -163,6 +147,17 @@ PacUI uses [fuzzy finder (fzf)](https://github.com/junegunn/fzf) to display list
 A single bar character term acts as an OR operator. For example, the following query matches entries that start with `core` and end with either `go`, `rb`, or `py`.
 ```
 ^core go$ | rb$ | py$
+```
+
+### Limit Mirrors Check to Countries Near You
+In Manjaro, pacman-mirrors is used by PacUI. For example, in the "Maintain System" option, your ping is checked to all Manjaro servers/mirrors. By limiting this check to mirrors near you, you can dramatically speed up this process.
+You can achieve this by uncommenting and editing the following line in your /etc/pacman-mirrors.conf file:
+```
+#OnlyCountry =
+```
+A very easy way to edit this file using PacUI is:
+```
+pacui -c
 ```
 
 
