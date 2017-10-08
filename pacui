@@ -181,17 +181,16 @@ function func_m
 			echo "checking installed kernels ..."
 			# check, if any installed kernel is EOL:
 			# 0. delete old temporary file to avoid strange errors. ignore all output of "rm" command (such as output, messages, or errors).
-			rm /tmp/.installed_kernels /tmp/.available_kernels /tmp/.uptodate_kernels /tmp/.eol_kernels &>/dev/null
+			rm /tmp/.installed_kernels /tmp/.available_kernels /tmp/.eol_kernels &>/dev/null
 			# 1. create lists of installed and available kernels (and ignore all errors).
 			mhwd-kernel -li 2>/dev/null | awk '/ linux/ {print $2}' > /tmp/.installed_kernels
 			mhwd-kernel -l 2>/dev/null | awk '/linux/ {print $2}' > /tmp/.available_kernels
-			# 2. Check if all installed kernels are eol:
-			if ! [[ -z $(cat /tmp/.available_kernels) ]]   # make sure that file is not empty
+			# 2. Check if installed kernels are eol:
+			if ! [[ -z $(cat /tmp/.available_kernels) ]]   # make sure that file is not empty. it is better not to display anything than something wrong.
 			then
-				# write all kernels, which are installed and still available to /tmp/.uptodate_kernels
-				comm -12 /tmp/.available_kernels /tmp/.installed_kernels > /tmp/.uptodate_kernels
-				# write all kernels, which are NOT up-to-date anymore, but which are still installed to /tmp/.eol_kernels
-				comm -13 /tmp/.uptodate_kernels /tmp/.installed_kernels > /tmp/.eol_kernels
+				# write all kernels, which are installed, but not available anymore, to /tmp/.eol_kernels
+				comm -13 /tmp/.available_kernels /tmp/.installed_kernels  > /tmp/.eol_kernels
+
 				if ! [[ -z $(cat /tmp/.eol_kernels) ]]   # make sure that file is not empty
 				then
 					echo -e "\e[1mThe following Linux kernels have reached their end-of-live status. \e[0m"
@@ -213,7 +212,7 @@ function func_i
 			# write package list of system repositories (package name and description) to /tmp/pacui-packages-install. %-30n uses printf support in expac to format out put nicely (reserve a 32 character wide field for package name). then add all package groups to the bottom.
 			# delete all spaces with "tr" (there are spaces after each package name!). this is important for installing multiple packages at the same time! command equivalent to "awk '{print $1}'"
 			# awk 'NF != 0' removes all empty lines ("number of fields" in one line has to be non-zero)
-			expac -S "%-30n\t%d" > /tmp/pacui-packages-install
+			expac -S "%-33n\t%d" > /tmp/pacui-packages-install
 			expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-install
 						
 			# finally, download AUR package list (only when not already downloaded), unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages-install.
@@ -271,7 +270,7 @@ function func_r
 {
 		# write package list of local repository to /tmp/pacui-packages-group. then add all installed package groups to the bottom.
 		#pacman -Qq | tr -d " " > /tmp/pacui-packages-group
-		expac -Q "%-30n\t%d" > /tmp/pacui-packages-group
+		expac -Q "%-33n\t%d" > /tmp/pacui-packages-group
 		# this expac command prints a list of package groups of installed packages 
 		# awk 'NF != 0'  only displays lines where the number of fields is not zero (i.e. non-empty lines)
 		expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-group
@@ -305,9 +304,9 @@ function func_t
 {
 		# write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
 		#pacman -Slq | tr -d " " > /tmp/pacui-packages-local
-		expac -S "%-30n\t%d" > /tmp/pacui-packages-local
+		expac -S "%-33n\t%d" > /tmp/pacui-packages-local
 		#pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
-		expac -Q "%-30n\t%d" >> /tmp/pacui-packages-local
+		expac -Q "%-33n\t%d" >> /tmp/pacui-packages-local
 
 		local pkg
 
@@ -341,7 +340,7 @@ function func_t
 function func_rt 
 {
 		local pkg
-		pkg=$( expac -Q "%-30n\t%d" | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+		pkg=$( expac -Q "%-33n\t%d" | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			pacman -Qi {1} --color always
 			' --preview-window=right:50%:wrap  --header="Press ENTER to show reverse tree. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
@@ -357,9 +356,9 @@ function func_l
 {
 		# write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
 		#pacman -Slq | tr -d " " > /tmp/pacui-packages-local
-		expac -S "%-30n\t%d" > /tmp/pacui-packages-local
+		expac -S "%-33n\t%d" > /tmp/pacui-packages-local
 		#pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
-		expac -Q "%-30n\t%d" >> /tmp/pacui-packages-local
+		expac -Q "%-33n\t%d" >> /tmp/pacui-packages-local
 		
 		local pkg
 
@@ -962,7 +961,7 @@ function func_fi
 		then
 			# write formatted package list of repositories to /tmp/pacui-packages-group-repo. then add all package groups to the bottom.
 			#pacman -Slq | tr -d " " > /tmp/pacui-packages-group-repo
-			expac -S "%-30n\t%d"  > /tmp/pacui-packages-group-repo
+			expac -S "%-33n\t%d"  > /tmp/pacui-packages-group-repo
 			#pacman -Sg | tr -d " " >> /tmp/pacui-packages-group-repo
 			expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-group-repo
 		fi
@@ -1004,7 +1003,7 @@ function func_fr
 {
 		# write package list of local repository to /tmp/pacui-packages-group. then add all installed package groups to the bottom.
 		#pacman -Qq | tr -d " " > /tmp/pacui-packages-group
-		expac -Q "%-30n\t%d"  > /tmp/pacui-packages-group
+		expac -Q "%-33n\t%d"  > /tmp/pacui-packages-group
 		# this expac command prints a list of package groups of installed packages 
 		# awk 'NF != 0'  only displays lines where the number of fields is not zero (i.e. non-empty lines)
 		expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' | tr -d " " >> /tmp/pacui-packages-group
