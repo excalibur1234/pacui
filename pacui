@@ -176,22 +176,21 @@ function func_m
 		fi
 		
 		
-		if [[ -e /usr/bin/mhwd ]]	# checks, whether file "mhwd" exists, i.e. "mhwd" is installed.
+		if [[ -e /usr/bin/mhwd ]]	# checks, whether file "mhwd" exists, i.e. "mhwd" is installed. this is only true for manjaro, but not for arch linux.
 		then
 			echo "checking installed kernels ..."
 			# check, if any installed kernel is EOL:
 			# 0. delete old temporary file to avoid strange errors. ignore all output of "rm" command (such as output, messages, or errors).
-			rm /tmp/.installed_kernels /tmp/.available_kernels /tmp/.uptodate_kernels /tmp/.eol_kernels &>/dev/null
+			rm /tmp/.installed_kernels /tmp/.available_kernels /tmp/.eol_kernels &>/dev/null
 			# 1. create lists of installed and available kernels (and ignore all errors).
 			mhwd-kernel -li 2>/dev/null | awk '/ linux/ {print $2}' > /tmp/.installed_kernels
 			mhwd-kernel -l 2>/dev/null | awk '/linux/ {print $2}' > /tmp/.available_kernels
-			# 2. Check if all installed kernels are eol:
-			if ! [[ -z $(cat /tmp/.available_kernels) ]]   # make sure that file is not empty
+			# 2. Check if installed kernels are eol:
+			if ! [[ -z $(cat /tmp/.available_kernels) ]]   # make sure that file is not empty. it is better not to display anything than something wrong.
 			then
-				# write all kernels, which are installed and still available to /tmp/.uptodate_kernels
-				comm -12 /tmp/.available_kernels /tmp/.installed_kernels > /tmp/.uptodate_kernels
-				# write all kernels, which are NOT up-to-date anymore, but which are still installed to /tmp/.eol_kernels
-				comm -13 /tmp/.uptodate_kernels /tmp/.installed_kernels > /tmp/.eol_kernels
+				# write all kernels, which are installed, but not available anymore, to /tmp/.eol_kernels
+				comm -13 /tmp/.available_kernels /tmp/.installed_kernels  > /tmp/.eol_kernels
+
 				if ! [[ -z $(cat /tmp/.eol_kernels) ]]   # make sure that file is not empty
 				then
 					echo -e "\e[1mThe following Linux kernels have reached their end-of-live status. \e[0m"
@@ -213,7 +212,7 @@ function func_i
 			# write package list of system repositories (package name and description) to /tmp/pacui-packages-install. %-30n uses printf support in expac to format out put nicely (reserve a 32 character wide field for package name). then add all package groups to the bottom.
 			# delete all spaces with "tr" (there are spaces after each package name!). this is important for installing multiple packages at the same time! command equivalent to "awk '{print $1}'"
 			# awk 'NF != 0' removes all empty lines ("number of fields" in one line has to be non-zero)
-			expac -S "%-30n\t%d" > /tmp/pacui-packages-install
+			expac -S "%-33n\t%d" > /tmp/pacui-packages-install
 			expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-install
 						
 			# finally, download AUR package list (only when not already downloaded), unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages-install.
@@ -271,7 +270,7 @@ function func_r
 {
 		# write package list of local repository to /tmp/pacui-packages-group. then add all installed package groups to the bottom.
 		#pacman -Qq | tr -d " " > /tmp/pacui-packages-group
-		expac -Q "%-30n\t%d" > /tmp/pacui-packages-group
+		expac -Q "%-33n\t%d" > /tmp/pacui-packages-group
 		# this expac command prints a list of package groups of installed packages 
 		# awk 'NF != 0'  only displays lines where the number of fields is not zero (i.e. non-empty lines)
 		expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-group
@@ -305,9 +304,9 @@ function func_t
 {
 		# write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
 		#pacman -Slq | tr -d " " > /tmp/pacui-packages-local
-		expac -S "%-30n\t%d" > /tmp/pacui-packages-local
+		expac -S "%-33n\t%d" > /tmp/pacui-packages-local
 		#pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
-		expac -Q "%-30n\t%d" >> /tmp/pacui-packages-local
+		expac -Q "%-33n\t%d" >> /tmp/pacui-packages-local
 
 		local pkg
 
@@ -341,7 +340,7 @@ function func_t
 function func_rt 
 {
 		local pkg
-		pkg=$( expac -Q "%-30n\t%d" | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+		pkg=$( expac -Q "%-33n\t%d" | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			pacman -Qi {1} --color always
 			' --preview-window=right:50%:wrap  --header="Press ENTER to show reverse tree. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
@@ -357,9 +356,9 @@ function func_l
 {
 		# write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
 		#pacman -Slq | tr -d " " > /tmp/pacui-packages-local
-		expac -S "%-30n\t%d" > /tmp/pacui-packages-local
+		expac -S "%-33n\t%d" > /tmp/pacui-packages-local
 		#pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
-		expac -Q "%-30n\t%d" >> /tmp/pacui-packages-local
+		expac -Q "%-33n\t%d" >> /tmp/pacui-packages-local
 		
 		local pkg
 
@@ -910,6 +909,13 @@ function func_c
 				# open "file" in "EDITOR": (attention: "$file" (including " symbols) does NOT WORK!!!)
 				sudo $EDITOR $file
 				sudo pacman -Syy                                                     # apply changes
+			elif [[ $file == "/etc/fstab" ]]
+			then
+				# if $EDITOR variable does not exist, set it to 'nano'
+				[[ -z "$EDITOR" ]] && EDITOR='nano'
+				# open "file" in "EDITOR": (attention: "$file" (including " symbols) does NOT WORK!!!)
+				sudo $EDITOR $file
+				sudo mount -a	                                                     # mount all drives/partitions in /etc/fstab file. this shows immediately mistakes in your /etc/fstab file and prevents non-working systems.
 			elif [[ $file == "/etc/mkinitcpio.conf" ]]
 			then
 				[[ -z "$EDITOR" ]] && EDITOR='nano'
@@ -955,7 +961,7 @@ function func_fi
 		then
 			# write formatted package list of repositories to /tmp/pacui-packages-group-repo. then add all package groups to the bottom.
 			#pacman -Slq | tr -d " " > /tmp/pacui-packages-group-repo
-			expac -S "%-30n\t%d"  > /tmp/pacui-packages-group-repo
+			expac -S "%-33n\t%d"  > /tmp/pacui-packages-group-repo
 			#pacman -Sg | tr -d " " >> /tmp/pacui-packages-group-repo
 			expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-group-repo
 		fi
@@ -997,7 +1003,7 @@ function func_fr
 {
 		# write package list of local repository to /tmp/pacui-packages-group. then add all installed package groups to the bottom.
 		#pacman -Qq | tr -d " " > /tmp/pacui-packages-group
-		expac -Q "%-30n\t%d"  > /tmp/pacui-packages-group
+		expac -Q "%-33n\t%d"  > /tmp/pacui-packages-group
 		# this expac command prints a list of package groups of installed packages 
 		# awk 'NF != 0'  only displays lines where the number of fields is not zero (i.e. non-empty lines)
 		expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' | tr -d " " >> /tmp/pacui-packages-group
@@ -1204,7 +1210,7 @@ The second command does the same as the first part, but with one exception: It a
 \e[36m"sudo pacman-mirrors -g -y" \e[0m(for Manjaro)
 This command generates a new mirrorslist of all available Manjaro repository mirrors/servers. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror. If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -g -y -c Germany,France". Alternatively, you can use the fasttrack argument and hope you get a good Manjaro mirror, e.g. "sudo pacman-mirrors -y -f 10".
 
-\e[36m"sudo reflector -f 5 --sort age --save /etc/pacman.d/mirrorlist && sleep 20 && sudo pacman -Syy" \e[0m(For Arch and other Arch-based distros)
+\e[36m"sudo reflector -f 5 --sort age --save /etc/pacman.d/mirrorlist && sleep 20 && sudo pacman -Syy" \e[0m(for Arch and other Arch-based distros)
 This command generates a new mirrorslist of all available repository mirrors/servers. Then it resyncs database to match the mirrors.
 
 \e[36m"yaourt -Qdt"
@@ -1245,7 +1251,7 @@ On traditional hard drives (HDD) this command can speed up all actions related t
 \e[1mAttention\e[0m: It is NOT recommended to use this command on modern solid state hard drives (SSDs)!
 
 \e[36m"mhwd-kernel -li"
-\e[36m"mhwd-kernel -l" \e[0m(compare outputs of both commands)
+\e[36m"mhwd-kernel -l" \e[0m(compare outputs of both commands for Manjaro only)
 The first command outputs a list of <KERNEL NAME> of installed kernels on your system. 
 The second command ouputs a list of <KERNEL NAME> of available and supported kernels by the Manjaro team.
 By comparing both outputs, it is possible to extract a list of so called end-of-live kernels. These kernels are no longer supported and do not receive updates anymore. It is highly recommended to remove these kernels using Manjaro Settings Manager or the following command: "sudo mhwd-kernel -r <KERNEL NAME>"

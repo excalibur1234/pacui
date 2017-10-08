@@ -3,7 +3,7 @@
 
 pkgname=pacui
 pkgver=1.7
-pkgrel=1
+pkgrel=2
 pkgdesc="Bash script providing advanced Pacman and Pacaur/Yaourt functionality in a simple UI"
 arch=(any)
 url="https://github.com/excalibur1234/$pkgname"
@@ -16,7 +16,7 @@ optdepends=('pacaur: Needed for AUR support. If installed, it gets used by defau
         'reflector: Needed for Arch Linux mirror support'
         'downgrade: Needed for hidden "downgrade" option.')
 source=("$url/archive/$pkgver.tar.gz")
-md5sums=('1a36034db48ce0d93fa350e031534ee6')
+md5sums=('d24da2eab1c00d7cb15bfb36e7eb57bf')
 
 # how to update md5sum:
 #  1. do "updpkgsums" inside the folder with PKGBUILD file
