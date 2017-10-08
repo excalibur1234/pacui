@@ -14,7 +14,7 @@ Table of Contents
    * [Screenshots](#screenshots)
    * [Installation](#installation)
       * [Execute without prior Installation](#execute-without-prior-installation)
-   * [Use PacUI](#use-pacui)
+   * [Usage](#usage)
       * [Start PacUI with UI](#start-pacui-with-ui)
       * [Start PacUI without UI: Using Options](#start-pacui-without-ui-using-options)
       * [Start PacUI without UI: Using Options and Package Names](#start-pacui-without-ui-using-options-and-package-names)
@@ -67,7 +67,7 @@ bash pacui
 ```
 
 
-## Use PacUI
+## Usage
 
 ### Start PacUI with UI
 After successful installation, type the following command into your terminal in order to start PacUI with a nice UI:
