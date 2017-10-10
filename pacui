@@ -183,8 +183,8 @@ function func_m
 			# 0. delete old temporary file to avoid strange errors. ignore all output of "rm" command (such as output, messages, or errors).
 			rm /tmp/.installed_kernels /tmp/.available_kernels /tmp/.eol_kernels &>/dev/null
 			# 1. create lists of installed and available kernels (and ignore all errors).
-			mhwd-kernel -li 2>/dev/null | awk '/ linux/ {print $2}' > /tmp/.installed_kernels
-			mhwd-kernel -l 2>/dev/null | awk '/linux/ {print $2}' > /tmp/.available_kernels
+			mhwd-kernel -li 2>/dev/null | awk '/ linux/ {print $2}' | sort > /tmp/.installed_kernels
+			mhwd-kernel -l 2>/dev/null | awk '/linux/ {print $2}' | sort > /tmp/.available_kernels
 			# 2. Check if installed kernels are eol:
 			if ! [[ -z $(cat /tmp/.available_kernels) ]]   # make sure that file is not empty. it is better not to display anything than something wrong.
 			then
