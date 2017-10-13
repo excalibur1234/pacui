@@ -1062,6 +1062,7 @@ function func_la
 
 
 # =======================
+# the following functions are hidden in the UI.
 
 
 function func_ls
