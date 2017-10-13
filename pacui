@@ -230,7 +230,7 @@ function func_i
 		# the package list in /tmp/pacui-packages-install gets sorted (by "sort" - only first column gets used for sorting) and displayed by fzf. look in "man fzf" for what fzf's arguments are used.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		# the --preview option of fzf displays information about the currently selected line
-		pkg=$( sort -k1,1 -u /tmp/pacui-packages-install | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+		pkg=$( sort -k1,1 -u /tmp/pacui-packages-install | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			if ( pacman -Qq {1} &>/dev/null )		# check, if 1. field of selected line is a locally installed package.
 			then
 				pacman -Qi {1} --color always
@@ -279,7 +279,7 @@ function func_r
 
 		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
-		pkg=$( sort -k1,1 -u /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+		pkg=$( sort -k1,1 -u /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			if ( pacman -Qq {1} &>/dev/null )		# check, if selected line is a locally installed package
 			then
 				pacman -Qi {1} --color always
@@ -384,7 +384,7 @@ function func_l
 			
 				# "pacman -Ql" shows sometimes more files than "pacman -Fl". therefore, both commands have to be used!
 				# take the output of command "pacman -Qlq $pkg" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacui-list.
-				pacman -Ql "$pkg" --color always 2>/dev/null | grep -a -v "/$" | awk '{print $NF}' | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of local package \"$pkg\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed file paths > ' > /tmp/pacui-l
+				pacman -Ql "$pkg" --color always 2>/dev/null | grep -a -v "/$" | awk '{print $NF}' | fzf-tmux -m -e +s -i --query="usr/bin/" --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of local package \"$pkg\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed file paths > ' > /tmp/pacui-l
 				
 			else
 				
@@ -396,7 +396,7 @@ function func_l
 				# grep -a is used, because "pacman -Fl --machinereadable" returns a file starting with non-text data. the "-a" option ignores that.
 				# the awk command is used to format output: "-F '\0'" set "\0" as separator. this makes it possible to easily use $1,$2,$3,$4 as syntax later.
 				# "{print $1 "/" $2 "  " $4}" prints output nicely formatted.
-				pacman -Fl --machinereadable "$pkg" | grep -a -v "/$" | awk -F '\0' '{print $4}' | fzf-tmux -m -e +s -i --query="usr/bin/" --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of remote package \"$pkg\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed file paths > ' > /tmp/pacui-l
+				pacman -Fl --machinereadable "$pkg" | grep -a -v "/$" | awk -F '\0' '{print $4}' | fzf-tmux -m -e +s -i --query="usr/bin/" --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of remote package \"$pkg\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed file paths > ' > /tmp/pacui-l
 				
 			fi
 		fi
@@ -971,7 +971,7 @@ function func_fi
 		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		# the --preview option of fzf displays information about the currently selected line
-		pkg=$( sort -k1,1 -u /tmp/pacui-packages-group-repo | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+		pkg=$( sort -k1,1 -u /tmp/pacui-packages-group-repo | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			if ( pacman -Qq {1} &>/dev/null )		# check, if selected line is a locally installed package
 			then
 				pacman -Qi {1} --color always
@@ -1013,7 +1013,7 @@ function func_fr
 		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		# the --preview option of fzf displays information about the currently selected line
-		pkg=$( sort -k1,1 -u /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+		pkg=$( sort -k1,1 -u /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			if ( pacman -Qq {1} &>/dev/null )		# check, if selected line is a locally installed package
 			then
 				pacman -Qi {1} --color always
