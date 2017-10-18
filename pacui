@@ -65,7 +65,7 @@ function func_m
 		echo "choosing fastest mirror ..."
 		if [[ -e /usr/bin/pacman-mirrors ]] # checks, whether file "pacman-mirrors" does not exist
 		then
-			sudo pacman-mirrors -g -y # If it does exists, then the mirror will sort by it
+			sudo pacman-mirrors -f 0 && sudo pacman -Syy                  # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
 		fi
 
 		if [[ -e /usr/bin/reflector ]] # checks, whether file "reflector" does not exist
@@ -709,7 +709,7 @@ function func_fix
 		# do this, if system uses pacman-mirrors (default in Manjaro)
 		if [[ -e /usr/bin/pacman-mirrors ]]
 		then 
-			sudo pacman-mirrors -g -y
+			sudo pacman-mirrors -f 0 && sudo pacman -Syy                  # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
 		fi
 		# do this, if system uses reflector (default on Arch Linux or distributions using Arch Linux mirrors/repo servers)
 		if [[ -e /usr/bin/reflector ]]
@@ -1207,8 +1207,8 @@ The second command does the same as the first part, but with one exception: It a
 
 
 \e[1m2 - MAINTAIN SYSTEM
-\e[36m"sudo pacman-mirrors -g -y" \e[0m(for Manjaro)
-This command generates a new mirrorslist of all available Manjaro repository mirrors/servers. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror. If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -g -y -c Germany,France". Alternatively, you can use the fasttrack argument and hope you get a good Manjaro mirror, e.g. "sudo pacman-mirrors -y -f 10".
+\e[36m"sudo pacman-mirrors -f 0 && sudo pacman -Syy" \e[0m(for Manjaro)
+This command generates a new mirrorslist of all available Manjaro repository mirrors/servers and sorts it by ping of up-to-date mirrors/servers. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror. If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -c Germany,France".
 
 \e[36m"sudo reflector -f 5 --sort age --save /etc/pacman.d/mirrorlist && sleep 20 && sudo pacman -Syy" \e[0m(for Arch and other Arch-based distros)
 This command generates a new mirrorslist of all available repository mirrors/servers. Then it resyncs database to match the mirrors.
@@ -1325,8 +1325,8 @@ A working internet connection is required for FIX PACMAN ERRORS!
 This command removes Pacmans database lock. The database lock prevents multiple Pacman instances from running at the same time and interfering with each other.
 \e[1mAttention\e[0m: Only run this command when no other Pacman instance (e.g. Pacman, Yaourt, Pamac, Octopi, PacmanXG4, ...) is running.
 
-\e[36m"sudo pacman-mirrors -g -y" \e[0m(for Manjaro)
-This command generates a new mirrorslist of all available Manjaro repository mirrors/servers. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror. If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -g -y -c Germany,France". Alternatively, you can use the fasttrack argument and hope you get a good Manjaro mirror, e.g. "sudo pacman-mirrors -y -f 10".
+\e[36m"sudo pacman-mirrors -f 0 && sudo pacman -Syy" \e[0m(for Manjaro)
+This command generates a new mirrorslist of all available Manjaro repository mirrors/servers and sorts it by ping of up-to-date mirrors/servers. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror. If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -c Germany,France".
 
 \e[36m"sudo reflector -f 5 --sort age --save /etc/pacman.d/mirrorlist && sleep 20 && sudo pacman -Syy" \e[0m(For Arch and other Arch-based distros)
 This command generates a new mirrorslist of all available repository mirrors/servers. Then it resyncs database to match the mirrors.
