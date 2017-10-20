@@ -254,7 +254,7 @@ function func_i
 					pacaur -Si {1} --color always | grep -v "::"      # grep command removes errors being displayed in pacaur
 				fi
 			fi
-			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 		
 		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
 		pkg_install=$( echo $pkg | paste -sd " " )
@@ -295,7 +295,7 @@ function func_r
 				echo -e "\e[1m{1} group has the following members: \e[0m"
 				pacman -Sgq {1}
 			fi
-			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
         
 		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
 		pkg_install=$(echo $pkg | paste -sd " ")
@@ -350,7 +350,7 @@ function func_rt
 		local pkg
 		pkg=$( expac -Q "%-33n\t%d" | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 			pacman -Qi {1} --color always
-			' --preview-window=right:50%:wrap  --header="Press ENTER to show reverse tree. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+			' --preview-window=right:50%:wrap  --header="Press ENTER to show reverse tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
 		# look in func_info for explanations
 		if [[ -n $pkg ]]
@@ -504,7 +504,7 @@ function func_b
 		# 1. get list of last installs/upgrades/removals/downgrades from pacman log and display result in fzf. 
 		# when fzf quits, only selected package names (including the words " installed/upgraded/removed/downgraded") are saved to variable $pacui_cache_packages
 		#  the space in front of "installed" prevents reinstallations being displayed (otherwise, they would be removed)! the ] in "] installed" prevents config file changes being displayed, e.g. "warning: /etc/sddm.conf installed as /etc/sddm.conf.pacnew"
-		pacui_cache_packages="$( tail -5000 /var/log/pacman.log | grep "\[ALPM\]" | grep "] installed\|removed\|upgraded\|downgraded" | sed 's/\[ALPM\] //g' | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --tac --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to roll back. ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}' )"
+		pacui_cache_packages="$( tail -5000 /var/log/pacman.log | grep "\[ALPM\]" | grep "] installed\|removed\|upgraded\|downgraded" | sed 's/\[ALPM\] //g' | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --tac --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to roll back. ESC to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}' )"
 		
 		# only run the command inside the if-statement, if variable $pacui_cache_packages is not empty and exists - this happens when fzf is quit with ESC or CTRL+C
 		if [[ ! -z "$pacui_cache_packages" ]]
@@ -995,7 +995,7 @@ function func_fi
 					pacaur -Si {1} --color always | grep -v "::"      # grep command removes errors being displayed in pacaur
 				fi
 			fi
-			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 		
 		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
 		pkg_install=$(echo $pkg | paste -sd " ")
@@ -1029,7 +1029,7 @@ function func_fr
 				echo -e "\e[1m{1} group has the following members: \e[0m"
 				pacman -Sgq {1}
 			fi
-			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 		
 		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
 		pkg_install=$(echo $pkg | paste -sd " ")
@@ -1091,7 +1091,7 @@ function func_d
 		local pkg
 		local pkg_install
 
-		pkg=$( sort -k1,1 -u /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to downgrade. ESC or CTRL+C to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
+		pkg=$( sort -k1,1 -u /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to downgrade. ESC to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
 		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
 		pkg_install=$(echo $pkg | paste -sd " ")
