@@ -83,10 +83,19 @@ function func_m
 		
 			if [[ -n $(pacman -Qdt) ]]  # only run these commands, if output of "pacman -Qdt" is not empty. this happens if there are no orphans.
 			then
+				
 				pacman -Qdt --color always
-				echo -e "\e[1mPress ENTER to remove these orphaned packages or CTRL+C to cancel. \e[0m"
-				read
-				sudo pacman -Rsn $(pacman -Qqdt) --color always --noconfirm
+				# ask, whether to remove the displayed orphaned packages and save answer in "answer" variable:
+				read -p $'\e[1mDo you want to remove these orphaned packages? [Y|n]\e[0m' answer
+				case ${answer:-y} in		# if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "y".
+    				y|Y|yes|YES|Yes )		# do this, if "answer" is y or Y or yes or YES or Yes
+        				sudo pacman -Rsn $(pacman -Qqdt) --color always --noconfirm
+    					;;
+    				* )						# do this in all other cases
+        				echo "Packages have not been removed."
+    					;;
+				esac						# end of "case" loop
+
 			fi
 			
 		fi
@@ -1605,7 +1614,7 @@ do
 
 
 		# this line means: the following commands will get executed if $choice is "1" or "u" or "update" until a ";;" code line is encountered:
-		1|u|update)
+		1|u|update )
 			# call function "func_u"
 			func_u
 			echo
@@ -1613,79 +1622,79 @@ do
 			# wait for input, e.g. by pressing ENTER:
 			read
 			;;
-		2|m|maintain)
+		2|m|maintain )
 			func_m
 			echo
 			echo " System maintenance finished. To return to PacUI press ENTER "
 			read
 			;;
-		3|i|install)
+		3|i|install )
 			func_i
 			echo
 			echo " Package installation finished. To return to PacUI press ENTER "
 			read
 			;;
-		4|r|remove)
+		4|r|remove )
 			func_r
 			echo
 			echo " Package(s) including all unneeded dependencies removed. To return to PacUI press ENTER "
 			read
 			;;
-		5|t|tree)
+		5|t|tree )
 			func_t
 			echo
 			;;
-		6|rt|reversetree)
+		6|rt|reversetree )
 			func_rt
 			echo
 			;;
-		7|l|list)
+		7|l|list )
 			func_l
 			echo
 			;;
-		8|s|search)
+		8|s|search )
 			func_s
 			echo
 			;;
 
 
-		9|b|back)
+		9|b|back )
 			func_b
 			echo
 			echo " System roll back finished. To return to PacUI press ENTER "
 			read
 			;;
-		10|fix)
+		10|fix )
 			func_fix
 			echo
 			echo " Operation finished. To return to PacUI press ENTER "
 			read
 			;;
-		11|c|conf|config)
+		11|c|conf|config )
 			func_c
 			echo
 			echo " Configuration files edited. To return to PacUI press ENTER "
 			read
 			;;
-		13|fu|forceupdate)
+		13|fu|forceupdate )
 			func_fu
 			echo
 			echo " System updated in force mode. To return to PacUI press ENTER "
 			read
 			;;
-		14|e|empty)
+		14|e|empty )
 			func_e
 			echo
 			echo " Entire package cache emptied. To return to PacUI press ENTER "
 			read
 			;;
-		15|fi|forceinstall)
+		15|fi|forceinstall )
 			func_fi
 			echo
 			echo " Package installation in force mode finished. To return to PacUI press ENTER "
 			read
 			;;
-		16|fr|forceremove)
+		16|fr|forceremove )
 			func_fr
 			echo
 			echo " Package(s) removed in force mode. To return to PacUI press ENTER "
@@ -1693,29 +1702,29 @@ do
 			;;
 
 
-		17|ua|fua|forceupdateaur|updateaur)
+		17|ua|fua|forceupdateaur|updateaur )
 			func_ua
 			echo
 			echo " All AUR packages updated and reinstalled. To return to PacUI press ENTER "
 			read
 			;;
-		18|la|listaur)
+		18|la|listaur )
 			func_la
 			echo
 			;;
 
 
-		ls|listsizes)
+		ls|listsizes )
 			func_ls
 			echo
 			;;
-		d|down|downgrade)
+		d|down|downgrade )
 			func_d
 			echo
 			echo " Downgrade finished. To return to PacUI press ENTER "
 			read
 			;;
-		a|aur)
+		a|aur )
 			func_a
 			echo
 			echo " Installation from AUR finished. To return to PacUI press ENTER "
@@ -1723,16 +1732,16 @@ do
 			;;
 
 
-		00|h|help)
+		00|h|help )
 			func_h
 			echo
 			;;
-		0|q|quit|$'\e'|$'\e'$'\e')
+		0|q|quit|$'\e'|$'\e'$'\e' )
 			pacui_clean && exit
 			;;
 
 
-		*)
+		* )
 			echo -e " \e[41m Wrong option \e[0m"
 			echo -e "  Please try again...  "
 			sleep 2
