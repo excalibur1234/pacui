@@ -189,14 +189,16 @@ function func_m
 		
 		local {installed_kernels,available_kernels,eol_kernels}
 		
+		filter_kernels="sys|util|api|docs|firmware|arch|nvidia|manpages|headers|tools|atm|virtual|rt3|r8|vhba|catalyst|ndiswrapper|bbswitch|broadcom|acpi|spl|zfs|logo|tv|sampler|console"
+		
 		installed_kernels=$(pacman -Qsq "^linux" | \
                                grep "linux" | \
-                               grep -Ev "sys|util|api|docs|firmware|arch|nvidia|manpages|headers|tools|atm|virtual|rt3|r8|vhba|catalyst|ndiswrapper|bbswitch|broadcom|acpi|spl|zfs|logo|tv|sampler|console" | \
+                               grep -Ev "$filter_kernels" | \
                                sort)
 		
 		available_kernels=$(pacman -Ssq "^linux" | \
                                grep "linux" | \
-                               grep -Ev "sys|util|api|docs|firmware|arch|nvidia|manpages|headers|tools|atm|virtual|rt3|r8|vhba|catalyst|ndiswrapper|bbswitch|broadcom|acpi|spl|zfs|logo|tv|sampler|console" | \
+                               grep -Ev "$filter_kernels" | \
                                sort)
 		
 		if [[ -n "$available_kernels" ]]
