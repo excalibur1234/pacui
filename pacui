@@ -189,17 +189,14 @@ function func_m
 		
 		local {installed_kernels,available_kernels,eol_kernels}
 		
-		filter_kernels="sys|util|api|docs|firmware|arch|nvidia|manpages|headers|tools|atm"
-		filter_kernels2="virtual|rt3|r8|vhba|catalyst|ndiswrapper|bbswitch|broadcom|acpi|spl|zfs|logo|tv|sampler|console"
-		
 		installed_kernels=$(pacman -Qsq "^linux" | \
                                grep "linux" | \
-                               grep -Ev "$filter_kernels|$filter_kernels2" | \
+                               grep -E "^linux[0-9]*$|^linux$|hardened$|lts$|zen$|rt-lts-manjaro$|rt-manjaro$" | \
                                sort)
 		
 		available_kernels=$(pacman -Ssq "^linux" | \
                                grep "linux" | \
-                               grep -Ev "$filter_kernels|$filter_kernels2" | \
+                               grep -E "^linux[0-9]*$|^linux$|hardened$|lts$|zen$|rt-lts-manjaro$|rt-manjaro$" | \
                                sort)
 		
 		if [[ -n "$available_kernels" ]]
@@ -210,7 +207,7 @@ function func_m
 			then  	
 				echo " "
 				echo -e "\e[1mThe following Linux kernel(s) are not available in your repositories \e[0m"
-				echo -e "\e[1mIf one or more of the following kernel(s) taken from AUR, you may safely ignore it \e[0m"
+				echo -e "\e[1mIf one or more of the following kernel(s) taken from AUR (or custom repo), you may safely ignore it \e[0m"
 				echo -e "\e[1mOther than that, the following kernel(s) may have reached their end-of-live status \e[0m"
 				echo -e "\e[1mDo not expect any security or stability fixes for the following kernel(s) anymore \e[0m"
 				echo -e "\e[1mKernel modules are likely to break. Please remove them if there are any: \e[0m"
