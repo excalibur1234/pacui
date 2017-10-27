@@ -183,32 +183,19 @@ function func_m
 			fi
 		fi
 		
-		## KERNEL CHECK
 		
 		echo "checking installed kernels ..."
-		
-		local {installed_kernels,available_kernels,eol_kernels}
-		
-		installed_kernels=$(pacman -Qsq "^linux" | \
-                               grep "linux" | \
-                               grep -E "^linux[0-9]*$|^linux$|hardened$|lts$|zen$|rt-lts-manjaro$|rt-manjaro$" | \
-                               sort)
-		
-		available_kernels=$(pacman -Ssq "^linux" | \
-                               grep "linux" | \
-                               grep -E "^linux[0-9]*$|^linux$|hardened$|lts$|zen$|rt-lts-manjaro$|rt-manjaro$" | \
-                               sort)
-		
+		local {installed_kernels,available_kernels,eol_kernels}		# declare local variables
+		installed_kernels=$( pacman -Qsq "^linux" | grep "linux" | grep -E "^linux[0-9]*$|hardened$|lts$|zen$|rt-lts-manjaro$|rt-manjaro$" | sort )		# filter package names of locally installed kernels for both manjaro (kernel names always like "linux414" (and rt-versions!!!)) and arch linux (these are the only kernel names (which never change): "linux", "linux-lts", "linux-hardened", "linux-zen").
+		available_kernels=$( pacman -Ssq "^linux" | grep "linux" | grep -E "^linux[0-9]*$|hardened$|lts$|zen$|rt-lts-manjaro$|rt-manjaro$" | sort )		# filter package names of kernels available in the repos 
 		if [[ -n "$available_kernels" ]]
 		then
-			eol_kernels=$(comm -13 <(echo "$available_kernels") <(echo "$installed_kernels"))
+			eol_kernels=$(comm -13 <(echo "$available_kernels") <(echo "$installed_kernels"))		# filter kernels to $eol_kernels variable, which are installed but no longer available.
 
 			if [[ -n "$eol_kernels" ]]
 			then  	
 				echo " "
-				echo -e "\e[1mThe following Linux kernel(s) are not available in your repositories \e[0m"
-				echo -e "\e[1mIf one or more of the following kernel(s) taken from AUR (or custom repo), you may safely ignore it \e[0m"
-				echo -e "\e[1mOther than that, the following kernel(s) may have reached their end-of-live status \e[0m"
+				echo -e "\e[1mThe following Linux kernel(s) are no longer available in your repositories \e[0m"
 				echo -e "\e[1mDo not expect any security or stability fixes for the following kernel(s) anymore \e[0m"
 				echo -e "\e[1mKernel modules are likely to break. Please remove them if there are any: \e[0m"
 				echo "$eol_kernels"
