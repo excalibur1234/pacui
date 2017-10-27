@@ -191,18 +191,18 @@ function func_m
 		if [[ -n "$available_kernels" ]]
 		then
 			eol_kernels=$(comm -13 <(echo "$available_kernels") <(echo "$installed_kernels"))		# filter kernels to $eol_kernels variable, which are installed but no longer available.
-
+			# print warning message, if end-of-life kernel(s) are found:
 			if [[ -n "$eol_kernels" ]]
 			then  	
 				echo " "
-				echo -e "\e[1mThe following Linux kernel(s) are no longer available in your repositories \e[0m"
-				echo -e "\e[1mDo not expect any security or stability fixes for the following kernel(s) anymore \e[0m"
-				echo -e "\e[1mKernel modules are likely to break. Please remove them if there are any: \e[0m"
+				echo -e "\e[1mThe following Linux kernel(s) are no longer available in your repositories. \e[0m"
+				echo -e "\e[1mDo not expect any security or stability fixes for the(se) kernel(s) anymore. \e[0m"
+				echo -e "\e[1mKernel modules are likely to break. It is recommended to remove the kernel(s).\e[0m"
+				echo -e "\e[1mIf one or more of the following kernel(s) are taken from AUR, you may safely ignore this warning. \e[0m"
 				echo "$eol_kernels"
 			fi
 		fi
-	      
-	      echo ""
+                echo ""
 }
 
 
