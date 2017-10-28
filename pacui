@@ -190,7 +190,7 @@ function func_m
 		available_kernels=$( pacman -Ssq "^linux" | grep "linux" | grep -E "^linux[0-9]*$|hardened$|lts$|zen$|rt-lts-manjaro$|rt-manjaro$" | sort )		# filter package names of kernels available in the repos for both manjaro (kernel names always like "linux414" (and rt-versions!!!)) and arch linux (these are the only kernel names (which never change): "linux", "linux-lts", "linux-hardened", "linux-zen").
 		if [[ -n "$available_kernels" ]]
 		then
-			eol_kernels=$(comm -13 <(echo "$available_kernels") <(echo "$installed_kernels"))		# filter kernels to $eol_kernels variable, which are installed but no longer available.
+			eol_kernels=$(comm -13 <(echo "$available_kernels") <(echo "$installed_kernels"))		# write kernel names to $eol_kernels variable, which are installed but no longer available.
 			# print warning message, if end-of-life kernel(s) are found:
 			if [[ -n "$eol_kernels" ]]
 			then  	
@@ -202,7 +202,7 @@ function func_m
 				echo "$eol_kernels"
 			fi
 		fi
-                echo ""
+		echo ""
 }
 
 
