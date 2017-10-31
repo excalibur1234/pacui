@@ -1088,16 +1088,16 @@ function func_d
 		pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
 		
 		local pkg
-		local pkg_install
+		local pkg_downgrade
 
 		pkg=$( sort -k1,1 -u /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to downgrade. ESC to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 		
 		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
-		pkg_install=$(echo $pkg | paste -sd " ")
+		pkg_downgrade=$(echo $pkg | paste -sd " ")
 
 		if [[ -n $pkg ]]
 		then
-			downgrade $pkg_install
+			downgrade $pkg_downgrade
 		fi
 }
 
