@@ -214,7 +214,7 @@ function func_i
 		# check, whether file /tmp/pacui-packages-install already exists (the ! negates the result)
 		if  [[ ! -e /tmp/pacui-packages-install ]]
 		then
-			# write package list of system repositories (package name and description) to /tmp/pacui-packages-install. %-30n uses printf support in expac to format out put nicely (reserve a 32 character wide field for package name). then add all package groups to the bottom.
+			# write package list of system repositories (package name and description) to /tmp/pacui-packages-install. %-33n uses printf support in expac to format output nicely (reserve a 33 character wide field for package name). then add all package groups to the bottom.
 			# delete all spaces with "tr" (there are spaces after each package name!). this is important for installing multiple packages at the same time! command equivalent to "awk '{print $1}'"
 			# awk 'NF != 0' removes all empty lines ("number of fields" in one line has to be non-zero)
 			expac -S "%-33n\t%d" > /tmp/pacui-packages-install
@@ -230,7 +230,7 @@ function func_i
 			grep -v "#" /tmp/aur/packages | tr -d " " >> /tmp/pacui-packages-install
 		fi
 		
-		local {pkg,pkg_install}
+		local {pkg,pkg_install}			# declare local variables
 		
 		# the package list in /tmp/pacui-packages-install gets sorted (by "sort" - only first column gets used for sorting) and displayed by fzf. look in "man fzf" for what fzf's arguments are used.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
@@ -280,7 +280,7 @@ function func_r
 		# awk 'NF != 0'  only displays lines where the number of fields is not zero (i.e. non-empty lines)
 		expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-group
 		
-		local {pkg,pkg_install}
+		local {pkg,pkg_remove}			# declare local variables
 
 		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
@@ -295,11 +295,11 @@ function func_r
 			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
         
 		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
-		pkg_install=$(echo $pkg | paste -sd " ")
+		pkg_remove=$(echo $pkg | paste -sd " ")
 
 		if [[ -n $pkg ]]	# check, whether file is non zero-size
 		then
-			sudo pacman -Rsn $pkg_install --color always
+			sudo pacman -Rsn $pkg_remove --color always
 		fi
 }
 
@@ -1015,7 +1015,7 @@ function func_fr
 		# awk 'NF != 0'  only displays lines where the number of fields is not zero (i.e. non-empty lines)
 		expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' | tr -d " " >> /tmp/pacui-packages-group
 
-		local {pkg,pkg_install}
+		local {pkg,pkg_remove}
 
 		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
@@ -1031,11 +1031,11 @@ function func_fr
 			' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 		
 		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
-		pkg_install=$(echo $pkg | paste -sd " ")
+		pkg_remove=$(echo $pkg | paste -sd " ")
 
 		if [[ -n $pkg ]]
 		then
-			sudo pacman -Rdd $pkg_install --color always
+			sudo pacman -Rdd $pkg_remove --color always
 		fi
 }
 
