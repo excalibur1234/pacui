@@ -1255,11 +1255,10 @@ This command effectively defragments your Pacman database.
 On traditional hard drives (HDD) this command can speed up all actions related to Pacman. 
 \e[1mAttention\e[0m: It is NOT recommended to use this command on modern solid state hard drives (SSDs)!
 
-\e[36m"mhwd-kernel -li"
-\e[36m"mhwd-kernel -l" \e[0m(compare outputs of both commands for Manjaro only)
-The first command outputs a list of <KERNEL NAME> of installed kernels on your system. 
-The second command ouputs a list of <KERNEL NAME> of available and supported kernels by the Manjaro team.
-By comparing both outputs, it is possible to extract a list of so called end-of-live kernels. These kernels are no longer supported and do not receive updates anymore. It is highly recommended to remove these kernels using Manjaro Settings Manager or the following command: "sudo mhwd-kernel -r <KERNEL NAME>"
+\e[36m"comm -13 <( pacman -Ssq "^linux" | grep "linux" | grep -E "^linux[0-9]*$|hardened$|lts$|zen$|rt-lts-manjaro$|rt-manjaro$" | sort ) <( for p in `command ls -1 /boot | grep -E '^vmlinuz'`; do pacman -Qqo /boot/$p | sort; done )"
+This long "comm" command compares the output of 2 lists: The first list contains <KERNEL NAME> of available kernels in your repository and the second list contains <KERNEL NAME> of installed kernels.
+By comparing both lists, it is possible to extract <KERNEL NAME> of so called end-of-live kernels. These installed kernels are no longer supported and do not receive updates anymore. Kernel modules are likely to break. It is highly recommended to remove these kernels.
+Kernels from the AUR are also listed by the "comm" command. Please decide for yourself, whether you want to keep them or not.
 
 
 \e[1m3 - INSTALL PACKAGES
