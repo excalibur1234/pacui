@@ -63,12 +63,12 @@ function func_diff
 function func_m 
 {
 		echo "choosing fastest mirror ..."
-		if [[ -e /usr/bin/pacman-mirrors ]] # checks, whether file "pacman-mirrors" does not exist
+		if [[ -e /usr/bin/pacman-mirrors ]] # checks, whether file "pacman-mirrors" exists
 		then
 			sudo pacman-mirrors -f 0 && sudo pacman -Syy                  # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
 		fi
 
-		if [[ -e /usr/bin/reflector ]] # checks, whether file "reflector" does not exist
+		if [[ -e /usr/bin/reflector ]] # checks, whether file "reflector" exists
 		then
 			sudo reflector -f 5 --sort age --save /etc/pacman.d/mirrorlist && sleep 20 && sudo pacman -Syy # If it does exists, then the mirror will sort by it
 		fi
@@ -127,23 +127,26 @@ function func_m
 
 
 		echo "checking AUR packages ..."
-		# download AUR package list (only when not already downloaded), unzip it to /tmp/aur/packages, and add it to /tmp/pacui-aur-check.
+		# download AUR package list (only when not already downloaded)and unzip it to /tmp/aur/packages.
 		if  [[ ! -e /tmp/aur/packages ]]
 		then
 			wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null && gunzip -f /tmp/aur/packages.gz
+			# now, file /tmp/aur/packages contains a list of all packages from the AUR.
 		fi
-		sort -u /tmp/aur/packages > /tmp/pacui-aur-check
-
-		local pkg
-		# the "comm" command compares 2 files and outputs the differences between them
-		# "pacman -Qqm | sort" outputs a list of all installed packages from the AUR
-		pkg=$(  comm -23 <(pacman -Qqm | sort) <(cat /tmp/pacui-aur-check)  )
-		# only run the command inside the if-statement, if $pkg variable is not empty
-		if [[ -n $pkg ]]
+		# check, if /tmp/aur/packages exists. /tmp/aur/packages does not exist, if there is no internet connection or something went wrong during the download of the list of AUR packages.
+		if [[ -e /tmp/aur/packages ]]
 		then
-			echo -e "\e[1mThe following packages are neither in your package repository nor the AUR. They will never be updated. \e[0m"
-			echo -e "\e[1mUnless you know exactly what you are doing, it is recommended to remove them: \e[1m"
-			echo "$pkg"
+			local pkg
+			# the "comm" command compares 2 files and outputs the differences between them. both files have to be sorted!
+			# "pacman -Qqm | sort" outputs a list of all installed packages from the AUR
+			pkg=$(  comm -23 <(pacman -Qqm | sort) <(sort -u /tmp/aur/packages)  )
+			# only run the command inside the if-statement, if $pkg variable is not empty
+			if [[ -n $pkg ]]
+			then
+				echo -e "\e[1mThe following packages are neither in your package repository nor the AUR. They will never be updated. \e[0m"
+				echo -e "\e[1mUnless you know exactly what you are doing, it is recommended to remove them: \e[0m"
+				echo "$pkg"
+			fi
 		fi
 		echo ""
 
