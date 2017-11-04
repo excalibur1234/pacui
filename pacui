@@ -418,9 +418,8 @@ function func_s
 			file=$"$input2" 
 		else
 			# do this if pacui is used with UI or no argument is specified in "pacui s" command:
-			echo -e "\e[1mEnter (parts of) the file name to be searched. \e[0m"
-			echo -e "\e[When using regular expressions, please quote your search term. \e[0m"
-			echo -e "\e[1mPress ENTER to start search. \e[0m"
+			echo -e "\e[1mEnter (parts of) the file name to be searched. Press ENTER to start search. \e[0m"
+			echo -e "\e[1mWhen using regular expressions, please quote your search term. \e[0m"
 			read -r file
 			echo
 		fi
