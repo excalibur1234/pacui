@@ -3,7 +3,7 @@
 
 PacUI provides useful and advanced Pacman and Pacaur/Yaourt commands in a convenient and easy to use text interface. 
 
-PacUI is aimed at experienced/intermediate/advanced users of Arch Linux (and its derivatives, including Manjaro), who have at least basic knowledge of their Linux system, Pacman and Pacaur/Yaourt. Absolute beginners are probably overwhelmed by the amount of choices PacUI offers.
+PacUI is aimed at experienced/intermediate/advanced users of Arch Linux (and Arch-based distributions, including Manjaro), who have at least basic knowledge of their Linux system, Pacman and Pacaur/Yaourt. Absolute beginners are probably overwhelmed by the amount of choices PacUI offers.
 
 This fork of an [older version of pacli](https://github.com/Manjaro-Pek/pacli/tree/f98e9226eb75ea00217481f436399328fe73d3ae) called PacUI follows the KISS principle: The whole script is contained within one file, which consists of easy to read bash code with many helpful comments. PacUI provides more functionality than pacli (except for a settings file and translations). PacUI does not require the use of the UI but can be used by terminal commands directly.
 

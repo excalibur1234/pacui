@@ -234,21 +234,21 @@ function func_i
 		
 		# the package list in /tmp/pacui-packages-install gets sorted (by "sort" - only first column gets used for sorting) and displayed by fzf. look in "man fzf" for what fzf's arguments are used.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
-		# the --preview option of fzf displays information about the currently selected line
+		# the --preview option of fzf displays information about the currently selected line in a preview window shown by fzf
 		pkg=$( sort -k1,1 -u /tmp/pacui-packages-install | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-			if ( pacman -Qq {1} &>/dev/null )		# check, if 1. field of selected line is a locally installed package.
+			if ( pacman -Qq {1} &>/dev/null )							# check, if 1. field of selected line is a locally installed package.
 			then
-				pacman -Qi {1} --color always
-			elif ( pacman -Sgq {1} &>/dev/null )		# check, if 1. field of selected line in fzf is a package group
+				pacman -Qi {1} --color always							# display local package information in preview window of fzf
+			elif ( pacman -Sgq {1} &>/dev/null )						# check, if 1. field of selected line in fzf is a package group
 			then
 				echo -e "\e[1m{1} group has the following members: \e[0m"
-				pacman -Sgq {1}
-			else									# do this if line is neither a group nor locally installed
-				if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
+				pacman -Sgq {1}											# display package name of group members in preview window of fzf
+			else														# do this if line is neither a group nor locally installed
+				if [[ ! -e /usr/bin/pacaur ]]							# checks, whether file "pacaur" does not exist
 				then 
 					yaourt -Si {1}
 				else 
-					pacaur -Si {1} --color always | grep -v "::"      # grep command removes errors being displayed in pacaur
+					pacaur -Si {1} --color always | grep -v "::"		# display repo package information in preview window of fzf. grep command removes all errors displayed by pacaur
 				fi
 			fi
 			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
@@ -285,7 +285,7 @@ function func_r
 		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		pkg=$( sort -k1,1 -u /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-			if ( pacman -Qq {1} &>/dev/null )		# check, if selected line is a locally installed package
+			if ( pacman -Qq {1} &>/dev/null )							# check, if selected line is a locally installed package
 			then
 				pacman -Qi {1} --color always
 			else
@@ -316,15 +316,15 @@ function func_t
 		local pkg
 
 		pkg=$( sort -k1,1 -u /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-			if ( pacman -Qq {1} &>/dev/null )		# check, if selected line is a locally installed package
+			if ( pacman -Qq {1} &>/dev/null )							# check, if selected line is a locally installed package
 			then
 				pacman -Qi {1} --color always
-			else									# do this if line is not locally installed
-				if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
+			else														# do this if line is not locally installed
+				if [[ ! -e /usr/bin/pacaur ]]							# checks, whether file "pacaur" does not exist
 				then 
 					yaourt -Si {1}
 				else 
-					pacaur -Si {1} --color always | grep -v "::"      # grep command removes errors being displayed in pacaur
+					pacaur -Si {1} --color always | grep -v "::"		# grep command removes errors being displayed in pacaur
 				fi
 			fi
 			' --preview-window=right:50%:wrap  --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
@@ -368,15 +368,15 @@ function func_l
 		local pkg
 
 		pkg=$( sort -k1,1 -u /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-			if ( pacman -Qq {1} &>/dev/null )		# check, if selected line is a locally installed package
+			if ( pacman -Qq {1} &>/dev/null )							# check, if selected line is a locally installed package
 			then
-				pacman -Qi {1} --color always		# for local packages, "pacman" is sufficient.
-			else									# do this if line is not locally installed
-				if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
+				pacman -Qi {1} --color always							# for local packages, "pacman" is sufficient.
+			else														# do this if line is not locally installed
+				if [[ ! -e /usr/bin/pacaur ]]							# checks, whether file "pacaur" does not exist
 				then 
 					yaourt -Si {1}
 				else 
-					pacaur -Si {1} --color always | grep -v "::"      # grep command removes errors being displayed in pacaur
+					pacaur -Si {1} --color always | grep -v "::"		# grep command removes errors being displayed in pacaur
 				fi
 			fi
 			' --preview-window=right:50%:wrap  --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
@@ -978,19 +978,19 @@ function func_fi
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		# the --preview option of fzf displays information about the currently selected line
 		pkg=$( sort -k1,1 -u /tmp/pacui-packages-group-repo | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-			if ( pacman -Qq {1} &>/dev/null )		# check, if selected line is a locally installed package
+			if ( pacman -Qq {1} &>/dev/null )							# check, if selected line is a locally installed package
 			then
 				pacman -Qi {1} --color always
-			elif ( pacman -Sgq {1} &>/dev/null )		# check, if selected line in fzf is a package group
+			elif ( pacman -Sgq {1} &>/dev/null )						# check, if selected line in fzf is a package group
 			then
 				echo -e "\e[1m{1} group has the following members: \e[0m"
 				pacman -Sgq {1}
-			else									# do this if line is neither a group nor locally installed
-				if [[ ! -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" does not exist
+			else														# do this if line is neither a group nor locally installed
+				if [[ ! -e /usr/bin/pacaur ]]							# checks, whether file "pacaur" does not exist
 				then 
 					yaourt -Si {1}
 				else 
-					pacaur -Si {1} --color always | grep -v "::"      # grep command removes errors being displayed in pacaur
+					pacaur -Si {1} --color always | grep -v "::"		# grep command removes errors being displayed in pacaur
 				fi
 			fi
 			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
@@ -1020,7 +1020,7 @@ function func_fr
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		# the --preview option of fzf displays information about the currently selected line
 		pkg=$( sort -k1,1 -u /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-			if ( pacman -Qq {1} &>/dev/null )		# check, if selected line is a locally installed package
+			if ( pacman -Qq {1} &>/dev/null )							# check, if selected line is a locally installed package
 			then
 				pacman -Qi {1} --color always
 			else
@@ -1190,19 +1190,19 @@ PacUI uses Fuzzy Finder (fzf) to display selectable lists, which can be easily s
 
 \e[1mHOME SCREEN
 PacUI's home screen is split into three parts:
-The first part focuses on updates, maintenance, installations, and removals of packages from system repositories. It includes useful tools for these actions, too.
-The second part includes options for fixing your system. Options, which can break your system, are marked in red.
+The first part focuses on updates, maintenance, installations, and removals of packages from system repositories and the Arch User Repository (AUR). It includes useful tools for these actions, too.
+The second part includes options for fixing and configuring your system. Options, which can break your system, are marked in red.
 The last part offers options exclusive to Arch User Repository (AUR) management.
 
 
 \e[1m00 - HELP
 Display this help page. 
-This help page only gets displayed when entered from PacUIs UI. If "pacui h" or "pacui -h" is executed in a terminal, a very short help page gets displayed. Quit this help page by pressing the Q key.
+This help page only gets displayed when entered from PacUIs user interface. If "pacui h" or "pacui -h" is executed in a terminal, a very short help page gets displayed. Quit this help page by pressing the Q key.
 
 
 \e[1m0 - QUIT
 \e[36m"clear && exit"
-This will clear your terminal and quit PacUI.
+This will quit PacUI and clear your terminal. Scroll up to see all terminal output of your last PacUI session.
 
 
 \e[1m1 - UPDATE SYSTEM
@@ -1233,14 +1233,14 @@ If you notice a syntax change, it is highly recommended to solve this conflict i
 \e[1mAttention\e[0m: In severe and rare cases, removing your old config file (and using the new .pacnew config file) OR keeping your old config file (and deleting the .pacnew config file) can result in a broken system. PLEASE BE CAUTIOUS WHEN USING THIS COMMAND!
 
 \e[36m"sudo find -xtype l -print" \e[0m(only if there are broken symlinks)
-This command displays a list of broken symbolic links on your system. These links are not deleted by default. You have to decide yourself what to do with them. When you have doubt about deleting them, leave them on your system. They can sometimes cause problems, but they hardly use any hard drive space.
+This command displays a list of broken symbolic links on your system. These links are not deleted by default. You have to decide yourself what to do with them. When you have doubt about deleting them, leave them on your system. They can sometimes cause problems, but they use almost no hard drive space.
 
 \e[36m"pacman -Dk"
 This command checks your local package repository for consistency and shows missing packages, dependencies, or other errors. Please refer to "man pacman" for a more detailed explanation.
 
 \e[36m"comm -23 <(pacman -Qqm | sort) <(curl https://aur.archlinux.org/packages.gz | gzip -cd | sort)"
 This command compares 2 lists: The first list contains packages, which were not installed from your system repository. The second list contains all AUR package names. By comparing these 2 lists, it is possible to find EOL packages, which will never receive any updates.
-These EOL packages can be either manually installed or they were initially installed from the AUR but have been removed from there in the meantime.
+These EOL packages were either installed manually by the user or from the AUR (and have been removed from there in the meantime).
 Unless you know exactly what you are doing, it is recommended to remove these EOL packages.
 
 \e[36m"sudo journalctl --vacuum-size=50M --vacuum-time=30days"
@@ -1248,14 +1248,14 @@ This command limits all log files in journalctl to a combined size of 50 megabyt
 
 \e[36m"paccache -ruvk1"
 \e[36m"paccache -rvk3"
-By default Pacman uses this cache directory for downloading packages: /var/cache/pacman/pkg/... . No cached packages get deleted automatically. The package cache of an old and actively used installation can become quite large. Clean it to regain space on your root partition.
-The first command removes all packages from cache, which are not installed (anymore) on your system, except the latest version. 
-The second command removes all old packages from your cache except the 3 latest versions: The version you have currently installed on your system and 2 previous versions. Old package versions are kept to enable you to use ROLL BACK SYSTEM (or to manually downgrade packages) even without a working internet connection.
+By default Pacman uses this cache directory for downloading packages: /var/cache/pacman/pkg/ . No cached packages get deleted automatically. The package cache of an old and actively used installation can become quite large. Clean it to regain space on your root partition.
+The first command removes all old packages from cache, which are not installed (anymore) on your system (except the latest version of that package). 
+The second command removes all old packages from cache except the 3 latest versions: The version you have currently installed on your system and 2 previous versions. Old package versions are kept to enable you to use ROLL BACK SYSTEM (or to manually downgrade packages) even without a working internet connection.
 
 \e[36m"sudo pacman-optimize" \e[0m(only when installed on a HDD)
 This command effectively defragments your Pacman database.
 On traditional hard drives (HDD) this command can speed up all actions related to Pacman. 
-\e[1mAttention\e[0m: It is NOT recommended to use this command on modern solid state hard drives (SSDs)!
+\e[1mAttention\e[0m: It is NOT recommended to use this command on modern solid state drives (SSDs)!
 
 \e[36m"comm -13 <( pacman -Ssq "^linux" | grep "linux" | grep -E "^linux[0-9]*$|hardened$|lts$|zen$|rt-lts-manjaro$|rt-manjaro$" | sort ) <( for p in `command ls -1 /boot | grep -E '^vmlinuz'`; do pacman -Qqo /boot/$p | sort; done )"
 This long "comm" command compares the output of 2 lists: The first list contains <KERNEL NAME> of available kernels in your repository and the second list contains <KERNEL NAME> of installed kernels.
