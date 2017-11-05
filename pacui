@@ -1075,7 +1075,7 @@ function func_ls
 {
 		# list all packages on local system sorted by their installed size using "expac" and "sort".
 		# $( comm -23 <(pacman -Qq | sort) <(pacman -Qqg base base-devel | sort) )  only shows packages, which are not part of "base" or "base-devel" group.
-		expac -H M -Q '%12m - \e[1m%n\e[0m %v' $( comm -23 <(pacman -Qq | sort) <(pacman -Qqg base base-devel | sort) ) | sort -n -r | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown Keys. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-ls	
+		expac -H M -Q '%12m - \e[1m%n\e[0m %v' $( comm -23 <(pacman -Qq | sort) <(pacman -Qqg base base-devel | sort) ) | sort -n -r | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Navigate with PageUp / PageDown keys. Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-ls	
 		# alternative command to "expac" and "sort": package-query -Qe --rsort 2 -f "%2 - \e[1m%n \e[0m%v" | numfmt --to=iec 
 }
 
@@ -1143,7 +1143,7 @@ function func_h
 		then
 
 			echo
-			echo -e "  pacui	      - \e[1mPacUI\e[0m with User Interface"
+			echo -e "  pacui	      - \e[1mPac\e[0mUI with \e[1mU\e[0mser \e[1mI\e[0mnterface"
 			echo
 			echo -e "  pacui	u     - \e[1mU\e[0mpdate System"
 			echo -e "  pacui	m     - \e[1mM\e[0maintain System"
@@ -1169,7 +1169,7 @@ function func_h
 			echo -e "  pacui	d     - \e[1mD\e[0mowngrade Packages"
 			echo -e "  pacui	a     - Search + Install from \e[1mA\e[0mUR"
 			echo
-			echo -e "  pacui	h     - \e[1mH\e[0melp. For detailed help, please start User Interface first."
+			echo -e '  pacui	h     - Short \e[1mH\e[0melp. For more help, select "Help" in User Interface.'
 			
 		else
 
@@ -1184,7 +1184,7 @@ function func_h
 
 PacUI is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Pacaur/Yaourt as back ends. If Pacaur is installed on your system, PacUI uses it by default.
 
-Navigate this help page with your Arrow Keys, PageUp/PageDown Keys, SpaceBar, or your Mouse Wheel. To search this Help Page, enter /<SEARCH TERM> and press ENTER. For example, enter the following (without quotes " ") in order to search for the word "update": "/update". Press "n" key to continue searching for "/update". Search is not case sensitive. To exit this Help Page, press your "q" key.
+Navigate this help page with your Arrow Keys, PageUp/PageDown Keys, SpaceBar, or your Mouse Wheel. To search this Help Page, enter /<SEARCH TERM> and press ENTER. For example, enter the following (without quotes " ") in order to search for the word "update": "/update". Press N key to continue searching for other occurances of "/update". Search is not case sensitive. To exit this Help Page, press your Q key.
 PacUI uses Fuzzy Finder (fzf) to display selectable lists, which can be easily searched by starting to type. Advanced users can even use regular expressions to search in fzf. Use your TAB key to select multiple items from the list and your ENTER key to choose your selection. Navigate fzf's list the same way you navigate this help page.
 
 
@@ -1197,7 +1197,7 @@ The last part offers options exclusive to Arch User Repository (AUR) management.
 
 \e[1m00 - HELP
 Display this help page. 
-This help page only gets displayed when entered from PacUIs UI. If "pacui h" or "pacui -h" is executed in a terminal, a very short help page gets displayed. Quit this help page by pressing the "q" key.
+This help page only gets displayed when entered from PacUIs UI. If "pacui h" or "pacui -h" is executed in a terminal, a very short help page gets displayed. Quit this help page by pressing the Q key.
 
 
 \e[1m0 - QUIT
@@ -1224,7 +1224,7 @@ This command generates a new mirrorslist of all available repository mirrors/ser
 This option lists all orphaned packages on your system. Orphaned packages are old and no longer needed dependencies (packages not explicitly installed by you), which were never removed from your system.
 
 \e[36m"sudo pacdiff"
-A .pacnew file may be created during a package upgrade to avoid overwriting a file (e.g. a config file) which already exists and was previously modified by the user. A .pacsave file may be created during a package removal, or by a package installation (the package must be removed first). When the pacman database has record that a certain file owned by the package should be backed up it will create a .pacsave file. These files require manual intervention from the user and it is good practice to handle them regularly. If left unhandled, improper configurations can result in improper function of the software, or the software being unable to run altogether. 
+A .pacnew file may be created during a package upgrade to avoid overwriting a file (e.g. a config file) which already exists and was previously modified by the user. A .pacsave file may be created during a package removal, or by a package installation (the package must be removed first). When the Pacman database has record that a certain file owned by the package should be backed up it will create a .pacsave file. These files require manual intervention from the user and it is good practice to handle them regularly. If left unhandled, improper configurations can result in improper function of the software, or the software being unable to run altogether. 
 This command offers you a choice, whether you want to keep the original file (in most cases, these are config files) or the .pacnew/.pacsave file. Simply view both files by choosing "v". 
 If you keep the original file, the program could not recognize the old syntax anymore, because it uses now a new syntax. In the worst case, your program could brake or stop working. If you remove the original file and use the new file without any changes, all your configurations might be reset to the default values. This can result in a changed system behavior, including removing passowrds or even sudo capability. 
 In most cases, the syntax does not change and you can simply remove the new file (with the default configuration settings).
@@ -1376,12 +1376,12 @@ These two commands create a fresh key for you and import and (re-)install all ke
 \e[1mAttention\e[0m: This command might take a long time to complete. If your system appears to stop or hang, it searches for entropy in order to generate a new key for you. In this case, it might help to do file operations with a lot of reads and/or writes per minute (such as searching for files, copying large directories, etc.). Alternatively, you can open a browser and do some heavy surfing (with a lot of mouse movements, mouse klicks, and keyboard key presses): This can help to generate entropy much faster.
 
 \e[36m"echo 'keyring /etc/pacman.d/gnupg/pubring.gpg' >> $HOME/.gnupg/gpg.conf"
-There are 2 different places in Arch Linux and Manjaro to store keys: One place is used by pacman and the other gets used by GPG. 
+There are 2 different places in Arch Linux and Manjaro to store keys: One place is used by Pacman and the other gets used by GPG. 
 This command imports all keys for Pacman into GPG. This essentially means that the user trusts all Arch Linux Trusted Users and your distro's developers. After that, you will be able to install AUR packages from Arch Linux Trusted Users and your distro's developers without the need to import those keys manually.
 
 \e[36m"sudo pacman -Sc"
-After an unseccessful attempt to update your system (which quit with a key error), you might have already downloaded unsigned packages to your pacman cache. These packages cannot be installed anymore.
-This command removes all packages from your pacman cache, which are not installed on your system. Afterwards, you need to download all previously downloaded but not installed packages again.
+After an unseccessful attempt to update your system (which quits with a key error), you might have already downloaded unsigned (or wrongly signed) packages to your Pacman cache. These packages cannot be installed anymore.
+This command removes all packages from your Pacman cache, which are not installed on your system. Afterwards, you need to download all previously downloaded but not installed packages again.
 \e[1mAttention\e[0m: This command makes it impossible to ROLL BACK SYSTEM on systems without an internet connection.
 
 \e[36m"sudo pacman -S --needed libsystemd systemd-sysvcompat systemd && sleep 30"
