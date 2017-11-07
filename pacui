@@ -134,29 +134,9 @@ function func_m
 
 
 
-
-
-
-
-
-
-			# this command does the same (and is more in line with POSIX standard): find -L -type l 
+			# this command does the same (and is more in line with POSIX standard): find -L -type l
 			# it displays symlinks, WHICH STILL WORK.
 			# --> look for commands, which only show BROKEN symlinks! (if nothing like that exists, delete this section)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -950,7 +930,12 @@ function func_c
 				ls {1}                                                               # if directory is selected in fzf, display list of files in that directory
 			elif
 			then
-				cat {1}                                                              # if no direcoty, i.e. a file, is selected in fzf, display file content.
+				if ( cat {1} &>/dev/null )                                           # this check prevents error messages being shown, e.g. "permission denied" error.
+				then
+					cat {1}                                                          # if no direcoty, i.e. a file, is selected in fzf, display file content.
+				else
+					sudo cat {1}
+				fi
 			fi
 			' --preview-window=right:50%:wrap --header="ENTER to continue. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
@@ -971,7 +956,12 @@ function func_c
 				# find -L $file -maxdepth 1 -type f  --  this command displays a list of files (including their full path) in a directory given by $file variable.
 				file=$( find -L "$file" -maxdepth 1 -type f | sort -u | fzf-tmux -e +s -i -1 --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 					echo -e "\e[1mFile preview: \e[0m"
-					cat {1}                                                          # {1} is the first field of the marked line in fzf. the file given by {1} is shown in the preview window.
+					if ( cat {1} &>/dev/null )                                       # this check prevents error messages being shown, e.g. "permission denied" error.
+					then
+						cat {1}                                                      # {1} is the first field of the marked line in fzf. the file given by {1} is shown in the preview window.
+					else
+						sudo cat {1}
+					fi
 					' --preview-window=right:50%:wrap --header="ENTER to edit file in text editor. ESC to quit." --prompt='Enter string to filter list of files > ' )
 
 				if [[ -n $file ]]                                                    # $filename is empty, when fzf is quit with ESC.
@@ -1004,7 +994,7 @@ function func_c
 				# open "file" in "EDITOR": (attention: "$file" (including " symbols) does NOT WORK!!!)
 				sudo $EDITOR $file
 				sudo pacman -Syy                                                     # apply changes
-			elif [[ $file == "/etc/fstab" ]]
+			elif [[ $file == "/etc/fstab" ]] || [[ $file == "/etc/crypttab" ]]
 			then
 				# if $EDITOR variable does not exist, set it to 'nano'
 				[[ -z "$EDITOR" ]] && EDITOR='nano'
