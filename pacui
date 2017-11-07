@@ -127,12 +127,12 @@ function func_m
 
 
 		echo "checking AUR packages ..."
-		# download AUR package list (only when not already downloaded), unzip it to /tmp/aur/packages, and add it to /tmp/pacui-aur-check.
-		if  [[ ! -e /tmp/aur/packages ]]
+		# download AUR package list (only when not already downloaded), and add it to /tmp/pacui-aur-check.
+		if  [[ ! -e /tmp/aur/packages.gz ]]
 		then
-			wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null && gunzip -f /tmp/aur/packages.gz
+			wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null
 		fi
-		sort -u /tmp/aur/packages > /tmp/pacui-aur-check
+		sort -u /tmp/aur/packages.gz > /tmp/pacui-aur-check
 
 		local pkg
 		# the "comm" command compares 2 files and outputs the differences between them
@@ -217,14 +217,14 @@ function func_i
 			expac -S "%-33n\t%d" > /tmp/pacui-packages-install
 			expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-install
 						
-			# finally, download AUR package list (only when not already downloaded), unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages-install.
-			if  [[ ! -e /tmp/aur/packages ]]
+			# finally, download AUR package list (only when not already downloaded), and add it to the bottom of /tmp/pacui-packages-install.
+			if  [[ ! -e /tmp/aur/packages.gz ]]
 			then
-				wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null && gunzip -f /tmp/aur/packages.gz
+				wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null
 			fi
 			# remove line with download date from list of AUR packages with "grep"
 			# delete all spaces with "tr". this is important for installing multiple packages at the same time!
-			grep -v "#" /tmp/aur/packages | tr -d " " >> /tmp/pacui-packages-install
+			grep -v "#" /tmp/aur/packages.gz | tr -d " " >> /tmp/pacui-packages-install
 		fi
 		
 		local {pkg,pkg_install}
