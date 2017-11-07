@@ -938,14 +938,16 @@ function func_c
 				fi
 			fi
 			' --preview-window=right:50%:wrap --header="ENTER to continue. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+		# the output of fzf is saved in the $file variable. $file can contain a filename (with its full path) or a directory (with its full path).
 
 		# we need a method to check, whether fzf is quit with ESC. if this happens, we should NOT open a text editor!
 		check=1
 
+
 		# only run the command inside the if-statement, if $file variable is not empty <-- this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $file ]]
 		then
-			# if directory is selected, another instance of fzf is opened to let the user choose the file he wants to edit:
+			# if $file contains a directory, another instance of fzf is opened to let the user choose the file (within the directory) he wants to edit:
 			if ( echo $file | grep "/$" &>/dev/null )
 			then
 
@@ -953,7 +955,7 @@ function func_c
 				check=0
 
 				# attention: currently $file contains directory path and NOT the file name!
-				# find -L $file -maxdepth 1 -type f  --  this command displays a list of files (including their full path) in a directory given by $file variable.
+				# find -L $file -maxdepth 1 -type f  --  this command displays a list of files (including their full path) and symlinks to files (including their full path) in a directory given by $file variable.
 				file=$( find -L "$file" -maxdepth 1 -type f | sort -u | fzf-tmux -e +s -i -1 --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 					echo -e "\e[1mFile preview: \e[0m"
 					if ( cat {1} &>/dev/null )                                       # this check prevents error messages being shown, e.g. "permission denied" error.
@@ -964,16 +966,18 @@ function func_c
 					fi
 					' --preview-window=right:50%:wrap --header="ENTER to edit file in text editor. ESC to quit." --prompt='Enter string to filter list of files > ' )
 
-				if [[ -n $file ]]                                                    # $filename is empty, when fzf is quit with ESC.
+				if [[ -n $file ]]                                                    # $file is empty when fzf is quit with ESC.
 				then
-					check=1					                                         # only set $check varialbe back to 1, if fzf is not quit.
+					check=1					                                         # only set $check varialbe back to 1, if fzf is not quit with ESC.
 				fi
 
 			fi
 		fi
 
+
+		# because not all files should be opened the same way, multiple if-statements are needed to specify special conditions for opening files in a text editor:
 		# only run the command inside the if-statement, if $file variable is not empty <-- this happens when fzf is quit with ESC or CTRL+C
-		if [[ -n $file ]] && (( $check == "1" ))                                     # here $check variable needs to be 1 in order to continue normally.
+		if [[ -n $file ]] && (( $check == "1" ))                                     # here $check variable needs to be 1 in order to continue normally and display files in a text editor.
 		then
 
 			if [[ $( echo $file | cut -c -6 ) == "/home/" ]]
@@ -1018,6 +1022,8 @@ function func_c
 			fi
 
 		fi
+
+		# clean up leftover file:
 		rm /tmp/pacui-conf
 }
 
