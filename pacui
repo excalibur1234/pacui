@@ -28,7 +28,7 @@
 
 function func_u 
 {
-		if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
+		if [[ ! -e /usr/bin/pacaur ]]                                                # checks, whether file "pacaur" does not exist
 		then
 			# execute these commands, if "pacaur" is not installed on system
 			sudo pacman -Syu --color always
@@ -45,15 +45,15 @@ function func_diff
 		# this function is not called by pacui or pacui's UI directly. instead, it gets called in func_c when no DIFFPROG is set. it provides simple file difference viewer functionality and is essentially a wrapper around "diff". therefore, this function expects 2 arguments!
 		# $(( ... )) does arithmetic evaluation. always use this when dealing with numbers, instead of strings - $[[ ... ]] does sting evaluation!
 
-		local {temp,temp2,temp3}                                          # define local variables - these variables will be automatically deleted after the function is finished/exited.
-		temp2="$( echo "$input2" | awk '{print $1}' )"                    # write second argument of "pacui diff temp2 temp3" to variable temp2. 
-		temp3="$( echo "$input2" | awk '{print $2}' )"                    # write third argument of "pacui diff temp2 temp3"to variable temp3.
-		temp="$(( ( $(tput cols) / 2 ) - ${#temp2} + ${#temp3} ))"        # calculates half the width of the terminal window ( $(tput cols)=width of terminal window ; ${#temp2}=width of second argument )
+		local {temp,temp2,temp3}                                                     # define local variables - these variables will be automatically deleted after the function is finished/exited.
+		temp2="$( echo "$input2" | awk '{print $1}' )"                               # write second argument of "pacui diff temp2 temp3" to variable temp2. 
+		temp3="$( echo "$input2" | awk '{print $2}' )"                               # write third argument of "pacui diff temp2 temp3"to variable temp3.
+		temp="$(( ( $(tput cols) / 2 ) - ${#temp2} + ${#temp3} ))"                   # calculates half the width of the terminal window ( $(tput cols)=width of terminal window ; ${#temp2}=width of second argument )
 		
 		# insert extra line with file paths above the diff viewer output:
-		echo -n -e "\e[31;1m$temp2"                                       # print $temp2 (without \newline at the end) = file path of file1 . use ANSI escape sequence to print file names in this line bold and red.
-		printf "%*s\n" "$temp" "$temp3"                                   # print $temp3 ( = file path of file2) with $temp number of spaces in front and \newline at the end.
-		tput sgr0                                                         # printf does not support any ANSI escape sequences, so output (= red and bold text) has to be reset manually using "tput".
+		echo -n -e "\e[31;1m$temp2"                                                  # print $temp2 (without \newline at the end) = file path of file1 . use ANSI escape sequence to print file names in this line bold and red.
+		printf "%*s\n" "$temp" "$temp3"                                              # print $temp3 ( = file path of file2) with $temp number of spaces in front and \newline at the end.
+		tput sgr0                                                                    # printf does not support any ANSI escape sequences, so output (= red and bold text) has to be reset manually using "tput".
 		
 		# use "diff" as a file difference viewer with many options, which make it look good. "diff" takes 2 arguments (=the files, which are supposed to be compared)
 		diff --side-by-side --suppress-common-lines --ignore-all-space --color=always --width=$(tput cols) "$temp2" "$temp3"
@@ -63,12 +63,12 @@ function func_diff
 function func_m 
 {
 		echo "choosing fastest mirror ..."
-		if [[ -e /usr/bin/pacman-mirrors ]] # checks, whether file "pacman-mirrors" exists
+		if [[ -e /usr/bin/pacman-mirrors ]]                                          # checks, whether file "pacman-mirrors" exists
 		then
-			sudo pacman-mirrors -f 0 && sudo pacman -Syy                  # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
+			sudo pacman-mirrors -f 0 && sudo pacman -Syy                             # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
 		fi
 
-		if [[ -e /usr/bin/reflector ]] # checks, whether file "reflector" exists
+		if [[ -e /usr/bin/reflector ]]                                               # checks, whether file "reflector" exists
 		then
 			sudo reflector -f 5 --sort age --save /etc/pacman.d/mirrorlist && sleep 20 && sudo pacman -Syy # If it does exists, then the mirror will sort by it
 		fi
@@ -76,25 +76,25 @@ function func_m
 		
 		
 		echo "searching orphans ..."
-		if [[ ! -e /usr/bin/pacaur ]]	# checks, whether file "pacaur" does not exist
+		if [[ ! -e /usr/bin/pacaur ]]                                                # checks, whether file "pacaur" does not exist
 		then
 			yaourt -Qdt
 		else
 		
-			if [[ -n $(pacman -Qdt) ]]  # only run these commands, if output of "pacman -Qdt" is not empty. this happens if there are no orphans.
+			if [[ -n $(pacman -Qdt) ]]                                               # only run these commands, if output of "pacman -Qdt" is not empty. this happens if there are no orphans.
 			then
 				
 				pacman -Qdt --color always
 				# ask, whether to remove the displayed orphaned packages and save answer in "answer" variable:
 				read -p $'\e[1mDo you want to remove these orphaned packages? [Y|n]\e[0m' answer
-				case ${answer:-y} in		# if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "y".
-    				y|Y|yes|YES|Yes )		# do this, if "answer" is y or Y or yes or YES or Yes
+				case ${answer:-y} in                                                 # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "y".
+    				y|Y|yes|YES|Yes )                                                # do this, if "answer" is y or Y or yes or YES or Yes
         				sudo pacman -Rsn $(pacman -Qqdt) --color always --noconfirm
     					;;
-    				* )						# do this in all other cases
+    				* )                                                              # do this in all other cases
         				echo "Packages have not been removed."
     					;;
-				esac						# end of "case" loop
+				esac                                                                 # end of "case" loop
 
 			fi
 			
@@ -103,7 +103,7 @@ function func_m
 
 
 		echo "sudo pacdiff ..." 
-		if [[ -n $DIFFPROG ]]     # this if-condition avoids error message when $DIFFPROG is not set/empty
+		if [[ -n $DIFFPROG ]]                                                        # this if-condition avoids error message when $DIFFPROG is not set/empty
 		then
 			sudo pacdiff
 		else
@@ -113,10 +113,62 @@ function func_m
 		echo ""
 
 
-		if [[ -n $(sudo find -xtype l -print) ]]  # only run, if output of "sudo find -xtype l -print" is not empty
+		if [[ -n $(sudo find -xtype l -print) ]]                                     # only run, if output of "sudo find -xtype l -print" is not empty
 		then
 			echo -e "\e[1mThe following symbolic links are broken, please fix them manually:\e[0m"
 			sudo find -xtype l -print
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+			# this command does the same (and is more in line with POSIX standard): find -L -type l 
+			# it displays symlinks, WHICH STILL WORK.
+			# --> look for commands, which only show BROKEN symlinks! (if nothing like that exists, delete this section)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		fi
 		echo ""
 		
@@ -151,7 +203,7 @@ function func_m
 		echo ""
 
 
-		if [[ $(cat /proc/1/comm) == "systemd" ]]          # if init system is systemd
+		if [[ $(cat /proc/1/comm) == "systemd" ]]                                    # if init system is systemd
 		then
 			echo "cleaning systemd log files ..." 
 			# limit logs in journalctl to an age of 30 days and a combined size of 50mb
@@ -170,7 +222,7 @@ function func_m
 		
 		
 		# 1. extract the name of hard drive the / partition is installed on and write it to the "disk" variatble"
-		local disk		# declare local variable
+		local disk                                                                   # declare local variable
 		disk=$( lsblk -o "name,mountpoint" -pa | sed -n '/^\//h;/\/$/{g;p}' | cut -d/ -f3 )
 		disk="${disk:0:3}"
 		# 2. check, whether "disk" is not empty and whether the path to "disk" exists
@@ -188,12 +240,12 @@ function func_m
 		
 		
 		echo "checking installed kernels ..."
-		local {installed_kernels,available_kernels,eol_kernels}		# declare local variables
-		installed_kernels=$( for p in `command ls -1 /boot | grep -E '^vmlinuz'`; do pacman -Qqo /boot/$p | sort; done )					# filter installed kernels from boot sector and determine, which package owns that file. this yields the package name of all installed kernels (including kernels from the AUR).
-		available_kernels=$( pacman -Ssq "^linux" | grep "linux" | grep -E "^linux[0-9]*$|hardened$|lts$|zen$|rt-lts-manjaro$|rt-manjaro$" | sort )		# filter package names of kernels available in the repos for both manjaro (kernel names always like "linux414" (and rt-versions!!!)) and arch linux (these are the only kernel names (which never change): "linux", "linux-lts", "linux-hardened", "linux-zen").
+		local {installed_kernels,available_kernels,eol_kernels}                      # declare local variables
+		installed_kernels=$( for p in `command ls -1 /boot | grep -E '^vmlinuz'`; do pacman -Qqo /boot/$p | sort; done )                                # filter installed kernels from boot sector and determine, which package owns that file. this yields the package name of all installed kernels (including kernels from the AUR).
+		available_kernels=$( pacman -Ssq "^linux" | grep "linux" | grep -E "^linux[0-9]*$|hardened$|lts$|zen$|rt-lts-manjaro$|rt-manjaro$" | sort )	    # filter package names of kernels available in the repos for both manjaro (kernel names always like "linux414" (and rt-versions!!!)) and arch linux (these are the only kernel names (which never change): "linux", "linux-lts", "linux-hardened", "linux-zen").
 		if [[ -n "$available_kernels" ]]
 		then
-			eol_kernels=$(comm -13 <(echo "$available_kernels") <(echo "$installed_kernels"))		# write kernel names to $eol_kernels variable, which are installed but no longer available.
+			eol_kernels=$(comm -13 <(echo "$available_kernels") <(echo "$installed_kernels"))                                                           # write kernel names to $eol_kernels variable, which are installed but no longer available.
 			# print warning message, if end-of-life kernel(s) are found:
 			if [[ -n "$eol_kernels" ]]
 			then  	
@@ -230,25 +282,25 @@ function func_i
 			grep -v "#" /tmp/aur/packages | tr -d " " >> /tmp/pacui-packages-install
 		fi
 		
-		local {pkg,pkg_install}			# declare local variables
+		local {pkg,pkg_install}                                                      # declare local variables
 		
 		# the package list in /tmp/pacui-packages-install gets sorted (by "sort" - only first column gets used for sorting) and displayed by fzf. look in "man fzf" for what fzf's arguments are used.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		# the --preview option of fzf displays information about the currently selected line in a preview window shown by fzf
 		pkg=$( sort -k1,1 -u /tmp/pacui-packages-install | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-			if ( pacman -Qq {1} &>/dev/null )							# check, if 1. field of selected line is a locally installed package.
+			if ( pacman -Qq {1} &>/dev/null )                                        # check, if 1. field of selected line is a locally installed package.
 			then
-				pacman -Qi {1} --color always							# display local package information in preview window of fzf
-			elif ( pacman -Sgq {1} &>/dev/null )						# check, if 1. field of selected line in fzf is a package group
+				pacman -Qi {1} --color always                                        # display local package information in preview window of fzf
+			elif ( pacman -Sgq {1} &>/dev/null )                                     # check, if 1. field of selected line in fzf is a package group
 			then
 				echo -e "\e[1m{1} group has the following members: \e[0m"
-				pacman -Sgq {1}											# display package name of group members in preview window of fzf
-			else														# do this if line is neither a group nor locally installed
-				if [[ ! -e /usr/bin/pacaur ]]							# checks, whether file "pacaur" does not exist
+				pacman -Sgq {1}                                                      # display package name of group members in preview window of fzf
+			else                                                                     # do this if line is neither a group nor locally installed
+				if [[ ! -e /usr/bin/pacaur ]]                                        # checks, whether file "pacaur" does not exist
 				then 
 					yaourt -Si {1}
 				else 
-					pacaur -Si {1} --color always | grep -v "::"		# display repo package information in preview window of fzf. grep command removes all errors displayed by pacaur
+					pacaur -Si {1} --color always | grep -v "::"                     # display repo package information in preview window of fzf. grep command removes all errors displayed by pacaur
 				fi
 			fi
 			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
@@ -260,9 +312,9 @@ function func_i
 		if [[ -n $pkg ]]
 		then
 			
-			if [[ ! -e /usr/bin/pacaur ]]					# checks, whether file "pacaur" does not exist
+			if [[ ! -e /usr/bin/pacaur ]]                                            # checks, whether file "pacaur" does not exist
 			then
-				yaourt -S $pkg_install						# !!! this command does not work when $pkg_install is quoted !!! (i do not know why)
+				yaourt -S $pkg_install                                               # !!! this command does not work when $pkg_install is quoted !!! (i do not know why)
 			else
 				pacaur -S $pkg_install --color always
 			fi
@@ -280,7 +332,7 @@ function func_r
 		# awk 'NF != 0'  only displays lines where the number of fields is not zero (i.e. non-empty lines)
 		expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-group
 		
-		local {pkg,pkg_remove}			# declare local variables
+		local {pkg,pkg_remove}                                                       # declare local variables
 
 		# take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
@@ -297,7 +349,7 @@ function func_r
 		# $pkg contains package names below each other, but we need a list (in 1 line, space separated):
 		pkg_remove=$(echo $pkg | paste -sd " ")
 
-		if [[ -n $pkg ]]	# check, whether file is non zero-size
+		if [[ -n $pkg ]]                                                             # check, whether file is non zero-size
 		then
 			sudo pacman -Rsn $pkg_remove --color always
 		fi
@@ -316,15 +368,15 @@ function func_t
 		local pkg
 
 		pkg=$( sort -k1,1 -u /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-			if ( pacman -Qq {1} &>/dev/null )							# check, if selected line is a locally installed package
+			if ( pacman -Qq {1} &>/dev/null )                                        # check, if selected line is a locally installed package
 			then
 				pacman -Qi {1} --color always
-			else														# do this if line is not locally installed
-				if [[ ! -e /usr/bin/pacaur ]]							# checks, whether file "pacaur" does not exist
+			else                                                                     # do this if line is not locally installed
+				if [[ ! -e /usr/bin/pacaur ]]                                        # checks, whether file "pacaur" does not exist
 				then 
 					yaourt -Si {1}
 				else 
-					pacaur -Si {1} --color always | grep -v "::"		# grep command removes errors being displayed in pacaur
+					pacaur -Si {1} --color always | grep -v "::"                     # grep command removes errors being displayed in pacaur
 				fi
 			fi
 			' --preview-window=right:50%:wrap  --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
@@ -368,15 +420,15 @@ function func_l
 		local pkg
 
 		pkg=$( sort -k1,1 -u /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-			if ( pacman -Qq {1} &>/dev/null )							# check, if selected line is a locally installed package
+			if ( pacman -Qq {1} &>/dev/null )                                        # check, if selected line is a locally installed package
 			then
-				pacman -Qi {1} --color always							# for local packages, "pacman" is sufficient.
-			else														# do this if line is not locally installed
-				if [[ ! -e /usr/bin/pacaur ]]							# checks, whether file "pacaur" does not exist
+				pacman -Qi {1} --color always                                        # for local packages, "pacman" is sufficient.
+			else                                                                     # do this if line is not locally installed
+				if [[ ! -e /usr/bin/pacaur ]]                                        # checks, whether file "pacaur" does not exist
 				then 
 					yaourt -Si {1}
 				else 
-					pacaur -Si {1} --color always | grep -v "::"		# grep command removes errors being displayed in pacaur
+					pacaur -Si {1} --color always | grep -v "::"                     # grep command removes errors being displayed in pacaur
 				fi
 			fi
 			' --preview-window=right:50%:wrap  --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
@@ -482,15 +534,15 @@ function func_b
 		# get cache directory from file /etc/pacman.conf (without any white spaces) and write results to variable $cache:
 		cache=$( awk -F '=' '/^CacheDir/ {gsub(" ","",$2); print $2}' '/etc/pacman.conf' )
 		# set variable $cache to default directory, if  variable $cache is empty:
-		if [[ -z $cache ]]  # if "cache" variable is empty
+		if [[ -z $cache ]]                                                           # if "cache" variable is empty
 		then
 			cache="/var/cache/pacman/pkg/"
 		fi
 		
-            if [[ -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" exists, i.e. pacaur is installed
+            if [[ -e /usr/bin/pacaur ]]                                              # checks, whether file "pacaur" exists, i.e. pacaur is installed
 		then 
 			# the cache location of pacaur is important for downgrading packages installed from the AUR or reinstalling removed pacakges from the AUR:
-			if [[ -z $AURDEST ]]    # $AURDEST is environment variable for changing pacaur's default cache directory. check, if "AURDEST" variable is empty
+			if [[ -z $AURDEST ]]                                                     # $AURDEST is environment variable for changing pacaur's default cache directory. check, if "AURDEST" variable is empty
 			then
 				cachePACAUR="$HOME/.cache/pacaur/"
 			else
@@ -513,7 +565,7 @@ function func_b
 			# filter variable $pacui_cache_packages for the word "installed" and write package names to variable $pkgR
 			pkgR="$( echo "${pacui_cache_packages}" | awk '/installed/ {print $2}' | sort -u | paste -sd " " )"
 
-			if [[ ! -z "$pkgR" ]]     # this if-condition avoids error message when no package gets removed (and $pkgR is empty)
+			if [[ ! -z "$pkgR" ]]                                                    # this if-condition avoids error message when no package gets removed (and $pkgR is empty)
 			then
 				# remove packages with pacman command. use parameter substitution with ${...} (without quotes!!!) for it, because otherwise the pacman command fails!
 				sudo pacman -Rdd ${pkgR} --color always --noconfirm
@@ -524,10 +576,10 @@ function func_b
 			# filter variable $pacui_cache_packages for the word "removed" and write package names to variable $pacui_cache_install
 			pacui_cache_install="$( echo "${pacui_cache_packages}" | awk '/removed/ {print $2}' )"
 
-			if [[ ! -z "$pacui_cache_install" ]]     # this if-condition avoids error messages when no package gets installed (and variable $pacui_cache_install is empty)
+			if [[ ! -z "$pacui_cache_install" ]]                                     # this if-condition avoids error messages when no package gets installed (and variable $pacui_cache_install is empty)
 			then
 
-				if [[ -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" exists, i.e. pacaur is installed
+				if [[ -e /usr/bin/pacaur ]]                                          # checks, whether file "pacaur" exists, i.e. pacaur is installed
 				then	
 					# the while-loop here is needed to read the content of every line of $pacui_cache_install variable and save that line to variable $line.	
 				    pacui_aur_install=$( while IFS='' read -r line || [[ -n "$line" ]]
@@ -570,7 +622,7 @@ function func_b
 			# variable $pacui_cache_packages contains list of package names to be downgraded!
 			pacui_cache_downgrade="$( echo "${pacui_cache_packages}" | awk '/upgraded/ {print $2}' )"
 
-			if [[ ! -z "$pacui_cache_downgrade" ]]     # this if-condition avoids error messages when no package gets downgraded (and variables $pacui_cache_downgrade is empty)
+			if [[ ! -z "$pacui_cache_downgrade" ]]                                   # this if-condition avoids error messages when no package gets downgraded (and variables $pacui_cache_downgrade is empty)
 			then
 				
 				# here, it is impossible to use variables instead of temporary files. therefore, the temporary files should be as tamper-proof as possible.
@@ -591,15 +643,15 @@ function func_b
 				do
 					
 					# attention, the following variables can be empty:
-					temp1=$( echo "$line" | awk '{print $1}' )   # this variable is the no. of times a package has to be downgraded
-					temp2=$( echo "$line" | awk '{print $2}' )   # this variable is the package name to be downgraded
+					temp1=$( echo "$line" | awk '{print $1}' )                       # this variable is the no. of times a package has to be downgraded
+					temp2=$( echo "$line" | awk '{print $2}' )                       # this variable is the package name to be downgraded
 
 					if [[ -n $temp2 ]]   # checks, if variable is not empty
 					then
 						# write list with all versions of package in cache into file /tmp/pacui-temp-downgrade (sorted - newest package version is on top)
 						find $cache -name "${temp2}-[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r > ${pacui_tmp_downgrade}
 					      
-					    if [[ -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" exists, i.e. pacaur is installed
+					    if [[ -e /usr/bin/pacaur ]]                                  # checks, whether file "pacaur" exists, i.e. pacaur is installed
 						then 
 							# do the same as below for files from pacaur's cache directory.
 							# the problem here is that AUR packages are not named/numbered in a constant and easy sortable way. therefore, we search for all files and output their modification date in an easy searchable format (and then, the file name).
@@ -625,7 +677,7 @@ function func_b
 				pkgD=$( echo "${pacui_downgrade}" | sort -u | paste -sd " ")
 				
 				# the following if-statement prevents the following error, in case there is no older package version available: "error: no targets specified (use -h for help)"
-				if [[ ! -z $pkgD ]]   # checks, if variable is not empty
+				if [[ ! -z $pkgD ]]                                                  # checks, if variable is not empty
 				then
 					# downgrade packages by manually installing them: (sudo pacman -U --noconfirm --color always )
 					sudo pacman -U ${pkgD} --color always --noconfirm
@@ -638,7 +690,7 @@ function func_b
 			# variable $pacui_cache_packages contains list of package names to be downgraded!
 			pacui_cache_upgrade="$( echo "${pacui_cache_packages}" | awk '/downgraded/ {print $2}' )"
 
-			if [[ ! -z "$pacui_cache_upgrade" ]]     # this if-condition avoids error messages when no package gets upgraded (and variables $pacui_cache_upgrade is empty)
+			if [[ ! -z "$pacui_cache_upgrade" ]]                                     # this if-condition avoids error messages when no package gets upgraded (and variables $pacui_cache_upgrade is empty)
 			then
 				
 				# here, it is impossible to use variables instead of temporary files. therefore, the temporary files should be as tamper-proof as possible.
@@ -659,15 +711,15 @@ function func_b
 				do
 					
 					# attention, the following variables can be empty:
-					temp1=$( echo "$line" | awk '{print $1}' )   # this variable is the no. of times a package has to be upgraded
-					temp2=$( echo "$line" | awk '{print $2}' )   # this variable is the package name to be upgraded
+					temp1=$( echo "$line" | awk '{print $1}' )                       # this variable is the no. of times a package has to be upgraded
+					temp2=$( echo "$line" | awk '{print $2}' )                       # this variable is the package name to be upgraded
 					
 					if [[ -n $temp2 ]]   # checks, if variable is not empty
 					then
 						# write list with all versions of package in cache into file /tmp/pacui-temp-upgrade (sorted - newest package version is on top)
 						find $cache -name "${temp2}-[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r > ${pacui_tmp_upgrade}
 					      
-					    if [[ -e /usr/bin/pacaur ]]		# checks, whether file "pacaur" exists, i.e. pacaur is installed
+					    if [[ -e /usr/bin/pacaur ]]                                  # checks, whether file "pacaur" exists, i.e. pacaur is installed
 						then 
 							# do the same as below for files from pacaur's cache directory.
 							# the problem here is that AUR packages are not named/numbered in a constant and easy sortable way. therefore, we search for all files and output their modification date in an easy searchable format (and then, the file name).
@@ -693,7 +745,7 @@ function func_b
 				pkgU=$( echo "${pacui_upgrade}" | sort -u | paste -sd " ")
 
 				# the following if-statement prevents the following error, in case there is no older package version available: "error: no targets specified (use -h for help)"
-				if [[ ! -z $pkgU ]]   # checks, if variable is not empty
+				if [[ ! -z $pkgU ]]                                                  # checks, if variable is not empty
 				then
 					# upgrade packages by manually installing them: (sudo pacman -U --noconfirm --color always )
 					sudo pacman -U ${pkgU} --color always --noconfirm
@@ -716,7 +768,7 @@ function func_fix
 		# do this, if system uses pacman-mirrors (default in Manjaro)
 		if [[ -e /usr/bin/pacman-mirrors ]]
 		then 
-			sudo pacman-mirrors -f 0 && sudo pacman -Syy                  # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
+			sudo pacman-mirrors -f 0 && sudo pacman -Syy                             # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
 		fi
 		# do this, if system uses reflector (default on Arch Linux or distributions using Arch Linux mirrors/repo servers)
 		if [[ -e /usr/bin/reflector ]]
@@ -755,7 +807,7 @@ function func_fix
 			sudo sed -i 's/SigLevel[ ]*=/SigLevel = Never #/' /etc/pacman.conf
 
 
-			if [[ $(cat /proc/1/comm) == "systemd" ]]          # if init system is systemd
+			if [[ $(cat /proc/1/comm) == "systemd" ]]                                # if init system is systemd
 			then
 				# set almost correct time (while ignoring time zone and daylight saving time):
 				# 1. stop running NTPD service (and ignore output in case NTPD is not installed):
@@ -815,7 +867,7 @@ function func_fix
 			sudo pacman -Sc --noconfirm
 			echo ""
 			
-			if [[ $(cat /proc/1/comm) == "systemd" ]]          # if init system is systemd
+			if [[ $(cat /proc/1/comm) == "systemd" ]]                                # if init system is systemd
 			then
 				echo "updating systemd first..."
 				# updating systemd first sometimes solves update problems
@@ -892,13 +944,13 @@ function func_c
 
 		# echo -e "$( cat '/tmp/pacui-conf' )"  -- this command interprets the ANSI escape sequences contained in /tmp/pacui-conf.
 		file=$( echo -e "$( cat '/tmp/pacui-conf' )" | fzf-tmux -e +s -i -1 --ansi --cycle --query="$input2" --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-			echo -e "\e[1m{2..}\e[0m"									# display file/folder description ( {2..} = second to last field in selected line)
-			if ( echo {1} | grep "/$" &>/dev/null )						# check, if 1. field ends with a "/"" (= is a directory)
+			echo -e "\e[1m$(echo {2..})\e[0m"                                        # display file/folder description ( {2..} = second to last field in selected line)
+			if ( echo {1} | grep "/$" &>/dev/null )	                                 # check, if 1. field ends with a "/"" (= is a directory)
 			then
-				ls {1}													# display list of files in directory
+				ls {1}                                                               # if directory is selected in fzf, display list of files in that directory
 			elif
 			then
-				cat {1}													# display file content
+				cat {1}                                                              # if no direcoty, i.e. a file, is selected in fzf, display file content.
 			fi
 			' --preview-window=right:50%:wrap --header="ENTER to continue. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
@@ -915,87 +967,23 @@ function func_c
 				# set $check to 0. 0 means a text editor will NOT open.
 				check=0
 
-				# attention: $file contains directory path and NOT the file name!
-				local filename
-				filename=$( ls "$file" | fzf-tmux -e +s -i -1 --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-					#cd $( echo "$file" | tac | cut -c 2- | tac ) && cat {1}
-					#cat $file$( echo {1} | cut -c 2- | tac | cut -c 2- | tac )
-					cat "$file{1}"												# display file content. this does not work yet, because the output of {1} is quoted!!!
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+				# attention: currently $file contains directory path and NOT the file name!
+				# find -L $file -maxdepth 1 -type f  --  this command displays a list of files (including their full path) in a directory given by $file variable.
+				file=$( find -L "$file" -maxdepth 1 -type f | sort -u | fzf-tmux -e +s -i -1 --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+					echo -e "\e[1mFile preview: \e[0m"
+					cat {1}                                                          # {1} is the first field of the marked line in fzf. the file given by {1} is shown in the preview window.
 					' --preview-window=right:50%:wrap --header="ENTER to edit file in text editor. ESC to quit." --prompt='Enter string to filter list of files > ' )
-				
-				if [[ -n $filename ]]		# $filename is empty, when fzf is quit with ESC.
-				then
-					check=1					# only set $check varialbe back to 1, if fzf is not quit.
 
-					# add filename to directory path.
-					file=$file$filename
-					# now, $file contains the complete path to the selected file!
+				if [[ -n $file ]]                                                    # $filename is empty, when fzf is quit with ESC.
+				then
+					check=1					                                         # only set $check varialbe back to 1, if fzf is not quit.
 				fi
 
 			fi
 		fi
 
 		# only run the command inside the if-statement, if $file variable is not empty <-- this happens when fzf is quit with ESC or CTRL+C
-		if [[ -n $file ]] && (( $check == "1" ))			# here $check variable needs to be 1 in order to continue normally.
+		if [[ -n $file ]] && (( $check == "1" ))                                     # here $check variable needs to be 1 in order to continue normally.
 		then
 
 			if [[ $( echo $file | cut -c -6 ) == "/home/" ]]
@@ -1053,7 +1041,7 @@ function func_fu
 
 function func_e 
 {
-		if [[ ! -e /usr/bin/pacaur ]]	             # checks, whether file "pacaur" does not exist
+		if [[ ! -e /usr/bin/pacaur ]]                                                # checks, whether file "pacaur" does not exist
 		then
 			yaourt -Scc
 		else
@@ -1080,19 +1068,19 @@ function func_fi
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		# the --preview option of fzf displays information about the currently selected line
 		pkg=$( sort -k1,1 -u /tmp/pacui-packages-group-repo | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-			if ( pacman -Qq {1} &>/dev/null )							# check, if selected line is a locally installed package
+			if ( pacman -Qq {1} &>/dev/null )                                        # check, if selected line is a locally installed package
 			then
 				pacman -Qi {1} --color always
-			elif ( pacman -Sgq {1} &>/dev/null )						# check, if selected line in fzf is a package group
+			elif ( pacman -Sgq {1} &>/dev/null )                                     # check, if selected line in fzf is a package group
 			then
 				echo -e "\e[1m{1} group has the following members: \e[0m"
 				pacman -Sgq {1}
-			else														# do this if line is neither a group nor locally installed
-				if [[ ! -e /usr/bin/pacaur ]]							# checks, whether file "pacaur" does not exist
+			else                                                                     # do this if line is neither a group nor locally installed
+				if [[ ! -e /usr/bin/pacaur ]]                                        # checks, whether file "pacaur" does not exist
 				then 
 					yaourt -Si {1}
 				else 
-					pacaur -Si {1} --color always | grep -v "::"		# grep command removes errors being displayed in pacaur
+					pacaur -Si {1} --color always | grep -v "::"                     # grep command removes errors being displayed in pacaur
 				fi
 			fi
 			' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
@@ -1122,7 +1110,7 @@ function func_fr
 		# fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
 		# the --preview option of fzf displays information about the currently selected line
 		pkg=$( sort -k1,1 -u /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-			if ( pacman -Qq {1} &>/dev/null )							# check, if selected line is a locally installed package
+			if ( pacman -Qq {1} &>/dev/null )                                        # check, if selected line is a locally installed package
 			then
 				pacman -Qi {1} --color always
 			else
@@ -1146,7 +1134,7 @@ function func_fr
 
 function func_ua 
 {
-		if [[ ! -e /usr/bin/pacaur ]]	          # checks, whether file "pacaur" does not exist
+		if [[ ! -e /usr/bin/pacaur ]]                                                # checks, whether file "pacaur" does not exist
 		then
 			yaourt -Syua && yaourt -Syua --devel --needed --noconfirm
 		else
@@ -1210,12 +1198,12 @@ function func_a
 		if [[ -n "$input2" ]]
 		then
 		
-			if [[ ! -e /usr/bin/pacaur ]]	      # checks, whether file "pacaur" does not exist
+			if [[ ! -e /usr/bin/pacaur ]]                                            # checks, whether file "pacaur" does not exist
 			then
 				# do this if variable "input" is not empty:
 				yaourt "$input2"
 			else
-				pacaur -Ss "$input2" --color always | grep -v "::"      # grep command removes errors being displayed in pacaur
+				pacaur -Ss "$input2" --color always | grep -v "::"                   # grep command removes errors being displayed in pacaur
 			fi				
 				
 		else
@@ -1224,11 +1212,11 @@ function func_a
 			echo "Enter (parts of) name and/or description of package to be searched. Then press ENTER."
 			read -r pkg
             
-			if [[ ! -e /usr/bin/pacaur ]]	      # checks, whether file "pacaur" does not exist
+			if [[ ! -e /usr/bin/pacaur ]]                                            # checks, whether file "pacaur" does not exist
 			then
 				yaourt "$pkg"
 			else
-				pacaur -Ss "$pkg" --color always | grep -v "::"      # grep command removes errors being displayed in pacaur
+				pacaur -Ss "$pkg" --color always | grep -v "::"                      # grep command removes errors being displayed in pacaur
 			fi
 			
 		fi
@@ -1627,14 +1615,14 @@ input=$( echo "$input" | tr '[:upper:]' '[:lower:]' )
 if [[ $( type -t "func_$input") == "function" ]] 
 then
 		
-		"func_$input" 1		# pass the parameter "1" with the funciton when it gets called directly from terminal.
+		"func_$input" 1                                                             # pass the parameter "1" with the funciton when it gets called directly from terminal.
 		
 		unset input
 		unset input2
 		
-		exit $?			# exit here and return error code if present
+		exit $?                                                                     # exit here and return error code if present
 		
-elif (( $# > 0 ))		# if "func_$input" is no valid function AND if one or more arguments are given. this condition is needed to exclude "pacui" (without any arguments) from running this section.
+elif (( $# > 0 ))                                                                   # if "func_$input" is no valid function AND if one or more arguments are given. this condition is needed to exclude "pacui" (without any arguments) from running this section.
 then
 		
 		unset input
@@ -1847,5 +1835,5 @@ do
 			;;
 
 
-	esac    # close case-loop
-done        # close while-loop
+	esac                                                                            # close case-loop
+done                                                                                # close while-loop
