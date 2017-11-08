@@ -113,42 +113,10 @@ function func_m
 		echo ""
 
 
-		if [[ -n $(sudo find -xtype l -print) ]]                                     # only run, if output of "sudo find -xtype l -print" is not empty
+		if [[ -n $(sudo find -xtype l) ]]                                            # only run, if output of "sudo find -xtype l -print" is not empty
 		then
 			echo -e "\e[1mThe following symbolic links are broken, please fix them manually:\e[0m"
-			sudo find -xtype l -print
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-			# this command does the same (and is more in line with POSIX standard): find -L -type l
-			# it displays symlinks, WHICH STILL WORK.
-			# --> look for commands, which only show BROKEN symlinks! (if nothing like that exists, delete this section)
-
-
-
-
-
-
-
-
-
-
-
-
+			sudo find -xtype l
 		fi
 		echo ""
 		
@@ -1318,8 +1286,9 @@ If you notice a syntax change, it is highly recommended to solve this conflict i
 \e[1mAttention\e[0m: This command requires a default file difference viewer by setting the environment variable DIFFPROG. If this varialbe is not set, a minimal default is provided by PacUI using "diff".
 \e[1mAttention\e[0m: In severe and rare cases, removing your old config file (and using the new .pacnew config file) OR keeping your old config file (and deleting the .pacnew config file) can result in a broken system. PLEASE BE CAUTIOUS WHEN USING THIS COMMAND!
 
-\e[36m"sudo find -xtype l -print" \e[0m(only if there are broken symlinks)
+\e[36m"sudo find -xtype l" \e[0m(only if there are broken symlinks)
 This command displays a list of broken symbolic links on your system. These links are not deleted by default. You have to decide yourself what to do with them. When you have doubt about deleting them, leave them on your system. They can sometimes cause problems, but they use almost no hard drive space.
+Symbolic links can be removed manually or "sudo find -xtype l -delete" can be used to remove all broken symbolic links.
 
 \e[36m"pacman -Dk"
 This command checks your local package repository for consistency and shows missing packages, dependencies, or other errors. Please refer to "man pacman" for a more detailed explanation.
@@ -1486,7 +1455,7 @@ This command forces a sync of the file database of your system repository with y
 
 \e[1m11 - EDIT CONFIG FILES
 \e[36m"$EDITOR <FILE NAME>"
-This command opens <FILE NAME> in your default text editor. You can choose between multiple important system configuration files. Files in the root directory are opened with root privileges.
+This command opens <FILE NAME> in your default text editor. You can choose between multiple important system configuration files. Files in the root directory are opened with root privileges. The "sudoers" file is edited with the help of "visudo". For some configuration files, additional commands are executed after the text editor is closed.
 By default the text editor Nano gets used, except a custom $EDITOR variable has been exported. In the text editor Nano, Press CTRL+O to save your changes, ENTER to choose a directory, and CTRL+X to quit Nano.
 \e[1mAttention\e[0m: Changing system configuration files can harm or even destroy your system. In some cases, this can happen with a single mistake. Be extremely careful and always double check your changes before saving and rebooting - especially when editing the files marked in red! It is recommended to search the Arch Wiki for the configuration file you want to edit and read about available and recommended settings.
 
