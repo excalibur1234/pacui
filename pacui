@@ -127,19 +127,19 @@ function func_m
 
 
 		echo "checking AUR packages ..."
-		# download AUR package list (only when not already downloaded)and unzip it to /tmp/aur/packages.
-		if  [[ ! -e /tmp/aur/packages ]]
+		# download AUR package list (only when not already downloaded) to /tmp/aur/packages.gz.
+		if  [[ ! -e /tmp/aur/packages.gz ]]
 		then
-			wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null && gunzip -f /tmp/aur/packages.gz
-			# now, file /tmp/aur/packages contains a list of all packages from the AUR.
+			wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null
+			# now, file /tmp/aur/packages.gz contains a list of all packages from the AUR.
 		fi
-		# check, if /tmp/aur/packages exists. /tmp/aur/packages does not exist, if there is no internet connection or something went wrong during the download of the list of AUR packages.
-		if [[ -e /tmp/aur/packages ]]
+		# check, if /tmp/aur/packages.gz exists. /tmp/aur/packages.gz does not exist, if there is no internet connection or something went wrong during the download of the list of AUR packages.
+		if [[ -e /tmp/aur/packages.gz ]]
 		then
 			local pkg
 			# the "comm" command compares 2 files and outputs the differences between them. both files have to be sorted!
 			# "pacman -Qqm | sort" outputs a list of all installed packages from the AUR
-			pkg=$(  comm -23 <(pacman -Qqm | sort) <(sort -u /tmp/aur/packages)  )
+			pkg=$(  comm -23 <(pacman -Qqm | sort) <(sort -u /tmp/aur/packages.gz)  )
 			# only run the command inside the if-statement, if $pkg variable is not empty
 			if [[ -n $pkg ]]
 			then
@@ -220,14 +220,14 @@ function func_i
 			expac -S "%-33n\t%d" > /tmp/pacui-packages-install
 			expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-install
 						
-			# finally, download AUR package list (only when not already downloaded), unzip it to /tmp/aur/packages, and add it to the bottom of /tmp/pacui-packages-install.
-			if  [[ ! -e /tmp/aur/packages ]]
+			# finally, download AUR package list (only when not already downloaded) and add it to the bottom of /tmp/pacui-packages-install.
+			if  [[ ! -e /tmp/aur/packages.gz ]]
 			then
-				wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null && gunzip -f /tmp/aur/packages.gz
+				wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null
 			fi
 			# remove line with download date from list of AUR packages with "grep"
 			# delete all spaces with "tr". this is important for installing multiple packages at the same time!
-			grep -v "#" /tmp/aur/packages | tr -d " " >> /tmp/pacui-packages-install
+			grep -v "#" /tmp/aur/packages.gz | tr -d " " >> /tmp/pacui-packages-install
 		fi
 		
 		local {pkg,pkg_install}                                                      # declare local variables
@@ -804,7 +804,7 @@ function func_fix
 			#automatically trust all keys from arch linux trusted users (and manjaro developers) - both for packages from the repositories and packages fom the AUR:
 			local temp
 			temp=$( grep "/etc/pacman.d/gnupg/pubring.gpg" "$HOME/.gnupg/gpg.conf" )
-			if [[ -n $temp ]]   # check, whether $temp variable is empty
+			if [[ -n $temp ]]                                                        # check, whether $temp variable is empty
 			then
 				# there are 2 different places on system for keys to be stored. move all keys for pacman to your private collection of keys. this collection is needed when installling packages from the AUR, e.g. for verifying who signed the package.
 				echo "keyring /etc/pacman.d/gnupg/pubring.gpg" >> $HOME/.gnupg/gpg.conf
