@@ -893,21 +893,17 @@ function func_c
 			if ( echo {1} | grep "/$" &>/dev/null )	                                 # check, if 1. field ends with a "/"" (= is a directory)
 			then
 				ls {1}                                                               # if directory is selected in fzf, display list of files in that directory
-			elif
+			elif ( cat {1} &>/dev/null )
 			then
-				if ( cat {1} &>/dev/null )                                           # this check prevents error messages being shown, e.g. "permission denied" error.
-				then
-					cat {1}                                                          # if no direcoty, i.e. a file, is selected in fzf, display file content.
-				else
-					sudo cat {1}
-				fi
+				cat {1}                                                              # display file content, if no directory is selected. an error is displayed, when root privilges are required (because "sudo cat {1}" breaks fzf when password entry is required !!!)
+			else
+				echo "{1}: Permission denied"
 			fi
 			' --preview-window=right:50%:wrap --header="ENTER to continue. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 		# the output of fzf is saved in the $file variable. $file can contain a filename (with its full path) or a directory (with its full path).
 
 		# we need a method to check, whether fzf is quit with ESC. if this happens, we should NOT open a text editor!
 		check=1
-
 
 		# only run the command inside the if-statement, if $file variable is not empty <-- this happens when fzf is quit with ESC or CTRL+C
 		if [[ -n $file ]]
@@ -923,12 +919,7 @@ function func_c
 				# find $file -maxdepth 1 -xtype f  --  this command displays a list of files (including their full path) and symlinks to files (including their full path) in a directory given by $file.
 				file=$( find "$file" -maxdepth 1 -xtype f | sort -u | fzf-tmux -e +s -i -1 --reverse --margin=4%,1%,1%,2% --inline-info --preview '
 					echo -e "\e[1mFile preview: \e[0m"
-					if ( cat {1} &>/dev/null )                                       # this check prevents error messages being shown, e.g. "permission denied" error.
-					then
-						cat {1}                                                      # {1} is the first field of the marked line in fzf. the file given by {1} is shown in the preview window.
-					else
-						sudo cat {1}
-					fi
+					cat {1}                                                      # {1} is the first field of the marked line in fzf. the file given by {1} is shown in the preview window.
 					' --preview-window=right:50%:wrap --header="ENTER to edit file in text editor. ESC to quit." --prompt='Enter string to filter list of files > ' )
 
 				if [[ -n $file ]]                                                    # $file is empty when fzf is quit with ESC.
