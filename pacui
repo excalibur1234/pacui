@@ -309,8 +309,8 @@ function func_r
 
                 # 2. Print error message. the user can read all error messages 8of pacman) and decide what to do next.
                 echo
-                echo "Package removal failed because a dependency was selected. "
-                echo "Press ENTER to try again or CTRL+C to quit."
+                echo -e "\e[1mPackage removal failed because a dependency was selected.\e[0m"
+                echo -e "\e[1mPress ENTER to try again or CTRL+C to quit.\e[0m"
                 read
 
                 # 3. try again with a limited list of packages in fzf. this loop is dependent on the /tmp/pacui-remove-backup file!
@@ -320,7 +320,7 @@ function func_r
                     local {pkg,pkg_remove}                                           # declare local variables
 
                     # fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
-                    pkg=$( cat /tmp/pacui-remove-backup | fzf-tmux -m -e +s -i --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+                    pkg=$( cat /tmp/pacui-remove-backup | fzf-tmux -m -e +s -i --query="$input2" --reverse --margin=4%,1%,1%,2% --inline-info --preview '
                         if ( pacman -Qq {1} &>/dev/null )                            # check, if selected line is a locally installed package
                         then
                             pacman -Qi {1} --color always
@@ -345,8 +345,8 @@ function func_r
 
                             # b) Print error message. the user can read all error messages (of pacman) and decide what to do next.
                             echo
-                            echo "Package removal failed because a dependency was selected. "
-                            echo "Press ENTER to try again or CTRL+C to quit."
+                            echo -e "\e[1mPackage removal failed because a dependency was selected.\e[0m"
+                            echo -e "\e[1mPress ENTER to try again or CTRL+C to quit.\e[0m"
                             read
                         else
                             # removing the /tmp/pacui-remove-backup file quits the loop
