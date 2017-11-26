@@ -1136,7 +1136,7 @@ function func_fr
 
         if [[ -n $pkg ]]
         then
-            sudo pacman -Rdd $pkg_remove --color always
+            sudo pacman -Rndd $pkg_remove --color always
         fi
 }
 
@@ -1525,7 +1525,7 @@ This command does the same as INSTALL PACKAGES for packages from your system rep
 
 
 \e[1;31m16 - FORCE REMOVE PACKAGES
-\e[36m"pacman -Rdd <PACKAGE NAME>"
+\e[36m"pacman -Rndd <PACKAGE NAME>"
 This command removes <PACKAGE NAME> without checking the dependencies of <PACKAGE NAME> first. This enables experienced users to remove packages and dependencies of packages. This command only removes <PACKAGE NAME> from your system. All dependencies and orphans are left: run MAINTAIN SYSTEM afterwards to remove them.
 \e[1mAttention\e[0m: This command can break pacakges on your system or even your entire system.
 
