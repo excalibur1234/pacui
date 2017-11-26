@@ -299,7 +299,7 @@ function func_r
             fi
             ' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
-        if [[ -n $pkg ]]                                                             # check, whether file is non zero-size. this happens when fzf is quit with CTRL+C.
+        if [[ -n $pkg ]]                                                             # check, whether $pkg variable is not empty. this happens when fzf is quit with CTRL+C.
         then
             # $pkg contains package names below each other, but we need a list (in 1 line, space separated):
             pkg_remove=$(echo $pkg | paste -sd " ")
@@ -337,29 +337,29 @@ function func_r
                         fi
                         ' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
-                    if [[ -n $pkg ]]                                                 # check, whether file is non zero-size. this happens when fzf is quit with CTRL+C.
+                    if ! [[ -n $pkg ]]                                               # check, whether $pkg variable is empty. this happens when fzf is quit with CTRL+C.
                     then
+                        break                                                        # break while-loop, if fzf was quit using CTRL+C
+                    fi
 
-                        # $pkg contains package names below each other, but we need a list (in 1 line, space separated):
-                        pkg_remove=$(echo $pkg | paste -sd " ")
+                    # $pkg contains package names below each other, but we need a list (in 1 line, space separated):
+                    pkg_remove=$(echo $pkg | paste -sd " ")
 
-                        if ! ( sudo pacman -Rsn $pkg_remove --color always )         # the "sudo pacman -Rsn" command is always executed!
-                        then
-                            # continue here only if "sudo pacman -Rns" has failed (again):
-                            # a) save list of packages to backup file.
-                            echo $pkg_remove | tr " " "\n" > /tmp/pacui-remove-backup                                                                   # tr " " "\n" is needed to convert the list of package names (in 1 line) back to multiple lines. otherwise, fzf cannot work with it.
+                    if ! ( sudo pacman -Rsn $pkg_remove --color always )            # the "sudo pacman -Rsn" command is always executed!
+                    then
+                        # continue here only if "sudo pacman -Rns" has failed (again):
+                        # a) save list of packages to backup file.
+                        #echo $pkg_remove | tr " " "\n" > /tmp/pacui-remove-backup  # here, do NOT write selection to file. this enables the user guess which packages are dependencies.
 
-                            # b) Print error message. the user can read all error messages (of pacman) and decide what to do next.
-                            echo
-                            echo -e "\e[1mPackage removal failed because a dependency was selected.\e[0m"
-                            echo -e "\e[1mPress ENTER to try again or CTRL+C to quit.\e[0m"
-                            read
-                            # now, start at the top of the while-loop again...
-                        else
-                            # removing the /tmp/pacui-remove-backup file quits the while-loop
-                            rm /tmp/pacui-remove-backup
-                        fi
-
+                        # b) Print error message. the user can read all error messages (of pacman) and decide what to do next.
+                        echo
+                        echo -e "\e[1mPackage removal failed because a dependency was selected.\e[0m"
+                        echo -e "\e[1mPress ENTER to try again or CTRL+C to quit.\e[0m"
+                        read
+                        # now, start at the top of the while-loop again...
+                    else
+                        # removing the /tmp/pacui-remove-backup file quits the while-loop
+                        rm /tmp/pacui-remove-backup
                     fi
 
                 done
