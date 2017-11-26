@@ -23,9 +23,11 @@
 
 
 
-# all functions of pacui are defined here in the same order as they appear in pacui's UI:
+# all functions of pacui are defined here in the same order as they appear in pacui's UI (with some exceptions):
 
 
+# Update System
+# this core functionality of "Update System" (note the bold "U") can be started in the terminal using "pacui u". the help page provides additional explanations.
 function func_u
 {
         if [[ ! -e /usr/bin/pacaur ]]                                                # checks, whether file "pacaur" does not exist
@@ -40,14 +42,14 @@ function func_u
 }
 
 
+# "pacui --diff" helper function
+# this function is not called by pacui or pacui's UI directly. instead, it gets called in func_c (using "pacui --diff") when no DIFFPROG evironment variable is found. it provides simple file difference viewer functionality and is essentially a wrapper around the GNU program "diff". therefore, this function expects 2 arguments!
 function func_diff
 {
-        # this function is not called by pacui or pacui's UI directly. instead, it gets called in func_c when no DIFFPROG is set. it provides simple file difference viewer functionality and is essentially a wrapper around "diff". therefore, this function expects 2 arguments!
         # $(( ... )) does arithmetic evaluation. always use this when dealing with numbers, instead of strings - $[[ ... ]] does sting evaluation!
-
         local {temp,temp2,temp3}                                                     # define local variables - these variables will be automatically deleted after the function is finished/exited.
-        temp2="$( echo "$input2" | awk '{print $1}' )"                               # write second argument of "pacui diff temp2 temp3" to variable temp2.
-        temp3="$( echo "$input2" | awk '{print $2}' )"                               # write third argument of "pacui diff temp2 temp3"to variable temp3.
+        temp2="$( echo "$input2" | awk '{print $1}' )"                               # write second argument of "pacui --diff temp2 temp3" to variable temp2.
+        temp3="$( echo "$input2" | awk '{print $2}' )"                               # write third argument of "pacui --diff temp2 temp3"to variable temp3.
         temp="$(( ( $(tput cols) / 2 ) - ${#temp2} + ${#temp3} ))"                   # calculates half the width of the terminal window ( $(tput cols)=width of terminal window ; ${#temp2}=width of second argument )
 
         # insert extra line with file paths above the diff viewer output:
@@ -60,6 +62,8 @@ function func_diff
 }
 
 
+# Maintain System
+# this core functionality of "Maintain System" (note the bold "M") can be started in the terminal using "pacui m". it is separated into multiple parts. most parts begin (or contain) an "echo" command, which explains what is being done. the help page explains the core functionality of every part in detail, too.
 function func_m
 {
         echo "choosing fastest mirror ..."
@@ -206,6 +210,8 @@ function func_m
 }
 
 
+# Install Packages
+# this core functionality of "Install Packages" (note the bold "i") can be started in the terminal using "pacui i". the help page provides additional explanations.
 function func_i
 {
         # check, whether file /tmp/pacui-packages-install already exists (the ! negates the result)
@@ -268,6 +274,8 @@ function func_i
 }
 
 
+# Remove Packages
+# this core functionality of "Remove Packages" (note the bold "r") can be started in the terminal using "pacui r". the help page provides additional explanations.
 function func_r
 {
         # write package list of local repository to /tmp/pacui-packages-group. then add all installed package groups to the bottom.
@@ -293,7 +301,6 @@ function func_r
 
         if [[ -n $pkg ]]                                                             # check, whether file is non zero-size. this happens when fzf is quit with CTRL+C.
         then
-
             # $pkg contains package names below each other, but we need a list (in 1 line, space separated):
             pkg_remove=$(echo $pkg | paste -sd " ")
 
@@ -362,6 +369,8 @@ function func_r
 }
 
 
+# Dependency Tree
+# this core functionality of "Dependency Tree" (note the bold "t") can be started in the terminal using "pacui t". the help page provides additional explanations.
 function func_t
 {
         # write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
@@ -399,6 +408,8 @@ function func_t
 }
 
 
+# Reverse Dependency Tree
+# this core functionality of "Reverse Dependency Tree" (note the bold "r" and "t") can be started in the terminal using "pacui rt". the help page provides additional explanations.
 function func_rt
 {
         local pkg
@@ -414,6 +425,8 @@ function func_rt
 }
 
 
+# List Package Files
+# this core functionality of "List Package Files" (note the bold "l") can be started in the terminal using "pacui l". the help page provides additional explanations.
 function func_l
 {
         # write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
@@ -465,6 +478,8 @@ function func_l
 }
 
 
+# Search Package Files
+# this core functionality of "Search Package Files" (note the bold "s") can be started in the terminal using "pacui s". the help page provides additional explanations.
 function func_s
 {
         local file
@@ -531,6 +546,8 @@ function func_s
 # =======================
 
 
+# Roll Back System
+# this core functionality of "Roll Back System" (note the bold "b") can be started in the terminal using "pacui b". the help page provides additional explanations.
 function func_b
 {
         # declare local variables
@@ -763,11 +780,14 @@ function func_b
 }
 
 
+# Fix Pacman Errors
+# this core functionality of "Fix Pacman Errors" (note the bold "fix") can be started in the terminal using "pacui fix". it is separated into multiple parts. most parts begin (or contain) an introcing "echo" command or comment, which explains what is being done. the help page explains the core functionality of every part in detail, too.
 function func_fix
 {
         echo "removing pacman database lock ..."
         sudo rm -f /var/lib/pacman/db.lck
         echo ""
+
 
         echo "fixing mirrors ..."
         # do this, if system uses pacman-mirrors (default in Manjaro)
@@ -784,14 +804,16 @@ function func_fix
 
 
         # check, whether there is a connection to the mirror/repository server. this is needed for package download!
-        if ( ! sudo pacman -Syy )
+        if ( ! sudo pacman -Syy )                                                    # the "sudo pacman -Syy" command gets executed in any case in order to check its output.
         then
+
+            # print error message, if there is no connection to a mirror/repository server and quit 
 
             local server
             # extract mirror/repository server url from /etc/pacman.d/mirrorlist file:
             server=$( grep "^Server =" -m 1 /etc/pacman.d/mirrorlist | awk '{print $3}' )
 
-              echo -e "\e[41m Either there is something wrong with your internet connection or with your mirror/repository server: "$server" \e[0m"
+            echo -e "\e[41m Either there is something wrong with your internet connection or with your mirror/repository server: "$server" \e[0m"
             echo -e "\e[1;41m Please make sure both are ok and rerun this part of PacUI! \e[0m"
             echo -e ""
 
@@ -820,10 +842,12 @@ function func_fix
                 sudo systemctl stop ntpd.service &>/dev/null
                 echo ""
 
+
                 # 2. download and install networkmanager-dispatcher-ntpd:
                 echo "installing networkmanager-dispatcher-ntpd ..."
                 sudo pacman -Sy networkmanager-dispatcher-ntpd --noconfirm
                 echo ""
+
 
                 # 3. start NTP daemon, set the system clock, and quit
                 # 4. wait for 60 seconds (maximum time needed for system clock to set to new time)
@@ -832,15 +856,18 @@ function func_fix
                 echo ""
             fi
 
+
             # remove gnupg including all keys
             echo "sudo rm -r /etc/pacman.d/gnupg ..."
             sudo rm -r /etc/pacman.d/gnupg &>/dev/null
             echo ""
 
+
             # reinstall gnupg (without keys)
             echo "Installing gnupg ..."
             sudo pacman -Sy gnupg --noconfirm
             echo ""
+
 
             echo "Installing all necessary keyrings ..."
             # This command will install all keyrings from avialable current repository
@@ -858,6 +885,7 @@ function func_fix
             sudo pacman-key --init && echo "" && sudo pacman-key --populate $(pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | sed 's/-keyring//' | paste -sd " " )
             echo ""
 
+
             #automatically trust all keys from arch linux trusted users (and manjaro developers) - both for packages from the repositories and packages fom the AUR:
             local temp
             temp=$( grep "/etc/pacman.d/gnupg/pubring.gpg" "$HOME/.gnupg/gpg.conf" )
@@ -867,10 +895,12 @@ function func_fix
                 echo "keyring /etc/pacman.d/gnupg/pubring.gpg" >> $HOME/.gnupg/gpg.conf
             fi
 
+
             echo "cleaning pacman cache ..."
             # if keyring was broken, all non-installed (and potentially newer) packages cannot be manually installed anymore, because of key mismatch. solution: delete all non-installed packages from cache.
             sudo pacman -Sc --noconfirm
             echo ""
+
 
             if [[ $(cat /proc/1/comm) == "systemd" ]]                                # if init system is systemd
             then
@@ -879,6 +909,7 @@ function func_fix
                 sudo pacman -S --needed --noconfirm systemd libsystemd systemd-sysvcompat && sleep 30
                 echo ""
             fi
+
 
             echo "updating system ..."
             sudo pacman -Syyuu --color always --noconfirm
@@ -891,6 +922,8 @@ function func_fix
 }
 
 
+# Edit Config Files
+# this core functionality of "Edit Config Files" (note the bold "c") can be started in the terminal using "pacui c". the help page provides additional explanations.
 function func_c
 {
         # create file, which will contain a list of strings
@@ -1045,12 +1078,16 @@ function func_c
 
 
 
+# Force Update System
+# this core functionality of "Force Update System" (note the bold "f" and "u") can be started in the terminal using "pacui fu". the help page provides additional explanations.
 function func_fu
 {
         sudo pacman -Syu --force --color always
 }
 
 
+# Empty Package Cache
+# this core functionality of "Empty Package Cache" (note the bold "e") can be started in the terminal using "pacui e". the help page provides additional explanations.
 function func_e
 {
         if [[ ! -e /usr/bin/pacaur ]]                                                # checks, whether file "pacaur" does not exist
@@ -1062,6 +1099,8 @@ function func_e
 }
 
 
+# Force Install Packages
+# this core functionality of "Force Install Packages" (note the bold "f" and "i") can be started in the terminal using "pacui fi". the help page provides additional explanations.
 function func_fi
 {
         # check, whether file /tmp/pacui-packages-group-repo already exists (the ! negates the result)
@@ -1107,6 +1146,8 @@ function func_fi
 }
 
 
+# Force Remove Packages
+# this core functionality of "Force Remove Packages" (note the bold "f" and "r") can be started in the terminal using "pacui fr". the help page provides additional explanations.
 function func_fr
 {
         # write package list of local repository to /tmp/pacui-packages-group. then add all installed package groups to the bottom.
@@ -1144,6 +1185,8 @@ function func_fr
 # =======================
 
 
+# Force Update AUR
+# this core functionality of "Force Update AUR" (note the bold "u" and "a") can be started in the terminal using "pacui ua". the help page provides additional explanations.
 function func_ua
 {
         if [[ ! -e /usr/bin/pacaur ]]                                                # checks, whether file "pacaur" does not exist
@@ -1155,6 +1198,8 @@ function func_ua
 }
 
 
+# List Installed from AUR
+# this core functionality of "List Installed from AUR" (note the bold "l" and "a") can be started in the terminal using "pacui la". the help page provides additional explanations.
 function func_la
 {
         # this command shows all packages from external, i.e. not in system repositories, sources:
@@ -1170,9 +1215,11 @@ function func_la
 
 
 # =======================
-# the following functions are hidden in the UI.
+# the following functions are hidden from the UI.
 
 
+# List Packages by Size
+# this core functionality of "List Packages by Size" (note the bold "l" and "s") can be started in the terminal using "pacui ls". the help page provides additional explanations.
 function func_ls
 {
         # list all packages on local system sorted by their installed size using "expac" and "sort".
@@ -1182,6 +1229,8 @@ function func_ls
 }
 
 
+# Downgrade Packages
+# this core functionality of "Downgrade Packages" (note the bold "d") can be started in the terminal using "pacui d". the help page provides additional explanations.
 function func_d
 {
         # write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
@@ -1203,6 +1252,8 @@ function func_d
 }
 
 
+# Search + Install from AUR
+# this core functionality of "Search + Install from AUR" (note the bold "a") can be started in the terminal using "pacui a". the help page provides additional explanations.
 function func_a
 {
         local pkg
@@ -1238,10 +1289,12 @@ function func_a
 # =======================
 
 
+# Help
+# this core functionality of "Help" (note the bold "h") can be started in the terminal using "pacui h". the help page provides additional explanations.
 function func_h
 {
-        # the "then" part is displayed, when started directly from terminal (the last function adds the "1" parameter). the "else" part gets displayed when started from UI.
-        if [[ "$1" == "1" ]]
+        # the "then" part of this if-statement is displayed, when started directly from terminal (the last function calls func_h with the "1" parameter). the "else" part gets displayed when started from UI.
+        if [[ "$1" == "1" ]]                                                         # check, whether func_h got started with the parameter "1"
         then
 
             echo
@@ -1279,7 +1332,7 @@ function func_h
             if  [[ ! -e /tmp/pacui-help ]]
             then
 
-                # this "heredoc" command pushes all the following lines into "cat" (and "cat pushed it to file /tmp/pacui-help) until a line containing the "EOF" keyword is encountered
+                # this "heredoc" command pushes all the following lines into "cat" (and "cat pushes it to file /tmp/pacui-help) until a line containing the "EOF" keyword is encountered
                 cat > /tmp/pacui-help <<- "EOF"
 
 \e[1mWelcome to PacUIs Help Page
@@ -1607,16 +1660,16 @@ fi
 # =======================
 
 
-# the following section of code gets executed when this script gets called directly from a terminal/tty without using the UI:
+# the following section of code is executed when pacui gets called directly from a terminal/tty without using the UI:
 
 
-# write first argument of "pacui ..." (= option of pacui) to "input" variable.
+# write first argument of "pacui ..." command to "input" variable
 input=$1
 # wirte all other arguments of "pacui $1 ..." (= often (parts of) package or file names) to "input2" variable. all arguments gets combined into one variable with spaces, but no breaks.
 # fzf will always display search results for "input2", if it exists (and "input" is a valid function"). if "input2" is not found in fzf's list, NOTHING is displayed.
 input2=${*:2}
 
-# if "input" starts with a "-" or "--" dash symbol, the dash(es) gets removed from the beginnig of "input" variable
+# if "input" starts with a "-" or "--" dash symbol(s), the dash(es) gets removed from the beginnig of "input" variable
 input=${input#-}
 input=${input#-}
 
@@ -1624,7 +1677,7 @@ input=${input#-}
 input=$( echo "$input" | tr '[:upper:]' '[:lower:]' )
 
 
-# the following code checks, whether a prefix (func_) + varialbe "input" is a valid function defined above. after the function is done an "exit" command is needed to prevent the UI from loading.
+# the following code checks, whether a prefix (func_) + varialbe "input" is a valid function defined above.
 if [[ $( type -t "func_$input") == "function" ]]
 then
 
@@ -1633,9 +1686,9 @@ then
         unset input
         unset input2
 
-        exit $?                                                                      # exit here and return error code if present
+        exit $?                                                                      # exit pacui here and return error code if present. this "exit" command is needed to prevent the UI from loading!
 
-elif (( $# > 0 ))                                                                    # if "func_$input" is no valid function AND if one or more arguments are given. this condition is needed to exclude "pacui" (without any arguments) from running this section.
+elif (( $# > 0 ))                                                                    # if "func_$input" is no valid function AND if one or more arguments are given. this condition is needed to exclude the "pacui" command (note, there are NO arguments) from running this section.
 then
 
         unset input
@@ -1659,6 +1712,7 @@ fi
 
 
 # bug #1:
+# "pacui --pacui_clean" helper function. this function is only called from within pacui.
 # the traditional "clear" command does not work as expected on all systems. solution: do everything i expect from "clear" manually:
 function pacui_clean
 {
@@ -1681,7 +1735,7 @@ function pacui_clean
 while true
 do
 
-    pacui_clean
+    pacui_clean                                                                      # clear the terminal screen
 
     # draw UI / menu. please note the use of ANSI Escape sequences mentioned above. The text/code can be hard to read...
     echo
@@ -1713,7 +1767,7 @@ do
     case $choice in
 
 
-        # this line means: the following commands will get executed if $choice is "1" or "u" or "update" until a ";;" code line is encountered:
+        # this line means: the following commands will get executed if $choice is "1" or "u" or "update" until a code line containing only ";;" is encountered:
         1|u|update )
             # call function "func_u"
             func_u
@@ -1837,11 +1891,11 @@ do
             echo
             ;;
         0|q|quit|$'\e'|$'\e'$'\e' )
-            pacui_clean && exit
+            pacui_clean && exit                                                      # clear terminal screen first. the "exit" command quits pacui.
             ;;
 
 
-        * )
+        * )                                                                          # do this, if $choice varialbe contains anything else
             echo -e " \e[41m Wrong option \e[0m"
             echo -e "  Please try again...  "
             sleep 2
@@ -1849,4 +1903,7 @@ do
 
 
     esac                                                                             # close case-loop
+
+# now, the infinite while-loop will start again from its top by clearing the terminal screen and redrawing the UI
+
 done                                                                                 # close while-loop
