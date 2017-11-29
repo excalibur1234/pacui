@@ -20,7 +20,6 @@ Table of Contents
       * [Start PacUI without UI: Using Options and Package Names](#start-pacui-without-ui-using-options-and-package-names)
    * [Useful Tips and Recommended Settings](#useful-tips-and-recommended-settings)
       * [Fancy List View](#fancy-list-view)
-      * [Limit Mirrors Check to Countries Near You](#limit-mirrors-check-to-countries-near-you)
       * [Alias](#alias)
       * [Search syntax](#search-syntax)
    * [Help](#help)
