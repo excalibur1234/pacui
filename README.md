@@ -149,17 +149,6 @@ A single bar character term acts as an OR operator. For example, the following q
 ^core go$ | rb$ | py$
 ```
 
-### Limit Mirrors Check to Countries Near You
-In Manjaro, pacman-mirrors is used by PacUI. For example, in the "Maintain System" option, your ping is checked to all Manjaro servers/mirrors. By limiting this check to mirrors near you, you can dramatically speed up this process.
-You can achieve this by uncommenting and editing the following line in your /etc/pacman-mirrors.conf file:
-```
-#OnlyCountry =
-```
-A very easy way to edit this file using PacUI is:
-```
-pacui -c
-```
-
 
 ## Help
 
