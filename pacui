@@ -66,7 +66,7 @@ function func_diff
 # this core functionality of "Maintain System" (note the bold "M") can be started in the terminal using "pacui m". it is separated into multiple parts. most parts begin (or contain) an "echo" command, which explains what is being done. the help page explains the core functionality of every part in detail, too.
 function func_m
 {
-        echo "choosing fastest mirror ..."
+        echo "choosing fastest mirror (which can take a while) ..."
         if [[ -e /usr/bin/pacman-mirrors ]]                                          # checks, whether file "pacman-mirrors" exists
         then
             sudo pacman-mirrors -f 0 && sudo pacman -Syy                             # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
