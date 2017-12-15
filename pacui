@@ -1438,7 +1438,8 @@ Please note that folders in your home (~) directory and created by the program <
 
 
 \e[1m5 - DEPENDENCY TREE
-\e[36m"pactree -s <PACKAGE NAME>"\e[0m or \e[36m"pactree <PACKAGE NAME>"
+\e[36m"pactree <PACKAGE NAME>"
+\e[36m"pactree -s <PACKAGE NAME>"\e[0m(only for packages not installed on your system)
 This command will display a complete tree of all dependencies of <PACKAGE NAME>. <PACKAGE NAME> can be an installed package or a package from your system repositories. Dependencies are packages required by <PACKAGE NAME> in order to function. When you install <PACKAGE NAME>, all its dependencies get installed, too.
 Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-t.
 
@@ -1670,6 +1671,12 @@ input=$1
 # wirte all other arguments of "pacui $1 ..." (= often (parts of) package or file names) to "input2" variable. all arguments gets combined into one variable with spaces, but no breaks.
 # fzf will always display search results for "input2", if it exists (and "input" is a valid function"). if "input2" is not found in fzf's list, NOTHING is displayed.
 input2=${*:2}
+
+# remove leading white spaces:
+#input=$( echo "$input" | sed 's/^ *//g' )
+
+# remove trailing white spaces:
+input=$( echo "$input" | sed 's/ *$//g' )
 
 # if "input" starts with a "-" or "--" dash symbol(s), the dash(es) gets removed from the beginnig of "input" variable
 input=${input#-}
