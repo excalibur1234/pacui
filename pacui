@@ -33,13 +33,15 @@ function pacui_clean
 {
         # number of lines of the user's terminal.
         lines=$( tput lines )
-        for (( i=1; i<=lines; i++ ))
+        for (( i=1; i<lines; i++ ))
         do
                 # insert "lines" number of empty lines:
                 echo
         done
         # move cursor to the top left of the terminal
         tput cup 0 0
+        # in tty, the above code does not "clear" the screen after fzf quits. only the real "clear" works, but it also destroys the terminal history.
+        clear
 }
 
 
@@ -253,7 +255,6 @@ function func_i
         local {pkg,pkg_install}                                                     # declare local variables
 
         pacui_clean                                                                 # clear terminal
-        clear                                                                       # another "clear" to fix tty
 
         # the package list in /tmp/pacui-packages-install gets sorted (by "sort" - only first column gets used for sorting) and displayed by fzf. look in "man fzf" for what fzf's arguments are used.
         # fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
@@ -277,7 +278,6 @@ function func_i
             ' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
         pacui_clean                                                                 # clear terminal
-        clear                                                                       # another "clear" to fix tty
 
         # $pkg contains package names below each other, but we need a list (in 1 line, space separated):
         pkg_install=$( echo $pkg | paste -sd " " )
@@ -311,7 +311,6 @@ function func_r
         local {pkg,pkg_remove}                                                      # declare local variables
 
         pacui_clean                                                                 # clear terminal
-        clear                                                                       # another "clear" to fix tty
 
         # take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
         # fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
@@ -326,7 +325,6 @@ function func_r
             ' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
         pacui_clean                                                                 # clear terminal
-        clear                                                                       # another "clear" to fix tty
 
         if [[ -n $pkg ]]                                                            # check, whether $pkg variable is not empty. this happens when fzf is quit with CTRL+C.
         then
@@ -349,9 +347,6 @@ function func_r
                 echo -e "\e[1mPress ENTER to try again or CTRL+C to quit.\e[0m"
                 read
 
-                pacui_clean                                                         # clear terminal
-                clear                                                               # another "clear" to fix tty
-
                 # 3. try again with a limited list of packages in fzf. this loop is dependent on the /tmp/pacui-remove-backup file!
                 while [[ -e /tmp/pacui-remove-backup ]]
                 do
@@ -359,7 +354,6 @@ function func_r
                     local {pkg,pkg_remove}                                          # declare local variables
 
                     pacui_clean                                                     # clear terminal
-                    clear                                                           # another "clear" to fix tty
 
                     # fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
                     pkg=$( cat /tmp/pacui-remove-backup | fzf-tmux -m -e +s -i --query="$input2" --reverse --margin=4%,1%,1%,2% --inline-info --preview '
@@ -373,7 +367,6 @@ function func_r
                         ' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
                     pacui_clean                                                     # clear terminal
-                    clear                                                           # another "clear" to fix tty
 
                     if ! [[ -n $pkg ]]                                              # check, whether $pkg variable is empty. this happens when fzf is quit with CTRL+C.
                     then
@@ -420,7 +413,6 @@ function func_t
         local pkg
 
         pacui_clean                                                                 # clear terminal
-        clear                                                                       # another "clear" to fix tty
 
         pkg=$( sort -k1,1 -u /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
             if ( pacman -Qq {1} &>/dev/null )                                       # check, if selected line is a locally installed package
@@ -437,7 +429,6 @@ function func_t
             ' --preview-window=right:50%:wrap  --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
         pacui_clean                                                                 # clear terminal
-        clear                                                                       # another "clear" to fix tty
 
         # look in func_info for explanations
         if [[ -n $pkg ]]
@@ -451,7 +442,6 @@ function func_t
         fi
 
         pacui_clean                                                                 # clear terminal
-        clear                                                                       # another "clear" to fix tty
 }
 
 
@@ -460,7 +450,6 @@ function func_t
 function func_rt
 {
         pacui_clean                                                                 # clear terminal
-        clear                                                                       # another "clear" to fix tty
 
         local pkg
         pkg=$( expac -Q "%-33n\t%d" | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
@@ -468,7 +457,6 @@ function func_rt
             ' --preview-window=right:50%:wrap  --header="Press ENTER to show reverse tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
         pacui_clean                                                                 # clear terminal
-        clear                                                                       # another "clear" to fix tty
 
         # look in func_info for explanations
         if [[ -n $pkg ]]
@@ -477,7 +465,6 @@ function func_rt
         fi
 
         pacui_clean                                                                 # clear terminal
-        clear                                                                       # another "clear" to fix tty
 }
 
 
@@ -494,7 +481,6 @@ function func_l
         local pkg
 
         pacui_clean                                                                 # clear terminal
-        clear                                                                       # another "clear" to fix tty
 
         pkg=$( sort -k1,1 -u /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
             if ( pacman -Qq {1} &>/dev/null )                                       # check, if selected line is a locally installed package
@@ -511,7 +497,6 @@ function func_l
             ' --preview-window=right:50%:wrap  --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
         pacui_clean                                                                 # clear terminal
-        clear                                                                       # another "clear" to fix tty
 
         if [[ -n $pkg ]]
         then
@@ -539,7 +524,6 @@ function func_l
         fi
 
         pacui_clean                                                                 # clear terminal
-        clear                                                                       # another "clear" to fix tty
 }
 
 
@@ -602,13 +586,11 @@ function func_s
 
 
             pacui_clean                                                             # clear terminal
-            clear                                                                   # another "clear" to fix tty
 
             # display results from file /tmp/pacui-search-temp in fzf.
             cat /tmp/pacui-search-temp | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Package file names (with path) containing \"$file\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed package names and file paths > ' > /tmp/pacui-s
 
             pacui_clean                                                             # clear terminal
-            clear                                                                   # another "clear" to fix tty
 
         fi
 }
@@ -645,7 +627,6 @@ function func_b
 
 
         pacui_clean                                                                 # clear terminal
-        clear                                                                       # another "clear" to fix tty
 
         # 1. get list of last installs/upgrades/removals/downgrades from pacman log and display result in fzf.
         # when fzf quits, only selected package names (including the words " installed/upgraded/removed/downgraded") are saved to variable $pacui_cache_packages
@@ -653,7 +634,6 @@ function func_b
         pacui_cache_packages="$( tail -5000 /var/log/pacman.log | grep "\[ALPM\]" | grep "] installed\|removed\|upgraded\|downgraded" | sed 's/\[ALPM\] //g' | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --tac --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to roll back. ESC to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}' )"
 
         pacui_clean                                                                 # clear terminal
-        clear                                                                       # another "clear" to fix tty
 
         # only run the command inside the if-statement, if variable $pacui_cache_packages is not empty and exists - this happens when fzf is quit with ESC or CTRL+C
         if [[ ! -z "$pacui_cache_packages" ]]
@@ -1060,7 +1040,6 @@ function func_c
         local {file,check}
 
         pacui_clean                                                                 # clear terminal
-        clear                                                                       # another "clear" to fix tty
 
         # echo -e "$( cat '/tmp/pacui-conf' )"  -- this command interprets the ANSI escape sequences contained in /tmp/pacui-conf.
         file=$( echo -e "$( cat '/tmp/pacui-conf' )" | fzf-tmux -e +s -i -1 --ansi --cycle --query="$input2" --reverse --margin=4%,1%,1%,2% --inline-info --preview '
@@ -1079,7 +1058,6 @@ function func_c
         # the output of fzf is saved in the $file variable. $file can contain a filename (with its full path) or a directory (with its full path).
 
         pacui_clean                                                                 # clear terminal
-        clear                                                                       # another "clear" to fix tty
 
         # we need a method to check, whether fzf is quit with ESC. if this happens, we should NOT open a text editor!
         check=1
@@ -1102,7 +1080,6 @@ function func_c
                     ' --preview-window=right:50%:wrap --header="ENTER to edit file in text editor. ESC to quit." --prompt='Enter string to filter list of files > ' )
 
                 pacui_clean                                                         # clear terminal
-                clear                                                               # another "clear" to fix tty
 
                 if [[ -n $file ]]                                                   # $file is empty when fzf is quit with ESC.
                 then
@@ -1205,7 +1182,6 @@ function func_fi
         local {pkg,pkg_install}
 
         pacui_clean                                                                 # clear terminal
-        clear                                                                       # another "clear" to fix tty
 
         # take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
         # fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
@@ -1229,7 +1205,6 @@ function func_fi
             ' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
         pacui_clean                                                                 # clear terminal
-        clear                                                                       # another "clear" to fix tty
 
         # $pkg contains package names below each other, but we need a list (in 1 line, space separated):
         pkg_install=$(echo $pkg | paste -sd " ")
@@ -1255,7 +1230,6 @@ function func_fr
         local {pkg,pkg_remove}
 
         pacui_clean                                                                 # clear terminal
-        clear                                                                       # another "clear" to fix tty
 
         # take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
         # fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
@@ -1271,7 +1245,6 @@ function func_fr
             ' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
         pacui_clean                                                                 # clear terminal
-        clear                                                                       # another "clear" to fix tty
 
         # $pkg contains package names below each other, but we need a list (in 1 line, space separated):
         pkg_remove=$(echo $pkg | paste -sd " ")
@@ -1304,7 +1277,6 @@ function func_ua
 function func_la
 {
         pacui_clean                                                                 # clear terminal
-        clear                                                                       # another "clear" to fix tty
 
         # this command shows all packages from external, i.e. not in system repositories, sources:
         # packages from the AUR and manually installed packages
@@ -1314,7 +1286,6 @@ function func_la
             ' --preview-window=right:50%:wrap  --header="List of AUR and manually installed packages. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-la
 
         pacui_clean                                                                 # clear terminal
-        clear                                                                       # another "clear" to fix tty
 }
 
 
@@ -1327,7 +1298,6 @@ function func_la
 function func_ls
 {
         pacui_clean                                                                 # clear terminal
-        clear                                                                       # another "clear" to fix tty
 
         # list all packages on local system sorted by their installed size using "expac" and "sort".
         # $( comm -23 <(pacman -Qq | sort) <(pacman -Qqg base base-devel | sort) )  only shows packages, which are not part of "base" or "base-devel" group.
@@ -1335,7 +1305,6 @@ function func_ls
         # alternative command to "expac" and "sort": package-query -Qe --rsort 2 -f "%2 - \e[1m%n \e[0m%v" | numfmt --to=iec
 
         pacui_clean                                                                 # clear terminal
-        clear                                                                       # another "clear" to fix tty
 }
 
 
@@ -1351,12 +1320,10 @@ function func_d
         local pkg_downgrade
 
         pacui_clean                                                                 # clear terminal
-        clear                                                                       # another "clear" to fix tty
 
         pkg=$( sort -k1,1 -u /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to downgrade. ESC to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 
         pacui_clean                                                                 # clear terminal
-        clear                                                                       # another "clear" to fix tty
 
         # $pkg contains package names below each other, but we need a list (in 1 line, space separated):
         pkg_downgrade=$(echo $pkg | paste -sd " ")
@@ -1838,7 +1805,6 @@ while true
 do
 
     pacui_clean                                                                     # clear the terminal screen
-    clear                                                                           # extra "clear" command needed for tty
 
     # draw UI / menu. please note the use of ANSI Escape sequences mentioned above. The text/code can be hard to read...
     echo
