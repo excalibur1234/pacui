@@ -462,7 +462,7 @@ function func_r
             pkg_remove=$(echo $pkg | paste -sd " ")
 
             # wrap the "sudo pacman -Rns" command in an if-statement, which checks, whether the removal of packages works. the removal of packages does not work, if the user tries to remove a dependency.
-            # the failure of "sudo pacman -Rns" is especially annoying, if many packages has been chose for removal and 1 package is a dependency. by default, the list of pacakges (which are supposed to be removed) is NOT saved!
+            # the failure of "sudo pacman -Rns" is especially annoying, if many packages has been chose for removal and 1 package is a dependency. by default, the list of packages (which are supposed to be removed) is NOT saved!
             # "sudo pacman -Rsn $pkg_remove --color always" always gets executed!
             if ! ( sudo pacman -Rsn $pkg_remove --color always )
             then
@@ -772,7 +772,7 @@ function func_b
 
             if [[ -e /usr/bin/pacaur ]]                                             # checks, whether file "pacaur" exists, i.e. pacaur is installed
         then
-            # the cache location of pacaur is important for downgrading packages installed from the AUR or reinstalling removed pacakges from the AUR:
+            # the cache location of pacaur is important for downgrading packages installed from the AUR or reinstalling removed packages from the AUR:
             if [[ -z $AURDEST ]]                                                    # $AURDEST is environment variable for changing pacaur's default cache directory. check, if "AURDEST" variable is empty
             then
                 cachePACAUR="$HOME/.cache/pacaur/"
@@ -1478,19 +1478,6 @@ Navigate this help page with your Arrow Keys, PageUp/PageDown Keys, SpaceBar, or
 PacUI uses Fuzzy Finder (fzf) to display selectable lists, which can be easily searched by starting to type. Advanced users can even use regular expressions to search in fzf. Use your TAB key to select multiple items from the list and your ENTER key to choose your selection. Navigate fzf's list the same way you navigate this help page.
 
 
-
-\e[1;31m15 - FORCE INSTALL PACKAGES
-\e[36m"sudo pacman -S --force <PACKAGE NAME>"
-This command does the same as INSTALL PACKAGES for packages from your system repositories exclusively. The installation of <PACKAGE NAME> is forced.
-
-\e[1;31m16 - FORCE REMOVE PACKAGES
-\e[36m"pacman -Rndd <PACKAGE NAME>"
-This command removes <PACKAGE NAME> without checking the dependencies of <PACKAGE NAME> first. This enables experienced users to remove packages and dependencies of packages. This command only removes <PACKAGE NAME> from your system. All dependencies and orphans are left: run MAINTAIN SYSTEM afterwards to remove them.
-\e[1mAttention\e[0m: This command can break pacakges on your system or even your entire system.
-
-
-
-
 \e[1mHOME SCREEN
 PacUI's home screen is split into three parts:
 The first part focuses on updates, maintenance, installations, and removals of packages from system repositories and the Arch User Repository (AUR). It includes useful tools for these actions, too.
@@ -1513,6 +1500,7 @@ This will quit PacUI and clear your terminal. Scroll up to see all terminal outp
 \e[36m"yaourt -Syua"
 The first command compares a list of all installed packages with package database on your system repository mirror/server. If an updated package is available from your system repositories, it will get downloaded and installed on your system.
 The second command does the same as the first part, but with one exception: It also downloads, compiles, and installs all packages from the Arch User Repository (AUR), which have an updated PKGBUILD file. The first command is still needed occasionaly, because major Pacman and Yaourt updates require "pacman -Syu" and will fail when started with Yaourt.
+If updates from system repositories fail, the user is offered the choice to update packages using \e[36m"sudo pacman -Syu --force"\e[0m.
 \e[1mAttention\e[0m: When a new version of an AUR package is available, sometimes the PKGBUILD file is not updated. If you want to install the latest version of a single AUR package, (re-)install it with INSTALL PACKAGES. If you want to install the latest versions of ALL AUR packages use FORCE UPDATE AUR.
 
 
@@ -1570,6 +1558,7 @@ Kernels from the AUR are also listed by the "comm" command. Please decide for yo
 \e[1m3 - INSTALL PACKAGES
 \e[36m"yaourt -S <PACKAGE NAME>"
 This option downloads and installs <PACKAGE NAME> on your system. The list of packages shows packages from your system repository with their description while package groups or packages from the AUR are only shown with their name.
+If package installation from system repositories fails, the user is offered the choice to install packages using \e[36m"sudo pacman -S --force <PACKAGE NAME>"\e[0m.
 \e[1mAttention\e[0m: Experienced users can install packages from the AUR without the need to answer questions all the time by using the command "yaourt -S <PACKAGE NAME> --noconfirm". The "--noconfirm" flag is great for quick and dirty installations of AUR packages on non-secure systems. Please keep always in mind that the AUR can contain any sort of package - including malicious and destructive (parts of) packages. Therefore, it is recommended to always check the PKGBUILD and .INSTALL file manually before installing a package from the AUR.
 
 
@@ -1581,6 +1570,8 @@ Please note that folders in your home (~) directory and created by the program <
 ~/.config/
 ~/.local/share/
 \e[1mAttention\e[0m: If you want to display a list of all your installed packages (including their version number and description) use this PacUI option. Simply do not select <PACKAGE NAME> to be removed, but quit the list view with ESC or CTRL+C.
+If package removal fails, the user is offered the choice to either try again or remove packages using \e[36m"pacman -Rdd <PACKAGE NAME>"\e[0m.
+\e[1mAttention\e[0m: \e[36m"pacman -Rdd <PACKAGE NAME>"\e[0m does not check for dependencies before removing packages. In severe cases, this can leave your system without essential packages and thus unbootable!
 
 
 \e[1m5 - DEPENDENCY TREE
@@ -1739,7 +1730,7 @@ After a successful downgrade, you can add <PACKAGE NAME> to your Ignore List ( "
 Alternatively, you can run future updates with the command "sudo pacman -Syu --ignore <PACKAGE NAME>" until a fixed version of <PACKAGE NAME> gets released.
 \e[1mAttention\e[0m: Be careful when using Manjaro and downgrading to <PACKAGE NAME> from online sources, because these are old versions from the Arch Linux repositories only: In the worst case, this can brake your system! Therefore, it is recommended to limit downgrading to (old versions of) local packages, if possible.
 \e[1mAttention\e[0m: Downgrading to a working version of <PACKAGE NAME> can break your system in in rare cases like the following: The latest system update has replaced a dependency of <PACKAGE NAME> with a different package and <PACKAGE NAME> is an important system package. Downgrading <PACKAGE NAME> will NOT reinstall the dependency of <PACKAGE NAME>, because it conflicts with the already installled different package. This can result in a broken system. Please keep these kind of conflicts in mind when using DOWNGRADE PACKAGES.
-\e[1mAttention\e[0m: DOWNGRADE PACKAGES will show you a selection of packages you can downgrade. If you are using Pacaur to install AUR packages, you will not be able to downgrade AUR pacakges using DOWNGRADE PACKAGES! instead, the ROLL BACK SYSTEM option is recommended.
+\e[1mAttention\e[0m: DOWNGRADE PACKAGES will show you a selection of packages you can downgrade. If you are using Pacaur to install AUR packages, you will not be able to downgrade AUR packages using DOWNGRADE PACKAGES! instead, the ROLL BACK SYSTEM option is recommended.
 
 
 \e[1mEMPTY PACKAGE CACHE
