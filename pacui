@@ -60,40 +60,63 @@ function func_u
 {
         if [[ ! -e /usr/bin/pacaur ]]                                               # checks, whether file "pacaur" does not exist
         then
+        
             # execute these commands, if "pacaur" is not installed on system
             sudo pacman -Syu --color always
             yaourt -Syua
+
         else
-            # execute these commands, if "pacaur is installed on system
-            pacaur -Syu  --color always
+
+            # execute these commands, if "pacaur is installed on system:
+
+            # wrap the "pacaur -Syu --color always" command in an if-statement, which checks, whether the update of packages works. 
+            # the update of packages does not work, if there are file conflicts during an update and files would need to be overwritten. by default, pacman NEVER overwrites files, because this can lead to a broken system!
+            # "pacaur -Syu  --color always" always gets executed!
+            if ! ( pacaur -Syu --color always )
+            then
+
+                # if "pacaur -Syu --color always" fails, there are multiple points of failure. the first one is the internet/repository/mirror connection of the user:
+                # check, whether there is a connection to the mirror/repository server. this is needed for package download/update!
+                if ( sudo pacman -Syy )                                                 # the "sudo pacman -Syy" command gets executed in any case in order to check its output.
+                then
+
+                    # next, we can force the update, but only for packages from the system repositories and not packages from the AUR. therefore, we need to make sure package udates from system repositories fail:
+                    if ! ( sudo pacman -Syu --color always )                            # the "sudo pacman -Syu --color always" command gets executed in any case in order to check its output.
+                    then
+                    
+                        # now, we are sure there is an active connection to the server/mirror/repository and package updates from there have failed. in this case, we can offer the user to forcefully install updates:
+                        local answer
+                        # ask, whether to force update the system and save answer in "answer" variable:
+                        read -p $'\e[1mUpdates from system repositories have failed because of file conflicts.\nDo you want to overwrite all conflicting files? [y|N]\e[0m' answer
+                        case ${answer:-n} in                                            # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "n".
+                            y|Y|yes|Yes|YES )                                           # do this, if "answer" is y or Y or yes or Yes or YES
+                                sudo pacman -Syu --force --color always --noconfirm
+                                ;;
+                            * )                                                         # do this in all other cases
+                                echo "Packages have not been updated."
+                                ;;
+                        esac   
+
+                    fi
+
+                else
+
+                    # print error message, if there is no connection to a mirror/repository server and quit 
+
+                    local server
+                    # extract mirror/repository server url from /etc/pacman.d/mirrorlist file:
+                    server=$( grep "^Server =" -m 1 /etc/pacman.d/mirrorlist | awk '{print $3}' )
+
+                    echo -e "\e[41m Either there is something wrong with your internet connection or with your mirror/repository server: "$server" \e[0m"
+                    echo -e "\e[1;41m Please make sure both are ok and rerun this part of PacUI! \e[0m"
+                    echo -e ""
+
+                fi
+
+            fi
+
         fi
 }
-
-# Force Update System
-# this core functionality of "Force Update System" (note the bold "f" and "u") can be started in the terminal using "pacui fu". the help page provides additional explanations.
-function func_fu
-{
-        sudo pacman -Syu --force --color always
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 # "pacui --diff" helper function
@@ -381,6 +404,28 @@ function func_fi
             sudo pacman -S --force $pkg_install --color always
         fi
 }
+#------------------------------
+                # ask, whether to remove the displayed orphaned packages and save answer in "answer" variable:
+                read -p $'\e[1mDo you want to remove these orphaned packages? [Y|n]\e[0m' answer
+                case ${answer:-y} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "y".
+                    y|Y|yes|YES|Yes )                                               # do this, if "answer" is y or Y or yes or YES or Yes
+                        sudo pacman -Rsn $(pacman -Qqdt) --color always --noconfirm
+                        ;;
+                    * )                                                             # do this in all other cases
+                        echo "Packages have not been removed."
+                        ;;
+                esac   
+
+#------------------------------------
+            # wrap the "sudo pacman -Rns" command in an if-statement, which checks, whether the removal of packages works. the removal of packages does not work, if the user tries to remove a dependency.
+            # the failure of "sudo pacman -Rns" is especially annoying, if many packages has been chose for removal and 1 package is a dependency. by default, the list of pacakges (which are supposed to be removed) is NOT saved!
+            # "sudo pacman -Rsn $pkg_remove --color always" always gets executed!
+            if ! ( sudo pacman -Rsn $pkg_remove --color always )
+            then
+
+                # continue here only if "sudo pacman -Rns" has failed:
+                # 1. save list of packages to backup file.
+                echo $pkg_remove | tr " " "\n" > /tmp/pacui-remove-backup           # tr " " "\n" is needed to convert the list of package names (in 1 line) back to multiple lines. otherwise, fzf cannot work with it.
 
 
 
@@ -1454,16 +1499,13 @@ function func_h
             echo -e "  pacui    b     - Roll \e[1mB\e[0mack System"
             echo -e "  pacui    fix   - \e[1mFix\e[0m Pacman Errors"
             echo -e "  pacui    c     - Edit \e[1mC\e[0monfig Files"
-            echo -e "  \e[31mpacui    fu    - \e[1mF\e[0;31morce \e[1mU\e[0;31mpdate System\e[0m"
-            echo -e "  \e[31mpacui    e     - \e[1mE\e[0;31mmpty Package Cache\e[0m"
-            echo -e "  \e[31mpacui    fi    - \e[1mF\e[0;31morce \e[1mI\e[0;31mnstall Packages\e[0m"
-            echo -e "  \e[31mpacui    fr    - \e[1mF\e[0;31morce \e[1mR\e[0;31memove Packages\e[0m"
             echo
             echo -e "  pacui    ua    - Force \e[1mU\e[0mpdate \e[1mA\e[0mUR"
             echo -e "  pacui    la    - \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
             echo
             echo -e "  pacui    ls    - \e[1mL\e[0mist Packages by \e[1mS\e[0mize"
             echo -e "  pacui    d     - \e[1mD\e[0mowngrade Packages"
+            echo -e "  pacui    e     - \e[1mE\e[0mmpty Package Cache\e[0m"
             echo -e "  pacui    a     - Search + Install from \e[1mA\e[0mUR"
             echo
             echo -e '  pacui    h     - Short \e[1mH\e[0melp. For more help, select "Help" in User Interface.'
@@ -1753,7 +1795,7 @@ Alternatively, you can run future updates with the command "sudo pacman -Syu --i
 \e[1mAttention\e[0m: DOWNGRADE PACKAGES will show you a selection of packages you can downgrade. If you are using Pacaur to install AUR packages, you will not be able to downgrade AUR pacakges using DOWNGRADE PACKAGES! instead, the ROLL BACK SYSTEM option is recommended.
 
 
-\e[1;31mEMPTY PACKAGE CACHE
+\e[1mEMPTY PACKAGE CACHE
 \e[36m"yaourt -Scc"
 This command will empty your entire package cache by deleting ALL packages.
 \e[1mAttention\e[0m: This will make it impossible to ROLL BACK SYSTEM without a working internet connection.
