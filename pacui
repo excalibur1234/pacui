@@ -1379,19 +1379,6 @@ function func_d
 }
 
 
-# Empty Package Cache
-# this core functionality of "Empty Package Cache" (note the bold "e") can be started in the terminal using "pacui e". the help page provides additional explanations.
-function func_e
-{
-        if [[ ! -e /usr/bin/pacaur ]]                                               # checks, whether file "pacaur" does not exist
-        then
-            yaourt -Scc
-        else
-            pacaur -Scc --color always
-        fi
-}
-
-
 # Search + Install from AUR
 # this core functionality of "Search + Install from AUR" (note the bold "a") can be started in the terminal using "pacui a". the help page provides additional explanations.
 function func_a
@@ -1457,7 +1444,6 @@ function func_h
             echo
             echo -e "  pacui    ls    - \e[1mL\e[0mist Packages by \e[1mS\e[0mize"
             echo -e "  pacui    d     - \e[1mD\e[0mowngrade Packages"
-            echo -e "  pacui    e     - \e[1mE\e[0mmpty Package Cache\e[0m"
             echo -e "  pacui    a     - Search + Install from \e[1mA\e[0mUR"
             echo
             echo -e '  pacui    h     - Short \e[1mH\e[0melp. For more help, select "Help" in User Interface.'
@@ -1734,12 +1720,6 @@ Alternatively, you can run future updates with the command "sudo pacman -Syu --i
 \e[1mAttention\e[0m: DOWNGRADE PACKAGES will show you a selection of packages you can downgrade. If you are using Pacaur to install AUR packages, you will not be able to downgrade AUR packages using DOWNGRADE PACKAGES! instead, the ROLL BACK SYSTEM option is recommended.
 
 
-\e[1mEMPTY PACKAGE CACHE
-\e[36m"yaourt -Scc"
-This command will empty your entire package cache by deleting ALL packages.
-\e[1mAttention\e[0m: This will make it impossible to ROLL BACK SYSTEM without a working internet connection.
-
-
 \e[1mSEARCH + INSTALL FROM AUR
 \e[36m"yaourt <PACKAGE NAME>"
 This command searches for <PACKAGE NAME> in all system repositories and the Arch User Repository (AUR). It searches for package names and package descriptions.
@@ -1961,12 +1941,6 @@ do
             func_d
             echo
             echo " Downgrade finished. To return to PacUI press ENTER "
-            read
-            ;;
-        e|empty )
-            func_e
-            echo
-            echo " Entire package cache emptied. To return to PacUI press ENTER "
             read
             ;;
         a|aur )
