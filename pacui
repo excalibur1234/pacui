@@ -26,22 +26,31 @@
 # all functions of pacui are defined here in the same order as they appear in pacui's UI (with some exceptions):
 
 
-# bug #1:
+# bug #1 and #3:
 # "pacui --pacui_clean" helper function. this function is only called from within pacui.
-# the traditional "clear" command does not work as expected on all systems - especially in tty. solution: do everything i expect from "clear" manually. this function should be called every time before and after "fzf" runs.
 function pacui_clean
 {
-        # number of lines of the user's terminal.
-        lines=$( tput lines )
-        for (( i=1; i<lines; i++ ))
-        do
-                # insert "lines" number of empty lines:
-                echo
-        done
-        # move cursor to the top left of the terminal
-        tput cup 0 0
-        # in tty, the above code does not "clear" the screen after fzf quits. only the real "clear" works, but it also destroys the terminal history.
-        clear
+        if ( tty | grep tty &>/dev/null )                                           # check, whether output of "tty" contains the string "tty". this is TRUE, if pacui is used within a tty.
+        then
+            # bug #3:
+            # in tty, fzf does not clear the screen before and after it runs. this makes a bad visual style in tty. the other code (in the "else bracket") does not help to "clear" the screen before and after fzf runs, either. only the real "clear" command works. 
+            # unfortunately the "clear" command also destroys the terminal history. therefore, the "clear" command should only be used in tty!
+            clear
+        else                                                                        # the output of the "tty" command does not contain "tty" when pacui is executed in a terminal or in tmux.
+            # bug #1:
+            # the traditional "clear" command does not work as expected on all systems. problem: the terminal history of all previous commands is deleted when the "clear" command is used. solution: do everything i expect from "clear" manually. this keeps the terminal history:
+            
+            # number of lines of the user's terminal.
+            lines=$( tput lines )
+            for (( i=1; i<lines; i++ ))
+            do
+                    # insert "lines" number of empty lines:
+                    echo
+            done
+            
+            # move cursor to the top left of the terminal
+            tput cup 0 0
+        fi
 }
 
 
