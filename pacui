@@ -60,7 +60,7 @@ function func_u
 {
         if [[ ! -e /usr/bin/pacaur ]]                                               # checks, whether file "pacaur" does not exist
         then
-        
+
             # execute these commands, if "pacaur" is not installed on system
             sudo pacman -Syu --color always
             yaourt -Syua
@@ -457,7 +457,7 @@ function func_r
         # awk 'NF != 0'  only displays lines where the number of fields is not zero (i.e. non-empty lines)
         expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-group
 
-        local {pkg,pkg_remove}                                                      # declare local variables
+        local {pkg,pkg_remove,pkg_remove_backup}                                    # declare local variables
 
         pacui_clean                                                                 # clear terminal
 
@@ -487,8 +487,8 @@ function func_r
             then
 
                 # continue here only if "sudo pacman -Rns" has failed:
-                # 1. save list of packages to backup file.
-                echo $pkg_remove | tr " " "\n" > /tmp/pacui-remove-backup           # tr " " "\n" is needed to convert the list of package names (in 1 line) back to multiple lines. otherwise, fzf cannot work with it.
+                # 1. save list of packages to variable
+                pkg_remove_backup=$( echo $pkg_remove | tr " " "\n" )               # tr " " "\n" is needed to convert the list of package names (in 1 line) back to multiple lines. otherwise, fzf cannot work with it.
 
                 # 2. Print error message. the user can read all error messages 8of pacman) and decide what to do next.
                 echo
@@ -496,8 +496,8 @@ function func_r
                 echo -e "\e[1mPress ENTER to try again or CTRL+C to quit.\e[0m"
                 read
 
-                # 3. try again with a limited list of packages in fzf. this loop is dependent on the /tmp/pacui-remove-backup file!
-                while [[ -e /tmp/pacui-remove-backup ]]
+                # 3. try again with a limited list of packages in fzf. this loop is dependent on the pkg_remove_backup variable!
+                while [[ -n $pkg_remove_backup ]]
                 do
 
                     local {pkg,pkg_remove}                                          # declare local variables
@@ -505,7 +505,7 @@ function func_r
                     pacui_clean                                                     # clear terminal
 
                     # fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
-                    pkg=$( cat /tmp/pacui-remove-backup | fzf-tmux -m -e +s -i --query="$input2" --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+                    pkg=$( echo "$pkg_remove_backup" | fzf-tmux -m -e +s -i --query="$input2" --reverse --margin=4%,1%,1%,2% --inline-info --preview '
                         if ( pacman -Qq {1} &>/dev/null )                           # check, if selected line is a locally installed package
                         then
                             pacman -Qi {1} --color always
@@ -528,8 +528,8 @@ function func_r
                     if ! ( sudo pacman -Rsn $pkg_remove --color always )           # the "sudo pacman -Rsn" command is always executed!
                     then
                         # continue here only if "sudo pacman -Rns" has failed (again):
-                        # a) save list of packages to backup file.
-                        #echo $pkg_remove | tr " " "\n" > /tmp/pacui-remove-backup # here, do NOT write selection to file. this enables the user guess which packages are dependencies.
+                        # a) save list of packages to backup varialbe
+                        pkg_remove_backup=$( echo $pkg_remove | tr " " "\n" )      # here, do NOT write selection to file. this enables the user guess which packages are dependencies.
 
                         # b) Print error message. the user can read all error messages (of pacman) and decide what to do next.
                         echo
@@ -538,8 +538,8 @@ function func_r
                         read
                         # now, start at the top of the while-loop again...
                     else
-                        # removing the /tmp/pacui-remove-backup file quits the while-loop
-                        rm /tmp/pacui-remove-backup
+                        # removing the pkg_remove_backup variable quits the while-loop
+                        unset pkg_remove_backup
                     fi
 
                 done
@@ -587,6 +587,29 @@ function func_fr
             sudo pacman -Rndd $pkg_remove --color always
         fi
 }
+#------------------------------
+                # ask, whether to remove the displayed orphaned packages and save answer in "answer" variable:
+                read -p $'\e[1mDo you want to remove these orphaned packages? [Y|n]\e[0m' answer
+                case ${answer:-y} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "y".
+                    y|Y|yes|YES|Yes )                                               # do this, if "answer" is y or Y or yes or YES or Yes
+                        sudo pacman -Rsn $(pacman -Qqdt) --color always --noconfirm
+                        ;;
+                    * )                                                             # do this in all other cases
+                        echo "Packages have not been removed."
+                        ;;
+                esac   
+
+#------------------------------------
+            # wrap the "sudo pacman -Rns" command in an if-statement, which checks, whether the removal of packages works. the removal of packages does not work, if the user tries to remove a dependency.
+            # the failure of "sudo pacman -Rns" is especially annoying, if many packages has been chose for removal and 1 package is a dependency. by default, the list of pacakges (which are supposed to be removed) is NOT saved!
+            # "sudo pacman -Rsn $pkg_remove --color always" always gets executed!
+            if ! ( sudo pacman -Rsn $pkg_remove --color always )
+            then
+
+                # continue here only if "sudo pacman -Rns" has failed:
+                # 1. save list of packages to backup file.
+                echo $pkg_remove | tr " " "\n" > /tmp/pacui-remove-backup           # tr " " "\n" is needed to convert the list of package names (in 1 line) back to multiple lines. otherwise, fzf cannot work with it.
+
 
 
 
