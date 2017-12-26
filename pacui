@@ -23,7 +23,7 @@
 
 
 
-# all functions of pacui are defined here in the same order as they appear in pacui's UI (with some exceptions):
+# all functions of pacui are defined here in the same order as they appear in pacui's UI (with some helper functions):
 
 
 # bug #1 and #3:
@@ -68,6 +68,32 @@ function func_u
             pacaur -Syu  --color always
         fi
 }
+
+# Force Update System
+# this core functionality of "Force Update System" (note the bold "f" and "u") can be started in the terminal using "pacui fu". the help page provides additional explanations.
+function func_fu
+{
+        sudo pacman -Syu --force --color always
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # "pacui --diff" helper function
@@ -306,6 +332,75 @@ function func_i
 }
 
 
+# Force Install Packages
+# this core functionality of "Force Install Packages" (note the bold "f" and "i") can be started in the terminal using "pacui fi". the help page provides additional explanations.
+function func_fi
+{
+        # check, whether file /tmp/pacui-packages-group-repo already exists (the ! negates the result)
+        if [[ ! -e /tmp/pacui-packages-group-repo ]]
+        then
+            # write formatted package list of repositories to /tmp/pacui-packages-group-repo. then add all package groups to the bottom.
+            #pacman -Slq | tr -d " " > /tmp/pacui-packages-group-repo
+            expac -S "%-33n\t%d"  > /tmp/pacui-packages-group-repo
+            #pacman -Sg | tr -d " " >> /tmp/pacui-packages-group-repo
+            expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-group-repo
+        fi
+
+        local {pkg,pkg_install}
+
+        pacui_clean                                                                 # clear terminal
+
+        # take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
+        # fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
+        # the --preview option of fzf displays information about the currently selected line
+        pkg=$( sort -k1,1 -u /tmp/pacui-packages-group-repo | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+            if ( pacman -Qq {1} &>/dev/null )                                       # check, if selected line is a locally installed package
+            then
+                pacman -Qi {1} --color always
+            elif ( pacman -Sgq {1} &>/dev/null )                                    # check, if selected line in fzf is a package group
+            then
+                echo -e "\e[1m{1} group has the following members: \e[0m"
+                pacman -Sgq {1}
+            else                                                                    # do this if line is neither a group nor locally installed
+                if [[ ! -e /usr/bin/pacaur ]]                                       # checks, whether file "pacaur" does not exist
+                then
+                    yaourt -Si {1}
+                else
+                    pacaur -Si {1} --color always | grep -v "::"                    # grep command removes errors being displayed in pacaur
+                fi
+            fi
+            ' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+
+        pacui_clean                                                                 # clear terminal
+
+        # $pkg contains package names below each other, but we need a list (in 1 line, space separated):
+        pkg_install=$(echo $pkg | paste -sd " ")
+
+        if [[ -n $pkg ]]                                                            # check, whether variable $pkg is empty - this happens when fzf is quit with ESC or CTRL+C
+        then
+            sudo pacman -S --force $pkg_install --color always
+        fi
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Remove Packages
 # this core functionality of "Remove Packages" (note the bold "r") can be started in the terminal using "pacui r". the help page provides additional explanations.
 function func_r
@@ -407,6 +502,62 @@ function func_r
             fi
         fi
 }
+
+
+# Force Remove Packages
+# this core functionality of "Force Remove Packages" (note the bold "f" and "r") can be started in the terminal using "pacui fr". the help page provides additional explanations.
+function func_fr
+{
+        # write package list of local repository to /tmp/pacui-packages-group. then add all installed package groups to the bottom.
+        #pacman -Qq | tr -d " " > /tmp/pacui-packages-group
+        expac -Q "%-33n\t%d"  > /tmp/pacui-packages-group
+        # this expac command prints a list of package groups of installed packages
+        # awk 'NF != 0'  only displays lines where the number of fields is not zero (i.e. non-empty lines)
+        expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' | tr -d " " >> /tmp/pacui-packages-group
+
+        local {pkg,pkg_remove}
+
+        pacui_clean                                                                 # clear terminal
+
+        # take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
+        # fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
+        # the --preview option of fzf displays information about the currently selected line
+        pkg=$( sort -k1,1 -u /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+            if ( pacman -Qq {1} &>/dev/null )                                        # check, if selected line is a locally installed package
+            then
+                pacman -Qi {1} --color always
+            else
+                echo -e "\e[1m{1} group has the following members: \e[0m"
+                pacman -Sgq {1}
+            fi
+            ' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+
+        pacui_clean                                                                 # clear terminal
+
+        # $pkg contains package names below each other, but we need a list (in 1 line, space separated):
+        pkg_remove=$(echo $pkg | paste -sd " ")
+
+        if [[ -n $pkg ]]
+        then
+            sudo pacman -Rndd $pkg_remove --color always
+        fi
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # Dependency Tree
@@ -1152,119 +1303,6 @@ function func_c
 }
 
 
-
-# Force Update System
-# this core functionality of "Force Update System" (note the bold "f" and "u") can be started in the terminal using "pacui fu". the help page provides additional explanations.
-function func_fu
-{
-        sudo pacman -Syu --force --color always
-}
-
-
-# Empty Package Cache
-# this core functionality of "Empty Package Cache" (note the bold "e") can be started in the terminal using "pacui e". the help page provides additional explanations.
-function func_e
-{
-        if [[ ! -e /usr/bin/pacaur ]]                                               # checks, whether file "pacaur" does not exist
-        then
-            yaourt -Scc
-        else
-            pacaur -Scc --color always
-        fi
-}
-
-
-# Force Install Packages
-# this core functionality of "Force Install Packages" (note the bold "f" and "i") can be started in the terminal using "pacui fi". the help page provides additional explanations.
-function func_fi
-{
-        # check, whether file /tmp/pacui-packages-group-repo already exists (the ! negates the result)
-        if [[ ! -e /tmp/pacui-packages-group-repo ]]
-        then
-            # write formatted package list of repositories to /tmp/pacui-packages-group-repo. then add all package groups to the bottom.
-            #pacman -Slq | tr -d " " > /tmp/pacui-packages-group-repo
-            expac -S "%-33n\t%d"  > /tmp/pacui-packages-group-repo
-            #pacman -Sg | tr -d " " >> /tmp/pacui-packages-group-repo
-            expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-group-repo
-        fi
-
-        local {pkg,pkg_install}
-
-        pacui_clean                                                                 # clear terminal
-
-        # take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
-        # fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
-        # the --preview option of fzf displays information about the currently selected line
-        pkg=$( sort -k1,1 -u /tmp/pacui-packages-group-repo | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-            if ( pacman -Qq {1} &>/dev/null )                                       # check, if selected line is a locally installed package
-            then
-                pacman -Qi {1} --color always
-            elif ( pacman -Sgq {1} &>/dev/null )                                    # check, if selected line in fzf is a package group
-            then
-                echo -e "\e[1m{1} group has the following members: \e[0m"
-                pacman -Sgq {1}
-            else                                                                    # do this if line is neither a group nor locally installed
-                if [[ ! -e /usr/bin/pacaur ]]                                       # checks, whether file "pacaur" does not exist
-                then
-                    yaourt -Si {1}
-                else
-                    pacaur -Si {1} --color always | grep -v "::"                    # grep command removes errors being displayed in pacaur
-                fi
-            fi
-            ' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
-
-        pacui_clean                                                                 # clear terminal
-
-        # $pkg contains package names below each other, but we need a list (in 1 line, space separated):
-        pkg_install=$(echo $pkg | paste -sd " ")
-
-        if [[ -n $pkg ]]                                                            # check, whether variable $pkg is empty - this happens when fzf is quit with ESC or CTRL+C
-        then
-            sudo pacman -S --force $pkg_install --color always
-        fi
-}
-
-
-# Force Remove Packages
-# this core functionality of "Force Remove Packages" (note the bold "f" and "r") can be started in the terminal using "pacui fr". the help page provides additional explanations.
-function func_fr
-{
-        # write package list of local repository to /tmp/pacui-packages-group. then add all installed package groups to the bottom.
-        #pacman -Qq | tr -d " " > /tmp/pacui-packages-group
-        expac -Q "%-33n\t%d"  > /tmp/pacui-packages-group
-        # this expac command prints a list of package groups of installed packages
-        # awk 'NF != 0'  only displays lines where the number of fields is not zero (i.e. non-empty lines)
-        expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' | tr -d " " >> /tmp/pacui-packages-group
-
-        local {pkg,pkg_remove}
-
-        pacui_clean                                                                 # clear terminal
-
-        # take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
-        # fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
-        # the --preview option of fzf displays information about the currently selected line
-        pkg=$( sort -k1,1 -u /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-            if ( pacman -Qq {1} &>/dev/null )                                        # check, if selected line is a locally installed package
-            then
-                pacman -Qi {1} --color always
-            else
-                echo -e "\e[1m{1} group has the following members: \e[0m"
-                pacman -Sgq {1}
-            fi
-            ' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
-
-        pacui_clean                                                                 # clear terminal
-
-        # $pkg contains package names below each other, but we need a list (in 1 line, space separated):
-        pkg_remove=$(echo $pkg | paste -sd " ")
-
-        if [[ -n $pkg ]]
-        then
-            sudo pacman -Rndd $pkg_remove --color always
-        fi
-}
-
-
 # =======================
 
 
@@ -1340,6 +1378,19 @@ function func_d
         if [[ -n $pkg ]]
         then
             downgrade $pkg_downgrade
+        fi
+}
+
+
+# Empty Package Cache
+# this core functionality of "Empty Package Cache" (note the bold "e") can be started in the terminal using "pacui e". the help page provides additional explanations.
+function func_e
+{
+        if [[ ! -e /usr/bin/pacaur ]]                                               # checks, whether file "pacaur" does not exist
+        then
+            yaourt -Scc
+        else
+            pacaur -Scc --color always
         fi
 }
 
@@ -1432,6 +1483,23 @@ PacUI is an interactive package manager for your command line terminal. It provi
 
 Navigate this help page with your Arrow Keys, PageUp/PageDown Keys, SpaceBar, or your Mouse Wheel. To search this Help Page, enter /<SEARCH TERM> and press ENTER. For example, enter the following (without quotes " ") in order to search for the word "update": "/update". Press N key to continue searching for other occurances of "/update". Search is not case sensitive. To exit this Help Page, press your Q key.
 PacUI uses Fuzzy Finder (fzf) to display selectable lists, which can be easily searched by starting to type. Advanced users can even use regular expressions to search in fzf. Use your TAB key to select multiple items from the list and your ENTER key to choose your selection. Navigate fzf's list the same way you navigate this help page.
+
+
+
+\e[1;31m13 - FORCE UPDATE SYSTEM
+\e[36m"sudo pacman -Syu --force"
+This command does the same as UPDATE SYSTEM, but it bypasses file conflict tests and overwrites conflicting files. All files will be overwritten.
+
+\e[1;31m15 - FORCE INSTALL PACKAGES
+\e[36m"sudo pacman -S --force <PACKAGE NAME>"
+This command does the same as INSTALL PACKAGES for packages from your system repositories exclusively. The installation of <PACKAGE NAME> is forced.
+
+\e[1;31m16 - FORCE REMOVE PACKAGES
+\e[36m"pacman -Rndd <PACKAGE NAME>"
+This command removes <PACKAGE NAME> without checking the dependencies of <PACKAGE NAME> first. This enables experienced users to remove packages and dependencies of packages. This command only removes <PACKAGE NAME> from your system. All dependencies and orphans are left: run MAINTAIN SYSTEM afterwards to remove them.
+\e[1mAttention\e[0m: This command can break pacakges on your system or even your entire system.
+
+
 
 
 \e[1mHOME SCREEN
@@ -1653,29 +1721,7 @@ By default the text editor Nano gets used, except a custom $EDITOR variable has 
 \e[1mAttention\e[0m: Changing system configuration files can harm or even destroy your system. In some cases, this can happen with a single mistake. Be extremely careful and always double check your changes before saving and rebooting - especially when editing the files marked in red! It is recommended to search the Arch Wiki for the configuration file you want to edit and read about available and recommended settings.
 
 
-\e[1;31m13 - FORCE UPDATE SYSTEM
-\e[36m"sudo pacman -Syu --force"
-This command does the same as UPDATE SYSTEM, but it bypasses file conflict tests and overwrites conflicting files. All files will be overwritten.
-
-
-\e[1;31m14 - EMPTY PACKAGE CACHE
-\e[36m"yaourt -Scc"
-This command will empty your entire package cache by deleting ALL packages.
-\e[1mAttention\e[0m: This will make it impossible to ROLL BACK SYSTEM without a working internet connection.
-
-
-\e[1;31m15 - FORCE INSTALL PACKAGES
-\e[36m"sudo pacman -S --force <PACKAGE NAME>"
-This command does the same as INSTALL PACKAGES for packages from your system repositories exclusively. The installation of <PACKAGE NAME> is forced.
-
-
-\e[1;31m16 - FORCE REMOVE PACKAGES
-\e[36m"pacman -Rndd <PACKAGE NAME>"
-This command removes <PACKAGE NAME> without checking the dependencies of <PACKAGE NAME> first. This enables experienced users to remove packages and dependencies of packages. This command only removes <PACKAGE NAME> from your system. All dependencies and orphans are left: run MAINTAIN SYSTEM afterwards to remove them.
-\e[1mAttention\e[0m: This command can break pacakges on your system or even your entire system.
-
-
-\e[1m17 - FORCE UPDATE AUR
+\e[1m13 - FORCE UPDATE AUR
 \e[36m"yaourt -Syua && yaourt -Syua --devel --needed --noconfirm"
 The Arch User Repository (AUR) is a repository of (mostly) PKGBUILD files. Everybody can create such a PKGBUILD file and upload it to the AUR. A PKGBUILD file contains simple and human readable instructions like where to download the source code from, what dependencies are needed, where to copy files for installation, etc. Yaourt is a so called AUR Helper: It can interpret PKGBUILD files and download the source code, install dependencies, build files on your system, and copy these files to the right location (a.k.a. installing a program).
 By checking a PKGBUILD file (and .INSTALL file) you can make sure the source code is loaded from an official download server, no harmful dependencies get installed, and the installation instructions do not contain harmful code.
@@ -1685,7 +1731,7 @@ The second command of FORCE UPDATE AUR forces a reinstall of ALL your developmen
 \e[1mAttention\e[0m: This might take a long time! When using Yaourt, after every 15min this command will pause and ask again for your password.
 
 
-\e[1m18 - LIST INSTALLED FROM AUR
+\e[1m14 - LIST INSTALLED FROM AUR
 \e[36m"pacman -Qm"
 This command lists all installed packages, which are from the AUR or which were manually installed. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-la.
 If you want a list of all installed packages use REMOVE PACKAGES + DEPS as described in this Help Page.
@@ -1705,6 +1751,12 @@ Alternatively, you can run future updates with the command "sudo pacman -Syu --i
 \e[1mAttention\e[0m: Be careful when using Manjaro and downgrading to <PACKAGE NAME> from online sources, because these are old versions from the Arch Linux repositories only: In the worst case, this can brake your system! Therefore, it is recommended to limit downgrading to (old versions of) local packages, if possible.
 \e[1mAttention\e[0m: Downgrading to a working version of <PACKAGE NAME> can break your system in in rare cases like the following: The latest system update has replaced a dependency of <PACKAGE NAME> with a different package and <PACKAGE NAME> is an important system package. Downgrading <PACKAGE NAME> will NOT reinstall the dependency of <PACKAGE NAME>, because it conflicts with the already installled different package. This can result in a broken system. Please keep these kind of conflicts in mind when using DOWNGRADE PACKAGES.
 \e[1mAttention\e[0m: DOWNGRADE PACKAGES will show you a selection of packages you can downgrade. If you are using Pacaur to install AUR packages, you will not be able to downgrade AUR pacakges using DOWNGRADE PACKAGES! instead, the ROLL BACK SYSTEM option is recommended.
+
+
+\e[1;31mEMPTY PACKAGE CACHE
+\e[36m"yaourt -Scc"
+This command will empty your entire package cache by deleting ALL packages.
+\e[1mAttention\e[0m: This will make it impossible to ROLL BACK SYSTEM without a working internet connection.
 
 
 \e[1mSEARCH + INSTALL FROM AUR
@@ -1827,10 +1879,8 @@ do
     echo -e " └───────────────────────────────────────────────────────────────────┘"
     echo -e "      9   Roll \e[1mB\e[0mack System           10   \e[1mFix\e[0m Pacman Errors "
     echo -e "     11   Edit \e[1mC\e[0monfig Files "
-    echo -e "   \e[31m  13   \e[1mF\e[0;31morce \e[1mU\e[0;31mpdate System        14   \e[1mE\e[0;31mmpty Package Cache       \e[0m "
-    echo -e "   \e[31m  15   \e[1mF\e[0;31morce \e[1mI\e[0;31mnstall Packages     16   \e[1mF\e[0;31morce \e[1mR\e[0;31memove Packages     \e[0m "
     echo -e " ┌───────────────────────────────────────────────────────────────────┐"
-    echo -e " │   17   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR           18   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
+    echo -e " │   13   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR           14   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
     echo -e " └───────────────────────────────────────────────────────────────────┘"
     echo
     echo -e "  Enter number or marked letter(s)      -   00   \e[1mH\e[0melp   -    0   \e[1mQ\e[0muit "
@@ -1908,39 +1958,15 @@ do
             echo " Configuration files edited. To return to PacUI press ENTER "
             read
             ;;
-        13|fu|forceupdate )
-            func_fu
-            echo
-            echo " System updated in force mode. To return to PacUI press ENTER "
-            read
-            ;;
-        14|e|empty )
-            func_e
-            echo
-            echo " Entire package cache emptied. To return to PacUI press ENTER "
-            read
-            ;;
-        15|fi|forceinstall )
-            func_fi
-            echo
-            echo " Package installation in force mode finished. To return to PacUI press ENTER "
-            read
-            ;;
-        16|fr|forceremove )
-            func_fr
-            echo
-            echo " Package(s) removed in force mode. To return to PacUI press ENTER "
-            read
-            ;;
 
 
-        17|ua|fua|forceupdateaur|updateaur )
+        13|ua|fua|forceupdateaur|updateaur )
             func_ua
             echo
             echo " All AUR packages updated and reinstalled. To return to PacUI press ENTER "
             read
             ;;
-        18|la|listaur )
+        14|la|listaur )
             func_la
             echo
             ;;
@@ -1954,6 +1980,12 @@ do
             func_d
             echo
             echo " Downgrade finished. To return to PacUI press ENTER "
+            read
+            ;;
+        e|empty )
+            func_e
+            echo
+            echo " Entire package cache emptied. To return to PacUI press ENTER "
             read
             ;;
         a|aur )
