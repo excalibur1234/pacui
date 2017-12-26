@@ -87,10 +87,14 @@ function func_u
                         # now, we are sure there is an active connection to the server/mirror/repository and package updates from there have failed. in this case, we can offer the user to forcefully install updates:
                         local answer
                         # ask, whether to force update the system and save answer in "answer" variable:
-                        read -p $'\e[1mUpdates from system repositories have failed because of file conflicts.\nDo you want to overwrite all conflicting files? [y|N]\e[0m' answer
+                        #read -p $'\e[1mUpdates from system repositories have failed because of file conflicts.\nDo you want to overwrite all conflicting files? [y|N]\e[0m' answer
+                        echo -e "\e[1mUpdates from system repositories have failed because of file conflicts. \e[0m"
+                        echo -e "\e[1mDo you want to overwrite all conflicting files? [y|N] \e[0m"
+                        read -r answer
+                        
                         case ${answer:-n} in                                            # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "n".
                             y|Y|yes|Yes|YES )                                           # do this, if "answer" is y or Y or yes or Yes or YES
-                                sudo pacman -Syu --force --color always --noconfirm
+                                sudo pacman -Syu --force --color always
                                 ;;
                             * )                                                         # do this in all other cases
                                 echo "Packages have not been updated."
@@ -486,146 +490,93 @@ function func_r
             if ! ( sudo pacman -Rsn $pkg_remove --color always )
             then
 
-                # continue here only if "sudo pacman -Rns" has failed:
-                # 1. save list of packages to variable
-                pkg_remove_backup=$( echo $pkg_remove | tr " " "\n" )               # tr " " "\n" is needed to convert the list of package names (in 1 line) back to multiple lines. otherwise, fzf cannot work with it.
-
-                # 2. Print error message. the user can read all error messages 8of pacman) and decide what to do next.
+                # now, "sudo pacman -Rsn $pkg_remove --color always" has failed. this means that a dependency was selected. Print error message below the error output of pacman.
                 echo
-                echo -e "\e[1mPackage removal failed because a dependency was selected.\e[0m"
-                echo -e "\e[1mPress ENTER to try again or CTRL+C to quit.\e[0m"
-                read
+                echo -e "\e[1mPackage removal failed because at least one dependency was selected.\e[0m"
 
-                # 3. try again with a limited list of packages in fzf. this loop is dependent on the pkg_remove_backup variable!
-                while [[ -n $pkg_remove_backup ]]
-                do
+                echo -e "\e[1mDo you want to forcefully remove all selected packages anyway? [y|N]\e[0m"
+                echo -e "\e[1mChoose one of the following options: \e[0m"
+                echo
+                echo -e "\e[1;31m    y   Remove package(s) without checking dependencies first. \e[0m"
+                echo -e "\e[1;31m        All dependencies and orphans are left: run MAINTAIN SYSTEM afterwards to remove them. \e[0m"
+                echo -e "\e[1;31m        Attention: This command can break packages on your system or even your entire system. \e[0m"
+                echo
+                echo -e "\e[1m    N   Press ENTER or N to try again. \e[0m"
+                echo -e "\e[1m        Read the error message(s) above carefully and try not to select dependencies next time. \e[0m"
+                # save answer in "answer" variable:
+                read -r answer
 
-                    local {pkg,pkg_remove}                                          # declare local variables
-
-                    pacui_clean                                                     # clear terminal
-
-                    # fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
-                    pkg=$( echo "$pkg_remove_backup" | fzf-tmux -m -e +s -i --query="$input2" --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-                        if ( pacman -Qq {1} &>/dev/null )                           # check, if selected line is a locally installed package
-                        then
-                            pacman -Qi {1} --color always
-                        else
-                            echo -e "\e[1m{1} group has the following members: \e[0m"
-                            pacman -Sgq {1}
-                        fi
-                        ' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
-
-                    pacui_clean                                                     # clear terminal
-
-                    if ! [[ -n $pkg ]]                                              # check, whether $pkg variable is empty. this happens when fzf is quit with CTRL+C.
-                    then
-                        break                                                       # break while-loop, if fzf was quit using CTRL+C
-                    fi
-
-                    # $pkg contains package names below each other, but we need a list (in 1 line, space separated):
-                    pkg_remove=$(echo $pkg | paste -sd " ")
-
-                    if ! ( sudo pacman -Rsn $pkg_remove --color always )           # the "sudo pacman -Rsn" command is always executed!
-                    then
-                        # continue here only if "sudo pacman -Rns" has failed (again):
-                        # a) save list of packages to backup varialbe
-                        pkg_remove_backup=$( echo $pkg_remove | tr " " "\n" )      # here, do NOT write selection to file. this enables the user guess which packages are dependencies.
-
-                        # b) Print error message. the user can read all error messages (of pacman) and decide what to do next.
-                        echo
-                        echo -e "\e[1mPackage removal failed because a dependency was selected.\e[0m"
-                        echo -e "\e[1mPress ENTER to try again or CTRL+C to quit.\e[0m"
-                        read
-                        # now, start at the top of the while-loop again...
-                    else
-                        # removing the pkg_remove_backup variable quits the while-loop
-                        unset pkg_remove_backup
-                    fi
-
-                done
-
-            fi
-        fi
-}
-
-
-# Force Remove Packages
-# this core functionality of "Force Remove Packages" (note the bold "f" and "r") can be started in the terminal using "pacui fr". the help page provides additional explanations.
-function func_fr
-{
-        # write package list of local repository to /tmp/pacui-packages-group. then add all installed package groups to the bottom.
-        #pacman -Qq | tr -d " " > /tmp/pacui-packages-group
-        expac -Q "%-33n\t%d"  > /tmp/pacui-packages-group
-        # this expac command prints a list of package groups of installed packages
-        # awk 'NF != 0'  only displays lines where the number of fields is not zero (i.e. non-empty lines)
-        expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' | tr -d " " >> /tmp/pacui-packages-group
-
-        local {pkg,pkg_remove}
-
-        pacui_clean                                                                 # clear terminal
-
-        # take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
-        # fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
-        # the --preview option of fzf displays information about the currently selected line
-        pkg=$( sort -k1,1 -u /tmp/pacui-packages-group | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-            if ( pacman -Qq {1} &>/dev/null )                                        # check, if selected line is a locally installed package
-            then
-                pacman -Qi {1} --color always
-            else
-                echo -e "\e[1m{1} group has the following members: \e[0m"
-                pacman -Sgq {1}
-            fi
-            ' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
-
-        pacui_clean                                                                 # clear terminal
-
-        # $pkg contains package names below each other, but we need a list (in 1 line, space separated):
-        pkg_remove=$(echo $pkg | paste -sd " ")
-
-        if [[ -n $pkg ]]
-        then
-            sudo pacman -Rndd $pkg_remove --color always
-        fi
-}
-#------------------------------
-                # ask, whether to remove the displayed orphaned packages and save answer in "answer" variable:
-                read -p $'\e[1mDo you want to remove these orphaned packages? [Y|n]\e[0m' answer
-                case ${answer:-y} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "y".
+                case ${answer:-n} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "n".
+                    
                     y|Y|yes|YES|Yes )                                               # do this, if "answer" is y or Y or yes or YES or Yes
-                        sudo pacman -Rsn $(pacman -Qqdt) --color always --noconfirm
+
+                        sudo pacman -Rdd $pkg_remove --color always
                         ;;
+
+                    n|N|no|NO|No )                                                  # do this, if "answer" is n or N or no or NO or No
+
+                        # continue here only if "sudo pacman -Rns" has failed:
+                        # 1. save list of packages to variable
+                        pkg_remove_backup=$( echo $pkg_remove | tr " " "\n" )               # tr " " "\n" is needed to convert the list of package names (in 1 line) back to multiple lines. otherwise, fzf cannot work with it.
+
+                        # 2. try again with a limited list of packages in fzf. this loop is dependent on the pkg_remove_backup variable!
+                        while [[ -n $pkg_remove_backup ]]
+                        do
+
+                            local {pkg,pkg_remove}                                          # declare local variables
+
+                            pacui_clean                                                     # clear terminal
+
+                            # fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
+                            pkg=$( echo "$pkg_remove_backup" | fzf-tmux -m -e +s -i --query="$input2" --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+                                if ( pacman -Qq {1} &>/dev/null )                           # check, if selected line is a locally installed package
+                                then
+                                    pacman -Qi {1} --color always
+                                else
+                                    echo -e "\e[1m{1} group has the following members: \e[0m"
+                                    pacman -Sgq {1}
+                                fi
+                                ' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+
+                            pacui_clean                                                     # clear terminal
+
+                            if ! [[ -n $pkg ]]                                              # check, whether $pkg variable is empty. this happens when fzf is quit with CTRL+C.
+                            then
+                                break                                                       # break while-loop, if fzf was quit using CTRL+C
+                            fi
+
+                            # $pkg contains package names below each other, but we need a list (in 1 line, space separated):
+                            pkg_remove=$(echo $pkg | paste -sd " ")
+
+                            if ! ( sudo pacman -Rsn $pkg_remove --color always )           # the "sudo pacman -Rsn" command is always executed!
+                            then
+                                # continue here only if "sudo pacman -Rns" has failed (again):
+                                # a) save list of packages to backup varialbe
+                                pkg_remove_backup=$( echo $pkg_remove | tr " " "\n" )      # here, do NOT write selection to file. this enables the user guess which packages are dependencies.
+
+                                # b) Print error message. the user can read all error messages (of pacman) and decide what to do next.
+                                echo
+                                echo -e "\e[1mPackage removal failed because at least one dependency was selected.\e[0m"
+                                echo -e "\e[1mPress ENTER to try again or CTRL+C to quit.\e[0m"
+                                read
+                                # now, start at the top of the while-loop again...
+                            else
+                                # removing the pkg_remove_backup variable quits the while-loop
+                                unset pkg_remove_backup
+                            fi
+
+                        done
+                        ;;
+
                     * )                                                             # do this in all other cases
-                        echo "Packages have not been removed."
+                        echo "No input recognized. Remove process has been cancelled."
                         ;;
-                esac   
 
-#------------------------------------
-            # wrap the "sudo pacman -Rns" command in an if-statement, which checks, whether the removal of packages works. the removal of packages does not work, if the user tries to remove a dependency.
-            # the failure of "sudo pacman -Rns" is especially annoying, if many packages has been chose for removal and 1 package is a dependency. by default, the list of pacakges (which are supposed to be removed) is NOT saved!
-            # "sudo pacman -Rsn $pkg_remove --color always" always gets executed!
-            if ! ( sudo pacman -Rsn $pkg_remove --color always )
-            then
-
-                # continue here only if "sudo pacman -Rns" has failed:
-                # 1. save list of packages to backup file.
-                echo $pkg_remove | tr " " "\n" > /tmp/pacui-remove-backup           # tr " " "\n" is needed to convert the list of package names (in 1 line) back to multiple lines. otherwise, fzf cannot work with it.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                esac
+            
+            fi
+        fi
+}
 
 
 # Dependency Tree
@@ -1550,10 +1501,6 @@ Navigate this help page with your Arrow Keys, PageUp/PageDown Keys, SpaceBar, or
 PacUI uses Fuzzy Finder (fzf) to display selectable lists, which can be easily searched by starting to type. Advanced users can even use regular expressions to search in fzf. Use your TAB key to select multiple items from the list and your ENTER key to choose your selection. Navigate fzf's list the same way you navigate this help page.
 
 
-
-\e[1;31m13 - FORCE UPDATE SYSTEM
-\e[36m"sudo pacman -Syu --force"
-This command does the same as UPDATE SYSTEM, but it bypasses file conflict tests and overwrites conflicting files. All files will be overwritten.
 
 \e[1;31m15 - FORCE INSTALL PACKAGES
 \e[36m"sudo pacman -S --force <PACKAGE NAME>"
