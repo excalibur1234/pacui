@@ -58,64 +58,78 @@ function pacui_clean
 # this core functionality of "Update System" (note the bold "U") can be started in the terminal using "pacui u". the help page provides additional explanations.
 function func_u
 {
-        if [[ ! -e /usr/bin/pacaur ]]                                               # checks, whether file "pacaur" does not exist
+        # define local variable, which indicates whether the installation process was successful or not.
+        local install_successful
+
+        if [[ -e /usr/bin/yaourt ]]
         then
 
-            # execute these commands, if "pacaur" is not installed on system
-            sudo pacman -Syu --color always
-            yaourt -Syua
+            # execute "sudo pacman -Syu --color always && yaourt -Syua" command:
+            if ( sudo pacman -Syu --color always && yaourt -Syua )
+            then
+                # only set $install_successful=true, if the command "sudo pacman -Syu --color always && yaourt -Syua" was executed without errors
+                install_successful=true
+            else
+                install_successful=false
+            fi
 
-        else
+        elif [[ -e /usr/bin/pacaur ]]
+        then
 
-            # execute these commands, if "pacaur is installed on system:
+            # execute "pacaur -Syu --color always" command:
+            if ( pacaur -Syu --color always )
+            then
+                # only set $install_successful=true, if the command "pacaur -Syu --color always" was executed without errors
+                install_successful=true
+            else
+                install_successful=false
+            fi
 
-            # wrap the "pacaur -Syu --color always" command in an if-statement, which checks, whether the update of packages works. 
-            # the update of packages does not work, if there are file conflicts during an update and files would need to be overwritten. by default, pacman NEVER overwrites files, because this can lead to a broken system!
-            # "pacaur -Syu  --color always" always gets executed!
-            if ! ( pacaur -Syu --color always )
+        fi
+
+        # if one of the above update commands has failed, the following if-statement is true:
+        if [[ $install_successful == "false" ]]
+        then
+
+            # if "pacaur -Syu --color always" fails, there are multiple points of failure. the first one is the internet/repository/mirror connection of the user:
+            # check, whether there is a connection to the mirror/repository server. this is needed for package download/update!
+            if ( sudo pacman -Syy )                                                 # the "sudo pacman -Syy" command gets executed in any case in order to check its output.
             then
 
-                # if "pacaur -Syu --color always" fails, there are multiple points of failure. the first one is the internet/repository/mirror connection of the user:
-                # check, whether there is a connection to the mirror/repository server. this is needed for package download/update!
-                if ( sudo pacman -Syy )                                                 # the "sudo pacman -Syy" command gets executed in any case in order to check its output.
+                # next, we can force the update, but only for packages from the system repositories and not packages from the AUR. therefore, we need to make sure package udates from system repositories fail:
+                if ! ( sudo pacman -Syu --color always )                            # the "sudo pacman -Syu --color always" command gets executed in any case in order to check its output.
                 then
-
-                    # next, we can force the update, but only for packages from the system repositories and not packages from the AUR. therefore, we need to make sure package udates from system repositories fail:
-                    if ! ( sudo pacman -Syu --color always )                            # the "sudo pacman -Syu --color always" command gets executed in any case in order to check its output.
-                    then
                     
-                        # now, we are sure there is an active connection to the server/mirror/repository and package updates from there have failed. in this case, we can offer the user to forcefully install updates:
-                        local answer
-                        # ask, whether to force update the system and save answer in "answer" variable:
-                        echo -e "\e[1mUpdates from system repositories have failed because of file conflicts. \e[0m"
-                        echo -e "\e[1mDo you want to overwrite all conflicting files? [y|N] \e[0m"
-                        read -s -n1 answer                                              # this "read" command only accepts 1 letter as answer. this feels faster and is enough in this situation.
+                    # now, we are sure there is an active connection to the server/mirror/repository and package updates from there have failed. in this case, we can offer the user to forcefully install updates:
+                    local answer
+                    # ask, whether to force update the system and save answer in "answer" variable:
+                    echo -e "\e[1mUpdates from system repositories have failed because of file conflicts. \e[0m"
+                    echo -e "\e[1mDo you want to overwrite all conflicting files? [y|N] \e[0m"
+                    read -s -n1 answer                                              # this "read" command only accepts 1 letter as answer. this feels faster and is enough in this situation.
 
                         
-                        case ${answer:-n} in                                            # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "n".
-                            y|Y|yes|Yes|YES )                                           # do this, if "answer" is y or Y or yes or Yes or YES
-                                sudo pacman -Syu --force --color always
-                                ;;
-                            * )                                                         # do this in all other cases
-                                echo "Packages have not been updated."
-                                ;;
-                        esac   
-
-                    fi
-
-                else
-
-                    # print error message, if there is no connection to a mirror/repository server and quit 
-
-                    local server
-                    # extract mirror/repository server url from /etc/pacman.d/mirrorlist file:
-                    server=$( grep "^Server =" -m 1 /etc/pacman.d/mirrorlist | awk '{print $3}' )
-
-                    echo -e "\e[41m Either there is something wrong with your internet connection or with your mirror/repository server: "$server" \e[0m"
-                    echo -e "\e[1;41m Please make sure both are ok and rerun this part of PacUI! \e[0m"
-                    echo -e ""
+                    case ${answer:-n} in                                            # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "n".
+                        y|Y|yes|Yes|YES )                                           # do this, if "answer" is y or Y or yes or Yes or YES
+                            sudo pacman -Syu --force --color always
+                            ;;
+                        * )                                                         # do this in all other cases
+                            echo "Packages have not been updated."
+                            ;;
+                    esac   
 
                 fi
+
+            else
+
+                # print error message, if there is no connection to a mirror/repository server and quit 
+
+                local server
+                # extract mirror/repository server url from /etc/pacman.d/mirrorlist file:
+                server=$( grep "^Server =" -m 1 /etc/pacman.d/mirrorlist | awk '{print $3}' )
+
+                echo -e "\e[41m Either there is something wrong with your internet connection or with your mirror/repository server: "$server" \e[0m"
+                echo -e "\e[1;41m Please make sure both are ok and rerun this part of PacUI! \e[0m"
+                echo -e ""
 
             fi
 
@@ -161,27 +175,20 @@ function func_m
 
 
         echo "searching orphans ..."
-        if [[ ! -e /usr/bin/pacaur ]]                                               # checks, whether file "pacaur" does not exist
+        if [[ -n $(pacman -Qdt) ]]                                              # only run these commands, if output of "pacman -Qdt" is not empty. this happens if there are no orphans.
         then
-            yaourt -Qdt
-        else
 
-            if [[ -n $(pacman -Qdt) ]]                                              # only run these commands, if output of "pacman -Qdt" is not empty. this happens if there are no orphans.
-            then
-
-                pacman -Qdt --color always
-                # ask, whether to remove the displayed orphaned packages and save answer in "answer" variable:
-                read -p $'\e[1mDo you want to remove these orphaned packages? [Y|n]\e[0m' answer
-                case ${answer:-y} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "y".
-                    y|Y|yes|YES|Yes )                                               # do this, if "answer" is y or Y or yes or YES or Yes
-                        sudo pacman -Rsn $(pacman -Qqdt) --color always --noconfirm
-                        ;;
-                    * )                                                             # do this in all other cases
-                        echo "Packages have not been removed."
-                        ;;
-                esac                                                                # end of "case" loop
-
-            fi
+            pacman -Qdt --color always
+            # ask, whether to remove the displayed orphaned packages and save answer in "answer" variable:
+            read -p $'\e[1mDo you want to remove these orphaned packages? [Y|n]\e[0m' answer
+            case ${answer:-y} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "y".
+                y|Y|yes|YES|Yes )                                               # do this, if "answer" is y or Y or yes or YES or Yes
+                    sudo pacman -Rsn $(pacman -Qqdt) --color always --noconfirm
+                    ;;
+                * )                                                             # do this in all other cases
+                    echo "Packages have not been removed."
+                    ;;
+            esac                                                                # end of "case" loop
 
         fi
         echo ""
@@ -330,10 +337,11 @@ function func_i
                 echo -e "\e[1m{1} group has the following members: \e[0m"
                 pacman -Sgq {1}                                                     # display package name of group members in preview window of fzf
             else                                                                    # do this if line is neither a group nor locally installed
-                if [[ ! -e /usr/bin/pacaur ]]                                       # checks, whether file "pacaur" does not exist
+                if [[ -e /usr/bin/yaourt ]]
                 then
                     yaourt -Si {1}
-                else
+                elif [[ -e /usr/bin/pacaur ]]
+                then
                     pacaur -Si {1} --color always | grep -v "::"                    # display repo package information in preview window of fzf. grep command removes all errors displayed by pacaur
                 fi
             fi
@@ -351,7 +359,7 @@ function func_i
             # define local variable, which indicates whether the installation process was successful or not.
             local install_successful
 
-            if [[ ! -e /usr/bin/pacaur ]]                                           # checks, whether file "pacaur" does not exist
+            if [[ -e /usr/bin/yaourt ]]
             then
 
                 # execute "yaourt -S $pkg_install" command:
@@ -363,7 +371,8 @@ function func_i
                     install_successful=false
                 fi
             
-            else
+            elif [[ -e /usr/bin/pacaur ]]
+            then
 
                # execute "pacaur -S $pkg_install --color always" command:
                 if ( pacaur -S $pkg_install --color always )
@@ -392,7 +401,8 @@ function func_i
                         # now, we can be sure that installation of a package from the system repositories has failed. Print error message below the error output of pacman.
                         echo
                         echo -e "\e[1mPackage installation has failed most likely because of file conflicts.\e[0m"
-                        echo -e "\e[1mDo you want to forcefully install all selected packages and overwrite all files anyway? [\e[31my\e[0m|N]\e[0m"
+                        echo -e "\e[1mIn this case, overwriting all files can solve this problems (but maybe create others).\e[0m"
+                        echo -e "\e[1mDo you want to forcefully install package(s) and overwrite all files? [\e[31my\e[0m|N]\e[0m"
                         # save answer in "answer" variable:
                         read -s -n1 answer
 
@@ -576,11 +586,12 @@ function func_t
             then
                 pacman -Qi {1} --color always
             else                                                                    # do this if line is not locally installed
-                if [[ ! -e /usr/bin/pacaur ]]                                       # checks, whether file "pacaur" does not exist
+                if [[ -e /usr/bin/yaourt ]]
                 then
                     yaourt -Si {1}
-                else
-                    pacaur -Si {1} --color always | grep -v "::"                    # grep command removes errors being displayed in pacaur
+                elif [[ -e /usr/bin/pacaur ]]
+                then
+                    pacaur -Si {1} --color always | grep -v "::"                    # display repo package information in preview window of fzf. grep command removes all errors displayed by pacaur
                 fi
             fi
             ' --preview-window=right:50%:wrap  --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
@@ -644,11 +655,12 @@ function func_l
             then
                 pacman -Qi {1} --color always                                       # for local packages, "pacman" is sufficient.
             else                                                                    # do this if line is not locally installed
-                if [[ ! -e /usr/bin/pacaur ]]                                       # checks, whether file "pacaur" does not exist
+                if [[ -e /usr/bin/yaourt ]]
                 then
                     yaourt -Si {1}
-                else
-                    pacaur -Si {1} --color always | grep -v "::"                    # grep command removes errors being displayed in pacaur
+                elif [[ -e /usr/bin/pacaur ]]
+                then
+                    pacaur -Si {1} --color always | grep -v "::"                    # display repo package information in preview window of fzf. grep command removes all errors displayed by pacaur
                 fi
             fi
             ' --preview-window=right:50%:wrap  --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
@@ -1307,10 +1319,11 @@ function func_c
 # this core functionality of "Force Update AUR" (note the bold "u" and "a") can be started in the terminal using "pacui ua". the help page provides additional explanations.
 function func_ua
 {
-        if [[ ! -e /usr/bin/pacaur ]]                                               # checks, whether file "pacaur" does not exist
+        if [[ -e /usr/bin/yaourt ]]
         then
             yaourt -Syua && yaourt -Syua --devel --needed --noconfirm
-        else
+        elif [[ -e /usr/bin/pacaur ]]
+        then
             pacaur -Syua --color always && pacaur -Syua --devel --needed --color always
         fi
 }
@@ -1388,11 +1401,12 @@ function func_a
         if [[ -n "$input2" ]]
         then
 
-            if [[ ! -e /usr/bin/pacaur ]]                                           # checks, whether file "pacaur" does not exist
+            if [[ -e /usr/bin/yaourt ]]
             then
                 # do this if variable "input" is not empty:
                 yaourt "$input2"
-            else
+            elif [[ -e /usr/bin/pacaur ]]
+            then
                 pacaur -Ss "$input2" --color always | grep -v "::"                  # grep command removes errors being displayed in pacaur
             fi
 
@@ -1402,10 +1416,11 @@ function func_a
             echo "Enter (parts of) name and/or description of package to be searched. Then press ENTER."
             read -r pkg
 
-            if [[ ! -e /usr/bin/pacaur ]]                                           # checks, whether file "pacaur" does not exist
+            if [[ -e /usr/bin/yaourt ]]
             then
                 yaourt "$pkg"
-            else
+            elif [[ -e /usr/bin/pacaur ]]
+            then
                 pacaur -Ss "$pkg" --color always | grep -v "::"                     # grep command removes errors being displayed in pacaur
             fi
 
@@ -1498,7 +1513,7 @@ This command generates a new mirrorslist of all available Manjaro repository mir
 \e[36m"sudo reflector -f 5 --sort age --save /etc/pacman.d/mirrorlist && sleep 20 && sudo pacman -Syy" \e[0m(for Arch and other Arch-based distros)
 This command generates a new mirrorslist of all available repository mirrors/servers. Then it resyncs database to match the mirrors.
 
-\e[36m"yaourt -Qdt"
+\e[36m"sudo pacman -Rsn $(pacman -Qqdt)"
 This option lists all orphaned packages on your system. Orphaned packages are old and no longer needed dependencies (packages not explicitly installed by you), which were never removed from your system.
 
 \e[36m"sudo pacdiff"
