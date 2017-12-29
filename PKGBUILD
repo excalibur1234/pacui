@@ -4,14 +4,15 @@
 pkgname=pacui
 pkgver=1.8
 pkgrel=3
-pkgdesc="Bash script providing advanced Pacman and Pacaur/Yaourt functionality in a simple UI"
+pkgdesc="Bash script providing advanced Pacman and Yay/Yaourt/Pacaur functionality in a simple UI"
 arch=(any)
 url="https://github.com/excalibur1234/$pkgname"
 license=('GPL3')
 depends=('expac' 'wget' 'sudo' 'fzf')
 conflicts=("pacui-git")
-optdepends=('pacaur: Needed for AUR support. If installed, it gets used by default over Yaourt.'
+optdepends=('pacaur: Needed for AUR support.'
         'yaourt: Needed for AUR support.'
+        'yay: Needed for AUR support.'
         'pacman-mirrors: Needed for Manjaro mirror support'
         'reflector: Needed for Arch Linux mirror support'
         'downgrade: Needed for hidden "downgrade" option.')
