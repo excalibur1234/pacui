@@ -61,7 +61,19 @@ function func_u
         # define local variable, which indicates whether the installation process was successful or not.
         local install_successful
 
-        if [[ -e /usr/bin/yaourt ]]
+        if [[ -e /usr/bin/yay ]]
+        then
+
+            # execute "yay -Syu" command:
+            if ( yay -Syu)
+            then
+                # only set $install_successful=true, if the command "yay -Syu" was executed without errors
+                install_successful=true
+            else
+                install_successful=false
+            fi
+
+        elif [[ -e /usr/bin/yaourt ]]
         then
 
             # execute "sudo pacman -Syu --color always && yaourt -Syua" command:
@@ -165,9 +177,7 @@ function func_m
         if [[ -e /usr/bin/pacman-mirrors ]]                                         # checks, whether file "pacman-mirrors" exists
         then
             sudo pacman-mirrors -f 0 && sudo pacman -Syy                            # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
-        fi
-
-        if [[ -e /usr/bin/reflector ]]                                              # checks, whether file "reflector" exists
+        elif [[ -e /usr/bin/reflector ]]                                            # checks, whether file "reflector" exists
         then
             sudo reflector -f 5 --sort age --save /etc/pacman.d/mirrorlist && sleep 20 && sudo pacman -Syy # If it does exists, then the mirror will sort by it
         fi
@@ -175,20 +185,35 @@ function func_m
 
 
         echo "searching orphans ..."
-        if [[ -n $(pacman -Qdt) ]]                                              # only run these commands, if output of "pacman -Qdt" is not empty. this happens if there are no orphans.
+        if [[ -e /usr/bin/yay ]]
         then
 
-            pacman -Qdt --color always
-            # ask, whether to remove the displayed orphaned packages and save answer in "answer" variable:
-            read -p $'\e[1mDo you want to remove these orphaned packages? [Y|n]\e[0m' answer
-            case ${answer:-y} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "y".
-                y|Y|yes|YES|Yes )                                               # do this, if "answer" is y or Y or yes or YES or Yes
-                    sudo pacman -Rsn $(pacman -Qqdt) --color always --noconfirm
-                    ;;
-                * )                                                             # do this in all other cases
-                    echo "Packages have not been removed."
-                    ;;
-            esac                                                                # end of "case" loop
+            yay -Cd
+        
+        elif [[ -e /usr/bin/yaourt ]]
+        then
+
+            yaourt -Qdt
+        
+        elif [[ -e /usr/bin/pacaur ]]
+        then
+
+            if [[ -n $(pacman -Qdt) ]]                                              # only run these commands, if output of "pacman -Qdt" is not empty. this happens if there are no orphans.
+            then
+
+                pacman -Qdt --color always
+                # ask, whether to remove the displayed orphaned packages and save answer in "answer" variable:
+                read -p $'\e[1mDo you want to remove these orphaned packages? [Y|n]\e[0m' answer
+                case ${answer:-y} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "y".
+                    y|Y|yes|YES|Yes )                                               # do this, if "answer" is y or Y or yes or YES or Yes
+                        sudo pacman -Rsn $(pacman -Qqdt) --color always --noconfirm
+                        ;;
+                    * )                                                             # do this in all other cases
+                        echo "Packages have not been removed."
+                        ;;
+                esac                                                                # end of "case" loop
+
+            fi
 
         fi
         echo ""
@@ -337,7 +362,10 @@ function func_i
                 echo -e "\e[1m{1} group has the following members: \e[0m"
                 pacman -Sgq {1}                                                     # display package name of group members in preview window of fzf
             else                                                                    # do this if line is neither a group nor locally installed
-                if [[ -e /usr/bin/yaourt ]]
+                if [[ -e /usr/bin/yay ]]
+                then
+                    yay -Si {1}
+                elif [[ -e /usr/bin/yaourt ]]
                 then
                     yaourt -Si {1}
                 elif [[ -e /usr/bin/pacaur ]]
@@ -359,7 +387,19 @@ function func_i
             # define local variable, which indicates whether the installation process was successful or not.
             local install_successful
 
-            if [[ -e /usr/bin/yaourt ]]
+            if [[ -e /usr/bin/yay ]]
+            then
+
+                # execute "yay -S $pkg_install" command:
+                if ( yay -S $pkg_install )                                       # !!! this command does not work when $pkg_install is quoted !!! (i do not know why)
+                then
+                    # only set $install_successful=true, if the command "yay -S $pkg_install" was executed without errors
+                    install_successful=true
+                else
+                    install_successful=false
+                fi
+
+            elif [[ -e /usr/bin/yaourt ]]
             then
 
                 # execute "yaourt -S $pkg_install" command:
@@ -586,7 +626,10 @@ function func_t
             then
                 pacman -Qi {1} --color always
             else                                                                    # do this if line is not locally installed
-                if [[ -e /usr/bin/yaourt ]]
+                if [[ -e /usr/bin/yay ]]
+                then
+                    yay -Si {1}
+                elif [[ -e /usr/bin/yaourt ]]
                 then
                     yaourt -Si {1}
                 elif [[ -e /usr/bin/pacaur ]]
@@ -655,7 +698,10 @@ function func_l
             then
                 pacman -Qi {1} --color always                                       # for local packages, "pacman" is sufficient.
             else                                                                    # do this if line is not locally installed
-                if [[ -e /usr/bin/yaourt ]]
+                if [[ -e /usr/bin/yay ]]
+                then
+                    yay -Si {1}
+                elif [[ -e /usr/bin/yaourt ]]
                 then
                     yaourt -Si {1}
                 elif [[ -e /usr/bin/pacaur ]]
@@ -1319,12 +1365,21 @@ function func_c
 # this core functionality of "Force Update AUR" (note the bold "u" and "a") can be started in the terminal using "pacui ua". the help page provides additional explanations.
 function func_ua
 {
-        if [[ -e /usr/bin/yaourt ]]
+        if [[ -e /usr/bin/yay ]]
         then
+
+            yay -Syu && yay -Syu --devel --noconfirm
+
+        elif [[ -e /usr/bin/yaourt ]]
+        then
+
             yaourt -Syua && yaourt -Syua --devel --needed --noconfirm
+
         elif [[ -e /usr/bin/pacaur ]]
         then
+
             pacaur -Syua --color always && pacaur -Syua --devel --needed --color always
+
         fi
 }
 
@@ -1401,13 +1456,23 @@ function func_a
         if [[ -n "$input2" ]]
         then
 
-            if [[ -e /usr/bin/yaourt ]]
+            if [[ -e /usr/bin/yay ]]
             then
-                # do this if variable "input" is not empty:
+
+                # do this if variable "input2" is not empty:
+                yay "$input2"
+
+            elif [[ -e /usr/bin/yaourt ]]
+            then
+
+                # do this if variable "input2" is not empty:
                 yaourt "$input2"
+
             elif [[ -e /usr/bin/pacaur ]]
             then
+
                 pacaur -Ss "$input2" --color always | grep -v "::"                  # grep command removes errors being displayed in pacaur
+
             fi
 
         else
@@ -1416,12 +1481,21 @@ function func_a
             echo "Enter (parts of) name and/or description of package to be searched. Then press ENTER."
             read -r pkg
 
-            if [[ -e /usr/bin/yaourt ]]
+            if [[ -e /usr/bin/yay ]]
             then
+
+                yay "$pkg"
+
+            elif [[ -e /usr/bin/yaourt ]]
+            then
+
                 yaourt "$pkg"
+
             elif [[ -e /usr/bin/pacaur ]]
             then
+
                 pacaur -Ss "$pkg" --color always | grep -v "::"                     # grep command removes errors being displayed in pacaur
+                
             fi
 
         fi
