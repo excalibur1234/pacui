@@ -1495,7 +1495,7 @@ function func_a
             then
 
                 pacaur -Ss "$pkg" --color always | grep -v "::"                     # grep command removes errors being displayed in pacaur
-                
+
             fi
 
         fi
@@ -1909,6 +1909,17 @@ fi
 # =======================
 # UI code is below
 
+
+
+# check for AUR helpers and print a warning message, if none is found. this should be done for non-advanced users only, who still use the GUI, because these people are least likely to read about pacui on github, the manjaro forum, or the optional dependencies (in its PKGBUILD file).
+    if [[ ! -e /usr/bin/yay ]] && [[ ! -e /usr/bin/yaourt ]] && [[ ! -e /usr/bin/pacaur ]]
+    then
+        echo -e "\e[1mNo AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
+        echo -e "\e[1m  yay \e[0m"
+        echo -e "\e[1m  yaourt \e[0m"
+        echo -e "\e[1m  pacaur \e[0m"
+        exit
+    fi
 
 
 # Run infinte loop for UI / menu, till the user quits using the "quit" option or CTRL+C.
