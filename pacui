@@ -393,20 +393,18 @@ function func_i
             then
                 echo -e "\e[1m{1} group has the following members: \e[0m"
                 pacman -Sgq {1}                                                     # display package name of group members in preview window of fzf
-            else                                                                    # do this if line is neither a group nor locally installed
-                if [[ -e /usr/bin/trizen ]]
-                then
-                    trizen -Si {1}
-                elif [[ -e /usr/bin/yay ]]
-                then
-                    yay -Si {1}
-                elif [[ -e /usr/bin/yaourt ]]
-                then
-                    yaourt -Si {1}
-                elif [[ -e /usr/bin/pacaur ]]
-                then
-                    pacaur -Si {1} --color always | grep -v "::"                    # display repo package information in preview window of fzf. grep command removes all errors displayed by pacaur
-                fi
+            elif [[ -e /usr/bin/trizen ]]                                           # if {1} is neither locally installed nor a group, it is from the AUR. display info with AUR helper
+            then
+                trizen -Si {1}
+            elif [[ -e /usr/bin/yay ]]
+            then
+                yay -Si {1}
+            elif [[ -e /usr/bin/yaourt ]]
+            then
+                yaourt -Si {1}
+            elif [[ -e /usr/bin/pacaur ]]
+            then
+                pacaur -Si {1} --color always | grep -v "::"                        # display repo package information in preview window of fzf. grep command removes all errors displayed by pacaur
             fi
             ' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
@@ -426,7 +424,7 @@ function func_i
             then
 
                 # execute "trizen -S $pkg_install" command:
-                if ( trizen -S $pkg_install )                                       # !!! this command does not work when $pkg_install is quoted !!! (i do not know why)
+                if ( trizen -S $pkg_install )                                     # !!! this command does not work when $pkg_install is quoted !!! (i do not know why)
                 then
                     # only set $install_successful=true, if the command "trizen -S $pkg_install" was executed without errors
                     install_successful=true
@@ -434,7 +432,7 @@ function func_i
                     install_successful=false
                 fi
 
-            if [[ -e /usr/bin/yay ]]
+            elif [[ -e /usr/bin/yay ]]
             then
 
                 # execute "yay -S $pkg_install" command:
@@ -672,20 +670,18 @@ function func_t
             if ( pacman -Qq {1} &>/dev/null )                                       # check, if selected line is a locally installed package
             then
                 pacman -Qi {1} --color always
-            else                                                                    # do this if line is not locally installed
-                if [[ -e /usr/bin/trizen ]]
-                then
-                    trizen -Si {1}
-                elif [[ -e /usr/bin/yay ]]
-                then
-                    yay -Si {1}
-                elif [[ -e /usr/bin/yaourt ]]
-                then
-                    yaourt -Si {1}
-                elif [[ -e /usr/bin/pacaur ]]
-                then
-                    pacaur -Si {1} --color always | grep -v "::"                    # display repo package information in preview window of fzf. grep command removes all errors displayed by pacaur
-                fi
+            elif [[ -e /usr/bin/trizen ]]                                           # if {1} is not locally installed, it is from the AUR. display info with AUR helper
+            then
+                trizen -Si {1}
+            elif [[ -e /usr/bin/yay ]]
+            then
+                yay -Si {1}
+            elif [[ -e /usr/bin/yaourt ]]
+            then
+                yaourt -Si {1}
+            elif [[ -e /usr/bin/pacaur ]]
+            then
+                pacaur -Si {1} --color always | grep -v "::"                        # display repo package information in preview window of fzf. grep command removes all errors displayed by pacaur
             fi
             ' --preview-window=right:50%:wrap  --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
@@ -747,20 +743,18 @@ function func_l
             if ( pacman -Qq {1} &>/dev/null )                                       # check, if selected line is a locally installed package
             then
                 pacman -Qi {1} --color always                                       # for local packages, "pacman" is sufficient.
-            else                                                                    # do this if line is not locally installed
-                if [[ -e /usr/bin/trizen ]]
-                then
-                    trizen -Si {1}
-                elif [[ -e /usr/bin/yay ]]
-                then
-                    yay -Si {1}
-                elif [[ -e /usr/bin/yaourt ]]
-                then
-                    yaourt -Si {1}
-                elif [[ -e /usr/bin/pacaur ]]
-                then
-                    pacaur -Si {1} --color always | grep -v "::"                    # display repo package information in preview window of fzf. grep command removes all errors displayed by pacaur
-                fi
+            elif [[ -e /usr/bin/trizen ]]                                           # if {1} is not locally installed, it is from the AUR. display info with AUR helper
+            then
+                trizen -Si {1}
+            elif [[ -e /usr/bin/yay ]]
+            then
+                yay -Si {1}
+            elif [[ -e /usr/bin/yaourt ]]
+            then
+                yaourt -Si {1}
+            elif [[ -e /usr/bin/pacaur ]]
+            then
+                pacaur -Si {1} --color always | grep -v "::"                        # display repo package information in preview window of fzf. grep command removes all errors displayed by pacaur
             fi
             ' --preview-window=right:50%:wrap  --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
@@ -1512,14 +1506,14 @@ function func_a
          local pkg
 
         if [[ -n "$input2" ]]
-        # do this if variable "input2" is not empty:
         then
+            # do this if variable "input2" is not empty:
 
             if [[ -e /usr/bin/trizen ]]
             then
 
                 trizen -Ss "$input2"
-            
+
             elif [[ -e /usr/bin/yay ]]
             then
 
