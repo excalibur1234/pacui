@@ -54,7 +54,10 @@ yaourt -S pacui-git
 
 This will install PacUI including the latest commits on Github. If you ever encounter any bugs, please reinstall (and thereby update) PacUI with the this command and check whether the bug is still there before reporting it.
 
-Please note that PacUI requires also Yay, Pacaur, or Yaourt to work properly. All AUR helpers are only listed as optional dependencies, but you should install at least one of them.
+Please note that PacUI requires also Yay, Pacaur, or Yaourt to work properly. All AUR helpers are only listed as optional dependencies, but you should install at least one of them! If more than one AUR helper is installed, they are used in the following order (upper ones are used first):
+yay
+yaourt
+pacaur
 
 ### Execute without prior Installation
 Because PacUI is contained within one file, it is easy to download and start it without prior installation:
