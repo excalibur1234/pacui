@@ -61,7 +61,19 @@ function func_u
         # define local variable, which indicates whether the installation process was successful or not.
         local install_successful
 
-        if [[ -e /usr/bin/yay ]]
+        if [[ -e /usr/bin/trizen ]]
+        then
+
+            # execute "trizen -Syu" command:
+            if ( trizen -Syu)
+            then
+                # only set $install_successful=true, if the command "trizen -Syu" was executed without errors
+                install_successful=true
+            else
+                install_successful=false
+            fi
+
+        elif [[ -e /usr/bin/yay ]]
         then
 
             # execute "yay -Syu" command:
@@ -185,7 +197,27 @@ function func_m
 
 
         echo "searching orphans ..."
-        if [[ -e /usr/bin/yay ]]
+        if [[ -e /usr/bin/trizen ]]
+        then
+
+            if [[ -n $(pacman -Qdt) ]]                                              # only run these commands, if output of "pacman -Qdt" is not empty. this happens if there are no orphans.
+            then
+
+                pacman -Qdt --color always
+                # ask, whether to remove the displayed orphaned packages and save answer in "answer" variable:
+                read -p $'\e[1mDo you want to remove these orphaned packages? [Y|n]\e[0m' answer
+                case ${answer:-y} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "y".
+                    y|Y|yes|YES|Yes )                                               # do this, if "answer" is y or Y or yes or YES or Yes
+                        sudo pacman -Rsn $(pacman -Qqdt) --color always --noconfirm
+                        ;;
+                    * )                                                             # do this in all other cases
+                        echo "Packages have not been removed."
+                        ;;
+                esac                                                                # end of "case" loop
+
+            fi
+
+        elif [[ -e /usr/bin/yay ]]
         then
 
             yay -Cd
@@ -362,7 +394,10 @@ function func_i
                 echo -e "\e[1m{1} group has the following members: \e[0m"
                 pacman -Sgq {1}                                                     # display package name of group members in preview window of fzf
             else                                                                    # do this if line is neither a group nor locally installed
-                if [[ -e /usr/bin/yay ]]
+                if [[ -e /usr/bin/trizen ]]
+                then
+                    trizen -Si {1}
+                elif [[ -e /usr/bin/yay ]]
                 then
                     yay -Si {1}
                 elif [[ -e /usr/bin/yaourt ]]
@@ -386,6 +421,18 @@ function func_i
 
             # define local variable, which indicates whether the installation process was successful or not.
             local install_successful
+
+            if [[ -e /usr/bin/trizen ]]
+            then
+
+                # execute "trizen -S $pkg_install" command:
+                if ( trizen -S $pkg_install )                                       # !!! this command does not work when $pkg_install is quoted !!! (i do not know why)
+                then
+                    # only set $install_successful=true, if the command "trizen -S $pkg_install" was executed without errors
+                    install_successful=true
+                else
+                    install_successful=false
+                fi
 
             if [[ -e /usr/bin/yay ]]
             then
@@ -626,7 +673,10 @@ function func_t
             then
                 pacman -Qi {1} --color always
             else                                                                    # do this if line is not locally installed
-                if [[ -e /usr/bin/yay ]]
+                if [[ -e /usr/bin/trizen ]]
+                then
+                    trizen -Si {1}
+                elif [[ -e /usr/bin/yay ]]
                 then
                     yay -Si {1}
                 elif [[ -e /usr/bin/yaourt ]]
@@ -698,7 +748,10 @@ function func_l
             then
                 pacman -Qi {1} --color always                                       # for local packages, "pacman" is sufficient.
             else                                                                    # do this if line is not locally installed
-                if [[ -e /usr/bin/yay ]]
+                if [[ -e /usr/bin/trizen ]]
+                then
+                    trizen -Si {1}
+                elif [[ -e /usr/bin/yay ]]
                 then
                     yay -Si {1}
                 elif [[ -e /usr/bin/yaourt ]]
@@ -1365,7 +1418,12 @@ function func_c
 # this core functionality of "Force Update AUR" (note the bold "u" and "a") can be started in the terminal using "pacui ua". the help page provides additional explanations.
 function func_ua
 {
-        if [[ -e /usr/bin/yay ]]
+        if [[ -e /usr/bin/trizen ]]
+        then
+
+            trizen -Syu && trizen -Syu --devel --needed --noconfirm
+        
+        elif [[ -e /usr/bin/yay ]]
         then
 
             yay -Syu && yay -Syu --devel --noconfirm
@@ -1454,18 +1512,22 @@ function func_a
          local pkg
 
         if [[ -n "$input2" ]]
+        # do this if variable "input2" is not empty:
         then
 
-            if [[ -e /usr/bin/yay ]]
+            if [[ -e /usr/bin/trizen ]]
             then
 
-                # do this if variable "input2" is not empty:
+                trizen -Ss "$input2"
+            
+            elif [[ -e /usr/bin/yay ]]
+            then
+
                 yay "$input2"
 
             elif [[ -e /usr/bin/yaourt ]]
             then
 
-                # do this if variable "input2" is not empty:
                 yaourt "$input2"
 
             elif [[ -e /usr/bin/pacaur ]]
@@ -1481,7 +1543,12 @@ function func_a
             echo "Enter (parts of) name and/or description of package to be searched. Then press ENTER."
             read -r pkg
 
-            if [[ -e /usr/bin/yay ]]
+            if [[ -e /usr/bin/trizen ]]
+            then
+
+                trizen -Ss "$pkg"
+
+            elif [[ -e /usr/bin/yay ]]
             then
 
                 yay "$pkg"
@@ -1548,7 +1615,7 @@ function func_h
 
 \e[1mWelcome to PacUIs Help Page
 
-PacUI is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Yay/Pacaur/Yaourt as back ends. If Pacaur is installed on your system, PacUI uses it by default.
+PacUI is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Trizen/Yay/Pacaur/Yaourt as back ends. If Pacaur is installed on your system, PacUI uses it by default.
 
 Navigate this help page with your Arrow Keys, PageUp/PageDown Keys, SpaceBar, or your Mouse Wheel. To search this Help Page, enter /<SEARCH TERM> and press ENTER. For example, enter the following (without quotes " ") in order to search for the word "update": "/update". Press N key to continue searching for other occurances of "/update". Search is not case sensitive. To exit this Help Page, press your Q key.
 PacUI uses Fuzzy Finder (fzf) to display selectable lists, which can be easily searched by starting to type. Advanced users can even use regular expressions to search in fzf. Use your TAB key to select multiple items from the list and your ENTER key to choose your selection. Navigate fzf's list the same way you navigate this help page.
@@ -1912,9 +1979,10 @@ fi
 
 
 # check for AUR helpers and print a warning message, if none is found. this should be done for non-advanced users only, who still use the GUI, because these people are least likely to read about pacui on github, the manjaro forum, or the optional dependencies (in its PKGBUILD file).
-    if [[ ! -e /usr/bin/yay ]] && [[ ! -e /usr/bin/yaourt ]] && [[ ! -e /usr/bin/pacaur ]]
+    if [[ ! -e /usr/bin/trizen ]] && [[ ! -e /usr/bin/yay ]] && [[ ! -e /usr/bin/yaourt ]] && [[ ! -e /usr/bin/pacaur ]]
     then
         echo -e "\e[1mNo AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
+        echo -e "\e[1m  trizen \e[0m"
         echo -e "\e[1m  yay \e[0m"
         echo -e "\e[1m  yaourt \e[0m"
         echo -e "\e[1m  pacaur \e[0m"
