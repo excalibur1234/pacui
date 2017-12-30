@@ -398,7 +398,7 @@ function func_i
                 trizen -Si {1}
             elif [[ -e /usr/bin/yay ]]
             then
-                yay -Si {1}
+                #yay -Si {1}                                                        # this does not work yet, because "yay -Si <repository package>" needs root privileges --> destroys layout of fzf!
             elif [[ -e /usr/bin/yaourt ]]
             then
                 yaourt -Si {1}
@@ -675,7 +675,7 @@ function func_t
                 trizen -Si {1}
             elif [[ -e /usr/bin/yay ]]
             then
-                yay -Si {1}
+                #yay -Si {1}
             elif [[ -e /usr/bin/yaourt ]]
             then
                 yaourt -Si {1}
@@ -748,7 +748,7 @@ function func_l
                 trizen -Si {1}
             elif [[ -e /usr/bin/yay ]]
             then
-                yay -Si {1}
+                #yay -Si {1}
             elif [[ -e /usr/bin/yaourt ]]
             then
                 yaourt -Si {1}
