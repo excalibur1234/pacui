@@ -179,7 +179,7 @@ function func_m
             sudo pacman-mirrors -f 0 && sudo pacman -Syy                            # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
         elif [[ -e /usr/bin/reflector ]]                                            # checks, whether file "reflector" exists
         then
-            sudo reflector -f 5 --sort age --save /etc/pacman.d/mirrorlist && sleep 20 && sudo pacman -Syy # If it does exists, then the mirror will sort by it
+            sudo reflector -f 5 --verbose --sort age --save /etc/pacman.d/mirrorlist && sleep 20 && sudo pacman -Syy # If it does exists, then the mirror will sort by it
         fi
         echo ""
 
