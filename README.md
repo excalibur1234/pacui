@@ -54,7 +54,7 @@ yaourt -S pacui-git
 
 This will install PacUI including the latest commits on Github. If you ever encounter any bugs, please reinstall (and thereby update) PacUI with the this command and check whether the bug is still there before reporting it.
 
-Please note that PacUI requires also Trizen, Yay, Yaourt, or Pacaur to work properly. All AUR helpers are only listed as optional dependencies, but you should install at least one of them! If more than one AUR helper is installed, they are used in the same order as listed above.
+Please note that PacUI requires also [Trizen](https://github.com/trizen/trizen), [Yay](https://github.com/Jguer/yay), [Yaourt](https://github.com/archlinuxfr/yaourt), or [Pacaur](https://github.com/rmarquis/pacaur) to work properly. All AUR helpers are only listed as optional dependencies, but you should install at least one of them! If more than one AUR helper is installed, they are used in the same order as listed above.
 
 
 ### Execute without prior Installation

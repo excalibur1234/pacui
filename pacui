@@ -316,6 +316,7 @@ function func_m
         # remove all package versions, except the latest 3
         sudo paccache -rv -k 3
         echo ""
+        # general comment: "pacaur" is the only aur helper, which creates its own download directory for aur packages. the content of this download folder can be cleaned with "pacaur -Sc".
 
 
         # 1. extract the name of hard drive the / partition is installed on and write it to the "disk" variatble"
