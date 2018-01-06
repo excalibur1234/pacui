@@ -185,15 +185,19 @@ function func_diff
 # this core functionality of "Maintain System" (note the bold "M") can be started in the terminal using "pacui m". it is separated into multiple parts. most parts begin (or contain) an "echo" command, which explains what is being done. the help page explains the core functionality of every part in detail, too.
 function func_m
 {
-        echo "choosing fastest mirror (which can take a while) ..."
-        if [[ -e /usr/bin/pacman-mirrors ]]                                         # checks, whether file "pacman-mirrors" exists
+        # check for "pacman-mirrors" or "reflector" packages. one of those is needed!
+        if [[ -e /usr/bin/pacman-mirrors ]] || [[ -e /usr/bin/reflector ]]
         then
-            sudo pacman-mirrors -f 0 && sudo pacman -Syy                            # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
-        elif [[ -e /usr/bin/reflector ]]                                            # checks, whether file "reflector" exists
-        then
-            sudo reflector -f 5 --verbose --sort age --save /etc/pacman.d/mirrorlist && sleep 20 && sudo pacman -Syy # If it does exists, then the mirror will sort by it
+            echo "choosing fastest mirror (which can take a while) ..."
+            if [[ -e /usr/bin/pacman-mirrors ]]                                         # checks, whether file "pacman-mirrors" exists
+            then
+                sudo pacman-mirrors -f 0 && sudo pacman -Syy                            # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
+            elif [[ -e /usr/bin/reflector ]]                                            # checks, whether file "reflector" exists
+            then
+                sudo reflector -f 5 --verbose --sort age --save /etc/pacman.d/mirrorlist && sleep 20 && sudo pacman -Syy # If it does exists, then the mirror will sort by it
+            fi
+            echo ""
         fi
-        echo ""
 
 
         echo "searching orphans ..."
@@ -1108,19 +1112,22 @@ function func_fix
         sudo rm -f /var/lib/pacman/db.lck
         echo ""
 
-
-        echo "fixing mirrors ..."
-        # do this, if system uses pacman-mirrors (default in Manjaro)
-        if [[ -e /usr/bin/pacman-mirrors ]]
+        # check for "pacman-mirrors" or "reflector" packages. one of those is needed!
+        if [[ -e /usr/bin/pacman-mirrors ]] || [[ -e /usr/bin/reflector ]]
         then
-            sudo pacman-mirrors -f 0 && sudo pacman -Syy                            # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
+            echo "fixing mirrors ..."
+            # do this, if system uses pacman-mirrors (default in Manjaro)
+            if [[ -e /usr/bin/pacman-mirrors ]]
+            then
+                sudo pacman-mirrors -f 0 && sudo pacman -Syy                            # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
+            fi
+            # do this, if system uses reflector (default on Arch Linux or distributions using Arch Linux mirrors/repo servers)
+            if [[ -e /usr/bin/reflector ]]
+            then
+                sudo reflector -f 5 --verbose --sort age --save /etc/pacman.d/mirrorlist && sleep 20 && sudo pacman -Syy
+            fi
+            echo ""
         fi
-        # do this, if system uses reflector (default on Arch Linux or distributions using Arch Linux mirrors/repo servers)
-        if [[ -e /usr/bin/reflector ]]
-        then
-            sudo reflector -f 5 --sort age --save /etc/pacman.d/mirrorlist && sleep 20 && sudo pacman -Syy
-        fi
-        echo ""
 
 
         # check, whether there is a connection to the mirror/repository server. this is needed for package download!
