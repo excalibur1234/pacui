@@ -111,6 +111,7 @@ function func_u
 
         fi
 
+
         # if one of the above update commands has failed, the following if-statement is true:
         if [[ $install_successful == "false" ]]
         then
@@ -422,106 +423,26 @@ function func_i
         if [[ -n $pkg ]]
         then
 
-            # define local variable, which indicates whether the installation process was successful or not.
-            local install_successful
-
             if [[ -e /usr/bin/trizen ]]
             then
 
-                # execute "trizen -S $pkg_install" command:
-                if ( trizen -S $pkg_install )                                     # !!! this command does not work when $pkg_install is quoted !!! (i do not know why)
-                then
-                    # only set $install_successful=true, if the command "trizen -S $pkg_install" was executed without errors
-                    install_successful=true
-                else
-                    install_successful=false
-                fi
+                trizen -S $pkg_install                                              # !!! this command does not work when $pkg_install is quoted !!! (i do not know why)
 
             elif [[ -e /usr/bin/yay ]]
             then
 
-                # execute "yay -S $pkg_install" command:
-                if ( yay -S $pkg_install )                                       # !!! this command does not work when $pkg_install is quoted !!! (i do not know why)
-                then
-                    # only set $install_successful=true, if the command "yay -S $pkg_install" was executed without errors
-                    install_successful=true
-                else
-                    install_successful=false
-                fi
+                yay -S $pkg_install                                                 # !!! this command does not work when $pkg_install is quoted !!! (i do not know why)
 
             elif [[ -e /usr/bin/yaourt ]]
             then
 
-                # execute "yaourt -S $pkg_install" command:
-                if ( yaourt -S $pkg_install )                                       # !!! this command does not work when $pkg_install is quoted !!! (i do not know why)
-                then
-                    # only set $install_successful=true, if the command "yaourt -S $pkg_install" was executed without errors
-                    install_successful=true
-                else
-                    install_successful=false
-                fi
+                yaourt -S $pkg_install                                              # !!! this command does not work when $pkg_install is quoted !!! (i do not know why)
             
             elif [[ -e /usr/bin/pacaur ]]
             then
 
-               # execute "pacaur -S $pkg_install --color always" command:
-                if ( pacaur -S $pkg_install --color always )
-                then
-                    # only set $install_successful=true, if the command "pacaur -S $pkg_install --color always" was executed without errors
-                    install_successful=true
-                else
-                    install_successful=false
-                fi
+                pacaur -S $pkg_install --color always                               # !!! this command does not work when $pkg_install is quoted !!! (i do not know why)
 
-            fi
-
-
-            # if one of the above installation commands has failed, the following if-statement is true:
-            if [[ $install_successful == "false" ]]
-            then
-
-                # because it is possible the installation of AUR packages has failed (and we cannot do anything to solve this automatically), we have to check, whether installation from the system repositories fails:
-                if ! ( sudo pacman -S $pkg_install --color always )
-                then
-
-                    # check, whether there is a connection to the mirror/repository server. this is needed for package installation!
-                    if ( sudo pacman -Syy )                                                 # the "sudo pacman -Syy" command gets executed in any case in order to check its output.
-                    then
-
-                        # now, we can be sure that installation of a package from the system repositories has failed. Print error message below the error output of pacman.
-                        echo
-                        echo -e "\e[1mPackage installation has failed most likely because of file conflicts.\e[0m"
-                        echo -e "\e[1mIn this case, overwriting all files can solve this problems (but maybe create others).\e[0m"
-                        echo -e "\e[1mDo you want to forcefully install package(s) and overwrite all files? [\e[31my\e[0m|N]\e[0m"
-                        # save answer in "answer" variable:
-                        read -s -n1 answer
-
-
-                        case ${answer:-n} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "n".
-                            y|Y|yes|YES|Yes )                                               # do this, if "answer" is y or Y or yes or YES or Yes
-                                sudo pacman -S --force $pkg_install --color always
-                                ;;
-                            * )                                                             # do this in all other cases
-                                echo "Installation process has been cancelled."
-                                ;;
-                        esac
-
-                    else
-
-                        # print error message, if there is no connection to a mirror/repository server and quit 
-
-                        local server
-                        # extract mirror/repository server url from /etc/pacman.d/mirrorlist file:
-                        server=$( grep "^Server =" -m 1 /etc/pacman.d/mirrorlist | awk '{print $3}' )
-
-                        echo -e "\e[41m Either there is something wrong with your internet connection or with your mirror/repository server: "$server" \e[0m"
-                        echo -e "\e[1;41m Please make sure both are ok and rerun this part of PacUI! \e[0m"
-                        echo -e ""
-
-                    fi
-
-                fi
-            
             fi
 
         fi
