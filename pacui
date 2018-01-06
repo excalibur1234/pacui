@@ -1479,25 +1479,35 @@ function func_ls
 # this core functionality of "Downgrade Packages" (note the bold "d") can be started in the terminal using "pacui d". the help page provides additional explanations.
 function func_d
 {
-        # write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
-        pacman -Slq | tr -d " " > /tmp/pacui-packages-local
-        pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
-
-        local pkg
-        local pkg_downgrade
-
-        pacui_clean                                                                 # clear terminal
-
-        pkg=$( sort -k1,1 -u /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to downgrade. ESC to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
-
-        pacui_clean                                                                 # clear terminal
-
-        # $pkg contains package names below each other, but we need a list (in 1 line, space separated):
-        pkg_downgrade=$(echo $pkg | paste -sd " ")
-
-        if [[ -n $pkg ]]
+        # check for "downgrade" package
+        if [[ ! -e /usr/bin/downgrade ]]
         then
-            downgrade $pkg_downgrade
+
+            echo -e "\e[1mNo 'downgrade' package has been found. Please install it. Alternatively, use PacUI's 'Roll Back System' option. \e[0m"
+        
+        else
+
+            # write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
+            pacman -Slq | tr -d " " > /tmp/pacui-packages-local
+            pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
+
+            local pkg
+            local pkg_downgrade
+
+            pacui_clean                                                                 # clear terminal
+
+            pkg=$( sort -k1,1 -u /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to downgrade. ESC to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
+
+            pacui_clean                                                                 # clear terminal
+
+            # $pkg contains package names below each other, but we need a list (in 1 line, space separated):
+            pkg_downgrade=$(echo $pkg | paste -sd " ")
+
+            if [[ -n $pkg ]]
+            then
+                downgrade $pkg_downgrade
+            fi
+        
         fi
 }
 
