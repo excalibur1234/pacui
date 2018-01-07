@@ -109,6 +109,15 @@ function func_u
                 install_successful=false
             fi
 
+        else
+
+            echo -e "\e[1mNo AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
+            echo -e "\e[1m  trizen \e[0m"
+            echo -e "\e[1m  yay \e[0m"
+            echo -e "\e[1m  yaourt \e[0m"
+            echo -e "\e[1m  pacaur \e[0m"
+            exit
+
         fi
 
 
@@ -121,7 +130,7 @@ function func_u
             if ( sudo pacman -Syy )                                                 # the "sudo pacman -Syy" command gets executed in any case in order to check its output.
             then
 
-                # next, we can force the update, but only for packages from the system repositories and not packages from the AUR. therefore, we need to make sure package udates from system repositories fail:
+                # next, we can force the update, but only for packages from the system repositories and not packages from the AUR. this means, we make sure package updates from system repositories fail:
                 if ! ( sudo pacman -Syu --color always )                            # the "sudo pacman -Syu --color always" command gets executed in any case in order to check its output.
                 then
                     
@@ -129,9 +138,8 @@ function func_u
                     local answer
                     # ask, whether to force update the system and save answer in "answer" variable:
                     echo -e "\e[1mUpdates from system repositories have failed because of file conflicts. \e[0m"
-                    echo -e "\e[1mDo you want to overwrite all conflicting files? [y|N] \e[0m"
+                    echo -e "\e[1mDo you want to forcefully overwrite all conflicting files? [y|N] \e[0m"
                     read -s -n1 answer                                              # this "read" command only accepts 1 letter as answer. this feels faster and is enough in this situation.
-
                         
                     case ${answer:-n} in                                            # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "n".
                         y|Y|yes|Yes|YES )                                           # do this, if "answer" is y or Y or yes or Yes or YES
@@ -251,6 +259,15 @@ function func_m
                 esac                                                                # end of "case" loop
 
             fi
+
+        else
+
+            echo -e "\e[1mNo AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
+            echo -e "\e[1m  trizen \e[0m"
+            echo -e "\e[1m  yay \e[0m"
+            echo -e "\e[1m  yaourt \e[0m"
+            echo -e "\e[1m  pacaur \e[0m"
+            exit
 
         fi
         echo ""
@@ -443,6 +460,15 @@ function func_i
 
                 pacaur -S $pkg_install --color always                               # !!! this command does not work when $pkg_install is quoted !!! (i do not know why)
 
+            else
+
+                echo -e "\e[1mNo AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
+                echo -e "\e[1m  trizen \e[0m"
+                echo -e "\e[1m  yay \e[0m"
+                echo -e "\e[1m  yaourt \e[0m"
+                echo -e "\e[1m  pacaur \e[0m"
+                exit
+
             fi
 
         fi
@@ -491,16 +517,15 @@ function func_r
 
                 # now, "sudo pacman -Rsn $pkg_remove --color always" has failed. this means that a dependency was selected. Print error message below the error output of pacman.
                 echo
-                echo -e "\e[1mPackage removal has failed because at least one dependency was selected.\e[0m"
+                echo -e "\e[1mPackage removal has failed. Most likely you tried to remove a dependency.\e[0m"
                 echo
                 echo -e "\e[1mDo you want to forcefully remove all selected packages anyway? [y|N]\e[0m"
                 echo -e "\e[1mChoose one of the following options: \e[0m"
                 echo
-                echo -e "\e[1;31m   y   Remove package(s) without checking dependencies first. \e[0m"
-                echo -e "\e[1;31m       All dependencies and orphans are left: run MAINTAIN SYSTEM afterwards to remove them. \e[0m"
+                echo -e "\e[1;31m   y   Forcefully remove package(s) without checking their dependencies first. \e[0m"
                 echo -e "\e[1;31m       Attention: This command can break packages on your system or even your entire system. \e[0m"
                 echo
-                echo -e "\e[1m   N   Press ENTER or N to try again. \e[0m"
+                echo -e "\e[1m   N   Try again. \e[0m"
                 echo -e "\e[1m       Read the error message(s) above carefully and try not to select dependencies next time. \e[0m"
                 # save answer in "answer" variable:
                 read -s -n1 answer
@@ -1363,6 +1388,15 @@ function func_ua
 
             pacaur -Syua --color always && pacaur -Syua --devel --needed --color always
 
+        else
+
+            echo -e "\e[1mNo AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
+            echo -e "\e[1m  trizen \e[0m"
+            echo -e "\e[1m  yay \e[0m"
+            echo -e "\e[1m  yaourt \e[0m"
+            echo -e "\e[1m  pacaur \e[0m"
+            exit
+
         fi
 }
 
@@ -1470,6 +1504,15 @@ function func_a
 
                 pacaur -Ss "$input2" --color always | grep -v "::"                  # grep command removes errors being displayed in pacaur
 
+            else
+
+                echo -e "\e[1mNo AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
+                echo -e "\e[1m  trizen \e[0m"
+                echo -e "\e[1m  yay \e[0m"
+                echo -e "\e[1m  yaourt \e[0m"
+                echo -e "\e[1m  pacaur \e[0m"
+                exit
+
             fi
 
         else
@@ -1497,6 +1540,15 @@ function func_a
             then
 
                 pacaur -Ss "$pkg" --color always | grep -v "::"                     # grep command removes errors being displayed in pacaur
+
+            else
+
+                echo -e "\e[1mNo AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
+                echo -e "\e[1m  trizen \e[0m"
+                echo -e "\e[1m  yay \e[0m"
+                echo -e "\e[1m  yaourt \e[0m"
+                echo -e "\e[1m  pacaur \e[0m"
+                exit
 
             fi
 
@@ -1911,18 +1963,6 @@ fi
 # =======================
 # UI code is below
 
-
-
-# check for AUR helpers and print a warning message, if none is found. this should be done for non-advanced users only, who still use the GUI, because these people are least likely to read about pacui on github, the manjaro forum, or the optional dependencies (in its PKGBUILD file).
-    if [[ ! -e /usr/bin/trizen ]] && [[ ! -e /usr/bin/yay ]] && [[ ! -e /usr/bin/yaourt ]] && [[ ! -e /usr/bin/pacaur ]]
-    then
-        echo -e "\e[1mNo AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
-        echo -e "\e[1m  trizen \e[0m"
-        echo -e "\e[1m  yay \e[0m"
-        echo -e "\e[1m  yaourt \e[0m"
-        echo -e "\e[1m  pacaur \e[0m"
-        exit
-    fi
 
 
 # Run infinte loop for UI / menu, till the user quits using the "quit" option or CTRL+C.
