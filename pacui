@@ -33,13 +33,13 @@ function pacui_clean
         if ( tty | grep tty &>/dev/null )                                           # check, whether output of "tty" contains the string "tty". this is TRUE, if pacui is used within a tty.
         then
             # bug #3:
-            # in tty, fzf does not clear the screen before and after it runs. this makes a bad visual style in tty. the other code (in the "else bracket") does not help to "clear" the screen before and after fzf runs, either. only the real "clear" command works. 
+            # in tty, fzf does not clear the screen before and after it runs. this makes a bad visual style in tty. the other code (in the "else bracket") does not help to "clear" the screen before and after fzf runs, either. only the real "clear" command works.
             # unfortunately the "clear" command also destroys the terminal history. therefore, the "clear" command should only be used in tty!
             clear
         else                                                                        # the output of the "tty" command does not contain "tty" when pacui is executed in a terminal or in tmux.
             # bug #1:
             # the traditional "clear" command does not work as expected on all systems. problem: the terminal history of all previous commands is deleted when the "clear" command is used. solution: do everything i expect from "clear" manually. this keeps the terminal history:
-            
+
             # number of lines of the user's terminal.
             lines=$( tput lines )
             for (( i=1; i<lines; i++ ))
@@ -47,7 +47,7 @@ function pacui_clean
                     # insert "lines" number of empty lines:
                     echo
             done
-            
+
             # move cursor to the top left of the terminal
             tput cup 0 0
         fi
@@ -133,14 +133,14 @@ function func_u
                 # next, we can force the update, but only for packages from the system repositories and not packages from the AUR. this means, we make sure package updates from system repositories fail:
                 if ! ( sudo pacman -Syu --color always )                            # the "sudo pacman -Syu --color always" command gets executed in any case in order to check its output.
                 then
-                    
+
                     # now, we are sure there is an active connection to the server/mirror/repository and package updates from there have failed. in this case, we can offer the user to forcefully install updates:
                     local answer
                     # ask, whether to force update the system and save answer in "answer" variable:
                     echo -e "\e[1mUpdates from system repositories have failed because of file conflicts. \e[0m"
                     echo -e "\e[1mDo you want to forcefully overwrite all conflicting files? [y|N] \e[0m"
                     read -s -n1 answer                                              # this "read" command only accepts 1 letter as answer. this feels faster and is enough in this situation.
-                        
+
                     case ${answer:-n} in                                            # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "n".
                         y|Y|yes|Yes|YES )                                           # do this, if "answer" is y or Y or yes or Yes or YES
                             sudo pacman -Syu --force --color always
@@ -148,13 +148,13 @@ function func_u
                         * )                                                         # do this in all other cases
                             echo "Packages have not been updated."
                             ;;
-                    esac   
+                    esac
 
                 fi
 
             else
 
-                # print error message, if there is no connection to a mirror/repository server and quit 
+                # print error message, if there is no connection to a mirror/repository server and quit
 
                 local server
                 # extract mirror/repository server url from /etc/pacman.d/mirrorlist file:
@@ -234,12 +234,12 @@ function func_m
         then
 
             yay -Cd
-        
+
         elif [[ -e /usr/bin/yaourt ]]
         then
 
             yaourt -Qdt
-        
+
         elif [[ -e /usr/bin/pacaur ]]
         then
 
@@ -454,7 +454,7 @@ function func_i
             then
 
                 yaourt -S $pkg_install                                              # !!! this command does not work when $pkg_install is quoted !!! (i do not know why)
-            
+
             elif [[ -e /usr/bin/pacaur ]]
             then
 
@@ -531,7 +531,7 @@ function func_r
                 read -s -n1 answer
 
                 case ${answer:-n} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "n".
-                    
+
                     y|Y|yes|YES|Yes )                                               # do this, if "answer" is y or Y or yes or YES or Yes
 
                         sudo pacman -Rdd $pkg_remove --color always
@@ -597,7 +597,7 @@ function func_r
                         ;;
 
                 esac
-            
+
             fi
         fi
 }
@@ -1080,7 +1080,7 @@ function func_fix
         if ( ! sudo pacman -Syy )                                                   # the "sudo pacman -Syy" command gets executed in any case in order to check its output.
         then
 
-            # print error message, if there is no connection to a mirror/repository server and quit 
+            # print error message, if there is no connection to a mirror/repository server and quit
 
             local server
             # extract mirror/repository server url from /etc/pacman.d/mirrorlist file:
@@ -1373,7 +1373,7 @@ function func_ua
         then
 
             trizen -Syu && trizen -Syu --devel --needed --noconfirm
-        
+
         elif [[ -e /usr/bin/yay ]]
         then
 
@@ -1447,7 +1447,7 @@ function func_d
         then
 
             echo -e "\e[1mNo 'downgrade' package has been found. Please install it. Alternatively, use PacUI's 'Roll Back System' option. \e[0m"
-        
+
         else
 
             # write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
@@ -1470,7 +1470,7 @@ function func_d
             then
                 downgrade $pkg_downgrade
             fi
-        
+
         fi
 }
 
@@ -1749,7 +1749,7 @@ This command shows you a list of all recent Pacman actions sorted by date (using
 \e[1mAttention\e[0m: After downgrading a broken package to a working version, it is recommended to add the package name to your Ignore List ( "IgnorePkg" option in /etc/pacman.conf ). This will prevent Pacman from showing any available updates for this package. The package needs to be removed manually from your Ignore List in order to receive automatic updates again. Alternatively, you can run future updates with the command "sudo pacman -Syu --ignore <PACKAGE NAME>" until a fixed version of that package gets released.
 
 
-\e[1m10 - FIX PACMAN ERRORS
+\e[31;1m10 - FIX PACMAN ERRORS
 Multiple commands attempt to fix the most common issues Manjaro users have with Pacman. This should also work for Arch-based distributions, but to a lesser degree. Force options (as in FORCE UPDATE SYSTEM) are excluded, even though they are essential in fixing some problems.
 Please make sure that your root partition is not full. If you have doubts about this, run MAINTAIN SYSTEM before FIX PACMAN ERRORS.
 A working internet connection is required for FIX PACMAN ERRORS!
@@ -1982,7 +1982,7 @@ do
     echo -e " │    5   Dependency \e[1mT\e[0mree             6   \e[1mR\e[0meverse Dependency \e[1mT\e[0mree    │"
     echo -e " │    7   \e[1mL\e[0mist Package Files          8   \e[1mS\e[0mearch Package Files       │"
     echo -e " └───────────────────────────────────────────────────────────────────┘"
-    echo -e "      9   Roll \e[1mB\e[0mack System           10   \e[1mFix\e[0m Pacman Errors "
+    echo -e "      9   Roll \e[1mB\e[0mack System          \e[31m 10   \e[1mFix\e[0;31m Pacman Errors\e[0m "
     echo -e "     11   Edit \e[1mC\e[0monfig Files "
     echo -e " ┌───────────────────────────────────────────────────────────────────┐"
     echo -e " │   13   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR           14   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
@@ -2116,3 +2116,4 @@ do
 # now, the infinite while-loop will start again from its top by clearing the terminal screen and redrawing the UI
 
 done                                                                                # close while-loop
+
