@@ -10,7 +10,7 @@ url="https://github.com/excalibur1234/$_pkgname"
 license=('GPL3')
 depends=('expac' 'wget' 'sudo' 'fzf')
 makedepends=('git' 'base-devel')
-conflicts=("$_pkgname" 'pacli-simple-git')
+conflicts=("$_pkgname")
 optdepends=('pacaur: Needed for AUR support.'
         'yaourt: Needed for AUR support.'
         'yay: Needed for AUR support.'

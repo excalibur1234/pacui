@@ -419,8 +419,8 @@ function func_i
             elif [[ -e /usr/bin/trizen ]]                                           # if {1} is neither locally installed nor a group, it is from the AUR. display info with AUR helper
             then
                 trizen -Si {1}
-            elif [[ -e /usr/bin/yay ]]
-            then
+            #elif [[ -e /usr/bin/yay ]]
+            #then
                 #yay -Si {1}                                                        # this does not work yet, because "yay -Si <repository package>" needs root privileges --> destroys layout of fzf!
             elif [[ -e /usr/bin/yaourt ]]
             then
@@ -624,8 +624,8 @@ function func_t
             elif [[ -e /usr/bin/trizen ]]                                           # if {1} is not locally installed, it is from the AUR. display info with AUR helper
             then
                 trizen -Si {1}
-            elif [[ -e /usr/bin/yay ]]
-            then
+            #elif [[ -e /usr/bin/yay ]]
+            #then
                 #yay -Si {1}
             elif [[ -e /usr/bin/yaourt ]]
             then
@@ -697,8 +697,8 @@ function func_l
             elif [[ -e /usr/bin/trizen ]]                                           # if {1} is not locally installed, it is from the AUR. display info with AUR helper
             then
                 trizen -Si {1}
-            elif [[ -e /usr/bin/yay ]]
-            then
+            #elif [[ -e /usr/bin/yay ]]
+            #then
                 #yay -Si {1}
             elif [[ -e /usr/bin/yaourt ]]
             then

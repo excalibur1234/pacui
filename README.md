@@ -1,7 +1,7 @@
 
 # PacUI
 
-PacUI provides useful and advanced Pacman and Trizen/Yay/Yaourt/Pacaur commands in a convenient and easy to use text interface. 
+PacUI provides useful and advanced Pacman and Trizen/Yay/Yaourt/Pacaur commands in a convenient and easy to use text interface.
 
 PacUI is aimed at experienced/intermediate/advanced users of Arch Linux (and Arch-based distributions, including Manjaro), who have at least basic knowledge of their Linux system, Pacman and [Trizen](https://github.com/trizen/trizen)/[Yay](https://github.com/Jguer/yay)/[Yaourt](https://github.com/archlinuxfr/yaourt)/[Pacaur](https://github.com/rmarquis/pacaur). Absolute beginners are probably overwhelmed by the amount of choices PacUI offers.
 
@@ -79,7 +79,7 @@ pacui
 Using PacUI without its UI requires less keystrokes and can therefore be much quicker. An overview of all PacUI options is displayed with `pacui h`.
 
 For example, you want to display the **R**everse dependency **T**ree of a package. Please note the marked letters "R" and "T" in PacUI's corresponding UI option.
-PacUI does not care, whether you use upper or lower case letters as options or whether you use no, one or two dashes in front. Therefore, the following four commands are equivalent: 
+PacUI does not care, whether you use upper or lower case letters as options or whether you use no, one or two dashes in front. Therefore, the following four commands are equivalent:
 - `pacui RT`
 - `pacui rt`
 - `pacui -rt`
