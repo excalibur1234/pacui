@@ -1580,7 +1580,7 @@ function func_h
             echo -e "  pacui    s     - \e[1mS\e[0mearch Package Files"
             echo
             echo -e "  pacui    b     - Roll \e[1mB\e[0mack System"
-            echo -e "  pacui    fix   - \e[1mFix\e[0m Pacman Errors"
+            echo -e " \e[31m pacui    fix   - \e[1mFix\e[0;31m Pacman Errors\e[0m"
             echo -e "  pacui    c     - Edit \e[1mC\e[0monfig Files"
             echo
             echo -e "  pacui    ua    - Force \e[1mU\e[0mpdate \e[1mA\e[0mUR"

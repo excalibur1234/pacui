@@ -9,7 +9,7 @@ arch=(any)
 url="https://github.com/excalibur1234/$_pkgname"
 license=('GPL3')
 depends=('expac' 'wget' 'sudo' 'fzf')
-makedepends=('git')
+makedepends=('git' 'base-devel')
 conflicts=("$_pkgname" 'pacli-simple-git')
 optdepends=('pacaur: Needed for AUR support.'
         'yaourt: Needed for AUR support.'
