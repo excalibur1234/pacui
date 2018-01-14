@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash                                                                 # should always work - in contrast to #!/bin/bash
 
 #  This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as
 #  published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
@@ -541,15 +541,15 @@ function func_r
 
                         # continue here only if "sudo pacman -Rns" has failed:
                         # 1. save list of packages to variable
-                        pkg_remove_backup=$( echo $pkg_remove | tr " " "\n" )               # tr " " "\n" is needed to convert the list of package names (in 1 line) back to multiple lines. otherwise, fzf cannot work with it.
+                        pkg_remove_backup=$( echo $pkg_remove | tr " " "\n" )       # tr " " "\n" is needed to convert the list of package names (in 1 line) back to multiple lines. otherwise, fzf cannot work with it.
 
                         # 2. try again with a limited list of packages in fzf. this loop is dependent on the pkg_remove_backup variable!
                         while [[ -n $pkg_remove_backup ]]
                         do
 
-                            local {pkg,pkg_remove}                                          # declare local variables
+                            local {pkg,pkg_remove}                                  # declare local variables
 
-                            pacui_clean                                                     # clear terminal
+                            pacui_clean                                             # clear terminal
 
                             # fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
                             pkg=$( echo "$pkg_remove_backup" | fzf-tmux -m -e +s -i --query="$input2" --reverse --margin=4%,1%,1%,2% --inline-info --preview '
@@ -562,17 +562,17 @@ function func_r
                                 fi
                                 ' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
-                            pacui_clean                                                     # clear terminal
+                            pacui_clean                                             # clear terminal
 
-                            if ! [[ -n $pkg ]]                                              # check, whether $pkg variable is empty. this happens when fzf is quit with CTRL+C.
+                            if ! [[ -n $pkg ]]                                      # check, whether $pkg variable is empty. this happens when fzf is quit with CTRL+C.
                             then
-                                break                                                       # break while-loop, if fzf was quit using CTRL+C
+                                break                                               # break while-loop, if fzf was quit using CTRL+C
                             fi
 
                             # $pkg contains package names below each other, but we need a list (in 1 line, space separated):
                             pkg_remove=$(echo $pkg | paste -sd " ")
 
-                            if ! ( sudo pacman -Rsn $pkg_remove --color always )           # the "sudo pacman -Rsn" command is always executed!
+                            if ! ( sudo pacman -Rsn $pkg_remove --color always )    # the "sudo pacman -Rsn" command is always executed!
                             then
                                 # continue here only if "sudo pacman -Rns" has failed (again):
                                 # a) save list of packages to backup varialbe
@@ -1065,7 +1065,7 @@ function func_fix
             # do this, if system uses pacman-mirrors (default in Manjaro)
             if [[ -e /usr/bin/pacman-mirrors ]]
             then
-                sudo pacman-mirrors -f 0 && sudo pacman -Syy                            # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
+                sudo pacman-mirrors -f 0 && sudo pacman -Syy                        # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
             fi
             # do this, if system uses reflector (default on Arch Linux or distributions using Arch Linux mirrors/repo servers)
             if [[ -e /usr/bin/reflector ]]
@@ -1457,11 +1457,11 @@ function func_d
             local pkg
             local pkg_downgrade
 
-            pacui_clean                                                                 # clear terminal
+            pacui_clean                                                             # clear terminal
 
             pkg=$( sort -k1,1 -u /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to downgrade. ESC to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 
-            pacui_clean                                                                 # clear terminal
+            pacui_clean                                                             # clear terminal
 
             # $pkg contains package names below each other, but we need a list (in 1 line, space separated):
             pkg_downgrade=$(echo $pkg | paste -sd " ")
@@ -1996,14 +1996,12 @@ do
     choice=$(echo "$choice" | tr '[:upper:]' '[:lower:]' )
     echo
 
+
     # test, whether "choice" fits any of the following numbers, letters, or words
     case $choice in
 
-
-        # this line means: the following commands will get executed if $choice is "1" or "u" or "update" until a code line containing only ";;" is encountered:
-        1|u|update )
-            # call function "func_u":
-            func_u
+        1|u|update )                                                                # the following commands will get executed if $choice is "1" or "u" or "update" until a code line containing only ";;" is encountered
+            func_u                                                                  # call function "func_u"
             echo
             echo " System updated. To return to PacUI press ENTER "
             # wait for input, e.g. by pressing ENTER:
@@ -2100,16 +2098,15 @@ do
             echo
             ;;
         0|q|quit|$'\e'|$'\e'$'\e' )
-            pacui_clean && exit                                                     # clear terminal screen first. the "exit" command quits pacui.
+            pacui_clean && exit                                                     # clear terminal screen first. alternatively, "reset" works as well, but then the terminal history is lost. the "exit" command quits pacui.
             ;;
 
 
-        * )                                                                         # do this, if $choice varialbe contains anything else
+        * )                                                                         # do this, if $choice varialbe contains anything else not offered above
             echo -e " \e[41m Wrong option \e[0m"
             echo -e "  Please try again...  "
             sleep 2
             ;;
-
 
     esac                                                                            # close case-loop
 
