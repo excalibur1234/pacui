@@ -210,27 +210,7 @@ function func_m
 
 
         echo "searching orphans ..."
-        if [[ -e /usr/bin/trizen ]]
-        then
-
-            if [[ -n $(pacman -Qdt) ]]                                              # only run these commands, if output of "pacman -Qdt" is not empty. this happens if there are no orphans.
-            then
-
-                pacman -Qdt --color always
-                # ask, whether to remove the displayed orphaned packages and save answer in "answer" variable:
-                read -p $'\e[1mDo you want to remove these orphaned packages? [Y|n]\e[0m' answer
-                case ${answer:-y} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "y".
-                    y|Y|yes|YES|Yes )                                               # do this, if "answer" is y or Y or yes or YES or Yes
-                        sudo pacman -Rsn $(pacman -Qqdt) --color always --noconfirm
-                        ;;
-                    * )                                                             # do this in all other cases
-                        echo "Packages have not been removed."
-                        ;;
-                esac                                                                # end of "case" loop
-
-            fi
-
-        elif [[ -e /usr/bin/yay ]]
+        if [[ -e /usr/bin/yay ]]
         then
 
             yay -Cd
@@ -240,8 +220,7 @@ function func_m
 
             yaourt -Qdt
 
-        elif [[ -e /usr/bin/pacaur ]]
-        then
+        else                                                                        # this is the case, when tirzen, pacaur, or no AUR helper is installed.
 
             if [[ -n $(pacman -Qdt) ]]                                              # only run these commands, if output of "pacman -Qdt" is not empty. this happens if there are no orphans.
             then
@@ -259,15 +238,6 @@ function func_m
                 esac                                                                # end of "case" loop
 
             fi
-
-        else
-
-            echo -e "\e[1mNo AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
-            echo -e "\e[1m  trizen \e[0m"
-            echo -e "\e[1m  yay \e[0m"
-            echo -e "\e[1m  yaourt \e[0m"
-            echo -e "\e[1m  pacaur \e[0m"
-            exit
 
         fi
         echo ""
@@ -297,26 +267,33 @@ function func_m
         echo ""
 
 
-        echo "checking AUR packages ..."
-        # download AUR package list (only when not already downloaded) to /tmp/aur/packages.gz.
-        if  [[ ! -e /tmp/aur/packages.gz ]]
+        if [[ -e /usr/bin/trizen ]] || if [[ -e /usr/bin/yay ]] || if [[ -e /usr/bin/yaourt ]] || if [[ -e /usr/bin/pacaur ]]
         then
-            wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null
-            # now, file /tmp/aur/packages.gz contains a list of all packages from the AUR.
-        fi
-        # check, if /tmp/aur/packages.gz exists. /tmp/aur/packages.gz does not exist, if there is no internet connection or something went wrong during the download of the list of AUR packages.
-        if [[ -e /tmp/aur/packages.gz ]]
-        then
-            local pkg
-            # the "comm" command compares 2 files and outputs the differences between them. both files have to be sorted!
-            # "pacman -Qqm | sort" outputs a list of all installed packages from the AUR
-            pkg=$(  comm -23 <(pacman -Qqm | sort) <(sort -u /tmp/aur/packages.gz)  )
-            # only run the command inside the if-statement, if $pkg variable is not empty
-            if [[ -n $pkg ]]
+            echo "checking AUR packages ..."
+            # download AUR package list (only when not already downloaded) to /tmp/aur/packages.gz.
+            if  [[ ! -e /tmp/aur/packages.gz ]]
             then
-                echo -e "\e[1mThe following packages are neither in your package repository nor the AUR. They will never be updated. \e[0m"
-                echo -e "\e[1mUnless you know exactly what you are doing, it is recommended to remove them: \e[0m"
-                echo "$pkg"
+                wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null
+                # now, file /tmp/aur/packages.gz contains a list of all packages from the AUR.
+            fi
+
+            # check, if /tmp/aur/packages.gz exists. /tmp/aur/packages.gz does not exist, if there is no internet connection or something went wrong during the download of the list of AUR packages.
+            if [[ -e /tmp/aur/packages.gz ]]
+            then
+
+                local pkg
+                # the "comm" command compares 2 files and outputs the differences between them. both files have to be sorted!
+                # "pacman -Qqm | sort" outputs a list of all installed packages from the AUR
+                pkg=$(  comm -23 <(pacman -Qqm | sort) <(sort -u /tmp/aur/packages.gz)  )
+
+                # only run the command inside the if-statement, if $pkg variable is not empty
+                if [[ -n $pkg ]]
+                then
+                    echo -e "\e[1mThe following packages are neither in your package repository nor the AUR. They will never be updated. \e[0m"
+                    echo -e "\e[1mUnless you know exactly what you are doing, it is recommended to remove them: \e[0m"
+                    echo "$pkg"
+                fi
+
             fi
         fi
         echo ""
@@ -391,14 +368,18 @@ function func_i
             expac -S "%-33n\t%d" > /tmp/pacui-packages-install
             expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-install
 
-            # finally, download AUR package list (only when not already downloaded) and add it to the bottom of /tmp/pacui-packages-install.
-            if  [[ ! -e /tmp/aur/packages.gz ]]
+            # only download AUR package list, if at least one AUR helper is installed
+            if [[ -e /usr/bin/trizen ]] || if [[ -e /usr/bin/yay ]] || if [[ -e /usr/bin/yaourt ]] || if [[ -e /usr/bin/pacaur ]]
             then
-                wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null
+                # finally, download AUR package list (only when not already downloaded) and add it to the bottom of /tmp/pacui-packages-install.
+                if  [[ ! -e /tmp/aur/packages.gz ]]
+                then
+                    wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null
+                fi
+                # remove line with download date from list of AUR packages with "grep"
+                # delete all spaces with "tr". this is important for installing multiple packages at the same time!
+                grep -v "#" /tmp/aur/packages.gz | tr -d " " >> /tmp/pacui-packages-install
             fi
-            # remove line with download date from list of AUR packages with "grep"
-            # delete all spaces with "tr". this is important for installing multiple packages at the same time!
-            grep -v "#" /tmp/aur/packages.gz | tr -d " " >> /tmp/pacui-packages-install
         fi
 
         local {pkg,pkg_install}                                                     # declare local variables
@@ -428,6 +409,8 @@ function func_i
             elif [[ -e /usr/bin/pacaur ]]
             then
                 pacaur -Si {1} --color always | grep -v "::"                        # display repo package information in preview window of fzf. grep command removes all errors displayed by pacaur
+            else
+                pacman -Si {1} --color always                                       # do this, if no AUR helper is installed
             fi
             ' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to install. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
@@ -462,12 +445,7 @@ function func_i
 
             else
 
-                echo -e "\e[1mNo AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
-                echo -e "\e[1m  trizen \e[0m"
-                echo -e "\e[1m  yay \e[0m"
-                echo -e "\e[1m  yaourt \e[0m"
-                echo -e "\e[1m  pacaur \e[0m"
-                exit
+                sudo pacman -S $pkg_install                                         # !!! this command does not work when $pkg_install is quoted !!! (i do not know why)
 
             fi
 
@@ -621,18 +599,8 @@ function func_t
             if ( pacman -Qq {1} &>/dev/null )                                       # check, if 1. element of selected line is a locally installed package
             then
                 pacman -Qi {1} --color always
-            elif [[ -e /usr/bin/trizen ]]                                           # if {1} is not locally installed, it is from the AUR. display info with AUR helper
-            then
-                trizen -Si {1}
-            #elif [[ -e /usr/bin/yay ]]
-            #then
-                #yay -Si {1}
-            elif [[ -e /usr/bin/yaourt ]]
-            then
-                yaourt -Si {1}
-            elif [[ -e /usr/bin/pacaur ]]
-            then
-                pacaur -Si {1} --color always | grep -v "::"                        # display repo package information in preview window of fzf. grep command removes all errors displayed by pacaur
+            else
+                pacman -Si {1} --color always                                       # do this, if package is not locally installed
             fi
             ' --preview-window=right:50%:wrap  --header="Press ENTER to show dependency tree. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
@@ -714,19 +682,9 @@ function func_l
         pkg=$( sort -k1,1 -u /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
             if ( pacman -Qq {1} &>/dev/null )                                       # check, if selected line is a locally installed package
             then
-                pacman -Qi {1} --color always                                       # for local packages, "pacman" is sufficient.
-            elif [[ -e /usr/bin/trizen ]]                                           # if {1} is not locally installed, it is from the AUR. display info with AUR helper
-            then
-                trizen -Si {1}
-            #elif [[ -e /usr/bin/yay ]]
-            #then
-                #yay -Si {1}
-            elif [[ -e /usr/bin/yaourt ]]
-            then
-                yaourt -Si {1}
-            elif [[ -e /usr/bin/pacaur ]]
-            then
-                pacaur -Si {1} --color always | grep -v "::"                        # display repo package information in preview window of fzf. grep command removes all errors displayed by pacaur
+                pacman -Qi {1} --color always                                       # for local packages, local query is sufficient.
+            else
+                pacman -Si {1} --color always                                       # do this, if package is not locally installed
             fi
             ' --preview-window=right:50%:wrap  --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
@@ -848,7 +806,7 @@ function func_b
             cache="/var/cache/pacman/pkg/"
         fi
 
-            if [[ -e /usr/bin/pacaur ]]                                             # checks, whether file "pacaur" exists, i.e. pacaur is installed
+        if [[ -e /usr/bin/pacaur ]]                                                 # checks, whether file "pacaur" exists, i.e. pacaur is installed
         then
             # the cache location of pacaur is important for downgrading packages installed from the AUR or reinstalling removed packages from the AUR:
             if [[ -z $AURDEST ]]                                                    # $AURDEST is environment variable for changing pacaur's default cache directory. check, if "AURDEST" variable is empty
@@ -1153,8 +1111,8 @@ function func_fix
 
 
             # remove gnupg including all keys
-            echo "sudo rmdir /etc/pacman.d/gnupg ..."
-            sudo rmdir /etc/pacman.d/gnupg &>/dev/null
+            echo "sudo rm -r /etc/pacman.d/gnupg ..."
+            sudo rm -r /etc/pacman.d/gnupg &>/dev/null
             echo ""
 
 
@@ -1208,7 +1166,7 @@ function func_fix
             fi
 
 
-            echo "updating system ..."
+            echo "updating core system ..."
             sudo pacman -Syyuu --color always --noconfirm
             echo ""
             sudo pacman -Suu --color always
@@ -1304,7 +1262,7 @@ function func_c
             then
                 cat {1}                                                             # display file content, if no directory is selected. an error is displayed, when root privilges are required (because "sudo cat {1}" breaks fzf when password entry is required !!!)
             else
-                echo "{1}: Permission denied"
+                echo "{1}: Read permission denied"
             fi
             ' --preview-window=right:50%:wrap --header="ENTER to continue. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
         # the output of fzf is saved in the $file variable. $file can contain a filename (with its full path) or a directory (with its full path).
@@ -1430,7 +1388,6 @@ function func_ua
             echo -e "\e[1m  yay \e[0m"
             echo -e "\e[1m  yaourt \e[0m"
             echo -e "\e[1m  pacaur \e[0m"
-            exit
 
         fi
 }
@@ -1548,7 +1505,6 @@ function func_a
                 echo -e "\e[1m  yay \e[0m"
                 echo -e "\e[1m  yaourt \e[0m"
                 echo -e "\e[1m  pacaur \e[0m"
-                exit
 
             fi
 
@@ -1585,7 +1541,6 @@ function func_a
                 echo -e "\e[1m  yay \e[0m"
                 echo -e "\e[1m  yaourt \e[0m"
                 echo -e "\e[1m  pacaur \e[0m"
-                exit
 
             fi
 
@@ -1619,12 +1574,12 @@ function func_h
             echo -e " \e[31m pacui    fix   - \e[1mFix\e[0;31m Pacman Errors\e[0m"
             echo -e "  pacui    c     - Edit \e[1mC\e[0monfig Files"
             echo
-            echo -e "  pacui    ua    - Force \e[1mU\e[0mpdate \e[1mA\e[0mUR"
-            echo -e "  pacui    la    - \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
-            echo
+            [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]] && echo -e "  pacui    ua    - Force \e[1mU\e[0mpdate \e[1mA\e[0mUR"
+            [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]] && echo -e "  pacui    la    - \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
+            [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]] && echo
             echo -e "  pacui    ls    - \e[1mL\e[0mist Packages by \e[1mS\e[0mize"
-            echo -e "  pacui    d     - \e[1mD\e[0mowngrade Packages"
-            echo -e "  pacui    a     - Search + Install from \e[1mA\e[0mUR"
+            [[ -e /usr/bin/downgrade ]] && echo -e "  pacui    d     - \e[1mD\e[0mowngrade Packages"
+            [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]] && echo -e "  pacui    a     - Search + Install from \e[1mA\e[0mUR"
             echo
             echo -e '  pacui    h     - Short \e[1mH\e[0melp. For more help, select "Help" in User Interface.'
 
@@ -1823,7 +1778,7 @@ The second command makes your system wait for 60 seconds. This is done as precau
 The third command is only run when the first and second command have been successfully finished. It writes the time from your system clock to your hardware clock.
 \e[1mAttention\e[0m: The last command is needed in order to prevent another services on your system to set your system clock according to your hardware clock in regular intervals. This may result in a hardware clock, which is not set to UTC anymore and/or a system clock, which shows the wrong time. If you encounter this problem read the Arch Linux Wiki article about time: "https://wiki.archlinux.org/index.php/Time"
 
-\e[36m"sudo rmdir /etc/pacman.d/gnupg"
+\e[36m"sudo rm -r /etc/pacman.d/gnupg"
 This command deletes your key database. It does not output an error in case the package "gnupg" is not installed on your system.
 \e[1mAttention\e[0m: This command will remove all keys from your system, including manually installed keys (with "sudo pacman-key --lsign-key <KEY>"). Please remember to reinstall those keys again after FIX PACMAN ERRORS has completed!
 
@@ -2020,9 +1975,9 @@ do
     echo -e " └─────────────────────────────────────────────────────────────────┘"
     echo -e "      9   Roll \e[1mB\e[0mack System        \e[31m 10   \e[1mFix\e[0;31m Pacman Errors\e[0m "
     echo -e "     11   Edit \e[1mC\e[0monfig Files "
-    echo -e " ┌─────────────────────────────────────────────────────────────────┐"
-    echo -e " │   13   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR         14   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
-    echo -e " └─────────────────────────────────────────────────────────────────┘"
+    [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]] && echo -e " ┌─────────────────────────────────────────────────────────────────┐"
+    [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]] && echo -e " │   13   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR         14   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
+    [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]] && echo -e " └─────────────────────────────────────────────────────────────────┘"
     echo
     echo -e "  Enter number or marked letter(s)    -   00   \e[1mH\e[0melp   -    0   \e[1mQ\e[0muit "
 
