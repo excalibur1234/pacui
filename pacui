@@ -945,7 +945,7 @@ function func_b
 
                 # add trap command to immediately rm upon ctrl+c (or any other case this function quits in the middle) for security purposes
                 # this is the normal syntax for "trap" command.
-                trap "rm -rf ${pacui_tmp_downgrade}" EXIT
+                trap "unlink ${pacui_tmp_downgrade}" EXIT
 
                 # first, count the number of times the package name appears in file ${pacui_cache_downgrade}:
                 pacui_cache_downgrade_counted="$( echo "${pacui_cache_downgrade}" | sort | uniq -c )"
@@ -1013,7 +1013,7 @@ function func_b
 
                 # add trap command to immediately rm upon ctrl+c (or any other case this function quits in the middle) for security purposes
                 # this is the normal syntax for "trap" command.
-                trap "rm -rf ${pacui_tmp_upgrade}" EXIT
+                trap "unlink ${pacui_tmp_upgrade}" EXIT
 
                 # first, count the number of times the package name appears in file ${pacui_cache_upgrade}:
                 pacui_cache_upgrade_counted="$( echo "${pacui_cache_upgrade}" | sort | uniq -c )"
@@ -1230,7 +1230,7 @@ function func_c
 
         # add trap command to immediately rm upon ctrl+c (or any other case this function quits in the middle) for security purposes
         # this is the normal syntax for "trap" command:
-        trap "rm -rf ${pacui_config}" EXIT
+        trap "unlink ${pacui_config}" EXIT
 
 
         # if file /etc/default/tlp exists, push string "/etc/default/tlp              Configure power management." into ${pacui_config} file. there are enough spaces added to avoid users seeing file/folder description:
@@ -1390,7 +1390,7 @@ function func_c
         fi
 
         # cleanup
-        rm -rf ${pacui_config}                                                      # remove temporary file ${pacui_config}
+        unlink ${pacui_config}                                                      # remove temporary file ${pacui_config}
         trap - EXIT                                                                 # disable trap, which was set above
 }
 
