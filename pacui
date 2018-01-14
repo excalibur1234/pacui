@@ -919,7 +919,7 @@ function func_b
 
                 # here, it is impossible to use variables instead of temporary files. therefore, the temporary files should be as tamper-proof as possible.
                 # Create temp file with mktemp command (Important for security). the XXXXXXXX indicates numbers assigned by "mktemp" command.
-                # the XXXXXXXXX numbers make it necessary to call the temporary file in the code below with ${pacui_tmp_downgrade} (without quotes)!
+                # the XXXXXXXXX numbers make it necessary to call the temporary file in the code below with ${pacui_tmp_downgrade} !
                 pacui_tmp_downgrade=$( mktemp /tmp/pacui-tmp-downgrade.XXXXXXXX )
 
                 # add trap command to immediately rm upon ctrl+c (or any other case this function quits in the middle) for security purposes
@@ -987,7 +987,7 @@ function func_b
 
                 # here, it is impossible to use variables instead of temporary files. therefore, the temporary files should be as tamper-proof as possible.
                 # Create temp file with mktemp command (Important for security). the XXXXXXXX indicates numbers assigned by "mktemp" command.
-                # the XXXXXXXXX numbers make it necessary to call the temporary file in the code below with " ${pacui_cache_upgrade} " (without ")!
+                # the XXXXXXXXX numbers make it necessary to call the temporary file in the code below with "${pacui_tmp_upgrade}" (without ")!
                 pacui_tmp_upgrade=$( mktemp /tmp/pacui-tmp-upgrade.XXXXXXXX )
 
                 # add trap command to immediately rm upon ctrl+c (or any other case this function quits in the middle) for security purposes
@@ -1100,11 +1100,12 @@ function func_fix
 
             # "SigLevel = Never" in pacman.conf lets us download and install ALL packages, even if the keyring is broken!
             echo -e "Lowering pacman securities (In case keyring is broken) ..."
-            echo -e "\e[1mWARNING : LET PACUI FINISH THIS PROCESS! \e[0m"
-            echo -e ""
             # This command will edit /etc/pacman.conf, and replaces all "SigLevel =" strings with "SigLevel = Never #":
             # general comment about "sed" usage in scripts: in order to avoid breakage, it is recommended to escape all the following characters /\.*[]^$ with a \ character!
             sudo sed -i 's/SigLevel[ ]*=/SigLevel = Never #/' /etc/pacman.conf
+            # if something goes wrong in the following code, the SigLevel is never raised back and we would mess on a user's system. THIS HAS TO BE PREVENTED! solution: use trap, which reverses our changes in /etc/pacman.conf file whenever pacui quits:
+            trap "sudo sed -i 's/SigLevel = Never #/SigLevel =/' /etc/pacman.conf" QUIT TERM EXIT
+            echo ""
 
 
             if [[ $(cat /proc/1/comm) == "systemd" ]]                               # if init system is systemd
@@ -1149,8 +1150,10 @@ function func_fix
 
 
             echo "Raising pacman securities back ..."
-            # This command will revert the change from previous awk command
+            # This command will revert the change from above
             sudo sed -i 's/SigLevel = Never #/SigLevel =/' /etc/pacman.conf
+            # now, the trap is longer needed. reset trap:
+            trap − QUIT TERM EXIT
             echo ""
 
 
