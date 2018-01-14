@@ -267,7 +267,7 @@ function func_m
         echo ""
 
 
-        if [[ -e /usr/bin/trizen ]] || if [[ -e /usr/bin/yay ]] || if [[ -e /usr/bin/yaourt ]] || if [[ -e /usr/bin/pacaur ]]
+        if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]
         then
             echo "checking AUR packages ..."
             # download AUR package list (only when not already downloaded) to /tmp/aur/packages.gz.
@@ -338,13 +338,13 @@ function func_m
 
         echo "checking installed kernels ..."
         local {installed_kernels,available_kernels,eol_kernels}                                                                                         # declare local variables
-        installed_kernels=$( for p in $( command ls -1 /boot | grep -E '^vmlinuz' ) ; do pacman -Qqo /boot/$p ; done | sort -u )                            # filter installed kernels from boot sector and determine, which package owns that file. this yields the package name of all installed kernels (including kernels from the AUR).
-        available_kernels=$( for p in $( echo "$installed_kernels" ) ; do pacman -Ssq "^$p$" ; done | sort -u )                                             # Check if installed kernels available in repositories and forward it to available_kernels variable.
+        installed_kernels=$( for p in $( command ls -1 /boot | grep -E '^vmlinuz' ) ; do pacman -Qqo /boot/$p ; done | sort -u )                        # filter installed kernels from boot sector and determine, which package owns that file. this yields the package name of all installed kernels (including kernels from the AUR).
+        available_kernels=$( for p in $( echo "$installed_kernels" ) ; do pacman -Ssq "^$p$" ; done | sort -u )                                         # Check if installed kernels available in repositories and forward it to available_kernels variable.
         eol_kernels=$( comm -13 <(echo "$available_kernels") <(echo "$installed_kernels") )                                                             # filter kernels to $eol_kernels variable, which are installed but no longer available.
         # print warning message, if end-of-life kernel(s) are found:
         if [[ -n "$eol_kernels" ]]
         then
-            echo " "
+            echo
             echo -e "\e[1mThe following Linux kernel(s) are no longer available in your repositories. \e[0m"
             echo -e "\e[1mDo not expect any security or stability fixes for the(se) kernel(s) anymore. \e[0m"
             echo -e "\e[1mKernel modules are likely to break. It is recommended to remove the kernel(s).\e[0m"
@@ -369,7 +369,7 @@ function func_i
             expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-install
 
             # only download AUR package list, if at least one AUR helper is installed
-            if [[ -e /usr/bin/trizen ]] || if [[ -e /usr/bin/yay ]] || if [[ -e /usr/bin/yaourt ]] || if [[ -e /usr/bin/pacaur ]]
+            if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]
             then
                 # finally, download AUR package list (only when not already downloaded) and add it to the bottom of /tmp/pacui-packages-install.
                 if  [[ ! -e /tmp/aur/packages.gz ]]
