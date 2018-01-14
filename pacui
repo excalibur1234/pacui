@@ -1926,19 +1926,19 @@ fi
 
 # write first argument of "pacui ..." command to "input" variable
 input=$1
-# wirte all other arguments of "pacui $1 ..." (= often (parts of) package or file names) to "input2" variable. all arguments gets combined into one variable with spaces, but no breaks.
-# fzf will always display search results for "input2", if it exists (and "input" is a valid function"). if "input2" is not found in fzf's list, NOTHING is displayed.
+# wirte all other arguments of "pacui $1 ..." (= often (parts of) package or file names) to "input2" variable. all arguments get combined into one variable with spaces, but no breaks.
 input2=${*:2}
+# fzf will always display search results for "input2", if it exists (and "input" is a valid function"). if "input2" is not found in fzf's list, NOTHING is displayed.
 
-# remove leading white spaces:
-#input=$( echo "$input" | sed 's/^ *//g' )
+
+# remove leading white spaces from $input variable:
+input=$( echo "$input" | sed 's/^ *//g' )
+
+# remove leading dash(es):
+input=$( echo "$input" |  sed 's/^-*//g' )
 
 # remove trailing white spaces:
 input=$( echo "$input" | sed 's/ *$//g' )
-
-# if "input" starts with a "-" or "--" dash symbol(s), the dash(es) gets removed from the beginnig of "input" variable
-input=${input#-}
-input=${input#-}
 
 # convert content of "input" variable to lowercase
 input=$( echo "$input" | tr '[:upper:]' '[:lower:]' )
