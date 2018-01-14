@@ -111,12 +111,14 @@ function func_u
 
         else
 
-            echo -e "\e[1mNo AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
-            echo -e "\e[1m  trizen \e[0m"
-            echo -e "\e[1m  yay \e[0m"
-            echo -e "\e[1m  yaourt \e[0m"
-            echo -e "\e[1m  pacaur \e[0m"
-            exit
+            # execute "sudo pacman -Syu --color always" command:
+            if ( sudo pacman -Syu --color always )
+            then
+                # only set $install_successful=true, if the command "sudo pacman -Syu --color always" was executed without errors
+                install_successful=true
+            else
+                install_successful=false
+            fi
 
         fi
 
@@ -158,7 +160,7 @@ function func_u
 
                 local server
                 # extract mirror/repository server url from /etc/pacman.d/mirrorlist file:
-                server=$( grep "^Server =" -m 1 /etc/pacman.d/mirrorlist | awk '{print $3}' )
+                server=$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" | awk '{print $3}' )
 
                 echo -e '\e[41m Either there is something wrong with your internet connection or with your mirror/repository server: "$server" \e[0m'
                 echo -e "\e[1;41m Please make sure both are ok and rerun this part of PacUI! \e[0m"
@@ -292,6 +294,7 @@ function func_m
                     echo -e "\e[1mThe following packages are neither in your package repository nor the AUR. They will never be updated. \e[0m"
                     echo -e "\e[1mUnless you know exactly what you are doing, it is recommended to remove them: \e[0m"
                     echo "$pkg"
+                    echo ""
                 fi
 
             fi
@@ -412,7 +415,7 @@ function func_i
             else
                 pacman -Si {1} --color always                                       # do this, if no AUR helper is installed
             fi
-            ' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to install. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+            ' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER to install. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
         pacui_clean                                                                 # clear terminal
 
@@ -478,7 +481,7 @@ function func_r
                 echo -e "\e[1m{1} group has the following members: \e[0m"
                 pacman -Sgq {1}
             fi
-            ' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+            ' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
         pacui_clean                                                                 # clear terminal
 
@@ -538,7 +541,7 @@ function func_r
                                     echo -e "\e[1m{1} group has the following members: \e[0m"
                                     pacman -Sgq {1}
                                 fi
-                                ' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+                                ' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
                             pacui_clean                                             # clear terminal
 
@@ -823,7 +826,7 @@ function func_b
         # 1. get list of last installs/upgrades/removals/downgrades from pacman log and display result in fzf.
         # when fzf quits, only selected package names (including the words " installed/upgraded/removed/downgraded") are saved to variable $pacui_cache_packages
         #  the space in front of "installed" prevents reinstallations being displayed (otherwise, they would be removed)! the ] in "] installed" prevents config file changes being displayed, e.g. "warning: /etc/sddm.conf installed as /etc/sddm.conf.pacnew"
-        pacui_cache_packages="$( tail -5000 /var/log/pacman.log | grep "\[ALPM\]" | grep "] installed\|removed\|upgraded\|downgraded" | sed 's/\[ALPM\] //g' | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --tac --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to roll back. ESC to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}' )"
+        pacui_cache_packages="$( tail -5000 /var/log/pacman.log | grep "\[ALPM\]" | grep "] installed\|removed\|upgraded\|downgraded" | sed 's/\[ALPM\] //g' | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --tac --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER to roll back. ESC to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}' )"
 
         pacui_clean                                                                 # clear terminal
 
@@ -1404,7 +1407,7 @@ function func_la
         # "pacman -Qm --color always"
         pacman -Qqm --color always | fzf-tmux -m -e +s -i --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
             pacman -Qi {} --color always
-            ' --preview-window=right:50%:wrap  --header="List of AUR and manually installed packages. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-la
+            ' --preview-window=right:50%:wrap  --header="List of AUR and manually installed packages. ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-la
 
         pacui_clean                                                                 # clear terminal
 }
@@ -1452,7 +1455,7 @@ function func_d
 
             pacui_clean                                                             # clear terminal
 
-            pkg=$( sort -k1,1 -u /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER key to downgrade. ESC to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
+            pkg=$( sort -k1,1 -u /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER to downgrade. ESC to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 
             pacui_clean                                                             # clear terminal
 
@@ -1927,23 +1930,23 @@ input=$( echo "$input" | tr '[:upper:]' '[:lower:]' )
 if [[ $( type -t "func_$input") == "function" ]]
 then
 
-        "func_$input" 1                                                             # pass the parameter "1" with the funciton when it gets called directly from terminal.
+    "func_$input" 1                                                                # pass the parameter "1" with the funciton when it gets called directly from terminal.
 
-        unset input
-        unset input2
+    unset input
+    unset input2
 
-        exit $?                                                                     # exit pacui here and return error code if present. this "exit" command is needed to prevent the UI from loading!
+    exit $?                                                                         # exit pacui here and return error code if present. this "exit" command is needed to prevent the UI from loading!
 
 elif (( $# > 0 ))                                                                   # if "func_$input" is no valid function AND if one or more arguments are given. this condition is needed to exclude the "pacui" command (note, there are NO arguments) from running this section.
 then
 
-        unset input
-        unset input2
+    unset input
+    unset input2
 
-        # error, if $input does not refer to a valid function. the UI will be started by default.
-        echo -e "Bad console command. Press ENTER to start PacUI or CTRL+C to abort."
-        read
-        # now, continue this script without exiting.
+    # error, if $input does not refer to a valid function. the UI will be started by default.
+    echo -e "Bad console command. Press ENTER to start PacUI or CTRL+C to abort."
+    read
+    # now, continue this script without exiting.
 
 fi
 
