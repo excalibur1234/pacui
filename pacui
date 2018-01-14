@@ -886,7 +886,7 @@ function func_b
                 # read line by line from variable $pacui_cache_install in while loop and save that line to variable $line
                 pacui_install=$( while IFS='' read -r line || [[ -n "$line" ]]
                 do
-                    # write name of latest version in cache into file /tmp/pacui-install ("sort" puts latest version on top, which is then selected):
+                    # write name of latest version in cache into variable $pacui_install ("sort" puts latest version on top, which is then selected):
                     find $cache -name "${line}-[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r | sed -n '1p'
                 done < <(echo "${pacui_cache_install}") )
 
@@ -926,7 +926,7 @@ function func_b
                 # this is the normal syntax for "trap" command.
                 trap "rm -rf ${pacui_tmp_downgrade}" EXIT
 
-                # first, count the number of times the package name appears in file /tmp/pacui-cache-downgrade:
+                # first, count the number of times the package name appears in file ${pacui_cache_downgrade}:
                 pacui_cache_downgrade_counted="$( echo "${pacui_cache_downgrade}" | sort | uniq -c )"
                 # "uniq" command: first argument in variable $pacui_cache_downgrade_counted is the number of times the package name appears and the second is the package name.
 
@@ -940,7 +940,7 @@ function func_b
 
                     if [[ -n $temp2 ]]   # checks, if variable is not empty
                     then
-                        # write list with all versions of package in cache into file /tmp/pacui-temp-downgrade (sorted - newest package version is on top)
+                        # write list with all versions of package in cache into file ${pacui_tmp_downgrade} (sorted - newest package version is on top)
                         find $cache -name "${temp2}-[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r > ${pacui_tmp_downgrade}
 
                         if [[ -e /usr/bin/pacaur ]]                                 # checks, whether file "pacaur" exists, i.e. pacaur is installed
@@ -955,9 +955,9 @@ function func_b
                         # temp3 is supposed to be "2p" when temp1=1 and "3p" when temp1=2 ...  --> needed for "sed" command below
                         temp3="$(( temp1 + 1 ))p"
 
-                        # the next line moves the $((temp3-1))-th version below the currently installed package version to file /tmp/pacui-downgrade. if no such old version is available, nothing happens.
+                        # the next line moves the $((temp3-1))-th version below the currently installed package version to file ${pacui_downgrade}. if no such old version is available, nothing happens.
                         # this command determines the currently installed verions of package $temp2:  pacman -Q "$temp2" | awk '{print $2}'
-                        grep "$( pacman -Q "$temp2" | awk '{print $2}' )" -A 100 "$pacui_tmp_downgrade" | sed -n "$temp3"
+                        grep "$( pacman -Q '$temp2' | awk '{print $2}' )" -A 100 "$pacui_tmp_downgrade" | sed -n "$temp3"
                     fi
 
                 done < <(echo "${pacui_cache_downgrade_counted}") )
@@ -994,7 +994,7 @@ function func_b
                 # this is the normal syntax for "trap" command.
                 trap "rm -rf ${pacui_tmp_upgrade}" EXIT
 
-                # first, count the number of times the package name appears in file /tmp/pacui-cache-upgrade:
+                # first, count the number of times the package name appears in file ${pacui_cache_upgrade}:
                 pacui_cache_upgrade_counted="$( echo "${pacui_cache_upgrade}" | sort | uniq -c )"
                 # "uniq" command: first argument in variable $pacui_cache_upgrade_counted is the number of times the package name appears and the second is the package name.
 
@@ -1008,7 +1008,7 @@ function func_b
 
                     if [[ -n $temp2 ]]   # checks, if variable is not empty
                     then
-                        # write list with all versions of package in cache into file /tmp/pacui-temp-upgrade (sorted - newest package version is on top)
+                        # write list with all versions of package in cache into file ${pacui_tmp_upgrade} (sorted - newest package version is on top)
                         find $cache -name "${temp2}-[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r > ${pacui_tmp_upgrade}
 
                         if [[ -e /usr/bin/pacaur ]]                                 # checks, whether file "pacaur" exists, i.e. pacaur is installed
@@ -1023,9 +1023,9 @@ function func_b
                         # temp3 is supposed to be "2p" when temp1=1 and "3p" when temp1=2 ...  --> needed for "sed" command below
                         temp3="$(( temp1 + 1 ))p"
 
-                        # the next line moves the $((temp3-1))-th version below the currently installed package version to file /tmp/pacui-upgrade. if no such old version is available, nothing happens.
+                        # the next line moves the $((temp3-1))-th version below the currently installed package version to file $pacui_upgrade. if no such old version is available, nothing happens.
                         # this command determines the currently installed verions of package $temp2:  pacman -Q "$temp2" | awk '{print $2}'
-                        grep "$( pacman -Q "$temp2" | awk '{print $2}' )" -B 100 "$pacui_tmp_upgrade" | tac | sed -n "$temp3"
+                        grep "$( pacman -Q '$temp2' | awk '{print $2}' )" -B 100 "$pacui_tmp_upgrade" | tac | sed -n "$temp3"
                     fi
 
                 done < <(echo "${pacui_cache_upgrade_counted}") )
@@ -1890,7 +1890,7 @@ EOF
 
             fi
 
-            # display /tmp/pacui-help file in "less" and interpret all ANSI escape sequences in it (which only works with "echo -e ..."
+            # display /tmp/pacui-help file in "less" and interpret all ANSI escape sequences in it (which only works with "echo -e ..."):
             echo -e "$( cat '/tmp/pacui-help' )" | less -RMi
 
         fi
