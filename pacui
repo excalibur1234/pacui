@@ -943,7 +943,7 @@ function func_b
                 # the XXXXXXXXX numbers make it necessary to call the temporary file in the code below with ${pacui_tmp_downgrade} !
                 pacui_tmp_downgrade=$( mktemp /tmp/pacui-tmp-downgrade.XXXXXXXX )
 
-                # add trap command to immediately rm upon ctrl+c (or any other case this function quits in the middle) for security purposes
+                # add trap command to immediately remove upon ctrl+c (or any other case this function quits in the middle) for security purposes
                 # this is the normal syntax for "trap" command.
                 trap "unlink ${pacui_tmp_downgrade}" EXIT
 
@@ -983,8 +983,8 @@ function func_b
 
                 done < <(echo "${pacui_cache_downgrade_counted}") )
 
-                # remove temporary file. it is no longer needed an should not be left on the system.
-                rm ${pacui_tmp_downgrade}
+                # remove temporary file. it is no longer needed and should not be left on the system.
+                unlink ${pacui_tmp_downgrade}
 
                 # sort output to suit pacman's syntax. pacman needs a list of package names separated by single spaces.
                 pkgD=$( echo "${pacui_downgrade}" | sort -u | paste -sd " ")
@@ -1011,7 +1011,7 @@ function func_b
                 # the XXXXXXXXX numbers make it necessary to call the temporary file in the code below with "${pacui_tmp_upgrade}" (without ")!
                 pacui_tmp_upgrade=$( mktemp /tmp/pacui-tmp-upgrade.XXXXXXXX )
 
-                # add trap command to immediately rm upon ctrl+c (or any other case this function quits in the middle) for security purposes
+                # add trap command to immediately remove upon ctrl+c (or any other case this function quits in the middle) for security purposes
                 # this is the normal syntax for "trap" command.
                 trap "unlink ${pacui_tmp_upgrade}" EXIT
 
@@ -1052,7 +1052,7 @@ function func_b
                 done < <(echo "${pacui_cache_upgrade_counted}") )
 
                 # remove temporary file. it is no longer needed an should not be left on the system.
-                rm ${pacui_tmp_upgrade}
+                unlink ${pacui_tmp_upgrade}
 
                 # sort output to suit pacman's syntax. pacman needs a list of package names separated by single spaces.
                 pkgU=$( echo "${pacui_upgrade}" | sort -u | paste -sd " ")
@@ -1076,7 +1076,7 @@ function func_b
 function func_fix
 {
         echo "removing pacman database lock ..."
-        sudo rm -f /var/lib/pacman/db.lck
+        sudo unlink /var/lib/pacman/db.lck
         echo ""
 
         # check for "pacman-mirrors" or "reflector" packages. one of those is needed!
@@ -1153,8 +1153,8 @@ function func_fix
 
 
             # remove gnupg including all keys
-            echo "sudo rm -r /etc/pacman.d/gnupg ..."
-            sudo rm -r /etc/pacman.d/gnupg &>/dev/null
+            echo "sudo rmdir /etc/pacman.d/gnupg ..."
+            sudo rmdir /etc/pacman.d/gnupg &>/dev/null
             echo ""
 
 
@@ -1228,7 +1228,7 @@ function func_c
         # the XXXXXXXXX numbers make it necessary to call the temporary file in the code below with ${pacui_config} !
         pacui_config=$( mktemp /tmp/pacui-config.XXXXXXXX )
 
-        # add trap command to immediately rm upon ctrl+c (or any other case this function quits in the middle) for security purposes
+        # add trap command to immediately remove upon ctrl+c (or any other case this function quits in the middle) for security purposes
         # this is the normal syntax for "trap" command:
         trap "unlink ${pacui_config}" EXIT
 
@@ -1789,7 +1789,7 @@ Multiple commands attempt to fix the most common issues Manjaro users have with 
 Please make sure that your root partition is not full. If you have doubts about this, run MAINTAIN SYSTEM before FIX PACMAN ERRORS.
 A working internet connection is required for FIX PACMAN ERRORS!
 
-\e[36m"sudo rm -f /var/lib/pacman/db.lck"
+\e[36m"sudo unlink /var/lib/pacman/db.lck"
 This command removes Pacmans database lock. The database lock prevents multiple Pacman instances from running at the same time and interfering with each other.
 \e[1mAttention\e[0m: Only run this command when no other Pacman instance (e.g. Pacman, Yaourt, Pamac, Octopi, PacmanXG4, ...) is running.
 
@@ -1822,7 +1822,7 @@ The second command makes your system wait for 60 seconds. This is done as precau
 The third command is only run when the first and second command have been successfully finished. It writes the time from your system clock to your hardware clock.
 \e[1mAttention\e[0m: The last command is needed in order to prevent another services on your system to set your system clock according to your hardware clock in regular intervals. This may result in a hardware clock, which is not set to UTC anymore and/or a system clock, which shows the wrong time. If you encounter this problem read the Arch Linux Wiki article about time: "https://wiki.archlinux.org/index.php/Time"
 
-\e[36m"sudo rm -r /etc/pacman.d/gnupg"
+\e[36m"sudo rmdir /etc/pacman.d/gnupg"
 This command deletes your key database. It does not output an error in case the package "gnupg" is not installed on your system.
 \e[1mAttention\e[0m: This command will remove all keys from your system, including manually installed keys (with "sudo pacman-key --lsign-key <KEY>"). Please remember to reinstall those keys again after FIX PACMAN ERRORS has completed!
 
