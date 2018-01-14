@@ -160,7 +160,7 @@ function func_u
                 # extract mirror/repository server url from /etc/pacman.d/mirrorlist file:
                 server=$( grep "^Server =" -m 1 /etc/pacman.d/mirrorlist | awk '{print $3}' )
 
-                echo -e "\e[41m Either there is something wrong with your internet connection or with your mirror/repository server: "$server" \e[0m"
+                echo -e '\e[41m Either there is something wrong with your internet connection or with your mirror/repository server: "$server" \e[0m'
                 echo -e "\e[1;41m Please make sure both are ok and rerun this part of PacUI! \e[0m"
                 echo -e ""
 
@@ -361,8 +361,8 @@ function func_m
 
         echo "checking installed kernels ..."
         local {installed_kernels,available_kernels,eol_kernels}                                                                                         # declare local variables
-        installed_kernels=$( for p in `command ls -1 /boot | grep -E '^vmlinuz'`; do pacman -Qqo /boot/$p ; done | sort -u )                            # filter installed kernels from boot sector and determine, which package owns that file. this yields the package name of all installed kernels (including kernels from the AUR).
-        available_kernels=$( for p in `echo "$installed_kernels"`; do pacman -Ssq "^$p$" ; done | sort -u )                                             # Check if installed kernels available in repositories and forward it to available_kernels variable.
+        installed_kernels=$( for p in $( command ls -1 /boot | grep -E '^vmlinuz' ) ; do pacman -Qqo /boot/$p ; done | sort -u )                            # filter installed kernels from boot sector and determine, which package owns that file. this yields the package name of all installed kernels (including kernels from the AUR).
+        available_kernels=$( for p in $( echo "$installed_kernels" ) ; do pacman -Ssq "^$p$" ; done | sort -u )                                             # Check if installed kernels available in repositories and forward it to available_kernels variable.
         eol_kernels=$( comm -13 <(echo "$available_kernels") <(echo "$installed_kernels") )                                                             # filter kernels to $eol_kernels variable, which are installed but no longer available.
         # print warning message, if end-of-life kernel(s) are found:
         if [[ -n "$eol_kernels" ]]
@@ -433,7 +433,7 @@ function func_i
 
         pacui_clean                                                                 # clear terminal
 
-        # $pkg contains package names below each other, but we need a list (in 1 line, space separated):
+        # $pkg contains package names below each other (=separated by \n), but we need a list in 1 line (=space separated):
         pkg_install=$( echo $pkg | paste -sd " " )
 
         # only run the command inside the if-statement, if variable $pkg is not empty - this happens when fzf is quit with ESC or CTRL+C
@@ -576,7 +576,7 @@ function func_r
                             then
                                 # continue here only if "sudo pacman -Rns" has failed (again):
                                 # a) save list of packages to backup varialbe
-                                pkg_remove_backup=$( echo $pkg_remove | tr " " "\n" )      # here, do NOT write selection to file. this enables the user guess which packages are dependencies.
+                                pkg_remove_backup=$( echo $pkg_remove | tr " " "\n" )      # here, do NOT write selection to file. this enables the user to guess which packages are dependencies.
 
                                 # b) Print error message. the user can read all error messages (of pacman) and decide what to do next.
                                 echo
@@ -753,7 +753,7 @@ function func_s
         else
             # do this if pacui is used with UI or no argument is specified in "pacui s" command:
             echo -e "\e[1mEnter (parts of) the file name to be searched. Press ENTER to start search. \e[0m"
-            echo -e "\e[1mWhen using regular expressions, please quote your search term. \e[0m"
+            echo -e "\e[1mAdvanced users can use regular expressions. \e[0m"
             read -r file
             echo
         fi
@@ -782,12 +782,12 @@ function func_s
             pacman -Fsx --machinereadable "$file" > /tmp/pacui-search-temp-repo
 
             # create new file /tmp/pacui-search-temp-repo2 ,which only contains package names
-            cat /tmp/pacui-search-temp-repo | awk -F "\0" '{print $2}' | sort -u | tr -d " " > /tmp/pacui-search-temp-repo2
+            awk -F "\0" '{print $2}' "/tmp/pacui-search-temp-repo" | sort -u | tr -d " " > /tmp/pacui-search-temp-repo2
 
             # compare list of package names and only keep package names in system repository (in file /tmp/pacui-search-temp-repo2):
             comm -13 /tmp/pacui-search-temp-local /tmp/pacui-search-temp-repo2 > /tmp/pacui-search-temp-only-in-repo2
 
-            # grep all package names from file /tmp/pacui-search-temp-only-in-repo2 and search for them in file /tmp/pacui-search-temp-repo
+            # grep all package names from file /tmp/pacui-search-temp-only-in-repo2 and search for them in file /tmp/pacui-search-temp-repo (leave "cat" and "grep" in their current order for better code readability)
             # next, awk formats the list to the desired style
             cat "/tmp/pacui-search-temp-repo" | grep -a -f "/tmp/pacui-search-temp-only-in-repo2" | awk -F '\0' '{print  $1 "/" "\033[1m" $2 "\033[0m " $4}' >> /tmp/pacui-search-temp
 
@@ -957,7 +957,7 @@ function func_b
 
                         # the next line moves the $((temp3-1))-th version below the currently installed package version to file ${pacui_downgrade}. if no such old version is available, nothing happens.
                         # this command determines the currently installed verions of package $temp2:  pacman -Q "$temp2" | awk '{print $2}'
-                        grep "$( pacman -Q '$temp2' | awk '{print $2}' )" -A 100 "$pacui_tmp_downgrade" | sed -n "$temp3"
+                        grep "$( pacman -Q "$temp2" | awk '{print $2}' )" -A 100 "$pacui_tmp_downgrade" | sed -n "$temp3"
                     fi
 
                 done < <(echo "${pacui_cache_downgrade_counted}") )
@@ -1025,7 +1025,7 @@ function func_b
 
                         # the next line moves the $((temp3-1))-th version below the currently installed package version to file $pacui_upgrade. if no such old version is available, nothing happens.
                         # this command determines the currently installed verions of package $temp2:  pacman -Q "$temp2" | awk '{print $2}'
-                        grep "$( pacman -Q '$temp2' | awk '{print $2}' )" -B 100 "$pacui_tmp_upgrade" | tac | sed -n "$temp3"
+                        grep "$( pacman -Q "$temp2" | awk '{print $2}' )" -B 100 "$pacui_tmp_upgrade" | tac | sed -n "$temp3"
                     fi
 
                 done < <(echo "${pacui_cache_upgrade_counted}") )
@@ -1086,7 +1086,7 @@ function func_fix
             # extract mirror/repository server url from /etc/pacman.d/mirrorlist file:
             server=$( grep "^Server =" -m 1 /etc/pacman.d/mirrorlist | awk '{print $3}' )
 
-            echo -e "\e[41m Either there is something wrong with your internet connection or with your mirror/repository server: "$server" \e[0m"
+            echo -e '\e[41m Either there is something wrong with your internet connection or with your mirror/repository server: "$server" \e[0m'
             echo -e "\e[1;41m Please make sure both are ok and rerun this part of PacUI! \e[0m"
             echo -e ""
 
@@ -1145,7 +1145,7 @@ function func_fix
 
             echo "Installing all necessary keyrings ..."
             # This command will install all keyrings from avialable current repository
-            sudo pacman -Sy $(pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | paste -sd " " ) --noconfirm
+            sudo pacman -Sy $( pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | paste -sd " " ) --noconfirm
             echo ""
 
 
@@ -1168,7 +1168,7 @@ function func_fix
             if [[ -n $temp ]]                                                       # check, whether $temp variable is empty
             then
                 # there are 2 different places on system for keys to be stored. move all keys for pacman to your private collection of keys. this collection is needed when installling packages from the AUR, e.g. for verifying who signed the package.
-                echo "keyring /etc/pacman.d/gnupg/pubring.gpg" >> $HOME/.gnupg/gpg.conf
+                echo "keyring /etc/pacman.d/gnupg/pubring.gpg" >> "$HOME/.gnupg/gpg.conf"
             fi
 
 
@@ -1322,48 +1322,48 @@ function func_c
 
         # because not all files should be opened the same way, multiple if-statements are needed to specify special conditions for opening files in a text editor:
         # only run the command inside the if-statement, if $file variable is not empty <-- this happens when fzf is quit with ESC or CTRL+C
-        if [[ -n $file ]] && (( $check == "1" ))                                    # here $check variable needs to be 1 in order to continue normally and display files in a text editor.
+        if [[ -n "$file" ]] && (( check == 1 ))                                       # here $check variable needs to be 1 in order to continue normally and display files in a text editor.
         then
 
-            if [[ $( echo $file | cut -c -6 ) == "/home/" ]]
+            if [[ $( echo "$file" | cut -c -6 ) == "/home/" ]]
             # if "file"'s first characters are "/home/", the "file" should NOT be opened as root!
             then
                 # if $EDITOR variable does not exist, set it to 'nano'
                 [[ -z "$EDITOR" ]] && EDITOR='nano'
                 # open "file" in "EDITOR": (attention: "$file" (including " symbols) does NOT WORK!!!, but strangely $file (without " symbols") works fine.)
-                $EDITOR $file
-            elif [[ $file == "/etc/sudoers" ]]
+                $EDITOR "$file"
+            elif [[ "$file" == "/etc/sudoers" ]]
             then
                 # the sudoers file should never be edited directly! if something goes wrong, sudo stops working. instead, visudo should be used. this is much safer.
                 sudo EDITOR=nano visudo
-            elif [[ $file == "/etc/pacman.d/mirrorlist" ]] || [[ $file == "/etc/pacman-mirrors.conf" ]]
+            elif [[ "$file" == "/etc/pacman.d/mirrorlist" ]] || [[ "$file" == "/etc/pacman-mirrors.conf" ]]
             then
                 # if $EDITOR variable does not exist, set it to 'nano'
                 [[ -z "$EDITOR" ]] && EDITOR='nano'
                 # open "file" in "EDITOR": (attention: "$file" (including " symbols) does NOT WORK!!!)
-                sudo $EDITOR $file
+                sudo $EDITOR "$file"
                 sudo pacman -Syy                                                    # apply changes
-            elif [[ $file == "/etc/fstab" ]] || [[ $file == "/etc/crypttab" ]]
+            elif [[ "$file" == "/etc/fstab" ]] || [[ "$file" == "/etc/crypttab" ]]
             then
                 # if $EDITOR variable does not exist, set it to 'nano'
                 [[ -z "$EDITOR" ]] && EDITOR='nano'
                 # open "file" in "EDITOR": (attention: "$file" (including " symbols) does NOT WORK!!!)
-                sudo $EDITOR $file
+                sudo $EDITOR "$file"
                 sudo mount -a                                                       # mount all drives/partitions in /etc/fstab file. this shows immediately mistakes in your /etc/fstab file and prevents non-working systems.
-            elif [[ $file == "/etc/mkinitcpio.conf" ]]
+            elif [[ "$file" == "/etc/mkinitcpio.conf" ]]
             then
                 [[ -z "$EDITOR" ]] && EDITOR='nano'
-                sudo $EDITOR $file
+                sudo $EDITOR "$file"
                 sudo mkinitcpio -P && sudo grub-mkconfig -o /boot/grub/grub.cfg     # apply changes   # "grub-mkconfig -o /boot/grub/grub.cfg" == "udpate-grub" (in manjaro)
-            elif [[ $file == "/etc/default/grub" ]]
+            elif [[ "$file" == "/etc/default/grub" ]]
             then
                 [[ -z "$EDITOR" ]] && EDITOR='nano'
-                sudo $EDITOR $file
+                sudo $EDITOR "$file"
                 sudo grub-mkconfig -o /boot/grub/grub.cfg                           # apply changes   # "grub-mkconfig -o /boot/grub/grub.cfg" == "udpate-grub" (in manjaro)
             else
                 # start "sudo nano $file" for all other files (not mentioned separately in elif-statements above)
                 [[ -z "$EDITOR" ]] && EDITOR='nano'
-                sudo $EDITOR $file
+                sudo $EDITOR "$file"
             fi
 
         fi
@@ -1913,8 +1913,8 @@ EOF
 if [[ -e /usr/bin/pacaur ]] && [[ ! -e $XDG_CONFIG_HOME/pacaur/config ]] && [[ ! -n $EDITOR ]] && [[ ! -e /usr/bin/vi ]]
 then
     # export "editor='${EDITOR:-nano}'" to config file. '${EDITOR:-nano}'" outputs "nano", if there is no $EDITOR variable set.
-    mkdir -p $XDG_CONFIG_HOME/pacaur/
-    echo "editor='${EDITOR:-nano}'" >> $XDG_CONFIG_HOME/pacaur/config
+    mkdir -p "$XDG_CONFIG_HOME/pacaur/"
+    echo "editor='${EDITOR:-nano}'" >> "$XDG_CONFIG_HOME/pacaur/config"
 fi
 
 
