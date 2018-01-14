@@ -362,27 +362,23 @@ function func_m
 # this core functionality of "Install Packages" (note the bold "i") can be started in the terminal using "pacui i". the help page provides additional explanations.
 function func_i
 {
-        # check, whether file /tmp/pacui-packages-install already exists (the ! negates the result)
-        if  [[ ! -e /tmp/pacui-packages-install ]]
-        then
-            # write package list of system repositories (package name and description) to /tmp/pacui-packages-install. %-33n uses printf support in expac to format output nicely (reserve a 33 character wide field for package name %n). then add all package groups to the bottom.
-            # delete all spaces with "tr" (there are spaces after each package name!). this is important for installing multiple packages at the same time! command equivalent to "awk '{print $1}'"
-            # awk 'NF != 0' removes all empty lines ("number of fields" in one line has to be non-zero)
-            expac -S "%-33n\t%d" > /tmp/pacui-packages-install
-            expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-install
+        # write package list of system repositories (package name and description) to /tmp/pacui-packages-install. %-33n uses printf support in expac to format output nicely (reserve a 33 character wide field for package name %n). then add all package groups to the bottom.
+        # delete all spaces with "tr" (there are spaces after each package name!). this is important for installing multiple packages at the same time! command equivalent to "awk '{print $1}'"
+        # awk 'NF != 0' removes all empty lines ("number of fields" in one line has to be non-zero)
+        expac -S "%-33n\t%d" > /tmp/pacui-packages-install
+        expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-install
 
-            # only download AUR package list, if at least one AUR helper is installed
-            if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]
+        # only download AUR package list, if at least one AUR helper is installed
+        if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]
+        then
+            # finally, download AUR package list (only when not already downloaded) and add it to the bottom of /tmp/pacui-packages-install.
+            if  [[ ! -e /tmp/aur/packages.gz ]]
             then
-                # finally, download AUR package list (only when not already downloaded) and add it to the bottom of /tmp/pacui-packages-install.
-                if  [[ ! -e /tmp/aur/packages.gz ]]
-                then
-                    wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null
-                fi
-                # remove line with download date from list of AUR packages with "grep"
-                # delete all spaces with "tr". this is important for installing multiple packages at the same time!
-                grep -v "#" /tmp/aur/packages.gz | tr -d " " >> /tmp/pacui-packages-install
+                wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null
             fi
+            # remove line with download date from list of AUR packages with "grep"
+            # delete all spaces with "tr". this is important for installing multiple packages at the same time!
+            grep -v "#" /tmp/aur/packages.gz | tr -d " " >> /tmp/pacui-packages-install
         fi
 
         local {pkg,pkg_install}                                                     # declare local variables
@@ -689,7 +685,7 @@ function func_l
             else
                 pacman -Si {1} --color always                                       # do this, if package is not locally installed
             fi
-            ' --preview-window=right:50%:wrap  --header="Press ENTER to list files. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+            ' --preview-window=right:50%:wrap  --header="Press ENTER to list files. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
         pacui_clean                                                                 # clear terminal
 
@@ -1513,29 +1509,34 @@ function func_a
 
         else
 
-            # do this if pacui is used with UI or no argument is specified in "pacui a" command:
-            echo "Enter (parts of) name and/or description of package to be searched. Then press ENTER."
-            read -r pkg
-
-            if [[ -e /usr/bin/trizen ]]
+            if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]
             then
 
-                trizen -Ss "$pkg"
+                # do this if pacui is used with UI or no argument is specified in "pacui a" command:
+                echo "Enter (parts of) name and/or description of package to be searched. Then press ENTER."
+                read -r pkg
 
-            elif [[ -e /usr/bin/yay ]]
-            then
+                if [[ -e /usr/bin/trizen ]]
+                then
 
-                yay "$pkg"
+                    trizen -Ss "$pkg"
 
-            elif [[ -e /usr/bin/yaourt ]]
-            then
+                elif [[ -e /usr/bin/yay ]]
+                then
 
-                yaourt "$pkg"
+                    yay "$pkg"
 
-            elif [[ -e /usr/bin/pacaur ]]
-            then
+                elif [[ -e /usr/bin/yaourt ]]
+                then
 
-                pacaur -Ss "$pkg" --color always | grep -v "::"                     # grep command removes errors being displayed in pacaur
+                    yaourt "$pkg"
+
+                elif [[ -e /usr/bin/pacaur ]]
+                then
+
+                    pacaur -Ss "$pkg" --color always | grep -v "::"                     # grep command removes errors being displayed in pacaur
+
+                fi
 
             else
 
