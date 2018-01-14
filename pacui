@@ -429,7 +429,7 @@ function func_i
             then
                 pacaur -Si {1} --color always | grep -v "::"                        # display repo package information in preview window of fzf. grep command removes all errors displayed by pacaur
             fi
-            ' --preview-window=right:50%:wrap  --header="TAB key to (un)select. ENTER key to install. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+            ' --preview-window=right:50%:wrap --header="TAB key to (un)select. ENTER key to install. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
         pacui_clean                                                                 # clear terminal
 
@@ -618,7 +618,7 @@ function func_t
         pacui_clean                                                                 # clear terminal
 
         pkg=$( sort -k1,1 -u /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
-            if ( pacman -Qq {1} &>/dev/null )                                       # check, if selected line is a locally installed package
+            if ( pacman -Qq {1} &>/dev/null )                                       # check, if 1. element of selected line is a locally installed package
             then
                 pacman -Qi {1} --color always
             elif [[ -e /usr/bin/trizen ]]                                           # if {1} is not locally installed, it is from the AUR. display info with AUR helper
@@ -643,9 +643,24 @@ function func_t
         then
             if ( pacman -Qq "$pkg" &>/dev/null )
             then
-                pactree -c "$pkg" | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Dependency Tree of installed package \"$pkg\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-t
+
+                # explain the " echo {} | sed 's/^[│├└─ ]*//g' | cut -d ' ' -f 1 " command used below:
+                # first echo selected line in fzf. then, remove all symbols from the beginning of the line, which does not belong to the package name. if there are multiple package names (e.g. with "provides") in 1 line all other (except for the first package name) are cut from the result.
+                pactree -c "$pkg" | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --preview '
+                    pacman -Qi $( echo {} | sed "s/^[│├└─ ]*//g" | cut -d " " -f 1 ) --color always
+                    ' --preview-window=right:50%:wrap --header="Dependency Tree of installed package \"$pkg\". ESC to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-t
+
             else
-                pactree -c -s "$pkg" | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Dependency Tree of remote package \"$pkg\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-t
+
+                pactree -c -s "$pkg" | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --preview '
+                    if ( pacman -Qq $( echo {} | sed "s/^[│├└─ ]*//g" | cut -d " " -f 1 ) &>/dev/null )                                     # check, if selected line contains a locally installed package.
+                    then
+                        pacman -Qi $( echo {} | sed "s/^[│├└─ ]*//g" | cut -d " " -f 1 ) --color always                                     # display local package information in preview window of fzf
+                    else
+                        pacman -Si $( echo {} | sed "s/^[│├└─ ]*//g" | cut -d " " -f 1 ) --color always                                     # display package info from repository, if package is not locally installed
+                    fi
+                    ' --preview-window=right:50%:wrap --header="Dependency Tree of remote package \"$pkg\". ESC to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-t
+
             fi
         fi
 
@@ -1445,7 +1460,7 @@ function func_ls
         # $( comm -23 <(pacman -Qq | sort) <(pacman -Qqg base base-devel | sort) )  only shows packages, which are not part of "base" or "base-devel" group.
         expac -H M -Q '%12m - \e[1m%n\e[0m %v' $( comm -23 <(pacman -Qq | sort) <(pacman -Qqg base base-devel | sort) ) | sort -n -r | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --preview '
             pacman -Qi {4} --color always
-            ' --preview-window=right:50%:wrap --header="Navigate with PageUp / PageDown. ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-ls
+            ' --preview-window=right:50%:wrap --header="Navigate with PageUp / PageDown. ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-ls
         # alternative command to "expac" and "sort": package-query -Qe --rsort 2 -f "%2 - \e[1m%n \e[0m%v" | numfmt --to=iec
 
         pacui_clean                                                                 # clear terminal
