@@ -634,7 +634,7 @@ function func_t
             then
                 pacaur -Si {1} --color always | grep -v "::"                        # display repo package information in preview window of fzf. grep command removes all errors displayed by pacaur
             fi
-            ' --preview-window=right:50%:wrap  --header="Press ENTER to show tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+            ' --preview-window=right:50%:wrap  --header="Press ENTER to show dependency tree. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
         pacui_clean                                                                 # clear terminal
 
@@ -648,7 +648,7 @@ function func_t
                 # first echo selected line in fzf. then, remove all symbols from the beginning of the line, which does not belong to the package name. if there are multiple package names (e.g. with "provides") in 1 line all other (except for the first package name) are cut from the result.
                 pactree -c "$pkg" | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --preview '
                     pacman -Qi $( echo {} | sed "s/^[│├└─ ]*//g" | cut -d " " -f 1 ) --color always
-                    ' --preview-window=right:50%:wrap --header="Dependency Tree of installed package \"$pkg\". ESC to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-t
+                    ' --preview-window=right:50%:wrap --header="Dependency Tree of \"$pkg\" (installed). ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-t
 
             else
 
@@ -659,7 +659,7 @@ function func_t
                     else
                         pacman -Si $( echo {} | sed "s/^[│├└─ ]*//g" | cut -d " " -f 1 ) --color always                                     # display package info from repository, if package is not locally installed
                     fi
-                    ' --preview-window=right:50%:wrap --header="Dependency Tree of remote package \"$pkg\". ESC to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-t
+                    ' --preview-window=right:50%:wrap --header="Dependency Tree of \"$pkg\" (not installed). ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-t
 
             fi
         fi
@@ -677,14 +677,20 @@ function func_rt
         local pkg
         pkg=$( expac -Q "%-33n\t%d" | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
             pacman -Qi {1} --color always
-            ' --preview-window=right:50%:wrap  --header="Press ENTER to show reverse tree. Press ESC or CTRL+C to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+            ' --preview-window=right:50%:wrap  --header="Press ENTER to show reverse dependency tree. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
         pacui_clean                                                                 # clear terminal
 
         # look in func_info for explanations
         if [[ -n $pkg ]]
         then
-            pactree -c -r "$pkg" | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Reverse Dependency Tree of package \"$pkg\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed packages > ' > /tmp/pacui-rt
+
+            # explain the " echo {} | sed 's/^[│├└─ ]*//g' | cut -d ' ' -f 1 " command used below:
+            # first echo selected line in fzf. then, remove all symbols from the beginning of the line, which does not belong to the package name.
+            pactree -c -r "$pkg" | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --preview '
+                pacman -Qi $( echo {} | sed "s/^[│├└─ ]*//g" ) --color always
+                ' --preview-window=right:50%:wrap --header="Reverse Dependency Tree \"$pkg\". ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-rt
+
         fi
 
         pacui_clean                                                                 # clear terminal
