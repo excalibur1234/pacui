@@ -631,9 +631,10 @@ function func_t
                     ' --preview-window=right:50%:wrap --header="Dependency Tree of \"$pkg\" (not installed). ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-t
 
             fi
-        fi
 
-        pacui_clean                                                                 # clear terminal
+            pacui_clean                                                             # clear terminal
+
+        fi
 }
 
 
@@ -660,9 +661,9 @@ function func_rt
                 pacman -Qi $( echo {} | sed "s/^[│├└─ ]*//g" ) --color always
                 ' --preview-window=right:50%:wrap --header="Reverse Dependency Tree \"$pkg\". ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-rt
 
-        fi
+            pacui_clean                                                             # clear terminal
 
-        pacui_clean                                                                 # clear terminal
+        fi
 }
 
 
@@ -707,6 +708,8 @@ function func_l
                 # in some cases, the local database has to be initialized with sudo pacman -Fyy
                 sudo pacman -Fy
 
+                pacui_clean                                                         # clear terminal
+
                 # search in system repositories with "pacman -Fl" --> machine readable version of output is easier to read for awk!
                 # grep -a is used, because "pacman -Fl --machinereadable" returns a file starting with non-text data. the "-a" option ignores that.
                 # the awk command is used to format output: "-F '\0'" set "\0" as separator. this makes it possible to easily use $1,$2,$3,$4 as syntax later.
@@ -714,9 +717,10 @@ function func_l
                 pacman -Fl --machinereadable "$pkg" | grep -a -v "/$" | awk -F '\0' '{print $4}' | fzf-tmux -m -e +s -i --query="usr/bin/" --reverse --margin=4%,1%,1%,1% --inline-info --header="List of files of remote package \"$pkg\". Press ESC or CTRL+C to quit." --prompt='Manipulate string to filter displayed file paths > ' > /tmp/pacui-l
 
             fi
-        fi
 
-        pacui_clean                                                                 # clear terminal
+            pacui_clean                                                             # clear terminal
+
+        fi
 }
 
 
