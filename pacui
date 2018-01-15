@@ -1357,6 +1357,23 @@ function func_c
 }
 
 
+# List Packages by Size
+# this core functionality of "List Packages by Size" (note the bold "l" and "s") can be started in the terminal using "pacui ls". the help page provides additional explanations.
+function func_ls
+{
+        pacui_clean                                                                 # clear terminal
+
+        # list all packages on local system sorted by their installed size using "expac" and "sort".
+        # $( comm -23 <(pacman -Qq | sort) <(pacman -Qqg base base-devel | sort) )  only shows packages, which are not part of "base" or "base-devel" group.
+        expac -H M -Q '%12m - \e[1m%n\e[0m %v' $( comm -23 <(pacman -Qq | sort) <(pacman -Qqg base base-devel | sort) ) | sort -n -r | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --preview '
+            pacman -Qi {4} --color always
+            ' --preview-window=right:50%:wrap --header="Navigate with PageUp / PageDown. ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-ls
+        # alternative command to "expac" and "sort": package-query -Qe --rsort 2 -f "%2 - \e[1m%n \e[0m%v" | numfmt --to=iec
+
+        pacui_clean                                                                 # clear terminal
+}
+
+
 # =======================
 
 
@@ -1415,23 +1432,6 @@ function func_la
 
 # =======================
 # the following functions are hidden from the UI.
-
-
-# List Packages by Size
-# this core functionality of "List Packages by Size" (note the bold "l" and "s") can be started in the terminal using "pacui ls". the help page provides additional explanations.
-function func_ls
-{
-        pacui_clean                                                                 # clear terminal
-
-        # list all packages on local system sorted by their installed size using "expac" and "sort".
-        # $( comm -23 <(pacman -Qq | sort) <(pacman -Qqg base base-devel | sort) )  only shows packages, which are not part of "base" or "base-devel" group.
-        expac -H M -Q '%12m - \e[1m%n\e[0m %v' $( comm -23 <(pacman -Qq | sort) <(pacman -Qqg base base-devel | sort) ) | sort -n -r | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --preview '
-            pacman -Qi {4} --color always
-            ' --preview-window=right:50%:wrap --header="Navigate with PageUp / PageDown. ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-ls
-        # alternative command to "expac" and "sort": package-query -Qe --rsort 2 -f "%2 - \e[1m%n \e[0m%v" | numfmt --to=iec
-
-        pacui_clean                                                                 # clear terminal
-}
 
 
 # Downgrade Packages
@@ -1581,11 +1581,11 @@ function func_h
             echo -e "  pacui    b     - Roll \e[1mB\e[0mack System"
             echo -e " \e[31m pacui    fix   - \e[1mFix\e[0;31m Pacman Errors\e[0m"
             echo -e "  pacui    c     - Edit \e[1mC\e[0monfig Files"
+            echo -e "  pacui    ls    - \e[1mL\e[0mist Packages by \e[1mS\e[0mize"
             echo
             [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]] && echo -e "  pacui    ua    - Force \e[1mU\e[0mpdate \e[1mA\e[0mUR"
             echo -e "  pacui    la    - \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
-            echo
-            echo -e "  pacui    ls    - \e[1mL\e[0mist Packages by \e[1mS\e[0mize"
+            [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]] && echo
             [[ -e /usr/bin/downgrade ]] && echo -e "  pacui    d     - \e[1mD\e[0mowngrade Packages"
             [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]] && echo -e "  pacui    a     - Search + Install from \e[1mA\e[0mUR"
             echo
@@ -1826,6 +1826,11 @@ This command opens <FILE NAME> in your default text editor. You can choose betwe
 By default the text editor Nano gets used, except a custom $EDITOR variable has been exported. In the text editor Nano, Press CTRL+O to save your changes, ENTER to choose a directory, and CTRL+X to quit Nano.
 \e[1mAttention\e[0m: Changing system configuration files can harm or even destroy your system. In some cases, this can happen with a single mistake. Be extremely careful and always double check your changes before saving and rebooting - especially when editing the files marked in red! It is recommended to search the Arch Wiki for the configuration file you want to edit and read about available and recommended settings.
 
+
+\e[1m12 - LIST PACKAGES BY SIZE
+\e[36m"expac -Q '%m - %n %v' | sort -n -r "
+This command lists packages on your system sorted by their installation size. Both explicitly installed packages and dependencies are displayed. Important system packages part of the "base" or "base-devel" group are not displayed. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-ls.
+
 EOF
 
             if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]
@@ -1848,11 +1853,6 @@ EOF
 \e[36m"pacman -Qm"
 This command lists all installed packages, which are from the AUR or which were manually installed. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-la.
 If you want a list of all installed packages use REMOVE PACKAGES + DEPS as described in this Help Page.
-
-
-\e[1mLIST PACKAGES BY SIZE
-\e[36m"expac -Q '%m - %n %v' | sort -n -r "
-This command lists packages on your system sorted by their installation size. Both explicitly installed packages and dependencies are displayed. Important system packages part of the "base" or "base-devel" group are not displayed. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-ls.
 
 EOF
             if [[ -e /usr/bin/downgrade ]]
@@ -1889,11 +1889,10 @@ Press "q" to quit this Help Page.
 
 EOF
 
-        fi
-
         # display /tmp/pacui-help file in "less" and interpret all ANSI escape sequences in it (which only works with "echo -e ..."):
         echo -e "$( cat '/tmp/pacui-help' )" | less -RMi
 
+        fi
 }
 
 
@@ -1995,10 +1994,13 @@ do
     echo -e " │    7   \e[1mL\e[0mist Package Files        8   \e[1mS\e[0mearch Package Files       │"
     echo -e " └─────────────────────────────────────────────────────────────────┘"
     echo -e "      9   Roll \e[1mB\e[0mack System        \e[31m 10   \e[1mFix\e[0;31m Pacman Errors\e[0m "
-    echo -e "     11   Edit \e[1mC\e[0monfig Files "
+    echo -e "     11   Edit \e[1mC\e[0monfig Files        12   \e[1mL\e[0mist Packages by \e[1mS\e[0mize "
     [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]] && echo -e " ┌─────────────────────────────────────────────────────────────────┐"
     [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]] && echo -e " │   13   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR         14   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
     [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]] && echo -e " └─────────────────────────────────────────────────────────────────┘"
+    [[ ! -e /usr/bin/trizen ]] && [[ ! -e /usr/bin/yay ]] && [[ ! -e /usr/bin/yaourt ]] && [[ ! -e /usr/bin/pacaur ]] && echo -e " ┌─────────────────────────────────────────────────────────────────┐"
+    [[ ! -e /usr/bin/trizen ]] && [[ ! -e /usr/bin/yay ]] && [[ ! -e /usr/bin/yaourt ]] && [[ ! -e /usr/bin/pacaur ]] && echo -e " │                                 14   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
+    [[ ! -e /usr/bin/trizen ]] && [[ ! -e /usr/bin/yay ]] && [[ ! -e /usr/bin/yaourt ]] && [[ ! -e /usr/bin/pacaur ]] && echo -e " └─────────────────────────────────────────────────────────────────┘"
     echo
     echo -e "  Enter number or marked letter(s)    -   00   \e[1mH\e[0melp   -    0   \e[1mQ\e[0muit "
 
@@ -2073,6 +2075,10 @@ do
             echo " Configuration files edited. To return to PacUI press ENTER "
             read
             ;;
+        12|ls|listsizes )
+            func_ls
+            echo
+            ;;
 
 
         13|ua|fua|forceupdateaur|updateaur )
@@ -2087,10 +2093,6 @@ do
             ;;
 
 
-        ls|listsizes )
-            func_ls
-            echo
-            ;;
         d|down|downgrade )
             func_d
             echo
