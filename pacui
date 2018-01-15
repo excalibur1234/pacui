@@ -362,33 +362,34 @@ function func_m
 # this core functionality of "Install Packages" (note the bold "i") can be started in the terminal using "pacui i". the help page provides additional explanations.
 function func_i
 {
-        # write package list of system repositories (package name and description) to /tmp/pacui-packages-install. %-33n uses printf support in expac to format output nicely (reserve a 33 character wide field for package name %n). then add all package groups to the bottom.
-        # delete all spaces with "tr" (there are spaces after each package name!). this is important for installing multiple packages at the same time! command equivalent to "awk '{print $1}'"
+        local {pacui_list_install,pkg}                                              # declare local variables
+
+        # write package list of system repositories (package name and description) to $pacui_list_install. %-33n uses printf support in expac to format output nicely (reserve a 33 character wide field for package name %n). then add all package groups to the bottom.
         # awk 'NF != 0' removes all empty lines ("number of fields" in one line has to be non-zero)
-        expac -S "%-33n\t%d" > /tmp/pacui-packages-install
-        expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-install
+        pacui_list_install="$(  expac -S "%-33n\t%d" )"                             # here the parenthesis in "$(...)" are essential to write multiple lines to a variable! without parenthesis the variable will contain only a single line (space separated)!
+        pacui_list_install+="\n"                                                    # by default, the "+=" operator adds all stuff to the end of a variable without a newline
+        pacui_list_install+="$( expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' )"
+        pacui_list_install+="\n"
 
         # only download AUR package list, if at least one AUR helper is installed
         if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]
         then
-            # finally, download AUR package list (only when not already downloaded) and add it to the bottom of /tmp/pacui-packages-install.
+            # finally, download AUR package list (only when not already downloaded) and add it to the bottom of $pacui_list_install.
             if  [[ ! -e /tmp/aur/packages.gz ]]
             then
                 wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null
             fi
             # remove line with download date from list of AUR packages with "grep"
-            # delete all spaces with "tr". this is important for installing multiple packages at the same time!
-            grep -v "#" /tmp/aur/packages.gz | tr -d " " >> /tmp/pacui-packages-install
+            # delete all trailing spaces with "tr". command equivalent to "awk '{print $1}'"
+            pacui_list_install+="$( grep -v '#' /tmp/aur/packages.gz | tr -d ' ' )"
         fi
-
-        local {pkg,pkg_install}                                                     # declare local variables
 
         pacui_clean                                                                 # clear terminal
 
-        # the package list in /tmp/pacui-packages-install gets sorted (by "sort" - only first column gets used for sorting) and displayed by fzf. look in "man fzf" for what fzf's arguments are used.
+        # the package list in $pacui_list_install gets sorted (by "sort" - only first column gets used for sorting) and displayed by fzf. look in "man fzf" for what fzf's arguments are used.
         # fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
         # the --preview option of fzf displays information about the currently selected line in a preview window shown by fzf
-        pkg=$( sort -k1,1 -u /tmp/pacui-packages-install | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+        pkg=$( echo "$pacui_list_install" | sort -k1,1 -u | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
             if ( pacman -Qq {1} &>/dev/null )                                       # check, if 1. field of selected line is a locally installed package.
             then
                 pacman -Qi {1} --color always                                       # display local package information in preview window of fzf
@@ -416,7 +417,7 @@ function func_i
         pacui_clean                                                                 # clear terminal
 
         # $pkg contains package names below each other (=separated by \n), but we need a list in 1 line (=space separated):
-        pkg_install=$( echo $pkg | paste -sd " " )
+        #pkg=$( echo $pkg | paste -sd " " )                                         # THIS IS NOT NEEDED, BECAUSE WE HAVE HAVE LEFT OUT THE PARENTHESIS ABOVE AROUND $(...fzf-tmux...)
 
         # only run the command inside the if-statement, if variable $pkg is not empty - this happens when fzf is quit with ESC or CTRL+C
         if [[ -n $pkg ]]
@@ -425,26 +426,26 @@ function func_i
             if [[ -e /usr/bin/trizen ]]
             then
 
-                trizen -S $pkg_install                                              # !!! this command does not work when $pkg_install is quoted !!! (i do not know why)
+                trizen -S $pkg
 
             elif [[ -e /usr/bin/yay ]]
             then
 
-                yay -S $pkg_install                                                 # !!! this command does not work when $pkg_install is quoted !!! (i do not know why)
+                yay -S $pkg
 
             elif [[ -e /usr/bin/yaourt ]]
             then
 
-                yaourt -S $pkg_install                                              # !!! this command does not work when $pkg_install is quoted !!! (i do not know why)
+                yaourt -S $pkg
 
             elif [[ -e /usr/bin/pacaur ]]
             then
 
-                pacaur -S $pkg_install --color always                               # !!! this command does not work when $pkg_install is quoted !!! (i do not know why)
+                pacaur -S $pkg --color always
 
             else
 
-                sudo pacman -S $pkg_install                                         # !!! this command does not work when $pkg_install is quoted !!! (i do not know why)
+                sudo pacman -S $pkg --color always
 
             fi
 
@@ -484,7 +485,8 @@ function func_r
         if [[ -n $pkg ]]                                                            # check, whether $pkg variable is not empty. this happens when fzf is quit with CTRL+C.
         then
             # $pkg contains package names below each other, but we need a list (in 1 line, space separated):
-            pkg_remove=$(echo $pkg | paste -sd " ")
+            #pkg=$( echo $pkg | paste -sd " " )                                         # THIS IS NOT NEEDED, BECAUSE WE HAVE HAVE LEFT OUT THE PARENTHESIS ABOVE AROUND $(...fzf-tmux...)
+            pkg_remove=$( echo $pkg )
 
             # wrap the "sudo pacman -Rns" command in an if-statement, which checks, whether the removal of packages works. the removal of packages does not work, if the user tries to remove a dependency.
             # the failure of "sudo pacman -Rns" is especially annoying, if many packages has been chose for removal and 1 package is a dependency. by default, the list of packages (which are supposed to be removed) is NOT saved!
@@ -1826,7 +1828,6 @@ EOF
 
             if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]
             then
-                # this "heredoc" command pushes all the following lines into "cat" (and "cat pushes it to file /tmp/pacui-help) until a line containing the "EOF" keyword is encountered
                 cat >> /tmp/pacui-help <<- "EOF"
 \e[1m13 - FORCE UPDATE AUR
 \e[36m"yaourt -Syua && yaourt -Syua --devel --needed --noconfirm"
@@ -1840,7 +1841,6 @@ The second command of FORCE UPDATE AUR forces a reinstall of ALL your developmen
 EOF
             fi
 
-            # this "heredoc" command pushes all the following lines into "cat" (and "cat pushes it to file /tmp/pacui-help) until a line containing the "EOF" keyword is encountered
             cat >> /tmp/pacui-help <<- "EOF"
 \e[1m14 - LIST INSTALLED FROM AUR
 \e[36m"pacman -Qm"
@@ -1855,7 +1855,6 @@ This command lists packages on your system sorted by their installation size. Bo
 EOF
             if [[ -e /usr/bin/downgrade ]]
             then
-                # this "heredoc" command pushes all the following lines into "cat" (and "cat pushes it to file /tmp/pacui-help) until a line containing the "EOF" keyword is encountered
                 cat >> /tmp/pacui-help <<- "EOF"
 \e[1mDOWNGRADE PACKAGES
 \e[36m"downgrade <PACKAGE NAME>"
@@ -1872,7 +1871,6 @@ EOF
 
             if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]
             then
-                # this "heredoc" command pushes all the following lines into "cat" (and "cat pushes it to file /tmp/pacui-help) until a line containing the "EOF" keyword is encountered
                 cat >> /tmp/pacui-help <<- "EOF"
 \e[1mSEARCH + INSTALL FROM AUR
 \e[36m"yaourt <PACKAGE NAME>"
@@ -1883,7 +1881,6 @@ If you want to exit this mode without installing any packages, simply press CTRL
 EOF
             fi
 
-            # this "heredoc" command pushes all the following lines into "cat" (and "cat pushes it to file /tmp/pacui-help) until a line containing the "EOF" keyword is encountered
             cat >> /tmp/pacui-help <<- "EOF"
 
 Press "q" to quit this Help Page.
