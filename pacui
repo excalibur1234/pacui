@@ -1581,8 +1581,8 @@ function func_h
             echo -e "  pacui    c     - Edit \e[1mC\e[0monfig Files"
             echo
             [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]] && echo -e "  pacui    ua    - Force \e[1mU\e[0mpdate \e[1mA\e[0mUR"
-            [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]] && echo -e "  pacui    la    - \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
-            [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]] && echo
+            echo -e "  pacui    la    - \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
+            echo
             echo -e "  pacui    ls    - \e[1mL\e[0mist Packages by \e[1mS\e[0mize"
             [[ -e /usr/bin/downgrade ]] && echo -e "  pacui    d     - \e[1mD\e[0mowngrade Packages"
             [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]] && echo -e "  pacui    a     - Search + Install from \e[1mA\e[0mUR"

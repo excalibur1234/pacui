@@ -58,7 +58,7 @@ Please note that PacUI requires also [Trizen](https://github.com/trizen/trizen),
 
 
 ### Execute without prior Installation
-Because PacUI is contained within one file, it is easy to download and start it without prior installation. Please remember to install PacUI's dependencies first for proper operation:
+Because PacUI is contained within one file, it is easy to download and start it without prior installation. Please remember to install PacUI's dependencies first for proper operation. Marking the "pacui" file as executable is essential, too:
 ```
 wget https://raw.githubusercontent.com/excalibur1234/pacui/master/pacui
 ```
