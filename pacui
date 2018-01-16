@@ -728,6 +728,7 @@ function func_l
 # this core functionality of "Search Package Files" (note the bold "s") can be started in the terminal using "pacui s". the help page provides additional explanations.
 function func_s
 {
+        # define local variables - all get deleted automatically when the function is exited
         local file
 
         if [[ -n "$input2" ]]
@@ -745,12 +746,16 @@ function func_s
         if [[ -n $file ]]
         then
 
+            # use as many local variables as possible. unfortunately, it is still necessary to use a couple of temporary files (i have done a lot of tests and this current form of 'pacui s' seems to be the fastest):
+            local {pacui_search_temp_local,pacui_search_temp_repo2,pacui_search_temp_only_in_repo2}
+
+
             echo -e "\n\e[1mLocal package files: \e[0m" > /tmp/pacui-search-temp
             # list all files of all installed local packages using "pacman -Ql --color always"
             # awk -v VAR="$file" '$NF ~ VAR' searches for $file (using regex) in the last field/column only. write resulting list to /tmp/pacui-search-temp
             pacman -Ql --color always | awk -v VAR="$file" -F '/' '$NF ~ VAR' >> /tmp/pacui-search-temp
-            # write a list of package names (which install files containing "$file" string) to /tmp//tmp/pacui-search-temp-local
-            pacman -Ql | awk -v VAR="$file" -F '/' '$NF ~ VAR' | awk -F '/' '{print $1}' | sort -u | tr -d " " > /tmp/pacui-search-temp-local
+            # write a list of package names (which install files containing "$file" string) to variable $pacui_search_temp_local
+            pacui_search_temp_local="$( pacman -Ql | awk -v VAR="$file" -F '/' '$NF ~ VAR' | awk -F '/' '{print $1}' | sort -u | tr -d ' ' )"
 
             # update local package database. this needs a long time when internet connection is slow.
             # in some cases, the local database has to be initialized with sudo pacman -Fyy
@@ -763,23 +768,23 @@ function func_s
             # the awk command is used to format output: "-F '\0'" set "\0" as separator. this makes it possible to easily use $1,$2,$3,$4 as syntax later.
 
             # store raw output of "pacman -Fsx" in file /tmp/pacui-search-temp-repo, because this process is quite slow
-            pacman -Fsx --machinereadable "$file" > /tmp/pacui-search-temp-repo
+            pacman -Fsx --machinereadable "$file" > "/tmp/pacui-search-temp-repo"
 
-            # create new file /tmp/pacui-search-temp-repo2 ,which only contains package names
-            awk -F "\0" '{print $2}' "/tmp/pacui-search-temp-repo" | sort -u | tr -d " " > /tmp/pacui-search-temp-repo2
+            # create new variable $pacui_search_temp_repo2 ,which only contains package names
+            pacui_search_temp_repo2="$( awk -F '\0' '{print $2}' "/tmp/pacui-search-temp-repo" | sort -u | tr -d ' ' )"
 
-            # compare list of package names and only keep package names in system repository (in file /tmp/pacui-search-temp-repo2):
-            comm -13 /tmp/pacui-search-temp-local /tmp/pacui-search-temp-repo2 > /tmp/pacui-search-temp-only-in-repo2
+            # compare list of package names and only keep package names in system repository (in variable $pacui_search_temp_repo2):
+            pacui_search_temp_only_in_repo2="$( comm -13 <(echo "$pacui_search_temp_local") <(echo "$pacui_search_temp_repo2") )"
 
-            # grep all package names from file /tmp/pacui-search-temp-only-in-repo2 and search for them in file /tmp/pacui-search-temp-repo (leave "cat" and "grep" in their current order for better code readability)
+            # grep all package names from variable $pacui_search_temp_only_in_repo2 and search for them in file /tmp/pacui-search-temp-repo (leave "cat" and "grep" in their current order for better code readability)
             # next, awk formats the list to the desired style
-            cat "/tmp/pacui-search-temp-repo" | grep -a -f "/tmp/pacui-search-temp-only-in-repo2" | awk -F '\0' '{print  $1 "/" "\033[1m" $2 "\033[0m " $4}' >> /tmp/pacui-search-temp
+            grep -a -f <(echo "$pacui_search_temp_only_in_repo2") "/tmp/pacui-search-temp-repo" | awk -F '\0' '{print  $1 "/" "\033[1m" $2 "\033[0m  " $4}' >> /tmp/pacui-search-temp
 
             ### the last command (above) is REALLY fast, but the result is much less exact than desired!!! if an exact result is needed, the following command at the end of this comment block can provide it.
-            # "system( "grep -q " $2 " /tmp//tmp/pacui-search-temp-local" ) == 1" check exit status of "grep -q <package name> /tmp//tmp/pacui-search-temp-local"(checks, if <package name> is part of list /tmp//tmp/pacui-search-temp-local). if error occurs (==1), the package is printed to /tmp/pacui-search-temp
+            # "system( "grep -q " $2 " /tmp/pacui-search-temp-local" ) == 1" check exit status of "grep -q <package name> /tmp/pacui-search-temp-local"(checks, if <package name> is part of list /tmp//tmp/pacui-search-temp-local). if error occurs (==1), the package is printed to /tmp/pacui-search-temp
             # "{print $1 "/" $2, $4}" prints output nicely formatted to /tmp/pacui-search-temp.
             # instead of regular ANSI escape sequences, i need to use \033[1m instead of \e[1m inside the awk command.
-            #pacman -Fsx --machinereadable "$file" | awk -F '\0' 'system("grep -q " $2 " /tmp//tmp/pacui-search-temp-local") == 1 {print  $1 "/" "\033[1m" $2 "\033[0m " $4}' >> /tmp/pacui-search-temp
+            #pacman -Fsx --machinereadable "$file" | awk -F '\0' 'system("grep -q " $2 " /tmp/pacui-search-temp-local") == 1 {print  $1 "/" "\033[1m" $2 "\033[0m " $4}' >> /tmp/pacui-search-temp
 
 
             pacui_clean                                                             # clear terminal
