@@ -1592,11 +1592,11 @@ function func_h
             echo -e "  pacui    c     - Edit \e[1mC\e[0monfig Files"
             echo -e "  pacui    ls    - \e[1mL\e[0mist Packages by \e[1mS\e[0mize"
             echo
-            [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]] && echo -e "  pacui    ua    - Force \e[1mU\e[0mpdate \e[1mA\e[0mUR"
+            [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]   && echo -e "  pacui    ua    - Force \e[1mU\e[0mpdate \e[1mA\e[0mUR"
             echo -e "  pacui    la    - \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
-            [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]] && echo
-            [[ -e /usr/bin/downgrade ]] && echo -e "  pacui    d     - \e[1mD\e[0mowngrade Packages"
-            [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]] && echo -e "  pacui    a     - Search + Install from \e[1mA\e[0mUR"
+            [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]   && echo
+            [[ -e /usr/bin/downgrade ]]                                                                                 && echo -e "  pacui    d     - \e[1mD\e[0mowngrade Packages"
+            [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]   && echo -e "  pacui    a     - Search + Install from \e[1mA\e[0mUR"
             echo
             echo -e '  pacui    h     - Short \e[1mH\e[0melp. For more help, select "Help" in User Interface.'
 
@@ -2004,12 +2004,10 @@ do
     echo -e " └─────────────────────────────────────────────────────────────────┘"
     echo -e "      9   Roll \e[1mB\e[0mack System        \e[31m 10   \e[1mFix\e[0;31m Pacman Errors\e[0m "
     echo -e "     11   Edit \e[1mC\e[0monfig Files        12   \e[1mL\e[0mist Packages by \e[1mS\e[0mize "
-    [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]] && echo -e " ┌─────────────────────────────────────────────────────────────────┐"
-    [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]] && echo -e " │   13   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR         14   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
-    [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]] && echo -e " └─────────────────────────────────────────────────────────────────┘"
-    [[ ! -e /usr/bin/trizen ]] && [[ ! -e /usr/bin/yay ]] && [[ ! -e /usr/bin/yaourt ]] && [[ ! -e /usr/bin/pacaur ]] && echo -e " ┌─────────────────────────────────────────────────────────────────┐"
+    echo -e " ┌─────────────────────────────────────────────────────────────────┐"
+    [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]         && echo -e " │   13   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR         14   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
     [[ ! -e /usr/bin/trizen ]] && [[ ! -e /usr/bin/yay ]] && [[ ! -e /usr/bin/yaourt ]] && [[ ! -e /usr/bin/pacaur ]] && echo -e " │                                 14   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
-    [[ ! -e /usr/bin/trizen ]] && [[ ! -e /usr/bin/yay ]] && [[ ! -e /usr/bin/yaourt ]] && [[ ! -e /usr/bin/pacaur ]] && echo -e " └─────────────────────────────────────────────────────────────────┘"
+    echo -e " └─────────────────────────────────────────────────────────────────┘"
     echo
     echo -e "  Enter number or marked letter(s)    -   00   \e[1mH\e[0melp   -    0   \e[1mQ\e[0muit "
 
