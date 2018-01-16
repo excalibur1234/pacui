@@ -496,16 +496,19 @@ function func_r
 
                 # now, "sudo pacman -Rsn $pkg_remove --color always" has failed. this means that a dependency was selected. Print error message below the error output of pacman.
                 echo
-                echo -e "\e[1mPackage removal has failed. Most likely you tried to remove a dependency.\e[0m"
+                echo -e "\e[1mPackage removal has failed. Most likely you have tried to remove a dependency.\e[0m"
                 echo
                 echo -e "\e[1mDo you want to forcefully remove all selected packages anyway? [y|N]\e[0m"
                 echo -e "\e[1mChoose one of the following options: \e[0m"
                 echo
-                echo -e "\e[1;31m   y   Forcefully remove package(s) without checking their dependencies first. \e[0m"
+                echo -e "\e[1;31m  y    Forcefully remove package(s) without checking their dependencies first. \e[0m"
                 echo -e "\e[1;31m       Attention: This command can break packages on your system or even your entire system. \e[0m"
                 echo
-                echo -e "\e[1m   N   Try again. \e[0m"
+                echo -e "\e[1m  N    Try again. \e[0m"
                 echo -e "\e[1m       Read the error message(s) above carefully and try not to select dependencies next time. \e[0m"
+                echo
+                echo -e "\e[1m  ESC  Exit without removing any packages. \e[0m"
+                echo
                 # save answer in "answer" variable:
                 read -s -n1 answer
 
@@ -555,7 +558,7 @@ function func_r
                             then
                                 # continue here only if "sudo pacman -Rns" has failed (again):
                                 # a) save list of packages to backup varialbe
-                                pkg_remove_backup=$( echo $pkg_remove | tr " " "\n" )      # here, do NOT write selection to file. this enables the user to guess which packages are dependencies.
+                                pkg_remove_backup=$( echo $pkg_remove | tr " " "\n" )           # here, do NOT write selection to file. this enables the user to guess which packages are dependencies.
 
                                 # b) Print error message. the user can read all error messages (of pacman) and decide what to do next.
                                 echo
@@ -1075,16 +1078,18 @@ function func_fix
             # extract mirror/repository server url from /etc/pacman.d/mirrorlist file:
             server=$( grep "^Server =" -m 1 /etc/pacman.d/mirrorlist | awk '{print $3}' )
 
+            echo
             echo -e '\e[41m Either there is something wrong with your internet connection or with your mirror/repository server: "$server" \e[0m'
             echo -e "\e[1;41m Please make sure both are ok and rerun this part of PacUI! \e[0m"
-            echo -e ""
+            echo
 
         else
 
             # the following command sometimes prevents an error connecting to the key server
+            echo
             echo "sudo dirmngr </dev/null ..."
             sudo dirmngr </dev/null
-            echo ""
+            echo
 
 
             # "SigLevel = Never" in pacman.conf lets us download and install ALL packages, even if the keyring is broken!
@@ -1151,13 +1156,17 @@ function func_fix
             echo ""
 
 
-            #automatically trust all keys from arch linux trusted users (and manjaro developers) - both for packages from the repositories and packages fom the AUR:
-            local temp
-            temp=$( grep "/etc/pacman.d/gnupg/pubring.gpg" "$HOME/.gnupg/gpg.conf" )
-            if [[ -n $temp ]]                                                       # check, whether $temp variable is empty
+            if ! ( grep "/etc/pacman.d/gnupg/pubring.gpg" "$HOME/.gnupg/gpg.conf" &>/dev/null )             # check, whether string "/etc/pacman.d/gnupg/pubring.gpg" is already present in file "$HOME/.gnupg/gpg.conf".
             then
-                # there are 2 different places on system for keys to be stored. move all keys for pacman to your private collection of keys. this collection is needed when installling packages from the AUR, e.g. for verifying who signed the package.
-                echo "keyring /etc/pacman.d/gnupg/pubring.gpg" >> "$HOME/.gnupg/gpg.conf"
+                echo "preventing confusing key errors ..."
+
+                # sometimes, people get a "missing key" error about keys they have already installed. this can be confusing
+                # automatically trust all keys from arch linux trusted users (and manjaro developers) - both for packages from the repositories and packages fom the AUR.
+                # there are 2 different places on system for keys to be stored. move all keys for pacman to your private collection of keys. this collection is needed when installing packages from the AUR, e.g. for verifying who signed the package.
+                echo "#"                                                    >> "$HOME/.gnupg/gpg.conf"
+                echo "# Automatically trust all keys in Pacman's keyring: " >> "$HOME/.gnupg/gpg.conf"
+                echo "keyring /etc/pacman.d/gnupg/pubring.gpg"              >> "$HOME/.gnupg/gpg.conf"
+                echo
             fi
 
 
