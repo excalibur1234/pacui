@@ -753,10 +753,10 @@ function func_s
             local {pacui_search_temp_local,pacui_search_temp_repo2,pacui_search_temp_only_in_repo2}
 
 
-            echo -e "\n\e[1mLocal package files: \e[0m" > /tmp/pacui-search-temp
+            echo -e "\n\e[1mLocal package files: \e[0m" > /tmp/pacui-search
             # list all files of all installed local packages using "pacman -Ql --color always"
-            # awk -v VAR="$file" '$NF ~ VAR' searches for $file (using regex) in the last field/column only. write resulting list to /tmp/pacui-search-temp
-            pacman -Ql --color always | awk -v VAR="$file" -F '/' '$NF ~ VAR' >> /tmp/pacui-search-temp
+            # awk -v VAR="$file" '$NF ~ VAR' searches for $file (using regex) in the last field/column only. write resulting list to /tmp/pacui-search
+            pacman -Ql --color always | awk -v VAR="$file" -F '/' '$NF ~ VAR' >> /tmp/pacui-search
             # write a list of package names (which install files containing "$file" string) to variable $pacui_search_temp_local
             pacui_search_temp_local="$( pacman -Ql | awk -v VAR="$file" -F '/' '$NF ~ VAR' | awk -F '/' '{print $1}' | sort -u | tr -d ' ' )"
 
@@ -765,7 +765,7 @@ function func_s
             sudo pacman -Fy
 
 
-            echo -e "\n\e[1mPackage files in system repositories: \e[0m" >> /tmp/pacui-search-temp
+            echo -e "\n\e[1mPackage files in system repositories: \e[0m" >> /tmp/pacui-search
             # search in system repositories with "pacman -Fsx" --> machine readable version of output is easier to read for awk!
             # comment: possible improvement: use "pv -ptb" to show progress bar (useful for large searches)
             # the awk command is used to format output: "-F '\0'" set "\0" as separator. this makes it possible to easily use $1,$2,$3,$4 as syntax later.
@@ -781,19 +781,19 @@ function func_s
 
             # grep all package names from variable $pacui_search_temp_only_in_repo2 and search for them in file /tmp/pacui-search-temp-repo (leave "cat" and "grep" in their current order for better code readability)
             # next, awk formats the list to the desired style
-            grep -a -f <(echo "$pacui_search_temp_only_in_repo2") "/tmp/pacui-search-temp-repo" | awk -F '\0' '{print  $1 "/" "\033[1m" $2 "\033[0m  " $4}' >> /tmp/pacui-search-temp
+            grep -a -f <(echo "$pacui_search_temp_only_in_repo2") "/tmp/pacui-search-temp-repo" | awk -F '\0' '{print  $1 "/" "\033[1m" $2 "\033[0m  " $4}' >> /tmp/pacui-search
 
             ### the last command (above) is REALLY fast, but the result is much less exact than desired!!! if an exact result is needed, the following command at the end of this comment block can provide it.
             # "system( "grep -q " $2 " /tmp/pacui-search-temp-local" ) == 1" check exit status of "grep -q <package name> /tmp/pacui-search-temp-local"(checks, if <package name> is part of list /tmp//tmp/pacui-search-temp-local). if error occurs (==1), the package is printed to /tmp/pacui-search-temp
-            # "{print $1 "/" $2, $4}" prints output nicely formatted to /tmp/pacui-search-temp.
+            # "{print $1 "/" $2, $4}" prints output nicely formatted to /tmp/pacui-search.
             # instead of regular ANSI escape sequences, i need to use \033[1m instead of \e[1m inside the awk command.
-            #pacman -Fsx --machinereadable "$file" | awk -F '\0' 'system("grep -q " $2 " /tmp/pacui-search-temp-local") == 1 {print  $1 "/" "\033[1m" $2 "\033[0m " $4}' >> /tmp/pacui-search-temp
+            #pacman -Fsx --machinereadable "$file" | awk -F '\0' 'system("grep -q " $2 " /tmp/pacui-search-temp-local") == 1 {print  $1 "/" "\033[1m" $2 "\033[0m " $4}' >> /tmp/pacui-search
 
 
             pacui_clean                                                             # clear terminal
 
-            # display results from file /tmp/pacui-search-temp in fzf.
-            cat /tmp/pacui-search-temp | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Package file names (with path) containing \"$file\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed package names and file paths > ' > /tmp/pacui-s
+            # display results from file /tmp/pacui-search in fzf.
+            cat /tmp/pacui-search | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Package file names (with path) containing \"$file\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed package names and file paths > ' > /tmp/pacui-s
 
             pacui_clean                                                             # clear terminal
 
