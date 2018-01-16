@@ -1156,17 +1156,23 @@ function func_fix
             echo ""
 
 
-            if ! ( grep "/etc/pacman.d/gnupg/pubring.gpg" "$HOME/.gnupg/gpg.conf" &>/dev/null )             # check, whether string "/etc/pacman.d/gnupg/pubring.gpg" is already present in file "$HOME/.gnupg/gpg.conf".
-            then
-                echo "preventing confusing key errors ..."
 
-                # sometimes, people get a "missing key" error about keys they have already installed. this can be confusing
-                # automatically trust all keys from arch linux trusted users (and manjaro developers) - both for packages from the repositories and packages fom the AUR.
-                # there are 2 different places on system for keys to be stored. move all keys for pacman to your private collection of keys. this collection is needed when installing packages from the AUR, e.g. for verifying who signed the package.
-                echo "#"                                                    >> "$HOME/.gnupg/gpg.conf"
-                echo "# Automatically trust all keys in Pacman's keyring: " >> "$HOME/.gnupg/gpg.conf"
-                echo "keyring /etc/pacman.d/gnupg/pubring.gpg"              >> "$HOME/.gnupg/gpg.conf"
-                echo
+            if [[ -e $HOME/.gnupg/gpg.conf ]]                                       # check, whether file $HOME/.gnupg/gpg.conf exists
+            then
+                if ! ( grep "/etc/pacman.d/gnupg/pubring.gpg" "$HOME/.gnupg/gpg.conf" &>/dev/null )             # check, whether string "/etc/pacman.d/gnupg/pubring.gpg" is already present in file "$HOME/.gnupg/gpg.conf".
+                then
+
+                    echo "preventing confusing key errors ..."
+
+                    # sometimes, people get a "missing key" error about keys they have already installed. this can be confusing
+                    # automatically trust all keys from arch linux trusted users (and manjaro developers) - both for packages from the repositories and packages fom the AUR.
+                    # there are 2 different places on system for keys to be stored. move all keys for pacman to your private collection of keys. this collection is needed when installing packages from the AUR, e.g. for verifying who signed the package.
+                    echo "#"                                                    >> "$HOME/.gnupg/gpg.conf"
+                    echo "# Automatically trust all keys in Pacman's keyring: " >> "$HOME/.gnupg/gpg.conf"
+                    echo "keyring /etc/pacman.d/gnupg/pubring.gpg"              >> "$HOME/.gnupg/gpg.conf"
+                    echo
+
+                fi
             fi
 
 
@@ -1216,6 +1222,7 @@ function func_c
         [[ -e /etc/profile.d/freetype2.sh ]]            && echo -e "/etc/profile.d/freetype2.sh                                                                                                                                                                                                                                      Configure TrueType interpreter (including Infinality mode) in file:" >> ${pacui_config}
         [[ -e /etc/pulse/daemon.conf ]]                 && echo -e "/etc/pulse/daemon.conf                                                                                                                                                                                                                                           Configure PulseAudio daemon in file:" >> ${pacui_config}
         [[ -e /etc/pacman.d/gnupg/gpg.conf ]]           && echo -e "\e[31m/etc/pacman.d/gnupg/gpg.conf                                                                                                                                                                                                                               Configure GnuPG in file:\e[0m" >> ${pacui_config}
+        [[ -e $HOME/.gnupg/gpg.conf ]]                  && echo -e "\e[31m$HOME/.gnupg/gpg.conf                                                                                                                                                                                                                                      Configure GnuPG user settings in file:\e[0m" >> ${pacui_config}
         [[ -e /etc/pacman.conf ]]                       && echo -e "\e[31m/etc/pacman.conf                                                                                                                                                                                                                                           Configure Pacman in file:\e[0m" >> ${pacui_config}
         [[ -e /etc/pacman-mirrors.conf ]]               && echo -e "/etc/pacman-mirrors.conf                                                                                                                                                                                                                                         Configure Manjaro's pacman-mirrors in file:" >> ${pacui_config}
         [[ -e /etc/pacman.d/mirrorlist ]]               && echo -e "/etc/pacman.d/mirrorlist                                                                                                                                                                                                                                         Configure mirror list manually in file:" >> ${pacui_config}
