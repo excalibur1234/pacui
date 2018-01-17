@@ -5,7 +5,7 @@ PacUI provides useful and advanced Pacman and Trizen/Yay/Yaourt/Pacaur commands 
 
 PacUI is aimed at experienced/intermediate/advanced users of Arch Linux (and Arch-based distributions, including Manjaro), who have at least basic knowledge of their Linux system, Pacman and [Trizen](https://github.com/trizen/trizen)/[Yay](https://github.com/Jguer/yay)/[Yaourt](https://github.com/archlinuxfr/yaourt)/[Pacaur](https://github.com/rmarquis/pacaur). Absolute beginners are probably overwhelmed by the amount of choices PacUI offers.
 
-This fork of an [older version of pacli](https://github.com/Manjaro-Pek/pacli/tree/f98e9226eb75ea00217481f436399328fe73d3ae) called PacUI follows the KISS principle: The whole script is contained within one file, which consists of easy to read bash code with many helpful comments. PacUI provides more functionality than pacli (except for a settings file and translations). PacUI does not require the use of the UI but can be used by terminal commands directly.
+This fork of an [older version of pacli](https://github.com/Manjaro-Pek/pacli/tree/f98e9226eb75ea00217481f436399328fe73d3ae) called PacUI follows the KISS principle: The whole script is contained within one file, which consists of easy to read bash code with many helpful comments. PacUI offers many more features over pacui in order to enhance comfort and speed of CLI based package management.
 
 
 Table of Contents
@@ -32,12 +32,12 @@ Table of Contents
 
 UI of PacUI:
 
-![Screenshot 01](https://s1.postimg.org/62lqgikhm7/image.png)
+![Screenshot 01](https://s14.postimg.org/ekwbm4a0h/pacui.png)
 
 
 Installing the package "cantata" from system repositories:
 
-![Screenshot 02](https://s1.postimg.org/17htzpbovz/pacui.gif)
+![Screenshot 02](https://s14.postimg.org/sekob7cwh/cantata.gif)
 
 
 ## Installation
@@ -54,13 +54,16 @@ yaourt -S pacui-git
 
 This will install PacUI including the latest commits on Github. If you ever encounter any bugs, please reinstall (and thereby update) PacUI with the this command and check whether the bug is still there before reporting it.
 
-Please note that PacUI requires also [Trizen](https://github.com/trizen/trizen), [Yay](https://github.com/Jguer/yay), [Yaourt](https://github.com/archlinuxfr/yaourt), or [Pacaur](https://github.com/rmarquis/pacaur) to work properly. All AUR helpers are only listed as optional dependencies, but you should install at least one of them! If more than one AUR helper is installed, they are used in the same order as listed above.
+Please note that PacUI optionally requires also [Trizen](https://github.com/trizen/trizen), [Yay](https://github.com/Jguer/yay), [Yaourt](https://github.com/archlinuxfr/yaourt), or [Pacaur](https://github.com/rmarquis/pacaur) to enable use of the AUR. If more than one AUR helper is installed, they are used in the same order as listed above.
 
 
 ### Execute without prior Installation
 Because PacUI is contained within one file, it is easy to download and start it without prior installation. Please remember to install PacUI's dependencies first for proper operation. Marking the "pacui" file as executable is essential, too:
 ```
 wget https://raw.githubusercontent.com/excalibur1234/pacui/master/pacui
+```
+```
+chmod +x pacui
 ```
 ```
 bash pacui

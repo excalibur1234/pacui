@@ -1119,7 +1119,7 @@ function func_fix
 
                 # 3. start NTP daemon, set the system clock, and quit
                 # 4. wait for 60 seconds (maximum time needed for system clock to set to new time)
-                # 5. write the time from system clock to hardare clock
+                # 5. write the time from system clock to hardware clock
                 sudo ntpd -qg && sleep 60 && sudo hwclock -w
                 echo ""
             fi
@@ -1824,7 +1824,7 @@ These two commands create a fresh key for you and import and (re-)install all ke
 
 \e[36m"echo 'keyring /etc/pacman.d/gnupg/pubring.gpg' >> $HOME/.gnupg/gpg.conf"
 There are 2 different places in Arch Linux and Manjaro to store keys: One place is used by Pacman and the other gets used by GPG.
-This command imports all keys for Pacman into GPG. This essentially means that the user trusts all Arch Linux Trusted Users and your distro's developers. After that, you will be able to install AUR packages from Arch Linux Trusted Users and your distro's developers without the need to import those keys manually.
+This command imports all keys for Pacman into GPG. This essentially means that the user trusts all Arch Linux Trusted Users and your distro's developers. After that, you will be able to install AUR packages from Arch Linux Trusted Users and your distro's developers without the need to import those keys (again) manually.
 
 \e[36m"sudo pacman -Sc"
 After an unseccessful attempt to update your system (which quits with a key error), you might have already downloaded unsigned (or wrongly signed) packages to your Pacman cache. These packages cannot be installed anymore.
