@@ -162,7 +162,7 @@ function func_u
                 # extract mirror/repository server url from /etc/pacman.d/mirrorlist file:
                 server=$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" | awk '{print $3}' )
 
-                echo -e '\e[41m Either there is something wrong with your internet connection or with your mirror/repository server: "$server" \e[0m'
+                echo -e "\e[41m Either there is something wrong with your internet connection or with your mirror/repository server: $server \e[0m"
                 echo -e "\e[1;41m Please make sure both are ok and rerun this part of PacUI! \e[0m"
                 echo -e ""
 
@@ -1079,7 +1079,7 @@ function func_fix
             server=$( grep "^Server =" -m 1 /etc/pacman.d/mirrorlist | awk '{print $3}' )
 
             echo
-            echo -e '\e[41m Either there is something wrong with your internet connection or with your mirror/repository server: "$server" \e[0m'
+            echo -e "\e[41m Either there is something wrong with your internet connection or with your mirror/repository server: $server \e[0m"             # writing the $server variables in quotes (" or ') does not work! using ' for echo command does not work either!
             echo -e "\e[1;41m Please make sure both are ok and rerun this part of PacUI! \e[0m"
             echo
 
