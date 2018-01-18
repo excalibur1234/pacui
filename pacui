@@ -1111,15 +1111,15 @@ function func_fix
                 echo ""
 
 
-                # 2. download and install networkmanager-dispatcher-ntpd:
-                echo "installing networkmanager-dispatcher-ntpd ..."
-                sudo pacman -Sy networkmanager-dispatcher-ntpd --noconfirm
+                # 2. download and install ntp:
+                echo "installing ntp ..."
+                sudo pacman -Sy ntp --noconfirm
                 echo ""
 
 
-                # 3. start NTP daemon, set the system clock, and quit
+                # 3. start NTP daemon and set system clock
                 # 4. wait for 60 seconds (maximum time needed for system clock to set to new time)
-                # 5. write the time from system clock to hardware clock
+                # 5. write time from system clock to hardware clock
                 sudo ntpd -qg && sleep 60 && sudo hwclock -w
                 echo ""
             fi
@@ -1261,6 +1261,7 @@ function func_c
         [[ -e /etc/systemd/timesyncd.conf ]]            && echo -e "/etc/systemd/timesyncd.conf                                                                                                                                                                                                                                      Configure systemd-timesyncd in file:" >> ${pacui_config}
         [[ -e /etc/systemd/user.conf ]]                 && echo -e "/etc/systemd/user.conf                                                                                                                                                                                                                                           Configure systemd user units in file:" >> ${pacui_config}
         [[ -e /usr/lib/systemd/system  ]]               && echo -e "/usr/lib/systemd/system/                                                                                                                                                                                                                                         Configure one of these systemd files:" >> ${pacui_config}
+        [[ -e /usr/lib/systemd/network  ]]              && echo -e "/usr/lib/systemd/network/                                                                                                                                                                                                                                        Configure one of these systemd-networkd files:" >> ${pacui_config}
         [[ -e /etc/X11/xorg.conf.d ]]                   && echo -e "\e[31m/etc/X11/xorg.conf.d/                                                                                                                                                                                                                                      Configure one of these Xorg display server files:\e[0m" >> ${pacui_config}
         [[ -e $HOME/.config/weston.ini ]]               && echo -e "$HOME/.config/weston.ini                                                                                                                                                                                                                                         Configure Weston compositor in file:" >> ${pacui_config}
         [[ -e /usr/lib/sysctl.d ]]                      && echo -e "/usr/lib/sysctl.d/                                                                                                                                                                                                                                               Configure one of these kernel parameter files at runtime:" >> ${pacui_config}
@@ -1795,11 +1796,11 @@ This command disables the signature key check of packages by Pacman.
 This command stops (temporarily) the Network Time Protocol daemon service NTPD (if it is installed and running). In case NTPD is not installed, the output is ignored.
 This is the first command of a series of commands, which try to set the system and hardware clock on your computer (ignoring time zone and daylight saving time). An (almost) correct system time is needed for checking and importing keys or fingerprints later on in the fixing process!
 
-\e[36m"sudo pacman -Sy networkmanager-dispatcher-ntpd"
-This command (re-)installs the "networkmanager-dispatcher-ntpd" package. PacUI actually does not use this command but instead downloads and installs this package manually in order to bypass key database and key chain errors.
-\e[1mAttention\e[0m: PacUI will fail if you cannot install any packages on your system anymore due to key database and key chain errors AND "networkmanager-dispatcher-ntpd" was not installed on your system before. As long as your system clock is set (almost) correct, you do not have to worry about it. But if your system clock is set completely wrong AND you cannot install any packages on your system anymore AND "networkmanager-dispatcher-ntpd" was not installed on your system before, you have to set your system clock manually before you run PacUIs "fix" command. You can do this with the following command:
+\e[36m"sudo pacman -Sy ntp"
+This command (re-)installs the "ntp" package. PacUI actually does not use this command but instead downloads and installs this package manually in order to bypass key database and key chain errors.
+\e[1mAttention\e[0m: PacUI will fail if you cannot install any packages on your system anymore due to key database and key chain errors AND "ntp" was not installed on your system before. As long as your system clock is set (almost) correct, you do not have to worry about it. But if your system clock is set completely wrong AND you cannot install any packages on your system anymore AND "ntp" was not installed on your system before, you have to set your system clock manually before you run PacUIs "fix" command. You can do this with the following command:
 sudo timedatectl set-time "yyyy-MM-dd hh:mm:ss"
-( example: sudo timedatectl set-time "2016-05-26 11:13:54" )
+( example: sudo timedatectl set-time "2018-01-26 11:13:54" )
 
 \e[36m"sudo ntpd -qg && sleep 60 && sudo hwclock -w"
 The first command starts the just (re-)installed Network Time Protocol daemon (ntpd.service). Next, your system clock is set. Finally, the ntpd.service is quit.
