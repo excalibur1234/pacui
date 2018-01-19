@@ -1096,9 +1096,9 @@ function func_fix
             echo -e "Lowering pacman securities (In case keyring is broken) ..."
             # This command will edit /etc/pacman.conf, and replaces all "SigLevel =" strings with "SigLevel = Never #":
             # general comment about "sed" usage in scripts: in order to avoid breakage, it is recommended to escape all the following characters /\.*[]^$ with a \ character!
-            sudo sed -i 's/SigLevel[ ]*=/SigLevel = Never #/' /etc/pacman.conf
+            sudo sed -i 's/SigLevel[ ]*=/SigLevel = Never #/' '/etc/pacman.conf'
             # if something goes wrong in the following code, the SigLevel is never raised back and we would mess on a user's system. THIS HAS TO BE PREVENTED! solution: use trap, which reverses our changes in /etc/pacman.conf file whenever pacui quits:
-            trap "sudo sed -i 's/SigLevel = Never #/SigLevel =/' /etc/pacman.conf" EXIT
+            trap "sudo sed -i 's/SigLevel = Never #/SigLevel =/' '/etc/pacman.conf'" EXIT
             echo ""
 
 
