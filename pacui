@@ -1509,7 +1509,7 @@ function func_a
             if [[ -e /usr/bin/trizen ]]
             then
 
-                trizen -Ss "$input2"
+                trizen "$input2"
 
             elif [[ -e /usr/bin/yay ]]
             then
@@ -1548,7 +1548,7 @@ function func_a
                 if [[ -e /usr/bin/trizen ]]
                 then
 
-                    trizen -Ss "$pkg"
+                    trizen "$pkg"
 
                 elif [[ -e /usr/bin/yay ]]
                 then
