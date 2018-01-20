@@ -1934,11 +1934,11 @@ EOF
 # instead, it shows "::editor variable unset".
 
 # check, whether pacaur is installed, user config file exists, $EDITOR variable is empty, "vi" is not installed:
-if [[ -e /usr/bin/pacaur ]] && [[ ! -e $XDG_CONFIG_HOME/pacaur/config ]] && [[ ! -n $EDITOR ]] && [[ ! -e /usr/bin/vi ]]
+if [[ -e /usr/bin/pacaur ]] && [[ ! -e $HOME/.config/pacaur/config ]] && [[ ! -n $EDITOR ]] && [[ ! -e /usr/bin/vi ]]
 then
     # export "editor='${EDITOR:-nano}'" to config file. '${EDITOR:-nano}'" outputs "nano", if there is no $EDITOR variable set.
-    mkdir -p "$XDG_CONFIG_HOME/pacaur/"
-    echo "editor='${EDITOR:-nano}'" >> "$XDG_CONFIG_HOME/pacaur/config"
+    mkdir -p "$HOME/.config/pacaur/"
+    echo "editor='${EDITOR:-nano}'" >> "$HOME/.config/pacaur/config"
 fi
 
 
