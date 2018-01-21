@@ -265,7 +265,12 @@ function func_m
 
 
         echo "checking consistency of local repository ..."
-        pacman -Dk
+        # check, whether "pacman -Dk" command finishes with errors, but do not output anything when this command runs with "&>/dev/null"
+        if ! ( pacman -Dk &>/dev/null )
+        then
+            echo -e "\e[1mThe following inconsistencies have been found in your local packages: \e[0m"
+            pacman -Dk
+        fi
         echo ""
 
 
