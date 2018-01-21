@@ -1344,7 +1344,7 @@ function func_c
             then
                 # the sudoers file should never be edited directly! if something goes wrong, sudo stops working. instead, visudo should be used. this is much safer.
                 sudo EDITOR=nano visudo
-            elif [[ "$file" == "/etc/pacman.d/mirrorlist" ]] || [[ "$file" == "/etc/pacman-mirrors.conf" ]]
+            elif [[ "$file" == "/etc/pacman.d/mirrorlist" ]] || [[ "$file" == "/etc/pacman-mirrors.conf" ]] || [[ "$file" == "/etc/pacman.conf" ]]
             then
                 # if $EDITOR variable does not exist, set it to 'nano'
                 [[ -z "$EDITOR" ]] && EDITOR='nano'
