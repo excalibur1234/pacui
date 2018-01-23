@@ -256,6 +256,7 @@ function func_m
         echo ""
 
 
+        echo "checking symlinks ..."
         if [[ -n $(sudo find -xtype l) ]]                                           # only run, if output of "sudo find -xtype l -print" is not empty
         then
             echo -e "\e[1mThe following symbolic links are broken, please fix them manually:\e[0m"
@@ -1355,7 +1356,7 @@ function func_c
                 [[ -z "$EDITOR" ]] && EDITOR='nano'
                 # open "file" in "EDITOR": (attention: "$file" (including " symbols) does NOT WORK!!!)
                 sudo $EDITOR "$file"
-                sudo pacman -Syy                                                    # apply changes
+                sudo pacman -Syyuu                                                  # apply changes
             elif [[ "$file" == "/etc/fstab" ]] || [[ "$file" == "/etc/crypttab" ]]
             then
                 # if $EDITOR variable does not exist, set it to 'nano'
