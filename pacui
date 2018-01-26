@@ -1,5 +1,4 @@
-
-#!/usr/bin/env bash
+#!/usr/bin/env bash 
 
 #  This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as
 #  published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
@@ -34,7 +33,7 @@ set -o pipefail                                                                 
 
 # bug #1 and #3:
 # "pacui --pacui_clean" helper function. this function is only called from within pacui.
-function pacui_clean
+function pacui_clean 
 {
         if ( tty | grep tty &>/dev/null )                                           # check, whether output of "tty" contains the string "tty". this is TRUE, if pacui is used within a tty.
         then
@@ -62,7 +61,7 @@ function pacui_clean
 
 # Update System
 # this core functionality of "Update System" (note the bold "U") can be started in the terminal using "pacui u". the help page provides additional explanations.
-function func_u
+function func_u 
 {
         # define local variable, which indicates whether the installation process was successful or not.
         local install_successful
@@ -145,8 +144,8 @@ function func_u
                     # now, we are sure there is an active connection to the server/mirror/repository and package updates from there have failed. in this case, we can offer the user to forcefully install updates:
                     local answer
                     # ask, whether to force update the system and save answer in "answer" variable:
-                    echo -e "\e[1mUpdates from system repositories have failed because of file conflicts. \e[0m"
-                    echo -e "\e[1mDo you want to forcefully overwrite all conflicting files? [y|N] \e[0m"
+                    echo -e " \e[1m Updates from system repositories have failed because of file conflicts. \e[0m"
+                    echo -e " \e[41m Do you want to forcefully overwrite all conflicting files? [y|N] \e[0m"
                     read -s -n1 answer                                              # this "read" command only accepts 1 letter as answer. this feels faster and is enough in this situation.
 
                     case ${answer:-n} in                                            # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "n".
@@ -154,7 +153,7 @@ function func_u
                             sudo pacman -Syu --force --color always
                             ;;
                         * )                                                         # do this in all other cases
-                            echo "Packages have not been updated."
+                            echo " \e[1m Packages have not been updated.\e[0m"
                             ;;
                     esac
 
@@ -168,8 +167,8 @@ function func_u
                 # extract mirror/repository server url from /etc/pacman.d/mirrorlist file:
                 server=$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" | awk '{print $3}' )
 
-                echo -e "\e[41m Either there is something wrong with your internet connection or with your mirror/repository server: $server \e[0m"
-                echo -e "\e[1;41m Please make sure both are ok and rerun this part of PacUI! \e[0m"
+                echo -e " \e[41m Either there is something wrong with your internet connection or with your mirror/repository server: $server \e[0m"
+                echo -e " \e[1;41m Please make sure both are ok and rerun this part of PacUI! \e[0m"
                 echo -e ""
 
             fi
@@ -180,7 +179,7 @@ function func_u
 
 # "pacui --diff" helper function
 # this function is not called by pacui or pacui's UI directly. instead, it gets called in func_c (using "pacui --diff") when no DIFFPROG evironment variable is found. it provides simple file difference viewer functionality and is essentially a wrapper around the GNU program "diff". therefore, this function expects 2 arguments!
-function func_diff
+function func_diff 
 {
         # $(( ... )) does arithmetic evaluation. always use this when dealing with numbers, instead of strings - $[[ ... ]] does sting evaluation!
         local {temp,temp2,temp3}                                                    # define local variables - these variables will be automatically deleted after the function is finished/exited.
@@ -200,12 +199,12 @@ function func_diff
 
 # Maintain System
 # this core functionality of "Maintain System" (note the bold "M") can be started in the terminal using "pacui m". it is separated into multiple parts. most parts begin (or contain) an "echo" command, which explains what is being done. the help page explains the core functionality of every part in detail, too.
-function func_m
+function func_m 
 {
         # check for "pacman-mirrors" or "reflector" packages. one of those is needed!
         if [[ -e /usr/bin/pacman-mirrors ]] || [[ -e /usr/bin/reflector ]]
         then
-            echo "choosing fastest mirror (which can take a while) ..."
+            echo " choosing fastest mirror (which can take a while) ..."
             if [[ -e /usr/bin/pacman-mirrors ]]                                         # checks, whether file "pacman-mirrors" exists
             then
                 sudo pacman-mirrors -f 0 && sudo pacman -Syy                            # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
@@ -217,7 +216,7 @@ function func_m
         fi
 
 
-        echo "searching orphans ..."
+        echo " searching orphans ..."
         if [[ -e /usr/bin/yay ]]
         then
 
@@ -235,13 +234,13 @@ function func_m
 
                 pacman -Qdt --color always
                 # ask, whether to remove the displayed orphaned packages and save answer in "answer" variable:
-                read -p $'\e[1mDo you want to remove these orphaned packages? [Y|n]\e[0m' answer
+                read -p $' \e[41m Do you want to remove these orphaned packages? [Y|n] \e[0m' answer
                 case ${answer:-y} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "y".
                     y|Y|yes|YES|Yes )                                               # do this, if "answer" is y or Y or yes or YES or Yes
                         sudo pacman -Rsn $(pacman -Qqdt) --color always --noconfirm
                         ;;
                     * )                                                             # do this in all other cases
-                        echo "Packages have not been removed."
+                        echo " \e[1m Packages have not been removed.\e[0m"
                         ;;
                 esac                                                                # end of "case" loop
 
@@ -251,7 +250,7 @@ function func_m
         echo ""
 
 
-        echo "sudo pacdiff ..."
+        echo " sudo pacdiff ..."
         set +u                                                                      # disable strict mode for environment variables
         if [[ -n $DIFFPROG ]]                                                       # this if-condition avoids error message when $DIFFPROG is not set/empty
         then
@@ -264,20 +263,20 @@ function func_m
         echo ""
 
 
-        echo "checking symlinks ..."
+        echo " checking symlinks ..."
         if [[ -n $(sudo find -xtype l) ]]                                           # only run, if output of "sudo find -xtype l -print" is not empty
         then
-            echo -e "\e[1mThe following symbolic links are broken, please fix them manually:\e[0m"
+            echo -e " \e[41m The following symbolic links are broken, please fix them manually: \e[0m"
             sudo find -xtype l
         fi
         echo ""
 
 
-        echo "checking consistency of local repository ..."
+        echo " checking consistency of local repository ..."
         # check, whether "pacman -Dk" command finishes with errors, but do not output anything when this command runs with "&>/dev/null"
         if ! ( pacman -Dk &>/dev/null )
         then
-            echo -e "\e[1mThe following inconsistencies have been found in your local packages: \e[0m"
+            echo -e " \e[41m The following inconsistencies have been found in your local packages: \e[0m"
             pacman -Dk
         fi
         echo ""
@@ -285,7 +284,7 @@ function func_m
 
         if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]
         then
-            echo "checking AUR packages ..."
+            echo " checking AUR packages ..."
             # download AUR package list (only when not already downloaded) to /tmp/aur/packages.gz.
             if  [[ ! -e /tmp/aur/packages.gz ]]
             then
@@ -305,8 +304,8 @@ function func_m
                 # only run the command inside the if-statement, if $pkg variable is not empty
                 if [[ -n $pkg ]]
                 then
-                    echo -e "\e[1mThe following packages are neither in your package repository nor the AUR. They will never be updated. \e[0m"
-                    echo -e "\e[1mUnless you know exactly what you are doing, it is recommended to remove them: \e[0m"
+                    echo -e " \e[1m The following packages are neither in your package repository nor the AUR. They will never be updated. \e[0m"
+                    echo -e " \e[41m Unless you know exactly what you are doing, it is recommended to remove these packages: \e[0m"
                     echo "$pkg"
                     echo ""
                 fi
@@ -318,14 +317,14 @@ function func_m
 
         if [[ $(cat /proc/1/comm) == "systemd" ]]                                   # if init system is systemd
         then
-            echo "cleaning systemd log files ..."
+            echo " cleaning systemd log files ..."
             # limit logs in journalctl to an age of 30 days and a combined size of 50mb
             sudo journalctl --vacuum-size=50M --vacuum-time=30days
         fi
         echo ""
 
 
-        echo "cleaning package cache ..."
+        echo " cleaning package cache ..."
         # remove all packages, which are not installed on this system, except the latest verions (this is a back up, in case somebody removes networkmanager)
         sudo paccache -rvu -k 1
         echo ""
@@ -346,14 +345,14 @@ function func_m
             if [[ $(cat "$( find "/sys" -name "rotational" 2>/dev/null | grep "$disk/queue" )" ) == "1" ]]
             then
             # only execute the following line when your / parition is installed on a hard drive.
-            echo "sudo pacman-optimize ..."
+            echo " sudo pacman-optimize ..."
             sudo pacman-optimize
             echo ""
             fi
         fi
 
 
-        echo "checking installed kernels ..."
+        echo " checking installed kernels ..."
         local {installed_kernels,available_kernels,eol_kernels}                                                                                         # declare local variables
         installed_kernels=$( for p in $( command ls -1 /boot | grep -E '^vmlinuz' ) ; do pacman -Qqo /boot/$p ; done | sort -u )                        # filter installed kernels from boot sector and determine, which package owns that file. this yields the package name of all installed kernels (including kernels from the AUR).
         available_kernels=$( for p in $( echo "$installed_kernels" ) ; do pacman -Ssq "^$p$" ; done | sort -u )                                         # Check if installed kernels available in repositories and forward it to available_kernels variable.
@@ -362,10 +361,10 @@ function func_m
         if [[ -n "$eol_kernels" ]]
         then
             echo
-            echo -e "\e[1mThe following Linux kernel(s) are no longer available in your repositories. \e[0m"
-            echo -e "\e[1mDo not expect any security or stability fixes for the(se) kernel(s) anymore. \e[0m"
-            echo -e "\e[1mKernel modules are likely to break. It is recommended to remove the kernel(s).\e[0m"
-            echo -e "\e[1mIf one or more of the following kernel(s) are taken from AUR, you may safely ignore this warning. \e[0m"
+            echo -e " \e[41m The following Linux kernel(s) are no longer available in your repositories. \e[0m"
+            echo -e " \e[1m Do not expect any security or stability fixes for the(se) kernel(s) anymore. \e[0m"
+            echo -e " \e[1m Kernel modules are likely to break. It is recommended to remove the kernel(s).\e[0m"
+            echo -e " \e[1m If one or more of the following kernel(s) are taken from AUR, you may safely ignore this warning. \e[0m"
             echo "$eol_kernels"
         fi
         echo ""
@@ -374,7 +373,7 @@ function func_m
 
 # Install Packages
 # this core functionality of "Install Packages" (note the bold "i") can be started in the terminal using "pacui i". the help page provides additional explanations.
-function func_i
+function func_i 
 {
         local {pacui_list_install,pkg}                                              # declare local variables
 
@@ -472,7 +471,7 @@ function func_i
 
 # Remove Packages
 # this core functionality of "Remove Packages" (note the bold "r") can be started in the terminal using "pacui r". the help page provides additional explanations.
-function func_r
+function func_r 
 {
         # write package list of local repository to /tmp/pacui-packages-group. then add all installed package groups to the bottom.
         #pacman -Qq | tr -d " " > /tmp/pacui-packages-group
@@ -513,18 +512,18 @@ function func_r
 
                 # now, "sudo pacman -Rsn $pkg_remove --color always" has failed. this means that a dependency was selected. Print error message below the error output of pacman.
                 echo
-                echo -e "\e[1mPackage removal has failed. Most likely you have tried to remove a dependency.\e[0m"
+                echo -e " \e[1m Package removal has failed. Most likely you have tried to remove a dependency.\e[0m"
                 echo
-                echo -e "\e[1mDo you want to forcefully remove all selected packages anyway? [y|N]\e[0m"
-                echo -e "\e[1mChoose one of the following options: \e[0m"
+                echo -e " \e[41m  Do you want to forcefully remove all selected packages anyway? [y|N] \e[0m"
+                echo -e " \e[1m Choose one of the following options: \e[0m"
                 echo
-                echo -e "\e[1;31m  y    Forcefully remove package(s) without checking their dependencies first. \e[0m"
-                echo -e "\e[1;31m       Attention: This command can break packages on your system or even your entire system. \e[0m"
+                echo -e "\e[1;31m   y    Forcefully remove package(s) without checking their dependencies first. \e[0m"
+                echo -e "\e[1;31m        Attention: This command can break packages on your system or even your entire system. \e[0m"
                 echo
-                echo -e "\e[1m  N    Try again. \e[0m"
-                echo -e "\e[1m       Read the error message(s) above carefully and try not to select dependencies next time. \e[0m"
+                echo -e "\e[1m   N    Try again. \e[0m"
+                echo -e "\e[1m        Read the error message(s) above carefully and try not to select dependencies next time. \e[0m"
                 echo
-                echo -e "\e[1m  ESC  Exit without removing any packages. \e[0m"
+                echo -e "\e[1m   ESC  Exit without removing any packages. \e[0m"
                 echo
                 # save answer in "answer" variable:
                 read -s -n1 answer
@@ -579,8 +578,8 @@ function func_r
 
                                 # b) Print error message. the user can read all error messages (of pacman) and decide what to do next.
                                 echo
-                                echo -e "\e[1mPackage removal failed because at least one dependency was selected.\e[0m"
-                                echo -e "\e[1mPress ENTER to try again or CTRL+C to quit.\e[0m"
+                                echo -e " \e[41m  Package removal failed because at least one dependency was selected. \e[0m"
+                                echo -e " \e[1m Press ENTER to try again or CTRL+C to quit. \e[0m"
                                 read
                                 # now, start at the top of the while-loop again...
                             else
@@ -592,7 +591,7 @@ function func_r
                         ;;
 
                     * )                                                             # do this in all other cases
-                        echo "No input recognized. Remove process has been cancelled."
+                        echo " \e[1m No input recognized. Remove process has been cancelled. \e[0m"
                         ;;
 
                 esac
@@ -604,7 +603,7 @@ function func_r
 
 # Dependency Tree
 # this core functionality of "Dependency Tree" (note the bold "t") can be started in the terminal using "pacui t". the help page provides additional explanations.
-function func_t
+function func_t 
 {
         # write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
         #pacman -Slq | tr -d " " > /tmp/pacui-packages-local
@@ -660,7 +659,7 @@ function func_t
 
 # Reverse Dependency Tree
 # this core functionality of "Reverse Dependency Tree" (note the bold "r" and "t") can be started in the terminal using "pacui rt". the help page provides additional explanations.
-function func_rt
+function func_rt 
 {
         pacui_clean                                                                 # clear terminal
 
@@ -689,7 +688,7 @@ function func_rt
 
 # List Package Files
 # this core functionality of "List Package Files" (note the bold "l") can be started in the terminal using "pacui l". the help page provides additional explanations.
-function func_l
+function func_l 
 {
         # write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
         #pacman -Slq | tr -d " " > /tmp/pacui-packages-local
@@ -746,7 +745,7 @@ function func_l
 
 # Search Package Files
 # this core functionality of "Search Package Files" (note the bold "s") can be started in the terminal using "pacui s". the help page provides additional explanations.
-function func_s
+function func_s 
 {
         # define local variables - all get deleted automatically when the function is exited
         local file
@@ -757,8 +756,8 @@ function func_s
             file=$"$input2"
         else
             # do this if pacui is used with UI or no argument is specified in "pacui s" command:
-            echo -e "\e[1mEnter (parts of) the file name to be searched. Press ENTER to start search. \e[0m"
-            echo -e "\e[1mUsing regular expressions can narrow the search result dramatically: \e[0m"
+            echo -e " \e[41m Enter (parts of) the file name to be searched. Press ENTER to start search. \e[0m"
+            echo -e " \e[1m Using regular expressions can narrow the search result dramatically: \e[0m"
             read -r file
             echo
         fi
@@ -823,7 +822,7 @@ function func_s
 
 # Roll Back System
 # this core functionality of "Roll Back System" (note the bold "b") can be started in the terminal using "pacui b". the help page provides additional explanations.
-function func_b
+function func_b 
 {
         # declare local variables
         local {cache,cachePACAUR,pkgR,pkgI,pkgD,pkgU,line,temp1,temp2,temp3,pacui_cache_packages,pacui_cache_install,pacui_cache_downgrade,pacui_cache_downgrade_counted,pacui_tmp_downgrade,pacui_aur_install,pacui_install,pacui_downgrade,pacui_cache_upgrade,pacui_cache_upgrade_counted,pacui_tmp_upgrade,pacui_upgrade}
@@ -1061,9 +1060,9 @@ function func_b
 
 # Fix Pacman Errors
 # this core functionality of "Fix Pacman Errors" (note the bold "fix") can be started in the terminal using "pacui fix". it is separated into multiple parts. most parts begin (or contain) an introcing "echo" command or comment, which explains what is being done. the help page explains the core functionality of every part in detail, too.
-function func_fix
+function func_fix 
 {
-        echo "removing pacman database lock ..."
+        echo " removing pacman database lock ..."
         if [[ -e /var/lib/pacman/db.lck ]]
         then
             sudo unlink /var/lib/pacman/db.lck
@@ -1073,7 +1072,7 @@ function func_fix
         # check for "pacman-mirrors" or "reflector" packages. one of those is needed!
         if [[ -e /usr/bin/pacman-mirrors ]] || [[ -e /usr/bin/reflector ]]
         then
-            echo "fixing mirrors (which can take a while) ..."
+            echo " fixing mirrors (which can take a while) ..."
             # do this, if system uses pacman-mirrors (default in Manjaro)
             if [[ -e /usr/bin/pacman-mirrors ]]
             then
@@ -1099,21 +1098,21 @@ function func_fix
             server=$( grep "^Server =" -m 1 /etc/pacman.d/mirrorlist | awk '{print $3}' )
 
             echo
-            echo -e "\e[41m Either there is something wrong with your internet connection or with your mirror/repository server: $server \e[0m"             # writing the $server variables in quotes (" or ') does not work! using ' for echo command does not work either!
-            echo -e "\e[1;41m Please make sure both are ok and rerun this part of PacUI! \e[0m"
+            echo -e " \e[41m Either there is something wrong with your internet connection or with your mirror/repository server: $server \e[0m"             # writing the $server variables in quotes (" or ') does not work! using ' for echo command does not work either!
+            echo -e " \e[1;41m Please make sure both are ok and rerun this part of PacUI! \e[0m"
             echo
 
         else
 
             # the following command sometimes prevents an error connecting to the key server
             echo
-            echo "sudo dirmngr </dev/null ..."
+            echo " sudo dirmngr </dev/null ..."
             sudo dirmngr </dev/null
             echo
 
 
             # "SigLevel = Never" in pacman.conf lets us download and install ALL packages, even if the keyring is broken!
-            echo -e "Lowering pacman securities (In case keyring is broken) ..."
+            echo -e " Lowering pacman securities (In case keyring is broken) ..."
             # This command will edit /etc/pacman.conf, and replaces all "SigLevel =" strings with "SigLevel = Never #":
             # general comment about "sed" usage in scripts: in order to avoid breakage, it is recommended to escape all the following characters /\.*[]^$ with a \ character!
             sudo sed -i 's/SigLevel[ ]*=/SigLevel = Never #/' '/etc/pacman.conf'
@@ -1126,13 +1125,13 @@ function func_fix
             then
                 # set almost correct time (while ignoring time zone and daylight saving time):
                 # 1. stop running NTPD service (and ignore output in case NTPD is not installed):
-                echo "sudo systemctl stop ntpd.service ..."
+                echo " sudo systemctl stop ntpd.service ..."
                 sudo systemctl stop ntpd.service &>/dev/null
                 echo ""
 
 
                 # 2. download and install ntp:
-                echo "installing ntp ..."
+                echo " installing ntp ..."
                 sudo pacman -Sy ntp --noconfirm
                 echo ""
 
@@ -1146,24 +1145,24 @@ function func_fix
 
 
             # remove gnupg including all keys
-            echo "sudo rm -r /etc/pacman.d/gnupg ..."
+            echo " sudo rm -r /etc/pacman.d/gnupg ..."
             sudo rm -r /etc/pacman.d/gnupg &>/dev/null
             echo ""
 
 
             # reinstall gnupg (without keys)
-            echo "Installing gnupg ..."
+            echo " installing gnupg ..."
             sudo pacman -Sy gnupg --noconfirm
             echo ""
 
 
-            echo "Installing all necessary keyrings ..."
+            echo " installing all necessary keyrings ..."
             # This command will install all keyrings from avialable current repository
             sudo pacman -Sy $( pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | paste -sd " " ) --noconfirm
             echo ""
 
 
-            echo "Raising pacman securities back ..."
+            echo " raising pacman securities back ..."
             # This command will revert the change from above
             sudo sed -i 's/SigLevel = Never #/SigLevel =/' /etc/pacman.conf
             # now, the trap is longer needed. reset trap:
@@ -1171,7 +1170,7 @@ function func_fix
             echo ""
 
 
-            echo "initializing and populating keyring ..."
+            echo " initializing and populating keyring ..."
             sudo pacman-key --init && echo "" && sudo pacman-key --populate $(pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | sed 's/-keyring//' | paste -sd " " )
             echo ""
 
@@ -1182,7 +1181,7 @@ function func_fix
                 if ! ( grep "/etc/pacman.d/gnupg/pubring.gpg" "$HOME/.gnupg/gpg.conf" &>/dev/null )             # check, whether string "/etc/pacman.d/gnupg/pubring.gpg" is already present in file "$HOME/.gnupg/gpg.conf".
                 then
 
-                    echo "preventing confusing key errors ..."
+                    echo " preventing confusing key errors ..."
 
                     # sometimes, people get a "missing key" error about keys they have already installed. this can be confusing
                     # automatically trust all keys from arch linux trusted users (and manjaro developers) - both for packages from the repositories and packages fom the AUR.
@@ -1196,7 +1195,7 @@ function func_fix
             fi
 
 
-            echo "cleaning pacman cache ..."
+            echo " cleaning pacman cache ..."
             # if keyring was broken, all non-installed (and potentially newer) packages cannot be manually installed anymore, because of key mismatch. solution: delete all non-installed packages from cache.
             sudo pacman -Sc --noconfirm
             echo ""
@@ -1204,14 +1203,14 @@ function func_fix
 
             if [[ $(cat /proc/1/comm) == "systemd" ]]                               # if init system is systemd
             then
-                echo "updating systemd first..."
+                echo " updating systemd first..."
                 # updating systemd first sometimes solves update problems
                 sudo pacman -S --needed --noconfirm systemd libsystemd systemd-sysvcompat && sleep 30
                 echo ""
             fi
 
 
-            echo "updating core system ..."
+            echo " updating core system ..."
             sudo pacman -Syyuu --color always --noconfirm
             echo ""
             sudo pacman -Suu --color always
@@ -1224,7 +1223,7 @@ function func_fix
 
 # Edit Config Files
 # this core functionality of "Edit Config Files" (note the bold "c") can be started in the terminal using "pacui c". the help page provides additional explanations.
-function func_c
+function func_c 
 {
         # here, it is impossible to use variables instead of temporary files. therefore, the temporary files should be as tamper-proof as possible.
         # Create temp file with mktemp command (Important for security). the XXXXXXXX indicates numbers assigned by "mktemp" command.
@@ -1404,7 +1403,7 @@ function func_c
 
 # List Packages by Size
 # this core functionality of "List Packages by Size" (note the bold "l" and "s") can be started in the terminal using "pacui ls". the help page provides additional explanations.
-function func_ls
+function func_ls 
 {
         pacui_clean                                                                 # clear terminal
 
@@ -1424,7 +1423,7 @@ function func_ls
 
 # Force Update AUR
 # this core functionality of "Force Update AUR" (note the bold "u" and "a") can be started in the terminal using "pacui ua". the help page provides additional explanations.
-function func_ua
+function func_ua 
 {
         if [[ -e /usr/bin/trizen ]]
         then
@@ -1448,11 +1447,11 @@ function func_ua
 
         else
 
-            echo -e "\e[1mNo AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
-            echo -e "\e[1m  trizen \e[0m"
-            echo -e "\e[1m  yay \e[0m"
-            echo -e "\e[1m  yaourt \e[0m"
-            echo -e "\e[1m  pacaur \e[0m"
+            echo -e " \e[41m No AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
+            echo -e " \e[1m  trizen \e[0m"
+            echo -e " \e[1m  yay \e[0m"
+            echo -e " \e[1m  yaourt \e[0m"
+            echo -e " \e[1m  pacaur \e[0m"
 
         fi
 }
@@ -1460,7 +1459,7 @@ function func_ua
 
 # List Installed from AUR
 # this core functionality of "List Installed from AUR" (note the bold "l" and "a") can be started in the terminal using "pacui la". the help page provides additional explanations.
-function func_la
+function func_la 
 {
         pacui_clean                                                                 # clear terminal
 
@@ -1481,13 +1480,13 @@ function func_la
 
 # Downgrade Packages
 # this core functionality of "Downgrade Packages" (note the bold "d") can be started in the terminal using "pacui d". the help page provides additional explanations.
-function func_d
+function func_d 
 {
         # check for "downgrade" package
         if [[ ! -e /usr/bin/downgrade ]]
         then
 
-            echo -e "\e[1mNo 'downgrade' package has been found. Please install it. Alternatively, use PacUI's 'Roll Back System' option. \e[0m"
+            echo -e " \e[41m No 'downgrade' package has been found. Please install it. Alternatively, use PacUI's 'Roll Back System' option. \e[0m"
 
         else
 
@@ -1518,7 +1517,7 @@ function func_d
 
 # Search + Install from AUR
 # this core functionality of "Search + Install from AUR" (note the bold "a") can be started in the terminal using "pacui a". the help page provides additional explanations.
-function func_a
+function func_a 
 {
          local pkg
 
@@ -1548,11 +1547,11 @@ function func_a
 
             else
 
-                echo -e "\e[1mNo AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
-                echo -e "\e[1m  trizen \e[0m"
-                echo -e "\e[1m  yay \e[0m"
-                echo -e "\e[1m  yaourt \e[0m"
-                echo -e "\e[1m  pacaur \e[0m"
+                echo -e " \e[41m No AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
+                echo -e " \e[1m  trizen \e[0m"
+                echo -e " \e[1m  yay \e[0m"
+                echo -e " \e[1m  yaourt \e[0m"
+                echo -e " \e[1m  pacaur \e[0m"
 
             fi
 
@@ -1562,7 +1561,7 @@ function func_a
             then
 
                 # do this if pacui is used with UI or no argument is specified in "pacui a" command:
-                echo "Enter (parts of) name and/or description of package to be searched. Then press ENTER."
+                echo -e " \e[41m Enter (parts of) name and/or description of package to be searched. Then press ENTER. \e[0m"
                 read -r pkg
 
                 if [[ -e /usr/bin/trizen ]]
@@ -1589,11 +1588,11 @@ function func_a
 
             else
 
-                echo -e "\e[1mNo AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
-                echo -e "\e[1m  trizen \e[0m"
-                echo -e "\e[1m  yay \e[0m"
-                echo -e "\e[1m  yaourt \e[0m"
-                echo -e "\e[1m  pacaur \e[0m"
+                echo -e " \e[41m No AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
+                echo -e " \e[1m  trizen \e[0m"
+                echo -e " \e[1m  yay \e[0m"
+                echo -e " \e[1m  yaourt \e[0m"
+                echo -e " \e[1m  pacaur \e[0m"
 
             fi
 
@@ -1606,7 +1605,7 @@ function func_a
 
 # Help
 # this core functionality of "Help" (note the bold "h") can be started in the terminal using "pacui h". when the UI is opened, it can also be started using "h" or "help" or "00". the help page provides additional explanations.
-function func_h
+function func_h 
 {
         # the "then" part of this if-statement is displayed, when started directly from terminal (the last function calls func_h with the "1" parameter). the "else" part gets displayed when started from UI.
         if [[ "${1:-}" == "1" ]]                                                        # check, whether func_h got started with the parameter "1"
@@ -2006,7 +2005,7 @@ then
     unset input2
 
     # error, if $input does not refer to a valid function. the UI will be started by default.
-    echo -e "Bad console command. Press ENTER to start PacUI or CTRL+C to abort."
+    echo -e " \e[41m Bad console command. Press ENTER to start PacUI or CTRL+C to abort. \e[0m"
     read
     # now, continue this script without exiting.
 
@@ -2060,26 +2059,26 @@ do
         1|u|update )                                                                # the following commands will get executed if $choice is "1" or "u" or "update" until a code line containing only ";;" is encountered
             func_u                                                                  # call function "func_u"
             echo
-            echo " System updated. To return to PacUI press ENTER "
+            echo -e " \e[41m System updated. To return to PacUI press ENTER \e[0m"
             # wait for input, e.g. by pressing ENTER:
             read
             ;;
         2|m|maintain )
             func_m
             echo
-            echo " System maintenance finished. To return to PacUI press ENTER "
+            echo -e " \e[41m System maintenance finished. To return to PacUI press ENTER \e[0m"
             read
             ;;
         3|i|install )
             func_i
             echo
-            echo " Package installation finished. To return to PacUI press ENTER "
+            echo -e " \e[41m Package installation finished. To return to PacUI press ENTER \e[0m"
             read
             ;;
         4|r|remove )
             func_r
             echo
-            echo " Package(s) including all unneeded dependencies removed. To return to PacUI press ENTER "
+            echo -e " \e[41m Package(s) including all unneeded dependencies removed. To return to PacUI press ENTER \e[0m"
             read
             ;;
         5|t|tree )
@@ -2103,19 +2102,19 @@ do
         9|b|back )
             func_b
             echo
-            echo " System roll back finished. To return to PacUI press ENTER "
+            echo -e " \e[41m System roll back finished. To return to PacUI press ENTER \e[0m"
             read
             ;;
         10|fix )
             func_fix
             echo
-            echo " Operation finished. To return to PacUI press ENTER "
+            echo -e " \e[41m Operation finished. To return to PacUI press ENTER \e[0m"
             read
             ;;
         11|c|conf|config )
             func_c
             echo
-            echo " Configuration files edited. To return to PacUI press ENTER "
+            echo -e " \e[41m Configuration files edited. To return to PacUI press ENTER \e[0m"
             read
             ;;
         12|ls|listsizes )
@@ -2127,7 +2126,7 @@ do
         13|ua|fua|forceupdateaur|updateaur )
             func_ua
             echo
-            echo " All AUR packages updated and reinstalled. To return to PacUI press ENTER "
+            echo -e " \e[41m All AUR packages updated and reinstalled. To return to PacUI press ENTER \e[0m"
             read
             ;;
         14|la|listaur )
@@ -2139,13 +2138,13 @@ do
         d|down|downgrade )
             func_d
             echo
-            echo " Downgrade finished. To return to PacUI press ENTER "
+            echo -e " \e[41m Downgrade finished. To return to PacUI press ENTER \e[0m"
             read
             ;;
         a|aur )
             func_a
             echo
-            echo " Installation from AUR finished. To return to PacUI press ENTER "
+            echo -e " \e[41m Installation from AUR finished. To return to PacUI press ENTER \e[0m"
             read
             ;;
 
