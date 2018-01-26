@@ -14,6 +14,11 @@
 #  Design based on IceFox script. Heavily modified by pekman, excalibur1234, Chrysostomus, papajoker, and thefallenrat.
 
 
+# use unofficial strict mode in order to make bash behave like modern programming languages:
+set -e                                                                              # exit script immediately, if any command exits with non-zero error code
+set -u                                                                              # only allow previously defined variables
+set -o pipefail                                                                     # if one command in a pipe fails, all fail (this is not default behavior!)
+
 # ANSI Escape sequences used in this script:
 #  \e[31m                                                                           # red text
 #  \e[36m                                                                           # cyan text
@@ -246,6 +251,7 @@ function func_m
 
 
         echo "sudo pacdiff ..."
+        set +u                                                                      # disable strict mode for environment variables
         if [[ -n $DIFFPROG ]]                                                       # this if-condition avoids error message when $DIFFPROG is not set/empty
         then
             sudo pacdiff
@@ -253,6 +259,7 @@ function func_m
             # use pacdiff to search for .pacnew and .pacsave files. display both the original and the used config file using "pacui_diff" function defined above.
             sudo DIFFPROG="pacui --diff" pacdiff
         fi
+        set -u
         echo ""
 
 
@@ -1420,7 +1427,7 @@ function func_ua
         elif [[ -e /usr/bin/yay ]]
         then
 
-            yay -Syu && yay -Syu --devel --noconfirm
+            yay -Syu && yay -Syu --devel --needed --noconfirm
 
         elif [[ -e /usr/bin/yaourt ]]
         then
@@ -1595,7 +1602,7 @@ function func_a
 function func_h
 {
         # the "then" part of this if-statement is displayed, when started directly from terminal (the last function calls func_h with the "1" parameter). the "else" part gets displayed when started from UI.
-        if [[ "$1" == "1" ]]                                                        # check, whether func_h got started with the parameter "1"
+        if [[ "${1:-}" == "1" ]]                                                        # check, whether func_h got started with the parameter "1"
         then
 
             echo -e "  pacui          - \e[1mPac\e[0mUI with \e[1mU\e[0mser \e[1mI\e[0mnterface"
@@ -1955,9 +1962,9 @@ fi
 
 
 # write first argument of "pacui ..." command to "input" variable
-input=$1
+input="${1:-}"                                                                      # we have to use "${1:-}" instead of "$1", because of strict bash mode!
 # wirte all other arguments of "pacui $1 ..." (= often (parts of) package or file names) to "input2" variable. all arguments get combined into one variable with spaces, but no breaks.
-input2=${*:2}
+input2="${*:2}"
 # fzf will always display search results for "input2", if it exists (and "input" is a valid function"). if "input2" is not found in fzf's list, NOTHING is displayed.
 
 
