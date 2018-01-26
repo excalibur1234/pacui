@@ -1063,7 +1063,10 @@ function func_b
 function func_fix
 {
         echo "removing pacman database lock ..."
-        sudo unlink /var/lib/pacman/db.lck
+        if [[ -e /var/lib/pacman/db.lck ]]
+        then
+            sudo unlink /var/lib/pacman/db.lck
+        fi
         echo ""
 
         # check for "pacman-mirrors" or "reflector" packages. one of those is needed!
