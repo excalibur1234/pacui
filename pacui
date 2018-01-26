@@ -388,13 +388,16 @@ function func_i
         if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]
         then
             # finally, download AUR package list (only when not already downloaded) and add it to the bottom of $pacui_list_install.
-            if  [[ ! -e /tmp/aur/packages.gz ]]
+            #if  [[ ! -e /tmp/aur/packages.gz ]]
+            if  [[ ! -e /tmp/aur/packages ]]
             then
-                wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null
+                #wget -P "/tmp/aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null
+                wget -P "/tmp/aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && gunzip -f "/tmp/aur/packages.gz"
             fi
             # remove line with download date from list of AUR packages with "grep"
             # delete all trailing spaces with "tr". command equivalent to "awk '{print $1}'"
-            pacui_list_install+="$( grep -v '#' /tmp/aur/packages.gz | tr -d ' ' )"
+            #pacui_list_install+="$( grep -v '#' '/tmp/aur/packages.gz' | tr -d ' ' )"
+            pacui_list_install+="$( grep -v '#' '/tmp/aur/packages' )"
         fi
 
         pacui_clean                                                                 # clear terminal
