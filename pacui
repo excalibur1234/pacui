@@ -1,3 +1,4 @@
+
 #!/usr/bin/env bash
 
 #  This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as
@@ -1072,7 +1073,7 @@ function func_fix
         # check for "pacman-mirrors" or "reflector" packages. one of those is needed!
         if [[ -e /usr/bin/pacman-mirrors ]] || [[ -e /usr/bin/reflector ]]
         then
-            echo "fixing mirrors ..."
+            echo "fixing mirrors (which can take a while) ..."
             # do this, if system uses pacman-mirrors (default in Manjaro)
             if [[ -e /usr/bin/pacman-mirrors ]]
             then
