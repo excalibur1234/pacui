@@ -233,8 +233,10 @@ function func_m
             then
 
                 pacman -Qdt --color always
-                # ask, whether to remove the displayed orphaned packages and save answer in "answer" variable:
-                read -p $' \e[41m Do you want to remove these orphaned packages? [Y|n] \e[0m' answer
+                # ask, whether to remove the displayed orphaned packages:
+                echo -e " \e[41m Do you want to remove these orphaned packages? [Y|n] \e[0m"
+                read -s -n1 answer                                                  # save user input in "answer" variable (only accept 1 character as input)
+
                 case ${answer:-y} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "y".
                     y|Y|yes|YES|Yes )                                               # do this, if "answer" is y or Y or yes or YES or Yes
                         sudo pacman -Rsn $(pacman -Qqdt) --color always --noconfirm
