@@ -153,7 +153,7 @@ function func_u
                             sudo pacman -Syu --force --color always
                             ;;
                         * )                                                         # do this in all other cases
-                            echo " \e[1m Packages have not been updated.\e[0m"
+                            echo -e " \e[1m Packages have not been updated.\e[0m"
                             ;;
                     esac
 
@@ -240,7 +240,7 @@ function func_m
                         sudo pacman -Rsn $(pacman -Qqdt) --color always --noconfirm
                         ;;
                     * )                                                             # do this in all other cases
-                        echo " \e[1m Packages have not been removed.\e[0m"
+                        echo -e " \e[1m Packages have not been removed.\e[0m"
                         ;;
                 esac                                                                # end of "case" loop
 
@@ -277,7 +277,7 @@ function func_m
         if ! ( pacman -Dk &>/dev/null )
         then
             echo -e " \e[41m The following inconsistencies have been found in your local packages: \e[0m"
-            echo "$( pacman -Dk )"                                                  # encapsulate "pacman -Dk" in echo command. without this, the strict bash mode would quit pacui whenever "pacman -Dk" encounters an error!
+            echo -e "$( pacman -Dk )"                                               # encapsulate "pacman -Dk" in echo command. without this, the strict bash mode would quit pacui whenever "pacman -Dk" encounters an error!
         fi
         echo ""
 
@@ -595,7 +595,7 @@ function func_r
                         ;;
 
                     * )                                                             # do this in all other cases
-                        echo " \e[1m No input recognized. Remove process has been cancelled. \e[0m"
+                        echo -e " \e[1m No input recognized. Remove process has been cancelled. \e[0m"
                         ;;
 
                 esac
