@@ -2,7 +2,7 @@
 
 _pkgname=pacui
 pkgname=$_pkgname-git
-pkgver=r743.c9edccf
+pkgver=r780.2567971
 pkgrel=1
 pkgdesc="Bash script providing advanced Pacman and Trizen/Yay/Yaourt/Pacaur functionality in a simple UI"
 arch=(any)
