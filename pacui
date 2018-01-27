@@ -285,21 +285,25 @@ function func_m
         if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]
         then
             echo " checking AUR packages ..."
-            # download AUR package list (only when not already downloaded) to /tmp/aur/packages.gz.
-            if  [[ ! -e /tmp/aur/packages.gz ]]
+            # download AUR package list (only when not already downloaded) to /tmp/aur/packages.
+            #if [[ ! -e /tmp/aur/packages.gz ]]
+            if [[ ! -e /tmp/aur/packages ]]
             then
-                wget -P /tmp/aur/ https://aur.archlinux.org/packages.gz &>/dev/null
-                # now, file /tmp/aur/packages.gz contains a list of all packages from the AUR.
+                #wget -P "/tmp/aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null
+                wget -P "/tmp/aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && gunzip -f "/tmp/aur/packages.gz"
+                # now, file /tmp/aur/packages contains a list of all packages from the AUR.
             fi
 
-            # check, if /tmp/aur/packages.gz exists. /tmp/aur/packages.gz does not exist, if there is no internet connection or something went wrong during the download of the list of AUR packages.
-            if [[ -e /tmp/aur/packages.gz ]]
+            # check, if /tmp/aur/packages exists. /tmp/aur/packages does not exist, if there is no internet connection or something went wrong during the download of the list of AUR packages.
+            #if [[ -e /tmp/aur/packages.gz ]]
+            if [[ -e /tmp/aur/packages ]]
             then
 
                 local pkg
                 # the "comm" command compares 2 files and outputs the differences between them. both files have to be sorted!
                 # "pacman -Qqm | sort" outputs a list of all installed packages from the AUR
-                pkg=$(  comm -23 <(pacman -Qqm | sort) <(sort -u /tmp/aur/packages.gz)  )
+                #pkg=$(  comm -23 <(pacman -Qqm | sort) <(sort -u /tmp/aur/packages.gz)  )
+                pkg=$(  comm -23 <(pacman -Qqm | sort) <(sort -u /tmp/aur/packages)  )
 
                 # only run the command inside the if-statement, if $pkg variable is not empty
                 if [[ -n $pkg ]]
