@@ -253,7 +253,8 @@ function func_m
 
 
         echo " sudo pacdiff ..."
-        set +u                                                                      # disable strict mode for environment variables
+        set +u                                                                      # temporarily disable strict mode for environment variables
+
         if [[ -n $DIFFPROG ]]                                                       # this if-condition avoids error message when $DIFFPROG is not set/empty
         then
             sudo pacdiff
@@ -261,6 +262,7 @@ function func_m
             # use pacdiff to search for .pacnew and .pacsave files. display both the original and the used config file using "pacui_diff" function defined above.
             sudo DIFFPROG="pacui --diff" pacdiff
         fi
+
         set -u
         echo ""
 
@@ -597,7 +599,7 @@ function func_r
                         ;;
 
                     * )                                                             # do this in all other cases
-                        echo -e " \e[1m No input recognized. Remove process has been cancelled. \e[0m"
+                        echo -e " \e[1m No input recognized. Removal of packages has been cancelled. \e[0m"
                         ;;
 
                 esac
@@ -843,6 +845,8 @@ function func_b
 
         if [[ -e /usr/bin/pacaur ]]                                                 # checks, whether file "pacaur" exists, i.e. pacaur is installed
         then
+            set +u                                                                  # temporarily disable strict mode for environment variables
+
             # the cache location of pacaur is important for downgrading packages installed from the AUR or reinstalling removed packages from the AUR:
             if [[ -z $AURDEST ]]                                                    # $AURDEST is environment variable for changing pacaur's default cache directory. check, if "AURDEST" variable is empty
             then
@@ -850,6 +854,8 @@ function func_b
             else
                 cachePACAUR="$AURDEST"
             fi
+
+            set -u
         fi
 
 
@@ -1361,6 +1367,8 @@ function func_c
         if [[ -n "$file" ]] && (( check == 1 ))                                     # here $check variable needs to be 1 in order to continue normally and display files in a text editor.
         then
 
+            set +u                                                                  # temporarily disable strict mode for environment variables. "$EDITOR" variable gets used extensibely in the following code!
+
             if [[ $( echo "$file" | cut -c -6 ) == "/home/" ]]
             # if "file"'s first characters are "/home/", the "file" should NOT be opened as root!
             then
@@ -1408,6 +1416,8 @@ function func_c
                 [[ -z "$EDITOR" ]] && EDITOR='nano'
                 sudo $EDITOR "$file"
             fi
+
+            set -u
 
         fi
 
@@ -1968,6 +1978,8 @@ EOF
 # pacaur sometimes does not find an editor to use and the --preview window in fzf does not show any package information.
 # instead, it shows "::editor variable unset".
 
+set +u                                                                              # temporarily disable strict mode for environment variables
+
 # check, whether pacaur is installed, user config file exists, $EDITOR variable is empty, "vi" is not installed:
 if [[ -e /usr/bin/pacaur ]] && [[ ! -e $HOME/.config/pacaur/config ]] && [[ ! -n $EDITOR ]] && [[ ! -e /usr/bin/vi ]]
 then
@@ -1975,6 +1987,8 @@ then
     mkdir -p "$HOME/.config/pacaur/"
     echo "editor='${EDITOR:-nano}'" >> "$HOME/.config/pacaur/config"
 fi
+
+set -u
 
 
 # =======================
