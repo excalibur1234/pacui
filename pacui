@@ -1190,6 +1190,7 @@ function func_fix
             echo ""
 
 
+            set +u
 
             if [[ -e $HOME/.gnupg/gpg.conf ]]                                       # check, whether file $HOME/.gnupg/gpg.conf exists
             then
@@ -1208,6 +1209,8 @@ function func_fix
 
                 fi
             fi
+
+            set -u
 
 
             echo " cleaning pacman cache ..."
@@ -1249,6 +1252,7 @@ function func_c
         # this is the normal syntax for "trap" command:
         trap "unlink ${pacui_config}" EXIT
 
+        set +u
 
         # if file /etc/default/tlp exists, push string "/etc/default/tlp              Configure power management." into ${pacui_config} file. there are enough spaces added to avoid users seeing file/folder description:
         [[ -e /etc/default/tlp ]]                       && echo -e "/etc/default/tlp                                                                                                                                                                                                                                                 Configure power management in file:" >> ${pacui_config}
@@ -1307,6 +1311,8 @@ function func_c
         [[ -e /boot/EFI/refind/refind.conf ]]           && echo -e "\e[31m/boot/EFI/refind/refind.conf                                                                                                                                                                                                                               Configure rEFInd boot loader in file:\e[0m" >> ${pacui_config}
         [[ -e /boot/EFI/CLOVER/config.plist ]]          && echo -e "\e[31m/boot/EFI/CLOVER/config.plist                                                                                                                                                                                                                              Configure Clover boot loader in file:\e[0m" >> ${pacui_config}
         [[ -e /boot/syslinux/syslinux.cfg ]]            && echo -e "\e[31m/boot/syslinux/syslinux.cfg                                                                                                                                                                                                                                Configure syslinux boot loaders in file:\e[0m" >> ${pacui_config}
+
+        set -u
 
         # create local variables
         local {file,check}
