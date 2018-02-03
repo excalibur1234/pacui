@@ -1306,6 +1306,7 @@ function func_c
         [[ -e /etc/modules-load.d ]]                    && echo -e "\e[31m/etc/modules-load.d/                                                                                                                                                                                                                                       Configure Kernel module loading during boot in files:\e[0m" >> ${pacui_config}
         [[ -e /etc/mkinitcpio.conf ]]                   && echo -e "\e[31m/etc/mkinitcpio.conf                                                                                                                                                                                                                                       Configure initial ramdisk environment in file:\e[0m" >> ${pacui_config}
         [[ -e /etc/default/grub ]]                      && echo -e "\e[31m/etc/default/grub                                                                                                                                                                                                                                          Configure GRUB boot loader in file:\e[0m" >> ${pacui_config}
+        [[ -e /boot/grub/custom.cfg ]]                  && echo -e "/boot/grub/custom.cfg                                                                                                                                                                                                                                            Configure custom GRUB entries in file:" >> ${pacui_config}
         [[ -e /boot/loader/loader.conf ]]               && echo -e "\e[31m/boot/loader/loader.conf                                                                                                                                                                                                                                   Configure systemd-boot boot loader in file:\e[0m" >> ${pacui_config}
         [[ -e /boot/loader/entries ]]                   && echo -e "\e[31m/boot/loader/entries/                                                                                                                                                                                                                                      Configure one of these systemd-boot boot loader entries:\e[0m" >> ${pacui_config}
         [[ -e /boot/refind_linux.conf ]]                && echo -e "\e[31m/boot/refind_linux.conf                                                                                                                                                                                                                                    Configure rEFInd boot loader in file:\e[0m" >> ${pacui_config}
@@ -1413,7 +1414,7 @@ function func_c
                 [[ -z "$EDITOR" ]] && EDITOR='nano'
                 sudo $EDITOR "$file"
                 sudo mkinitcpio -P && sudo grub-mkconfig -o /boot/grub/grub.cfg     # apply changes   # "grub-mkconfig -o /boot/grub/grub.cfg" == "udpate-grub" (in manjaro)
-            elif [[ "$file" == "/etc/default/grub" ]]
+            elif [[ "$file" == "/etc/default/grub" ]] || [[ "$file" == "/boot/grub/custom.cfg" ]]
             then
                 [[ -z "$EDITOR" ]] && EDITOR='nano'
                 sudo $EDITOR "$file"
