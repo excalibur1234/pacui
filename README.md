@@ -5,7 +5,7 @@ PacUI provides useful and advanced Pacman and Trizen/Yay/Yaourt/Pacaur commands 
 
 PacUI is aimed at experienced/intermediate/advanced users of Arch Linux (and Arch-based distributions, including Manjaro), who have at least basic knowledge of their Linux system, Pacman and [Trizen](https://github.com/trizen/trizen)/[Yay](https://github.com/Jguer/yay)/[Yaourt](https://github.com/archlinuxfr/yaourt)/[Pacaur](https://github.com/rmarquis/pacaur). Absolute beginners are probably overwhelmed by the amount of choices PacUI offers.
 
-This fork of an [older version of pacli](https://github.com/Manjaro-Pek/pacli/tree/f98e9226eb75ea00217481f436399328fe73d3ae) called PacUI follows the KISS principle: The whole script is contained within one file, which consists of easy to read bash code with many helpful comments. PacUI offers many more features over pacui in order to enhance comfort and speed of CLI based package management.
+This fork of an [older version of pacli](https://github.com/Manjaro-Pek/pacli/tree/f98e9226eb75ea00217481f436399328fe73d3ae) called PacUI follows the KISS principle: The whole script is contained within one file, which consists of easy to read bash code with many helpful comments. PacUI offers many more features over pacli in order to enhance comfort and speed of CLI based package management.
 
 
 Table of Contents
@@ -35,7 +35,7 @@ UI of PacUI:
 ![Screenshot 01](https://s14.postimg.org/ekwbm4a0h/pacui.png)
 
 
-Installing the package "cantata" from system repositories:
+Installing the package "cantata" from system repositories by entering its name:
 
 ![Screenshot 02](https://s14.postimg.org/sekob7cwh/cantata.gif)
 
@@ -58,7 +58,7 @@ Please note that PacUI optionally requires also [Trizen](https://github.com/triz
 
 
 ### Execute without prior Installation
-Because PacUI is contained within one file, it is easy to download and start it without prior installation. Please remember to install PacUI's dependencies first for proper operation. Marking the "pacui" file as executable is essential, too:
+Because PacUI is contained within one file, it is easy to download and run without prior installation. For a minimal working version of PacUI, please install its dependencies [expac](https://github.com/falconindy/expac) and [fzf](https://github.com/junegunn/fzf). Marking the "pacui" file as executable is essential, too:
 ```
 wget https://raw.githubusercontent.com/excalibur1234/pacui/master/pacui
 ```
@@ -66,8 +66,11 @@ wget https://raw.githubusercontent.com/excalibur1234/pacui/master/pacui
 chmod +x pacui
 ```
 ```
-bash pacui
+pacui
 ```
+I find this feature of PacUI invaluable for fixing systems. Here are two examples:
+- A large number of updates broke (parts of) the UI, e.g. xorg, window manager, or desktop environment. In this case, switching to a tty (with CTRL + ALT + F2), installing PacUI and using "Roll Back System" to roll back all the latest updates can fix the system (temporarily).
+- A broken keyring makes it impossible to apply updates or install any packages. Executing PacUI without prior installation and using "Fix Pacman Errors" to fix the keyring and all related problems is the easiest and fastest solution I know of.
 
 
 ## Usage
