@@ -31,31 +31,15 @@ set -o pipefail                                                                 
 # all functions of pacui are defined here in the same order as they appear in pacui's UI (with some helper functions):
 
 
-# bug #1 and #3:
-# "pacui --pacui_clean" helper function. this function is only called from within pacui.
-function pacui_clean
+# bug #3:
+# "pacui --pacui_tty_clean" helper function. this function is only called from within pacui.
+function pacui__tty_clean
 {
         if ( tty | grep tty &>/dev/null )                                           # check, whether output of "tty" contains the string "tty". this is TRUE, if pacui is used within a tty.
         then
-            # bug #3:
             # in tty, fzf does not clear the screen before and after it runs. this makes a bad visual style in tty. the other code (in the "else bracket") does not help to "clear" the screen before and after fzf runs, either. only the real "clear" command works.
-            # unfortunately the "clear" command also destroys the terminal history. therefore, the "clear" command should only be used in tty!
+            # unfortunately the "clear" command also destroys the terminal history. therefore, the "clear" command should only be used when absolutely necessary (such as in tty)!
             clear
-        else                                                                        # the output of the "tty" command does not contain "tty" when pacui is executed in a terminal or in tmux.
-            # bug #1:
-            # the traditional "clear" command does not work as expected on all systems. problem: the terminal history of all previous commands is deleted when the "clear" command is used. solution: do everything i expect from "clear" manually. this keeps the terminal history:
-
-            local lines
-            # number of lines of the user's terminal.
-            lines=$( tput lines )
-            for (( i=1; i<lines; i++ ))
-            do
-                    # insert "lines" number of empty lines:
-                    echo
-            done
-
-            # move cursor to the top left of the terminal
-            tput cup 0 0
         fi
 }
 
@@ -311,7 +295,7 @@ function func_m
                 pkg=$(  comm -23 <(pacman -Qqm | sort) <(sort -u /tmp/aur/packages)  )
 
                 # only run the command inside the if-statement, if $pkg variable is not empty
-                if [[ -n $pkg ]]
+                if [[ -n $pkg ]]                                                    # checks, if length of string is non-zero ("-n" conditional bash expression is the opposite of "-z" (check, whether length of string is zero))
                 then
                     echo -e " \e[1m The following packages are neither in your package repository nor the AUR. They will never be updated. \e[0m"
                     echo -e " \e[41m Unless you know exactly what you are doing, it is recommended to remove these packages: \e[0m"
@@ -409,7 +393,7 @@ function func_i
             pacui_list_install+="$( grep -v '#' '/tmp/aur/packages' )"
         fi
 
-        pacui_clean                                                                 # clear terminal
+        pacui__tty_clean                                                            # clear terminal
 
         # the package list in $pacui_list_install gets sorted (by "sort" - only first column gets used for sorting) and displayed by fzf. look in "man fzf" for what fzf's arguments are used.
         # fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
@@ -439,7 +423,7 @@ function func_i
             fi
             ' $( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi ) --header="TAB key to (un)select. ENTER to install. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
-        pacui_clean                                                                 # clear terminal
+        pacui__tty_clean                                                            # clear terminal
 
         # $pkg contains package names below each other (=separated by \n), but we need a list in 1 line (=space separated):
         #pkg=$( echo $pkg | paste -sd " " )                                         # THIS IS NOT NEEDED, BECAUSE WE HAVE HAVE LEFT OUT THE PARENTHESIS ABOVE AROUND $(...fzf-tmux...)
@@ -491,7 +475,7 @@ function func_r
 
         local {pkg,pkg_remove,pkg_remove_backup}                                    # declare local variables
 
-        pacui_clean                                                                 # clear terminal
+        pacui__tty_clean                                                            # clear terminal
 
         # take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf.
         # fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
@@ -505,7 +489,7 @@ function func_r
             fi
             ' $( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi ) --header="TAB key to (un)select. ENTER to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
-        pacui_clean                                                                 # clear terminal
+        pacui__tty_clean                                                            # clear terminal
 
         if [[ -n $pkg ]]                                                            # check, whether $pkg variable is not empty. this happens when fzf is quit with CTRL+C.
         then
@@ -556,7 +540,7 @@ function func_r
 
                             local {pkg,pkg_remove}                                  # declare local variables
 
-                            pacui_clean                                             # clear terminal
+                            pacui__tty_clean                                        # clear terminal
 
                             # fzf lets you search and select the given list in a fast way. the "-m" flags makes it possible to select multiple list items.
                             pkg=$( echo "$pkg_remove_backup" | fzf-tmux -m -e +s -i --query="$input2" --reverse --margin=4%,1%,1%,2% --inline-info --preview '
@@ -569,7 +553,7 @@ function func_r
                                 fi
                                 ' $( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi ) --header="TAB key to (un)select. ENTER to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
-                            pacui_clean                                             # clear terminal
+                            pacui__tty_clean                                        # clear terminal
 
                             if ! [[ -n $pkg ]]                                      # check, whether $pkg variable is empty. this happens when fzf is quit with CTRL+C.
                             then
@@ -622,7 +606,7 @@ function func_t
 
         local pkg
 
-        pacui_clean                                                                 # clear terminal
+        pacui__tty_clean                                                            # clear terminal
 
         pkg=$( sort -k1,1 -u /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
             if ( pacman -Qq {1} &>/dev/null )                                       # check, if 1. element of selected line is a locally installed package
@@ -633,7 +617,7 @@ function func_t
             fi
             ' $( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )  --header="Press ENTER to show dependency tree. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
-        pacui_clean                                                                 # clear terminal
+        pacui__tty_clean                                                            # clear terminal
 
         # look in func_info for explanations
         if [[ -n $pkg ]]
@@ -660,7 +644,7 @@ function func_t
 
             fi
 
-            pacui_clean                                                             # clear terminal
+            pacui__tty_clean                                                        # clear terminal
 
         fi
 }
@@ -670,14 +654,14 @@ function func_t
 # this core functionality of "Reverse Dependency Tree" (note the bold "r" and "t") can be started in the terminal using "pacui rt". the help page provides additional explanations.
 function func_rt
 {
-        pacui_clean                                                                 # clear terminal
+        pacui__tty_clean                                                            # clear terminal
 
         local pkg
         pkg=$( expac -Q "%-33n\t%d" | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
             pacman -Qi {1} --color always
             ' $( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )  --header="Press ENTER to show reverse dependency tree. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
-        pacui_clean                                                                 # clear terminal
+        pacui__tty_clean                                                            # clear terminal
 
         # look in func_info for explanations
         if [[ -n $pkg ]]
@@ -689,7 +673,7 @@ function func_rt
                 pacman -Qi $( echo {} | sed "s/^[│├└─ ]*//g" ) --color always
                 ' $( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi ) --header="Reverse Dependency Tree \"$pkg\". ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-rt
 
-            pacui_clean                                                             # clear terminal
+            pacui__tty_clean                                                        # clear terminal
 
         fi
 }
@@ -707,7 +691,7 @@ function func_l
 
         local pkg
 
-        pacui_clean                                                                 # clear terminal
+        pacui__tty_clean                                                            # clear terminal
 
         pkg=$( sort -k1,1 -u /tmp/pacui-packages-local | fzf-tmux -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
             if ( pacman -Qq {1} &>/dev/null )                                       # check, if selected line is a locally installed package
@@ -718,7 +702,7 @@ function func_l
             fi
             ' $( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi ) --header="Press ENTER to list files. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
-        pacui_clean                                                                 # clear terminal
+        pacui__tty_clean                                                            # clear terminal
 
         if [[ -n $pkg ]]
         then
@@ -736,7 +720,7 @@ function func_l
                 # in some cases, the local database has to be initialized with sudo pacman -Fyy
                 sudo pacman -Fy
 
-                pacui_clean                                                         # clear terminal
+                pacui__tty_clean                                                    # clear terminal
 
                 # search in system repositories with "pacman -Fl" --> machine readable version of output is easier to read for awk!
                 # grep -a is used, because "pacman -Fl --machinereadable" returns a file starting with non-text data. the "-a" option ignores that.
@@ -746,7 +730,7 @@ function func_l
 
             fi
 
-            pacui_clean                                                             # clear terminal
+            pacui__tty_clean                                                        # clear terminal
 
         fi
 }
@@ -815,12 +799,12 @@ function func_s
             #pacman -Fsx --machinereadable "$file" | awk -F '\0' 'system("grep -q " $2 " /tmp/pacui-search-temp-local") == 1 {print  $1 "/" "\033[1m" $2 "\033[0m " $4}' >> /tmp/pacui-search
 
 
-            pacui_clean                                                             # clear terminal
+            pacui__tty_clean                                                        # clear terminal
 
             # display results from file /tmp/pacui-search in fzf.
             cat /tmp/pacui-search | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --header="Package file names (with path) containing \"$file\". Press ESC or CTRL+C to quit." --prompt='Enter string to filter displayed package names and file paths > ' > /tmp/pacui-s
 
-            pacui_clean                                                             # clear terminal
+            pacui__tty_clean                                                        # clear terminal
 
         fi
 }
@@ -834,7 +818,8 @@ function func_s
 function func_b
 {
         # declare local variables
-        local {cache,cachePACAUR,pkgR,pkgI,pkgD,pkgU,line,temp1,temp2,temp3,pacui_cache_packages,pacui_cache_install,pacui_cache_downgrade,pacui_cache_downgrade_counted,pacui_tmp_downgrade,pacui_aur_install,pacui_install,pacui_downgrade,pacui_cache_upgrade,pacui_cache_upgrade_counted,pacui_tmp_upgrade,pacui_upgrade}
+        local {cache,cachePACAUR,pkgR,pkgI,pkgD,pkgU,line,temp1,temp2,temp3,pacui_cache_packages,pacui_cache_install,pacui_aur_install,pacui_cache_downgrade,pacui_cache_downgrade_counted,pacui_tmp_downgrade,pacui_aur_install,pacui_install,pacui_downgrade,pacui_cache_upgrade,pacui_cache_upgrade_counted,pacui_tmp_upgrade,pacui_upgrade}
+        pacui_aur_install=""                                                        # needed to avoid "unbound variable error"
 
         # get cache directory from file /etc/pacman.conf (without any white spaces) and write results to variable $cache:
         cache=$( awk -F '=' '/^CacheDir/ {gsub(" ","",$2); print $2}' '/etc/pacman.conf' )
@@ -860,14 +845,14 @@ function func_b
         fi
 
 
-        pacui_clean                                                                 # clear terminal
+        pacui__tty_clean                                                            # clear terminal
 
         # 1. get list of last installs/upgrades/removals/downgrades from pacman log and display result in fzf.
         # when fzf quits, only selected package names (including the words " installed/upgraded/removed/downgraded") are saved to variable $pacui_cache_packages
         #  the space in front of "installed" prevents reinstallations being displayed (otherwise, they would be removed)! the ] in "] installed" prevents config file changes being displayed, e.g. "warning: /etc/sddm.conf installed as /etc/sddm.conf.pacnew"
         pacui_cache_packages="$( tail -5000 /var/log/pacman.log | grep "\[ALPM\]" | grep "] installed\|removed\|upgraded\|downgraded" | sed 's/\[ALPM\] //g' | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --tac --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER to roll back. ESC to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}' )"
 
-        pacui_clean                                                                 # clear terminal
+        pacui__tty_clean                                                            # clear terminal
 
         # only run the command inside the if-statement, if variable $pacui_cache_packages is not empty and exists - this happens when fzf is quit with ESC or CTRL+C
         if [[ ! -z "$pacui_cache_packages" ]]
@@ -959,7 +944,7 @@ function func_b
                     temp1=$( echo "$line" | awk '{print $1}' )                      # this variable is the no. of times a package has to be downgraded
                     temp2=$( echo "$line" | awk '{print $2}' )                      # this variable is the package name to be downgraded
 
-                    if [[ -n $temp2 ]]   # checks, if variable is not empty
+                    if [[ -n $temp2 ]]   # checks, if length of string is non-zero ("-n" conditional bash expression is the opposite of "-z" (check, whether length of string is zero))
                     then
                         # write list with all versions of package in cache into file ${pacui_tmp_downgrade} (sorted - newest package version is on top)
                         find $cache -name "${temp2}-[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r > ${pacui_tmp_downgrade}
@@ -1027,7 +1012,7 @@ function func_b
                     temp1=$( echo "$line" | awk '{print $1}' )                      # this variable is the no. of times a package has to be upgraded
                     temp2=$( echo "$line" | awk '{print $2}' )                      # this variable is the package name to be upgraded
 
-                    if [[ -n $temp2 ]]   # checks, if variable is not empty
+                    if [[ -n $temp2 ]]   # checks, if length of string is non-zero ("-n" conditional bash expression is the opposite of "-z" (check, whether length of string is zero))
                     then
                         # write list with all versions of package in cache into file ${pacui_tmp_upgrade} (sorted - newest package version is on top)
                         find $cache -name "${temp2}-[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r > ${pacui_tmp_upgrade}
@@ -1321,7 +1306,7 @@ function func_c
         # create local variables
         local {file,check}
 
-        pacui_clean                                                                 # clear terminal
+        pacui__tty_clean                                                            # clear terminal
 
         # echo -e "$( cat ${pacui_config} )"  -- this command interprets the ANSI escape sequences contained in ${pacui_config}.
         file=$( echo -e "$( cat ${pacui_config} )" | fzf-tmux -e +s -i -1 --ansi --cycle --query="$input2" --reverse --margin=4%,1%,1%,2% --inline-info --preview '
@@ -1336,16 +1321,16 @@ function func_c
             else
                 echo "{1}: Read permission denied"
             fi
-            ' $( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi ) --header="ENTER to continue. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+            ' $( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:60%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi ) --header="ENTER to continue. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
         # the output of fzf is saved in the $file variable. $file can contain a filename (with its full path) or a directory (with its full path).
 
-        pacui_clean                                                                 # clear terminal
+        pacui__tty_clean                                                            # clear terminal
 
         # we need a method to check, whether fzf is quit with ESC. if this happens, we should NOT open a text editor!
         check=1                                                                     # set initial value
 
         # only run the command inside the if-statement, if $file variable is not empty <-- this happens when fzf is quit with ESC or CTRL+C
-        if [[ -n $file ]]
+        if [[ -n $file ]]                                                           # checks, if length of string is non-zero ("-n" conditional bash expression is the opposite of "-z" (check, whether length of string is zero))
         then
             # if $file contains a directory, another instance of fzf is opened to let the user choose the file (within the directory) he wants to edit:
             if ( echo $file | grep "/$" &>/dev/null )
@@ -1361,7 +1346,7 @@ function func_c
                     cat {1}                                                         # {1} is the first field of the marked line in fzf. the file given by {1} is shown in the preview window.
                     ' $( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi ) --header="ENTER to edit file in text editor. ESC to quit." --prompt='Enter string to filter list of files > ' )
 
-                pacui_clean                                                         # clear terminal
+                pacui__tty_clean                                                    # clear terminal
 
                 if [[ -n $file ]]                                                   # $file is empty when fzf is quit with ESC.
                 then
@@ -1441,16 +1426,16 @@ function func_c
 # this core functionality of "List Packages by Size" (note the bold "l" and "s") can be started in the terminal using "pacui ls". the help page provides additional explanations.
 function func_ls
 {
-        pacui_clean                                                                 # clear terminal
+        pacui__tty_clean                                                            # clear terminal
 
         # list all packages on local system sorted by their installed size using "expac" and "sort".
         # $( comm -23 <(pacman -Qq | sort) <(pacman -Qqg base base-devel | sort) )  only shows packages, which are not part of "base" or "base-devel" group.
         expac -H M -Q '%12m - \e[1m%n\e[0m %v' $( comm -23 <(pacman -Qq | sort) <(pacman -Qqg base base-devel | sort) ) | sort -n -r | fzf-tmux -m -e +s -i --ansi --reverse --margin=4%,1%,1%,1% --inline-info --preview '
             pacman -Qi {4} --color always
-            ' $( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi ) --header="Navigate with PageUp / PageDown. ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-ls
+            ' $( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:60%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi ) --header="Navigate with PageUp / PageDown. ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-ls
         # alternative command to "expac" and "sort": package-query -Qe --rsort 2 -f "%2 - \e[1m%n \e[0m%v" | numfmt --to=iec
 
-        pacui_clean                                                                 # clear terminal
+        pacui__tty_clean                                                            # clear terminal
 }
 
 
@@ -1497,16 +1482,16 @@ function func_ua
 # this core functionality of "List Installed from AUR" (note the bold "l" and "a") can be started in the terminal using "pacui la". the help page provides additional explanations.
 function func_la
 {
-        pacui_clean                                                                 # clear terminal
+        pacui__tty_clean                                                            # clear terminal
 
         # this command shows all packages from external, i.e. not in system repositories, sources:
         # packages from the AUR and manually installed packages
         # "pacman -Qm --color always"
         pacman -Qqm --color always | fzf-tmux -m -e +s -i --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
             pacman -Qi {} --color always
-            ' $( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi ) --header="List of AUR and manually installed packages. ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-la
+            ' $( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:60%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi ) --header="List of manually installed packages. ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-la
 
-        pacui_clean                                                                 # clear terminal
+        pacui__tty_clean                                                            # clear terminal
 }
 
 
@@ -1533,11 +1518,11 @@ function func_d
             local pkg
             local pkg_downgrade
 
-            pacui_clean                                                             # clear terminal
+            pacui__tty_clean                                                        # clear terminal
 
             pkg=$( sort -k1,1 -u /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER to downgrade. ESC to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
 
-            pacui_clean                                                             # clear terminal
+            pacui__tty_clean                                                        # clear terminal
 
             # $pkg contains package names below each other, but we need a list (in 1 line, space separated):
             pkg_downgrade=$(echo $pkg | paste -sd " ")
@@ -1557,7 +1542,7 @@ function func_a
 {
          local pkg
 
-        if [[ -n "$input2" ]]
+        if [[ -n "$input2" ]]                                                       # checks, if length of string is non-zero ("-n" conditional bash expression is the opposite of "-z" (check, whether length of string is zero))
         then
             # do this if variable "input2" is not empty:
 
@@ -2059,6 +2044,26 @@ fi
 # =======================
 # UI code is below
 
+
+
+# bug #1:
+# "pacui --pacui_clean" helper function. this function is only called from within pacui's UI.
+function pacui_clean
+{
+        # the traditional "clear" command does not work as expected on all systems. problem: the terminal history of all previous commands is deleted when the "clear" command is used. solution: do everything i expect from "clear" manually. this keeps the terminal history:
+
+        local lines
+        # number of lines of the user's terminal.
+        lines=$( tput lines )
+        for (( i=1; i<lines; i++ ))
+        do
+                # insert "lines" number of empty lines:
+                echo
+        done
+
+        # move cursor to the top left of the terminal
+        tput cup 0 0
+}
 
 
 # Run infinte loop for UI / menu, till the user quits using the "quit" option or CTRL+C.
