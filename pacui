@@ -1512,15 +1512,21 @@ function func_d
         else
 
             # write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
-            pacman -Slq | tr -d " " > /tmp/pacui-packages-local
-            pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
+            expac -S "%-33n\t%d" > /tmp/pacui-packages-local
+            expac -Q "%-33n\t%d" >> /tmp/pacui-packages-local
 
-            local pkg
-            local pkg_downgrade
+            local {pkg,pkg_downgrade}
 
             pacui__tty_clean                                                        # clear terminal
 
-            pkg=$( sort -k1,1 -u /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER to downgrade. ESC to quit." --prompt='Enter string to filter displayed list of packages > ' | awk '{print $1}' )
+            pkg=$( sort -k1,1 -u /tmp/pacui-packages-local | fzf-tmux -m -e +s -i -1 --query="$input2" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+                if ( pacman -Qq {1} &>/dev/null )                                   # check, if selected line is a locally installed package
+                then
+                    pacman -Qi {1} --color always                                   # for local packages, local query is sufficient.
+                else
+                    pacman -Si {1} --color always                                   # do this, if package is not locally installed
+                fi
+                ' $( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi ) --header="TAB to (un)select. ENTER to downgrade. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
 
             pacui__tty_clean                                                        # clear terminal
 
