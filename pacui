@@ -278,8 +278,8 @@ function func_m
             #if [[ ! -e /tmp/aur/packages.gz ]]
             if [[ ! -e /tmp/aur/packages ]]
             then
-                #wget -P "/tmp/aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null
-                wget -P "/tmp/aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && gunzip -f "/tmp/aur/packages.gz"
+                wget -P "/tmp/aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && mv /tmp/aur/packages.gz /tmp/aur/packages
+                #wget -P "/tmp/aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && gunzip -f "/tmp/aur/packages.gz"
                 # now, file /tmp/aur/packages contains a list of all packages from the AUR.
             fi
 
@@ -384,8 +384,8 @@ function func_i
             #if  [[ ! -e /tmp/aur/packages.gz ]]
             if  [[ ! -e /tmp/aur/packages ]]
             then
-                #wget -P "/tmp/aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null
-                wget -P "/tmp/aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && gunzip -f "/tmp/aur/packages.gz"
+                wget -P "/tmp/aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && mv /tmp/aur/packages.gz /tmp/aur/packages
+                #wget -P "/tmp/aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && gunzip -f "/tmp/aur/packages.gz"
             fi
             # remove line with download date from list of AUR packages with "grep"
             # delete all trailing spaces with "tr". command equivalent to "awk '{print $1}'"
@@ -406,6 +406,9 @@ function func_i
             then
                 echo -e "\e[1m{1} group has the following members: \e[0m"
                 pacman -Sgq {1}                                                     # display package name of group members in preview window of fzf
+            elif pacman -Ss ^{1}$ &>/dev/null                                        # if {1} is neither locally installed nor a group, it is from the AUR. display info with AUR helper
+            then
+                pacman -Si {1} --color always
             elif [[ -e /usr/bin/trizen ]]                                           # if {1} is neither locally installed nor a group, it is from the AUR. display info with AUR helper
             then
                 trizen -Si {1}
