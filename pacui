@@ -210,7 +210,12 @@ function func_m
         elif [[ -e /usr/bin/yaourt ]]
         then
 
-            yaourt -Qdt
+            # bugfix #4: use if-statement.
+            # "yaourt -Qdt" exists with error code 1 when orphans are not removed (this is the default setting). this means that pacui also exits immediately with error code 1.
+            if ( yaourt -Qdt )
+            then
+                echo ""
+            fi
 
         else                                                                        # this is the case, when tirzen, pacaur, or no AUR helper is installed.
 
@@ -297,8 +302,9 @@ function func_m
                 # only run the command inside the if-statement, if $pkg variable is not empty
                 if [[ -n $pkg ]]                                                    # checks, if length of string is non-zero ("-n" conditional bash expression is the opposite of "-z" (check, whether length of string is zero))
                 then
-                    echo -e " \e[1m The following packages are neither in your package repository nor the AUR. They will never be updated. \e[0m"
-                    echo -e " \e[41m Unless you know exactly what you are doing, it is recommended to remove these packages: \e[0m"
+                    echo -e " \e[1m The following packages are neither in your package repository nor the AUR. \e[0m"
+                    echo -e " \e[1m They are orphaned and will never be updated. \e[0m"
+                    echo -e " \e[41m It is recommended to remove these packages carefully: \e[0m"
                     echo "$pkg"
                     echo ""
                 fi
