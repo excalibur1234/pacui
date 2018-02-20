@@ -186,12 +186,12 @@ function func_diff
 # this core functionality of "Maintain System" (note the bold "M") can be started in the terminal using "pacui m". it is separated into multiple parts. most parts begin (or contain) an "echo" command, which explains what is being done. the help page explains the core functionality of every part in detail, too.
 function func_m
 {
-        echo " deleting PacUI cache ..."
         if [[ -e /tmp ]]
         then
+            echo " deleting PacUI cache ..."
             sudo rm -r /tmp/*
+            echo ""
         fi
-        echo ""
 
 
         # check for "pacman-mirrors" or "reflector" packages. one of those is needed!
@@ -1074,12 +1074,12 @@ function func_b
 # this core functionality of "Fix Pacman Errors" (note the bold "fix") can be started in the terminal using "pacui fix". it is separated into multiple parts. most parts begin (or contain) an introcing "echo" command or comment, which explains what is being done. the help page explains the core functionality of every part in detail, too.
 function func_fix
 {
-        echo " deleting PacUI cache ..."
         if [[ -e /tmp ]]
         then
+            echo " deleting PacUI cache ..."
             sudo rm -r /tmp/*
+            echo ""
         fi
-        echo ""
 
 
         echo " removing pacman database lock ..."
