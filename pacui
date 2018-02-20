@@ -186,6 +186,14 @@ function func_diff
 # this core functionality of "Maintain System" (note the bold "M") can be started in the terminal using "pacui m". it is separated into multiple parts. most parts begin (or contain) an "echo" command, which explains what is being done. the help page explains the core functionality of every part in detail, too.
 function func_m
 {
+        echo " deleting PacUI cache ..."
+        if [[ -e /tmp ]]
+        then
+            sudo rm -r /tmp/*
+        fi
+        echo ""
+
+
         # check for "pacman-mirrors" or "reflector" packages. one of those is needed!
         if [[ -e /usr/bin/pacman-mirrors ]] || [[ -e /usr/bin/reflector ]]
         then
@@ -1066,12 +1074,21 @@ function func_b
 # this core functionality of "Fix Pacman Errors" (note the bold "fix") can be started in the terminal using "pacui fix". it is separated into multiple parts. most parts begin (or contain) an introcing "echo" command or comment, which explains what is being done. the help page explains the core functionality of every part in detail, too.
 function func_fix
 {
+        echo " deleting PacUI cache ..."
+        if [[ -e /tmp ]]
+        then
+            sudo rm -r /tmp/*
+        fi
+        echo ""
+
+
         echo " removing pacman database lock ..."
         if [[ -e /var/lib/pacman/db.lck ]]
         then
             sudo unlink /var/lib/pacman/db.lck
         fi
         echo ""
+
 
         # check for "pacman-mirrors" or "reflector" packages. one of those is needed!
         if [[ -e /usr/bin/pacman-mirrors ]] || [[ -e /usr/bin/reflector ]]
@@ -1708,6 +1725,9 @@ If updates from system repositories fail, the user is offered the choice to upda
 
 
 \e[1m2 - MAINTAIN SYSTEM
+\e[36m"sudo rm -r /tmp/*"
+This command deletes the entire content of /tmp. PacUI uses this temporary directory to cache package lists and fzf selections. By deleting the /tmp directory, PacUI behaves exactly as after a reboot: Its first usage probably feels slower but any strange bugs and incompatibilities, e.g. originating from PacUI updates, should be gone.
+
 \e[36m"sudo pacman-mirrors -f 0 && sudo pacman -Syy" \e[0m(for Manjaro)
 This command generates a new mirrorslist of all available Manjaro repository mirrors/servers and sorts it by ping of up-to-date mirrors/servers. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror. If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -c Germany,France".
 
@@ -1825,6 +1845,9 @@ This command shows you a list of all recent Pacman actions sorted by date (using
 Multiple commands attempt to fix the most common issues Manjaro users have with Pacman. This should also work for Arch-based distributions, but to a lesser degree. Force options (as in FORCE UPDATE SYSTEM) are excluded, even though they are essential in fixing some problems.
 Please make sure that your root partition is not full. If you have doubts about this, run MAINTAIN SYSTEM before FIX PACMAN ERRORS.
 A working internet connection is required for FIX PACMAN ERRORS!
+
+\e[36m"sudo rm -r /tmp/*"
+This command deletes the entire content of /tmp. PacUI uses this temporary directory to cache package lists and fzf selections. By deleting the /tmp directory, PacUI behaves exactly as after a reboot: Its first usage probably feels slower but any strange bugs and incompatibilities, e.g. originating from PacUI updates, should be gone.
 
 \e[36m"sudo unlink /var/lib/pacman/db.lck"
 This command removes Pacmans database lock. The database lock prevents multiple Pacman instances from running at the same time and interfering with each other.
