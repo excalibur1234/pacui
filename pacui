@@ -417,13 +417,13 @@ function func_i
                 trizen -Si {1}
             elif [[ -e /usr/bin/yay ]]
             then
-                yay -Si {1}                                                        # this does not work yet, because "yay -Si <repository package>" needs root privileges --> destroys layout of fzf!
+                yay -Si {1}                                                         # this does not work yet, because "yay -Si <repository package>" needs root privileges --> destroys layout of fzf!
             elif [[ -e /usr/bin/yaourt ]]
             then
-                yaourt -Si {1}
+                yaourt -Si {1} 2>/dev/null                                          # bugfix #5: yaourt displays an error, e.g. when doing "yaourt -Si trizen-git" --> do not display an errors with "2>/dev/null".
             elif [[ -e /usr/bin/pacaur ]]
             then
-                pacaur -Si {1} --color always | grep -v "::"                        # display repo package information in preview window of fzf. grep command removes all errors displayed by pacaur
+                pacaur -Si {1} --color always | grep -v "::"                        # bugfix #6: display repo package information in preview window of fzf. grep command removes all errors displayed by pacaur
             else
                 pacman -Si {1} --color always                                       # do this, if no AUR helper is installed
             fi
