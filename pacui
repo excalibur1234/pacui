@@ -421,7 +421,7 @@ function func_i
         pacui__tty_clean                                                            # clear terminal
 
         # fzf lets you search and select a given list. "man fzf" lists all its arguments beautifully.
-        # "fzf" commands are typically in a convoluted form. here, a long "fzf" command is listed in maximum readable form:
+        # "fzf" commands are typically in a convoluted form. here, a long "fzf" command is listed in maximum readable form.
         # the package list in $pacui_list_install gets sorted and displayed by fzf. then it is filtered by awk and saved in pkg variable.
         pkg=$(  echo "$pacui_list_install" |
                 sort -k1,1 -u |                                                     # sort list (only first column gets used for sorting)
@@ -893,7 +893,8 @@ function func_b
         # 1. get list of last installs/upgrades/removals/downgrades from pacman log and display result in fzf.
         # when fzf quits, only selected package names (including the words " installed/upgraded/removed/downgraded") are saved to variable $pacui_cache_packages
         #  the space in front of "installed" prevents reinstallations being displayed (otherwise, they would be removed)! the ] in "] installed" prevents config file changes being displayed, e.g. "warning: /etc/sddm.conf installed as /etc/sddm.conf.pacnew"
-        pacui_cache_packages="$( tail -5000 /var/log/pacman.log | grep "\[ALPM\]" | grep "] installed\|removed\|upgraded\|downgraded" | sed 's/\[ALPM\] //g' | fzf-tmux -i --multi --exact --no-sort --select-1 --query="$input2" --cycle --tac --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER to roll back. ESC to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}' )"
+        # awk '{ $3="" ; $5="\033[1m" $5 "\033[0m" ; print }': this simply prints everything, but hides the third column and marks the 5th column as bold text.
+        pacui_cache_packages="$( tail -5000 /var/log/pacman.log | grep "] installed\|removed\|upgraded\|downgraded" | awk '{ $3="" ; $5="\033[1m" $5 "\033[0m" ; print }' | fzf-tmux -i --multi --exact --no-sort --select-1 --ansi --query="$input2" --cycle --tac --reverse --margin=4%,1%,1%,2% --inline-info --header="TAB key to (un)select. ENTER to roll back. ESC to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}' )"
 
         pacui__tty_clean                                                            # clear terminal
 
@@ -1500,26 +1501,21 @@ function func_ua
 {
         if [[ -e /usr/bin/trizen ]]
         then
-
             trizen -Syu && trizen -Syu --devel --needed --noconfirm
 
         elif [[ -e /usr/bin/yay ]]
         then
-
             yay -Syu && yay -Syu --devel --needed --noconfirm
 
         elif [[ -e /usr/bin/yaourt ]]
         then
-
             yaourt -Syua && yaourt -Syua --devel --needed --noconfirm
 
         elif [[ -e /usr/bin/pacaur ]]
         then
-
             pacaur -Syua --color always && pacaur -Syua --devel --needed --color always
 
         else
-
             echo -e " \e[41m No AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
             echo -e " \e[1m  trizen \e[0m"
             echo -e " \e[1m  yay \e[0m"
@@ -1606,26 +1602,21 @@ function func_a
 
             if [[ -e /usr/bin/trizen ]]
             then
-
                 trizen "$input2"
 
             elif [[ -e /usr/bin/yay ]]
             then
-
                 yay "$input2"
 
             elif [[ -e /usr/bin/yaourt ]]
             then
-
                 yaourt "$input2"
 
             elif [[ -e /usr/bin/pacaur ]]
             then
-
                 pacaur -Ss "$input2" --color always | grep -v "::"                  # grep command removes errors being displayed in pacaur
 
             else
-
                 echo -e " \e[41m No AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
                 echo -e " \e[1m  trizen \e[0m"
                 echo -e " \e[1m  yay \e[0m"
@@ -1645,28 +1636,23 @@ function func_a
 
                 if [[ -e /usr/bin/trizen ]]
                 then
-
                     trizen "$pkg"
 
                 elif [[ -e /usr/bin/yay ]]
                 then
-
                     yay "$pkg"
 
                 elif [[ -e /usr/bin/yaourt ]]
                 then
-
                     yaourt "$pkg"
 
                 elif [[ -e /usr/bin/pacaur ]]
                 then
-
                     pacaur -Ss "$pkg" --color always | grep -v "::"                 # grep command removes errors being displayed in pacaur
 
                 fi
 
             else
-
                 echo -e " \e[41m No AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
                 echo -e " \e[1m  trizen \e[0m"
                 echo -e " \e[1m  yay \e[0m"
