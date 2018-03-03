@@ -509,7 +509,7 @@ function func_i
 
             elif [[ -e /usr/bin/pikaur ]]
             then
-                pikaur -S $pkg --color always
+                pikaur -S $pkg
 
             elif [[ -e /usr/bin/pacaur ]]
             then
@@ -1639,7 +1639,7 @@ function func_a
 
             elif [[ -e /usr/bin/pikaur ]]
             then
-                pikaur -Ss "$input2" --color always
+                pikaur -Ss "$input2"
 
             elif [[ -e /usr/bin/pacaur ]]
             then
@@ -1678,7 +1678,7 @@ function func_a
 
                 elif [[ -e /usr/bin/pikaur ]]
                 then
-                    pikaur -Ss "$pkg" --color always
+                    pikaur -Ss "$pkg"
 
                 elif [[ -e /usr/bin/pacaur ]]
                 then
