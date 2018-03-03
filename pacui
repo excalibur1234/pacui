@@ -732,7 +732,7 @@ function func_rt
             # first echo selected line in fzf. then, remove all symbols from the beginning of the line, which does not belong to the package name.
             pactree -c -r "$pkg" | fzf -i --multi --exact --no-sort --ansi --reverse --margin=4%,1%,1%,1% --inline-info --preview '
                 pacman -Qi $( echo {} | sed "s/^[│├└─ ]*//g" ) --color always
-                ' $( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi ) --header="Reverse Dependency Tree \"$pkg\". ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-rt
+                ' $( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi ) --header="Reverse Dependency Tree of \"$pkg\". ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-rt
 
             pacui_tty_clean                                                         # clear terminal
 
@@ -2170,7 +2170,7 @@ do
     echo -e "      9   Roll \e[1mB\e[0mack System      \e[31m 10   \e[1mFix\e[0;31m Pacman Errors\e[0m "
     echo -e "     11   Edit \e[1mC\e[0monfig Files      12   \e[1mL\e[0mist Packages by \e[1mS\e[0mize "
     echo -e " ┌───────────────────────────────────────────────────────────────┐"
-    [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]         && echo -e " │   13   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR       14   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
+    [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]         && echo -e " │   13   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR       14   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
     [[ ! -e /usr/bin/trizen ]] && [[ ! -e /usr/bin/yay ]] && [[ ! -e /usr/bin/yaourt ]] && [[ ! -e /usr/bin/pikaur ]] && [[ ! -e /usr/bin/pacaur ]] && echo -e " │                               14   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
     echo -e " └───────────────────────────────────────────────────────────────┘"
     echo
