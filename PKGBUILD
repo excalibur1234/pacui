@@ -4,7 +4,7 @@
 pkgname=pacui
 pkgver=1.9.2
 pkgrel=1
-pkgdesc="Bash script providing advanced Pacman and Trizen/Yay/Yaourt/Pacaur functionality in a simple UI"
+pkgdesc="Bash script providing advanced Pacman and Trizen/Yay/Yaourt/Pikaur/Pacaur functionality in a simple UI"
 arch=(any)
 url="https://github.com/excalibur1234/$pkgname"
 license=('GPL3')

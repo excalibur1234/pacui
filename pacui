@@ -87,6 +87,18 @@ function func_u
                 install_successful=false
             fi
 
+        elif [[ -e /usr/bin/pikaur ]]
+        then
+
+            # execute "pikaur -Syu" command:
+            if ( pikaur -Syu --color always )
+            then
+                # only set $install_successful=true, if the command "pikaur -Syu" was executed without errors
+                install_successful=true
+            else
+                install_successful=false
+            fi
+
         elif [[ -e /usr/bin/pacaur ]]
         then
 
@@ -117,7 +129,7 @@ function func_u
         if [[ $install_successful == "false" ]]
         then
 
-            # if "pacaur -Syu --color always" fails, there are multiple points of failure. the first one is the internet/repository/mirror connection of the user:
+            # if one of the above update commands has failed, there are multiple points of failure. the first one is the internet/repository/mirror connection of the user:
             # check, whether there is a connection to the mirror/repository server. this is needed for package download/update!
             if ( sudo pacman -Syy )                                                 # the "sudo pacman -Syy" command gets executed in any case in order to check its output.
             then
@@ -225,7 +237,7 @@ function func_m
                 echo ""
             fi
 
-        else                                                                        # this is the case, when tirzen, pacaur, or no AUR helper is installed.
+        else                                                                        # this is the case, when tirzen, pacaur, pikaur, or no AUR helper is installed.
 
             if [[ -n $(pacman -Qdt) ]]                                              # only run these commands, if output of "pacman -Qdt" is not empty. this happens if there are no orphans.
             then
@@ -284,7 +296,7 @@ function func_m
         echo ""
 
 
-        if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]
+        if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]] || [[ -e /usr/bin/pikaur ]]
         then
             echo " checking AUR packages ..."
             # download AUR package list (only when not already downloaded) to /tmp/aur/packages.
@@ -403,7 +415,7 @@ function func_i
         pacui_list_install+="\n"
 
         # only download AUR package list, if at least one AUR helper is installed
-        if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]
+        if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]] || [[ -e /usr/bin/pikaur ]]
         then
             # finally, download AUR package list (only when not already downloaded) and add it to the bottom of $pacui_list_install.
             #if  [[ ! -e /tmp/aur/packages.gz ]]
@@ -455,6 +467,9 @@ function func_i
                         elif [[ -e /usr/bin/yaourt ]]
                         then
                             yaourt -Si {1} 2>/dev/null                              # bugfix #5: yaourt displays an error, e.g. when doing "yaourt -Si trizen-git" --> do not display an errors with "2>/dev/null".
+                        elif [[ -e /usr/bin/pikaur ]]
+                        then
+                            pikaur -Si {1}
                         elif [[ -e /usr/bin/pacaur ]]
                         then
                             pacaur -Si {1} --color always | grep -v "::"            # bugfix #6: display repo package information in preview window of fzf. grep command removes all errors displayed by pacaur
@@ -491,6 +506,10 @@ function func_i
             elif [[ -e /usr/bin/yaourt ]]
             then
                 yaourt -S $pkg
+
+            elif [[ -e /usr/bin/pikaur ]]
+            then
+                pikaur -S $pkg --color always
 
             elif [[ -e /usr/bin/pacaur ]]
             then
@@ -1306,6 +1325,7 @@ function func_c
         [[ -e $HOME/.config/yay/config.json ]]          && echo -e "$HOME/.config/yay/config.json                                                                                                                                                                                                                                    Configure Yay in file:" >> ${pacui_config}
         [[ -e /etc/yaourtrc ]]                          && echo -e "/etc/yaourtrc                                                                                                                                                                                                                                                    Configure Yaourt in file:" >> ${pacui_config}
         [[ -e $XDG_CONFIG_DIRS/pacaur/config ]]         && echo -e "$XDG_CONFIG_DIRS/pacaur/config                                                                                                                                                                                                                                   Configure Pacaur in file:" >> ${pacui_config}
+        [[ -e $HOME/.config/pikaur.conf ]]              && echo -e "$HOME/.config/pikaur.conf                                                                                                                                                                                                                                        Configure Pikaur in file:" >> ${pacui_config}
         [[ -e /etc/makepkg.conf ]]                      && echo -e "/etc/makepkg.conf                                                                                                                                                                                                                                                Configure package compilation in file:" >> ${pacui_config}
         [[ -e /usr/lib/NetworkManager/conf.d ]]         && echo -e "/usr/lib/NetworkManager/conf.d/                                                                                                                                                                                                                                  Configure NetworkManager in files:" >> ${pacui_config}
         [[ -e /etc/resolv.conf ]]                       && echo -e "/etc/resolv.conf                                                                                                                                                                                                                                                 Configure DNS servers in file:" >> ${pacui_config}
@@ -1511,15 +1531,20 @@ function func_ua
         then
             yaourt -Syua && yaourt -Syua --devel --needed --noconfirm
 
+        elif [[ -e /usr/bin/pikaur ]]
+        then
+            pikaur -Syu --devel --needed --color always
+
         elif [[ -e /usr/bin/pacaur ]]
         then
-            pacaur -Syua --color always && pacaur -Syua --devel --needed --color always
+            pacaur -Syua --devel --needed --color always
 
         else
             echo -e " \e[41m No AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
             echo -e " \e[1m  trizen \e[0m"
             echo -e " \e[1m  yay \e[0m"
             echo -e " \e[1m  yaourt \e[0m"
+            echo -e " \e[1m  pikaur \e[0m"
             echo -e " \e[1m  pacaur \e[0m"
 
         fi
@@ -1612,6 +1637,10 @@ function func_a
             then
                 yaourt "$input2"
 
+            elif [[ -e /usr/bin/pikaur ]]
+            then
+                pikaur -Ss "$input2" --color always
+
             elif [[ -e /usr/bin/pacaur ]]
             then
                 pacaur -Ss "$input2" --color always | grep -v "::"                  # grep command removes errors being displayed in pacaur
@@ -1621,13 +1650,14 @@ function func_a
                 echo -e " \e[1m  trizen \e[0m"
                 echo -e " \e[1m  yay \e[0m"
                 echo -e " \e[1m  yaourt \e[0m"
+                echo -e " \e[1m  pikaur \e[0m"
                 echo -e " \e[1m  pacaur \e[0m"
 
             fi
 
         else
 
-            if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]
+            if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]
             then
 
                 # do this if pacui is used with UI or no argument is specified in "pacui a" command:
@@ -1646,6 +1676,10 @@ function func_a
                 then
                     yaourt "$pkg"
 
+                elif [[ -e /usr/bin/pikaur ]]
+                then
+                    pikaur -Ss "$pkg" --color always
+
                 elif [[ -e /usr/bin/pacaur ]]
                 then
                     pacaur -Ss "$pkg" --color always | grep -v "::"                 # grep command removes errors being displayed in pacaur
@@ -1657,6 +1691,7 @@ function func_a
                 echo -e " \e[1m  trizen \e[0m"
                 echo -e " \e[1m  yay \e[0m"
                 echo -e " \e[1m  yaourt \e[0m"
+                echo -e " \e[1m  pikaur \e[0m"
                 echo -e " \e[1m  pacaur \e[0m"
 
             fi
@@ -1692,11 +1727,11 @@ function func_h
             echo -e "  pacui   c     - Edit \e[1mC\e[0monfig Files"
             echo -e "  pacui   ls    - \e[1mL\e[0mist Packages by \e[1mS\e[0mize"
             echo
-            [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]   && echo -e "  pacui   ua    - Force \e[1mU\e[0mpdate \e[1mA\e[0mUR"
+            [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]   && echo -e "  pacui   ua    - Force \e[1mU\e[0mpdate \e[1mA\e[0mUR"
             echo -e "  pacui   la    - \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
-            [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]   && echo
+            [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]   && echo
             [[ -e /usr/bin/downgrade ]]                                                                                 && echo -e "  pacui   d     - \e[1mD\e[0mowngrade Packages"
-            [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]   && echo -e "  pacui   a     - Search + Install from \e[1mA\e[0mUR"
+            [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]   && echo -e "  pacui   a     - Search + Install from \e[1mA\e[0mUR"
             echo
             echo -e '  pacui   h     - Short \e[1mH\e[0melp. For more help, select "Help" in User Interface.'
 
@@ -1707,7 +1742,7 @@ function func_h
 
 \e[1mWelcome to PacUIs Help Page
 
-PacUI is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Trizen/Yay/Pacaur/Yaourt as back ends. If Pacaur is installed on your system, PacUI uses it by default.
+PacUI is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Trizen/Yay/Pacaur/Pikaur/Yaourt as back ends.
 
 Navigate this help page with your Arrow Keys, PageUp/PageDown Keys, SpaceBar, or your Mouse Wheel. To search this Help Page, enter /<SEARCH TERM> and press ENTER. For example, enter the following (without quotes " ") in order to search for the word "update": "/update". Press N key to continue searching for other occurances of "/update". Search is not case sensitive. To exit this Help Page, press your Q key.
 PacUI uses Fuzzy Finder (fzf) to display selectable lists, which can be easily searched by starting to type. Advanced users can even use regular expressions to search in fzf. Use your TAB key to select multiple items from the list and your ENTER key to choose your selection. Navigate fzf's list the same way you navigate this help page.
@@ -1948,7 +1983,7 @@ This command lists packages on your system sorted by their installation size. Bo
 
 EOF
 
-            if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]
+            if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]
             then
                 cat >> /tmp/pacui-help <<- "EOF"
 \e[1m13 - FORCE UPDATE AUR
@@ -1986,7 +2021,7 @@ Alternatively, you can run future updates with the command "sudo pacman -Syu --i
 EOF
             fi
 
-            if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]
+            if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]
             then
                 cat >> /tmp/pacui-help <<- "EOF"
 \e[1mSEARCH + INSTALL FROM AUR
@@ -2136,7 +2171,7 @@ do
     echo -e "     11   Edit \e[1mC\e[0monfig Files      12   \e[1mL\e[0mist Packages by \e[1mS\e[0mize "
     echo -e " ┌───────────────────────────────────────────────────────────────┐"
     [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]         && echo -e " │   13   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR       14   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
-    [[ ! -e /usr/bin/trizen ]] && [[ ! -e /usr/bin/yay ]] && [[ ! -e /usr/bin/yaourt ]] && [[ ! -e /usr/bin/pacaur ]] && echo -e " │                               14   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
+    [[ ! -e /usr/bin/trizen ]] && [[ ! -e /usr/bin/yay ]] && [[ ! -e /usr/bin/yaourt ]] && [[ ! -e /usr/bin/pikaur ]] && [[ ! -e /usr/bin/pacaur ]] && echo -e " │                               14   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
     echo -e " └───────────────────────────────────────────────────────────────┘"
     echo
     echo -e "  Enter number or marked letter(s)   -   00   \e[1mH\e[0melp   -   0   \e[1mQ\e[0muit "
