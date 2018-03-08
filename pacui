@@ -1828,9 +1828,9 @@ Kernels from the AUR are also listed by the "comm" command and trigger a warning
 
 
 \e[1m3 - INSTALL PACKAGES
-\e[36m"yaourt -S <PACKAGE NAME>"
+\e[36m"yaourt -Syu <PACKAGE NAME>"
 This option downloads and installs <PACKAGE NAME> on your system. The list of packages shows packages from your system repository with their description while package groups or packages from the AUR are only shown with their name.
-If package installation from system repositories fails, the user is offered the choice to install packages using \e[36m"sudo pacman -S --force <PACKAGE NAME>"\e[0m.
+If package installation from system repositories fails, the user is offered the choice to install packages using \e[36m"sudo pacman -Syu --force <PACKAGE NAME>"\e[0m.
 \e[1mAttention\e[0m: Experienced users can install packages from the AUR without the need to answer questions all the time by using the command "yaourt -S <PACKAGE NAME> --noconfirm". The "--noconfirm" flag is great for quick and dirty installations of AUR packages on non-secure systems. Please keep always in mind that the AUR can contain any sort of package - including malicious and destructive (parts of) packages. Therefore, it is recommended to always check the PKGBUILD and .INSTALL file manually before installing a package from the AUR.
 
 
