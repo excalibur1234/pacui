@@ -1120,7 +1120,7 @@ function func_b
 
 # Fix Pacman Errors
 # this core functionality of "Fix Pacman Errors" (note the bold "fix") can be started in the terminal using "pacui fix". it is separated into multiple parts. most parts begin (or contain) an introcing "echo" command or comment, which explains what is being done. the help page explains the core functionality of every part in detail, too.
-function func_fix
+function func_f
 {
         if  [[ -n $( command ls /tmp ) ]]
         then
@@ -1723,7 +1723,7 @@ function func_h
             echo -e "  pacui   s     - \e[1mS\e[0mearch Package Files"
             echo
             echo -e "  pacui   b     - Roll \e[1mB\e[0mack System"
-            echo -e " \e[31m pacui   fix   - \e[1mFix\e[0;31m Pacman Errors\e[0m"
+            echo -e " \e[31m pacui   f     - \e[1mF\e[0;31mix Pacman Errors\e[0m"
             echo -e "  pacui   c     - Edit \e[1mC\e[0monfig Files"
             echo -e "  pacui   ls    - \e[1mL\e[0mist Packages by \e[1mS\e[0mize"
             echo
@@ -2167,7 +2167,7 @@ do
     echo -e " │    5   Dependency \e[1mT\e[0mree         6   \e[1mR\e[0meverse Dependency \e[1mT\e[0mree    │"
     echo -e " │    7   \e[1mL\e[0mist Package Files      8   \e[1mS\e[0mearch Package Files       │"
     echo -e " └───────────────────────────────────────────────────────────────┘"
-    echo -e "      9   Roll \e[1mB\e[0mack System      \e[31m 10   \e[1mFix\e[0;31m Pacman Errors\e[0m "
+    echo -e "      9   Roll \e[1mB\e[0mack System      \e[31m 10   \e[1mF\e[0;31mix Pacman Errors\e[0m "
     echo -e "     11   Edit \e[1mC\e[0monfig Files      12   \e[1mL\e[0mist Packages by \e[1mS\e[0mize "
     echo -e " ┌───────────────────────────────────────────────────────────────┐"
     [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]         && echo -e " │   13   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR       14   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
@@ -2235,8 +2235,8 @@ do
             echo -e " \e[41m System roll back finished. To return to PacUI press ENTER \e[0m"
             read
             ;;
-        10|fix )
-            func_fix
+        10|f|fix )
+            func_f
             echo
             echo -e " \e[41m Operation finished. To return to PacUI press ENTER \e[0m"
             read
