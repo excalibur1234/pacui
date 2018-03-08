@@ -131,7 +131,7 @@ function func_u
 
             local server
             # extract mirror/repository server url from /etc/pacman.d/mirrorlist file with command:
-            server=$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" |awk -F '=' '{print $2}' | awk -F '$' '{print $1}'
+            server=$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" |awk -F '=' '{print $2}' | awk -F '$' '{print $1}' )
 
             # if one of the above update commands has failed, there are multiple points of failure. the first one is the internet/repository/mirror connection of the user:
             # check, whether there is a connection to the mirror/repository server. this is needed for package download/update!
@@ -1158,7 +1158,7 @@ function func_f
 
         local server
         # extract mirror/repository server url from /etc/pacman.d/mirrorlist file with command:
-        server=$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" |awk -F '=' '{print $2}' | awk -F '$' '{print $1}'
+        server=$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" |awk -F '=' '{print $2}' | awk -F '$' '{print $1}' )
 
         # check, whether there is a connection to the mirror/repository server. this is needed for package download/update!
         if ! ( wget --spider $(echo "$server") &>/dev/null )                        # the "wget --spider" command gets executed in any case in order to check its output.
