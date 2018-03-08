@@ -129,9 +129,13 @@ function func_u
         if [[ $install_successful == "false" ]]
         then
 
+            local server
+            # extract mirror/repository server url from /etc/pacman.d/mirrorlist file with command:
+            server=$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" |awk -F '=' '{print $2}' | awk -F '$' '{print $1}'
+
             # if one of the above update commands has failed, there are multiple points of failure. the first one is the internet/repository/mirror connection of the user:
             # check, whether there is a connection to the mirror/repository server. this is needed for package download/update!
-            if ( sudo pacman -Syy )                                                 # the "sudo pacman -Syy" command gets executed in any case in order to check its output.
+            if ( wget --spider $(echo "$server") &>/dev/null )                      # the "wget --spider" command gets executed in any case in order to check its output.
             then
 
                 # next, we can force the update, but only for packages from the system repositories and not packages from the AUR. this means, we make sure package updates from system repositories fail:
@@ -141,7 +145,7 @@ function func_u
                     # now, we are sure there is an active connection to the server/mirror/repository and package updates from there have failed. in this case, we can offer the user to forcefully install updates:
                     local answer
                     # ask, whether to force update the system and save answer in "answer" variable:
-                    echo -e " \e[1m Updates from system repositories have failed because of file conflicts. \e[0m"
+                    echo -e " \e[1m Updates from system repositories have failed probably because of file conflicts. \e[0m"
                     echo -e " \e[41m Do you want to forcefully overwrite all conflicting files? [y|N] \e[0m"
                     read -s -n1 answer                                              # this "read" command only accepts 1 letter as answer. this feels faster and is enough in this situation.
 
@@ -159,14 +163,10 @@ function func_u
             else
 
                 # print error message, if there is no connection to a mirror/repository server and quit
-
-                local server
-                # extract mirror/repository server url from /etc/pacman.d/mirrorlist file:
-                server=$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" |awk -F '=' '{print $2}' )
-
-                echo -e " \e[41m Either there is something wrong with your internet connection or with your mirror/repository server: $server \e[0m"
+                echo
+                echo -e " \e[41m Either there is something wrong with your internet connection or with your mirror/repository server: $server \e[0m"        # writing the $server variables in quotes (" or ') does not work! using ' for echo command does not work either!
                 echo -e " \e[1;41m Please make sure both are ok and rerun this part of PacUI! \e[0m"
-                echo -e ""
+                echo
 
             fi
 
@@ -516,7 +516,7 @@ function func_i
                 pacaur -S $pkg --color always
 
             else
-                sudo pacman -S $pkg --color always
+                sudo pacman -Syu $pkg --color always
 
             fi
 
@@ -1156,16 +1156,15 @@ function func_f
         fi
 
 
-        # check, whether there is a connection to the mirror/repository server. this is needed for package download!
-        if ( ! sudo pacman -Syy )                                                   # the "sudo pacman -Syy" command gets executed in any case in order to check its output.
+        local server
+        # extract mirror/repository server url from /etc/pacman.d/mirrorlist file with command:
+        server=$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" |awk -F '=' '{print $2}' | awk -F '$' '{print $1}'
+
+        # check, whether there is a connection to the mirror/repository server. this is needed for package download/update!
+        if ! ( wget --spider $(echo "$server") &>/dev/null )                        # the "wget --spider" command gets executed in any case in order to check its output.
         then
 
             # print error message, if there is no connection to a mirror/repository server and quit
-
-            local server
-            # extract mirror/repository server url from /etc/pacman.d/mirrorlist file:
-            server=$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" | awk -F '=' '{print $2}' )
-
             echo
             echo -e " \e[41m Either there is something wrong with your internet connection or with your mirror/repository server: $server \e[0m"        # writing the $server variables in quotes (" or ') does not work! using ' for echo command does not work either!
             echo -e " \e[1;41m Please make sure both are ok and rerun this part of PacUI! \e[0m"
