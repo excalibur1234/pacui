@@ -505,7 +505,7 @@ function func_i
 
             elif [[ -e /usr/bin/yaourt ]]
             then
-                yaourt -S $pkg
+                yaourt -Syu $pkg
 
             elif [[ -e /usr/bin/pikaur ]]
             then
@@ -1285,9 +1285,9 @@ function func_f
 
 
             echo " updating core system ..."
-            sudo pacman -Syyuu --color always --noconfirm
+            sudo pacman -Syyu --color always --noconfirm
             echo ""
-            sudo pacman -Suu --color always
+            sudo pacman -Syu --color always
             echo ""
             sudo pacman -Fyy
 
@@ -1959,11 +1959,11 @@ This command removes all packages from your Pacman cache, which are not installe
 The first command updates - if necessary - systemd including important components before all other packages are updated. This is necessary, because sometimes a successful update of systemd causes a short crash on some systems, which prevents a successful update of all other packages.
 The second command simply does nothing for 30 seconds before the update of all other packages get started. It is only here as precaution.
 
-\e[36m"sudo pacman -Syyuu"
-This last command forces a redownload of the latest package database from the best repository mirror. Then, all your installed packages are checked against this latest package database. If an updated package is available from your system repositories, it will get downloaded and installed on your system. If an installed package is newer than the same package in your system repositories, the installed package will get downgraded. This behavior ensures your packages are always in sync with your system repositories, even if you have just switched the repository mirror or switched from branches.
+\e[36m"sudo pacman -Syyu --noconfirm"
+This command forces a redownload of the latest package database from the best repository mirror. Then, all your installed packages are checked against this latest package database. If an updated package is available from your system repositories, it will get downloaded and installed on your system. If an installed package is newer than the same package in your system repositories, it will not be installed. This behavior ensures your packages are always in sync with your system repositories (or newer).
 
-\e[36m"sudo pacman -Suu"
-This command makes abolutely sure all downloaded packages get installed and downgraded if necessary. The user has to manually allow downgrades of packages, if downgrades are available.
+\e[36m"sudo pacman -Syu"
+This command makes abolutely sure all packages get updated. If manual intervention is necessary, the user can do it here.
 
 \e[36m"sudo pacman -Fyy"
 This command forces a sync of the file database of your system repository with your used repository mirror server. The file database is separate from the package database. The file database enables SEARCH PACKAGE FILES and LIST PACKAGE FILES of packages, which are not installed on your system but only available on your system repository.
