@@ -1735,7 +1735,8 @@ function func_h
             [[ -e /usr/bin/downgrade ]]                                                                                 && echo -e "  pacui   d     - \e[1mD\e[0mowngrade Packages"
             [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]   && echo -e "  pacui   a     - Search + Install from \e[1mA\e[0mUR"
             echo
-            echo -e '  pacui   h     - Short \e[1mH\e[0melp. For more help, select "Help" in User Interface.'
+            echo -e '  pacui   h     - This short \e[1mH\e[0melp.'
+            echo -e '  pacui   help  - Full \e[1mHelp\e[0m page. Quit with "q" key.'
 
         else
 
@@ -1877,7 +1878,7 @@ By default, the results are filtered for files located in usr/bin/, but you can 
 \e[1m8 - SEARCH PACKAGE FILES
 \e[36m"pacman -Ql | grep <FILE NAME>"
 \e[36m"sudo pacman -Fysx <FILE NAME>" \e[0m(only for packages not installed on your system)
-In some situations, Pacman (e.g. during UPDATE SYSTEM) cannot find a file, for example a shared library. An error message is shown about <FILE NAME>. Use SEARCH PACKAGE FILES to find out, which package has installed <FILE NAME>. In most cases, you can fix the Pacman error by using one of the following options on that package: UPDATE SYSTEM, ROLL BACK SYSTEM, FORCE REMOVE PACKAGES and INSTALL PACKAGES, or FORCE UPDATE SYSTEM.
+In some situations, Pacman (e.g. during UPDATE SYSTEM) cannot find a file, for example a shared library. An error message is shown about <FILE NAME>. Use SEARCH PACKAGE FILES to find out, which package has installed <FILE NAME>. In most cases, you can fix the Pacman error by using one of the following options on that package: UPDATE SYSTEM, ROLL BACK SYSTEM, REMOVE PACKAGES, and INSTALL PACKAGES, or FORCE UPDATE AUR.
 SEARCH PACKAGE FILES is in many ways a reverse LIST PACKAGE FILES. You can use it to find out which package you have to install in order to use the <FILE NAME> command in your terminal.
 The first command searches for <FILE NAME> in all your installed packages. <FILE NAME> can be only a part of an actual file name or contain regular expressions.
 The second command syncs the file database with your system repositories and then searches the file database for <FILE NAME>.
@@ -1895,7 +1896,7 @@ This command shows you a list of all recent Pacman actions sorted by date (using
 
 
 \e[31;1m10 - FIX PACMAN ERRORS
-Multiple commands attempt to fix the most common issues Manjaro users have with Pacman. This should also work for Arch-based distributions, but to a lesser degree. Force options (as in FORCE UPDATE SYSTEM) are excluded, even though they are essential in fixing some problems.
+Multiple commands attempt to fix the most common issues Manjaro users have with Pacman. This should also work for Arch-based distributions, but to a lesser degree. Force options (e.g. to install packages) are excluded, even though they are essential in fixing some problems.
 Please make sure that your root partition is not full. If you have doubts about this, run MAINTAIN SYSTEM before FIX PACMAN ERRORS.
 A working internet connection is required for FIX PACMAN ERRORS!
 
@@ -2047,6 +2048,15 @@ EOF
         echo -e "$( cat '/tmp/pacui-help' )" | less -RMi
 
         fi
+}
+
+
+# Help
+# "pacui --help" helper function. this function maps the "help" argument to the "h" argument. This is done for new users, who are too lazy to read the documentation on the github page and expect "pacui --help" to work (as it does in most unix tools).
+function func_help
+{
+        func_h                                                                      # this calls the full help page
+        # func_h 1                                                                  # this calls the short help page
 }
 
 
