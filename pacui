@@ -212,10 +212,10 @@ function func_m
             echo " choosing fastest mirror (which can take a while) ..."
             if [[ -e /usr/bin/pacman-mirrors ]]                                     # checks, whether file "pacman-mirrors" exists
             then
-                sudo pacman-mirrors -f 0 && sudo pacman -Syy                        # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
+                sudo pacman-mirrors -f 0 && sudo pacman -Syyu                       # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
             elif [[ -e /usr/bin/reflector ]]                                        # checks, whether file "reflector" exists
             then
-                sudo reflector --verbose --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist && sleep 20 && sudo pacman -Syy # If it does exists, then the mirror will sort by it
+                sudo reflector --verbose --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist && sleep 20 && sudo pacman -Syyu          # If it does exists, then the mirror will sort by it
             fi
             echo ""
         fi
@@ -1146,6 +1146,8 @@ function func_f
             if [[ -e /usr/bin/pacman-mirrors ]]
             then
                 sudo pacman-mirrors -f 0 && sudo pacman -Syy                        # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
+                # here, "pacman -Syy" is used to sync to the (potentially new) repository server. this is important!
+                # but "pacman -Syy" (when pacman -S is executed later on) can result in a partially updated system. this cannot be prevented here, because it is possible the user's keys are corruped and he is no longer able to install any packages.
             fi
             # do this, if system uses reflector (default on Arch Linux or distributions using Arch Linux mirrors/repo servers)
             if [[ -e /usr/bin/reflector ]]
@@ -1202,6 +1204,7 @@ function func_f
                 # 2. download and install ntp:
                 echo " installing ntp ..."
                 sudo pacman -Sy ntp --noconfirm
+                # in general, "pacman -Sy" should be avoided to prevent partial updates. but in this situation it is necessary (as explained above). later on, the entire system is updated.
                 echo ""
 
 
@@ -1777,11 +1780,12 @@ If updates from system repositories fail, the user is offered the choice to upda
 \e[36m"sudo rm -r /tmp/*"
 This command deletes the entire content of /tmp. PacUI uses this temporary directory to cache package lists and fzf selections. By deleting the /tmp directory, PacUI behaves exactly as after a reboot: Its first usage probably feels slower but any strange bugs and incompatibilities, e.g. originating from PacUI updates, should be gone.
 
-\e[36m"sudo pacman-mirrors -f 0 && sudo pacman -Syy" \e[0m(for Manjaro)
-This command generates a new mirrorslist of all available Manjaro repository mirrors/servers and sorts it by ping of up-to-date mirrors/servers. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror. If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -c Germany,France".
+\e[36m"sudo pacman-mirrors -f 0 && sudo pacman -Syyu" \e[0m(for Manjaro)
+This command generates a new mirrorslist of all available Manjaro repository mirrors/servers and sorts it by ping of up-to-date mirrors/servers. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror and the system is updated. If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -f 0 -c Germany,France". In order to prevent partial updates, the whole system needs to be updated after the change to another repository mirror/server.
+Here a short explanation of partial updates and why a complete system update is needed: Assume you switch to another (updated) repository mirror/server with "sudo pacman-mirrors -f 0". Afterwards, a sync of the local package database and the package database on the server is needed using "sudo pacman -Syy" (and updates are found). It is now possible you install a package using "sudo pacman -S", which also installs a new (and no longer compatible) version of "bash" as a dependency. This means that all other (and not updated) packages, which depend on "bash", are broken.
 
-\e[36m"sudo reflector --verbose --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist && sudo pacman -Syy" \e[0m(for Arch and other Arch-based distros)
-This command generates a new mirrorslist of secure and fast repository mirrors/servers. Then it resyncs database to match the mirrors.
+\e[36m"sudo reflector --verbose --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist && sudo pacman -Syyu" \e[0m(for Arch and other Arch-based distros)
+This command generates a new mirrorslist of secure and fast repository mirrors/servers. Then it resyncs database to match the mirrors and updates the system.
 
 \e[36m"sudo pacman -Rsn $(pacman -Qqdt)"
 This option lists all orphaned packages on your system. Orphaned packages are old and no longer needed dependencies (packages not explicitly installed by you), which were never removed from your system.
@@ -1904,6 +1908,7 @@ This command removes Pacmans database lock. The database lock prevents multiple 
 
 \e[36m"sudo pacman-mirrors -f 0 && sudo pacman -Syy" \e[0m(for Manjaro)
 This command generates a new mirrorslist of all available Manjaro repository mirrors/servers and sorts it by ping of up-to-date mirrors/servers. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror. If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -c Germany,France".
+Here, the risk of a (temporarily) partially updated system has to be considered against the effort to fix all systems, including systems on which it is no longer possible to install any packages. The system can be put in a partially updated state during the course of FIX PACMAN ERRORS, but at the end of FIX PACMAN ERRORS the complete system is updated.
 
 \e[36m"sudo reflector --verbose --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist && sudo pacman -Syy" \e[0m(For Arch and other Arch-based distros)
 This command generates a new mirrorslist of secure and fast repository mirrors/servers. Then it resyncs database to match the mirrors.
@@ -1960,7 +1965,7 @@ The first command updates - if necessary - systemd including important component
 The second command simply does nothing for 30 seconds before the update of all other packages get started. It is only here as precaution.
 
 \e[36m"sudo pacman -Syyu --noconfirm"
-This command forces a redownload of the latest package database from the best repository mirror. Then, all your installed packages are checked against this latest package database. If an updated package is available from your system repositories, it will get downloaded and installed on your system. If an installed package is newer than the same package in your system repositories, it will not be installed. This behavior ensures your packages are always in sync with your system repositories (or newer).
+This command forces a redownload of the latest package database from the best repository mirror. Then, all your installed packages are checked against this latest package database. If an updated package is available from your system repositories, it will get downloaded and installed on your system. If an installed package is newer than the same package in your system repositories, it will not be installed. This behavior ensures your packages are always in sync with (or newer than) your system repositories.
 
 \e[36m"sudo pacman -Syu"
 This command makes abolutely sure all packages get updated. If manual intervention is necessary, the user can do it here.
