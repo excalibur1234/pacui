@@ -1713,30 +1713,30 @@ function func_h
         if [[ "${1:-}" == "1" ]]                                                    # check, whether func_h got started with the parameter "1"
         then
 
-            echo -e "  pacui         - \e[1mPac\e[0mUI with \e[1mU\e[0mser \e[1mI\e[0mnterface"
+            echo -e "  pacui        - \e[1mPac\e[0mUI with \e[1mU\e[0mser \e[1mI\e[0mnterface"
             echo
-            echo -e "  pacui   u     - \e[1mU\e[0mpdate System"
-            echo -e "  pacui   m     - \e[1mM\e[0maintain System"
-            echo -e "  pacui   i     - \e[1mI\e[0mnstall Packages"
-            echo -e "  pacui   r     - \e[1mR\e[0memove Packages + Deps"
-            echo -e "  pacui   t     - Dependency \e[1mT\e[0mree"
-            echo -e "  pacui   rt    - \e[1mR\e[0meverse Dependency \e[1mT\e[0mree"
-            echo -e "  pacui   l     - \e[1mL\e[0mist Package Files"
-            echo -e "  pacui   s     - \e[1mS\e[0mearch Package Files"
+            echo -e "  pacui  u     - \e[1mU\e[0mpdate System"
+            echo -e "  pacui  m     - \e[1mM\e[0maintain System"
+            echo -e "  pacui  i     - \e[1mI\e[0mnstall Packages"
+            echo -e "  pacui  r     - \e[1mR\e[0memove Packages + Deps"
+            echo -e "  pacui  t     - Dependency \e[1mT\e[0mree"
+            echo -e "  pacui  rt    - \e[1mR\e[0meverse Dependency \e[1mT\e[0mree"
+            echo -e "  pacui  l     - \e[1mL\e[0mist Package Files"
+            echo -e "  pacui  s     - \e[1mS\e[0mearch Package Files"
             echo
-            echo -e "  pacui   b     - Roll \e[1mB\e[0mack System"
-            echo -e " \e[31m pacui   f     - \e[1mF\e[0;31mix Pacman Errors\e[0m"
-            echo -e "  pacui   c     - Edit \e[1mC\e[0monfig Files"
-            echo -e "  pacui   ls    - \e[1mL\e[0mist Packages by \e[1mS\e[0mize"
+            echo -e "  pacui  b     - Roll \e[1mB\e[0mack System"
+            echo -e " \e[31m pacui  f     - \e[1mF\e[0;31mix Pacman Errors\e[0m"
+            echo -e "  pacui  c     - Edit \e[1mC\e[0monfig Files"
+            echo -e "  pacui  ls    - \e[1mL\e[0mist Packages by \e[1mS\e[0mize"
             echo
-            [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]   && echo -e "  pacui   ua    - Force \e[1mU\e[0mpdate \e[1mA\e[0mUR"
-            echo -e "  pacui   la    - \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
+            [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]   && echo -e "  pacui  ua    - Force \e[1mU\e[0mpdate \e[1mA\e[0mUR"
+            echo -e "  pacui  la    - \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
             [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]   && echo
-            [[ -e /usr/bin/downgrade ]]                                                                                 && echo -e "  pacui   d     - \e[1mD\e[0mowngrade Packages"
-            [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]   && echo -e "  pacui   a     - Search + Install from \e[1mA\e[0mUR"
+            [[ -e /usr/bin/downgrade ]]                                                                                 && echo -e "  pacui  d     - \e[1mD\e[0mowngrade Packages"
+            [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]   && echo -e "  pacui  a     - Search + Install from \e[1mA\e[0mUR"
             echo
-            echo -e '  pacui   h     - This short \e[1mH\e[0melp.'
-            echo -e '  pacui   help  - Full \e[1mHelp\e[0m page. Quit with "q" key.'
+            echo -e '  pacui  h     - This short \e[1mH\e[0melp.'
+            echo -e '  pacui  help  - Full \e[1mHelp\e[0m page. Quit with "q" key.'
 
         else
 
@@ -2098,14 +2098,16 @@ input2="${*:2}"
 # fzf will always display search results for "input2", if it exists (and "input" is a valid function"). if "input2" is not found in fzf's list, NOTHING is displayed.
 
 
-# remove leading white spaces from $input variable:
+# remove leading white spaces from variables:
 input=$( echo "$input" | sed 's/^ *//g' )
-
-# remove leading dash(es):
-input=$( echo "$input" |  sed 's/^-*//g' )
+input2="$( echo "$input2" | sed 's/^ *//g' )"
 
 # remove trailing white spaces:
 input=$( echo "$input" | sed 's/ *$//g' )
+input2="$( echo "$input2" | sed 's/ *$//g' )"
+
+# remove leading dash(es):
+input=$( echo "$input" |  sed 's/^-*//g' )
 
 # convert content of "input" variable to lowercase
 input=$( echo "$input" | tr '[:upper:]' '[:lower:]' )
@@ -2121,8 +2123,9 @@ then
     unset input2
 
     exit $?                                                                         # exit pacui here and return error code if present. this "exit" command is needed to prevent the UI from loading!
+    #exit                                                                            # exit pacui here. this "exit" command is needed to prevent the UI from loading!
 
-elif (( $# > 0 ))                                                                   # if "func_$input" is no valid function AND if one or more arguments are given. this condition is needed to exclude the "pacui" command (note, there are NO arguments) from running this section.
+elif (( $# > 0 ))                                                                   # if "func_$input" is no valid function AND if one or more arguments are given. this condition is needed to exclude the "pacui" command (note, there are NO arguments. "pacui" is supposed to start the UI) from running this section.
 then
 
     unset input
