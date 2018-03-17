@@ -1713,30 +1713,30 @@ function func_h
         if [[ "${1:-}" == "1" ]]                                                    # check, whether func_h got started with the parameter "1"
         then
 
-            echo -e "      \e[1mPac\e[0mUI with \e[1mU\e[0mser \e[1mI\e[0mnterface"
+            echo -e "      pacui       - \e[1mPac\e[0mUI with \e[1mU\e[0mser \e[1mI\e[0mnterface"
             echo
-            echo -e "  1   \e[1mU\e[0mpdate System"
-            echo -e "  2   \e[1mM\e[0maintain System"
-            echo -e "  3   \e[1mI\e[0mnstall Packages"
-            echo -e "  4   \e[1mR\e[0memove Packages and Deps"
-            echo -e "  5   Dependency \e[1mT\e[0mree"
-            echo -e "  6   \e[1mR\e[0meverse Dependency \e[1mT\e[0mree"
-            echo -e "  7   \e[1mL\e[0mist Package Files"
-            echo -e "  8   \e[1mS\e[0mearch Package Files"
+            echo -e "  1   pacui  u    - \e[1mU\e[0mpdate System"
+            echo -e "  2   pacui  m    - \e[1mM\e[0maintain System"
+            echo -e "  3   pacui  i    - \e[1mI\e[0mnstall Packages"
+            echo -e "  4   pacui  r    - \e[1mR\e[0memove Packages and Deps"
+            echo -e "  5   pacui  t    - Dependency \e[1mT\e[0mree"
+            echo -e "  6   pacui  rt   - \e[1mR\e[0meverse Dependency \e[1mT\e[0mree"
+            echo -e "  7   pacui  l    - \e[1mL\e[0mist Package Files"
+            echo -e "  8   pacui  s    - \e[1mS\e[0mearch Package Files"
             echo
-            echo -e "  9   Roll \e[1mB\e[0mack System"
-            echo -e "  \e[31m10  \e[1mF\e[0;31mix Pacman Errors\e[0m"
-            echo -e "  11  Edit \e[1mC\e[0monfig Files"
-            echo -e "  12  \e[1mL\e[0mist Packages by \e[1mS\e[0mize"
+            echo -e "  9   pacui  b    - Roll \e[1mB\e[0mack System"
+            echo -e " \e[31m 10  pacui  f    - \e[1mF\e[0;31mix Pacman Errors\e[0m"
+            echo -e "  11  pacui  c    - Edit \e[1mC\e[0monfig Files"
+            echo -e "  12  pacui  ls   - \e[1mL\e[0mist Packages by \e[1mS\e[0mize"
             echo
-            [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]   && echo -e "  13  Force \e[1mU\e[0mpdate \e[1mA\e[0mUR"
-            echo -e "  14  \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
+            [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]   && echo -e "  13  pacui  ua   - Force \e[1mU\e[0mpdate \e[1mA\e[0mUR"
+            echo -e "  14  pacui  la   - \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
             [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]   && echo
-            [[ -e /usr/bin/downgrade ]]                                                                                 && echo -e "      \e[1mD\e[0mowngrade Packages"
-            [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]   && echo -e "      Search and Install from \e[1mA\e[0mUR"
+            [[ -e /usr/bin/downgrade ]]                                                                                 && echo -e "      pacui  d    - \e[1mD\e[0mowngrade Packages"
+            [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]   && echo -e "      pacui  a    - Search and Install from \e[1mA\e[0mUR"
             echo
-            echo -e "      This short \e[1mH\e[0melp."
-            echo -e '  00  Full \e[1mHelp\e[0m page. Quit with "q" key.'
+            echo -e "      pacui  h    - This short \e[1mH\e[0melp."
+            echo -e '  00  pacui  help - Full \e[1mHelp\e[0m page. "q" key quits.'
 
         else
 
@@ -2343,7 +2343,7 @@ do
 
             shift
             ;;
-        flag=* )
+        flag=* )                                                                    # this means 'flag=' string and every following string (no matter how long it is or what characters (except for " ") it contains)
             argument_flag="${key#*=}"                                               # replace '*=' (i.e. everything in front of = sign) in 'key' variable with nothing. save result in $argument_flag.
             shift
             ;;
@@ -2355,7 +2355,7 @@ do
             ;;
         * )                                                                         # do this, if $key varialbe contains anything else not listed above. this is (hopefully) all stuff, which is supposed to be passed on to fzf.
             argument_input+="$key"
-            argument_input+=" "
+            argument_input+=" "                                                     # all 'key' arguments should be space separated. problem: there will be a space at the end of $argument_input variable.
             shift
             ;;
 
