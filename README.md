@@ -107,7 +107,7 @@ pacui i cantata
 ```
 Instead of a list of all available packages, a much shorter already filtered list is displayed. Simply select the "cantata" package you want to install and press ENTER in order to install it.
 
-If the last argument contains special characters, it has to be quoted. For example when using regular expressions in order to search package file names starting with "zsh":
+If an argument contains special characters, it has to be quoted. For example when using regular expressions in order to search package file names starting with "zsh":
 ```
 pacui s "^zsh"
 ```
@@ -139,20 +139,20 @@ p u
 ```
 
 ### Search syntax
-PacUI uses [fuzzy finder (fzf)](https://github.com/junegunn/fzf) to display lists of items (such as packages, package groups, logs, patchs, etc.) and by starting to type, you can easily search/filter those lists. Regular expressions can be used to improve the search results. fzf accepts multiple search terms (with regular expressions) delimited by spaces. e.g. `^music git$ sbtrkt !fire`
+PacUI uses [fuzzy finder (fzf)](https://github.com/junegunn/fzf) to display lists of items (such as packages, package groups, logs, patchs, etc.) and by starting to type, you can easily search/filter those lists. Regular expressions can be used to improve the search results, e.g.:
 
 | Search Term | Description                       |
 | ----------- | --------------------------------- |
-|  `sbtrkt`   | Items that match `sbtrkt`         |
-|  `^music`   | Items that start with `music`     |
-|  `git$`     | Items that end with `git`         |
-|  `'wild`    | Items that include `wild`         |
-|  `!fire`    | Items that do not include `fire`  |
-|  `!-git$`   | Items that do not end with `-git` |
+|  `"sbtrkt"`   | Items that match `sbtrkt`         |
+|  `"^music"`   | Items that start with `music`     |
+|  `"git$"`     | Items that end with `git`         |
+|  `"'wild"`    | Items that include `wild`         |
+|  `"!fire"`    | Items that do not include `fire`  |
+|  `"!-git$"`   | Items that do not end with `-git` |
 
-A single bar character term acts as an OR operator. For example, the following query matches entries that start with `core` and end with either `go`, `rb`, or `py`.
+A single bar character term acts as an OR operator. For example, the following query matches entries that start with `core` or end with `go`, `rb`, or `py`.
 ```
-^core go$ | rb$ | py$
+"^core|go$|rb$|py$"
 ```
 
 
