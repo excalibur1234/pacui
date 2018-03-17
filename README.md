@@ -18,6 +18,7 @@ Table of Contents
       * [Start PacUI with UI](#start-pacui-with-ui)
       * [Start PacUI without UI: Using Options](#start-pacui-without-ui-using-options)
       * [Start PacUI without UI: Using Options and Package Names](#start-pacui-without-ui-using-options-and-package-names)
+      * [Start PacUI without UI: Passing Arguments to AUR helper or Pacman](#start-pacui-without-ui-passing-arguments-to-aur-helper-or-pacman)
    * [Useful Tips and Recommended Settings](#useful-tips-and-recommended-settings)
       * [Fancy List View](#fancy-list-view)
       * [Alias](#alias)
@@ -100,7 +101,6 @@ This principle can be used with all of PacUI's options. Here is another random e
 - `pacui --ls`
 
 ### Start PacUI without UI: Using Options and Package Names
-
 You can also use package names in addition to options. For example, you want to install the package "cantata". Then, you can use a command like
 ```
 pacui i cantata
@@ -112,7 +112,17 @@ If an argument contains special characters, it has to be quoted. For example whe
 pacui s "^zsh"
 ```
 
+### Start PacUI without UI: Passing Arguments to AUR helper or Pacman
+For scripting or use with an alias, PacUI can have an "flag" argument, which gets passed directly to the AUR helper and/or Pacman.
+Examples:
+- ` pacui -r 0ad --flag="--noconfirm"`
+- ` pacui u flag --noconfirm`
+- ` pacui --FLAG --asdeps --i --bash`
+- ` pacui b --flag=--noconfirm`
+
+
 ## Useful Tips and Recommended Settings
+
 It is highly recommended to use an utility, which notifies the user about available updates alongside of PacUI. Such a lightweight utility is for example [update-notifier](https://github.com/Chrysostomus/update-notifier).
 
 Along with PacUI the following settings are recommended by the author:
@@ -126,7 +136,6 @@ A very easy way to edit this file by using PacUI is:
 ```
 pacui c pacman.conf
 ```
-
 
 ### Alias
 If you use PacUI without the UI it is recommended to use an alias for PacUI to reduce the amount of necessary typing. Do this by adding the following line to your ~/.bashrc file (if you use bash):

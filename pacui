@@ -2374,6 +2374,7 @@ then
 
     "func_$function_call" 1                                                         # pass the parameter "1" with the funciton when it gets called directly from terminal.
 
+    # unset global variables:
     unset function_call
     unset argument_input
     unset argument_flag
