@@ -2095,8 +2095,6 @@ set -u
 
 # the 'pacui' command gets called (mostly) with arguments. in the following while-loop, all arguments are assigned to their designated variables:
 
-#set +u                                                                             # temporarily disable strict mode for environment variables (such as '$1', '$#', '$2', '$?')
-
 # save number of arguments in a variable for later usage, because the following while-loop destroys all original arguments and therefore, the number of arguments is always 0 after it:
 argument_number="${#:-}"                                                            # we have to use "${#:-}" instead of "$#", because of strict bash mode!        # '$#' is the number of arguments with which 'pacui' got called
 
@@ -2114,18 +2112,19 @@ while (( "${#:-}" > 0 ))
 do
 
     key="${1:-}"                                                                    # we have to use "${1:-}" instead of "$1", because of strict bash mode!       # '$1' is the first argument with which 'pacui' got called
+    # comment: when entering regex as parameter for pacui, it has to be put in brackets. otherwise, "${1:-}" will somehow interpret it and output strange stuff.
 
     # remove leading white spaces from $key:
-    key=$( echo "$key" | sed 's/^ *//g' )
+    key="$( echo "$key" | sed 's/^ *//g' )"
 
     # remove trailing white spaces:
-    key=$( echo "$key" | sed 's/ *$//g' )
+    key="$( echo "$key" | sed 's/ *$//g' )"
 
     # remove leading dash(es):
-    key=$( echo "$key" |  sed 's/^-*//g' )
+    key="$( echo "$key" |  sed 's/^-*//g' )"
 
     # convert content of "key" variable to lowercase
-    key=$( echo "$key" | tr '[:upper:]' '[:lower:]' )
+    key="$( echo "$key" | tr '[:upper:]' '[:lower:]' )"
 
 
     # test, whether 'key' fits any of the following strings listed inside this 'case' command:
@@ -2365,6 +2364,9 @@ do
 done
 
 
+# remove trailing white spaces from $argument_input variable. this is needed e.g. for 'func_s' to not search for "<SEARCH TERM><SPACE>" but "<SEARCH TERM>"
+argument_input="$( echo "$argument_input" | sed 's/ *$//g' )"
+
 
 # the following code checks, whether a prefix (func_) + varialbe "function_call" is a valid function defined above.
 if [[ $( type -t "func_$function_call") == "function" ]]
@@ -2377,7 +2379,7 @@ then
     unset argument_flag
 
     exit $?                                                                         # exit pacui here and return error code if present. this "exit" command is needed to prevent the UI from loading!
-    #exit                                                                            # exit pacui here. this "exit" command is needed to prevent the UI from loading!
+    #exit                                                                           # exit pacui here. this "exit" command is needed to prevent the UI from loading!
 
 elif (( $argument_number > 0 ))                                                     # if "func_$function_call" is no valid function AND if one or more arguments are given. this condition is needed to exclude the "pacui" command (note, there are NO arguments. "pacui" is supposed to start the UI) from running this section.
 then
@@ -2393,8 +2395,6 @@ then
 
 fi
 
-
-#set -u                                                                              # reenable bash strict mode
 unset argument_number                                                               # this global variable is no longer needed
 
 
