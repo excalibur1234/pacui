@@ -55,7 +55,7 @@ function func_u
         then
 
             # execute "trizen -Syu" command:
-            if ( trizen -Syu "$argument_flag" )
+            if ( trizen "$argument_flag"-Syu )
             then
                 # only set $install_successful=true, if the command "trizen -Syu" was executed without errors
                 install_successful=true
@@ -67,7 +67,7 @@ function func_u
         then
 
             # execute "yay -Syu" command:
-            if ( yay -Syu "$argument_flag" )
+            if ( yay "$argument_flag"-Syu )
             then
                 # only set $install_successful=true, if the command "yay -Syu" was executed without errors
                 install_successful=true
@@ -79,7 +79,7 @@ function func_u
         then
 
             # execute "sudo pacman -Syu --color always && yaourt -Syua" command:
-            if ( sudo pacman -Syu --color always && yaourt -Syua "$argument_flag" )
+            if ( sudo pacman "$argument_flag"-Syu --color always && yaourt "$argument_flag"-Syua )
             then
                 # only set $install_successful=true, if the command "sudo pacman -Syu --color always && yaourt -Syua" was executed without errors
                 install_successful=true
@@ -91,7 +91,7 @@ function func_u
         then
 
             # execute "pikaur -Syu" command:
-            if ( pikaur -Syu --color always "$argument_flag" )
+            if ( pikaur "$argument_flag"-Syu --color always )
             then
                 # only set $install_successful=true, if the command "pikaur -Syu" was executed without errors
                 install_successful=true
@@ -103,7 +103,7 @@ function func_u
         then
 
             # execute "pacaur -Syu --color always" command:
-            if ( pacaur -Syu --color always "$argument_flag" )
+            if ( pacaur "$argument_flag"-Syu --color always )
             then
                 # only set $install_successful=true, if the command "pacaur -Syu --color always" was executed without errors
                 install_successful=true
@@ -114,7 +114,7 @@ function func_u
         else
 
             # execute "sudo pacman -Syu --color always" command:
-            if ( sudo pacman -Syu --color always "$argument_flag" )
+            if ( sudo pacman "$argument_flag"-Syu --color always )
             then
                 # only set $install_successful=true, if the command "sudo pacman -Syu --color always" was executed without errors
                 install_successful=true
@@ -320,7 +320,7 @@ function func_m
                 pkg=$(  comm -23 <(pacman -Qqm | sort) <(sort -u /tmp/aur/packages)  )
 
                 # only run the command inside the if-statement, if $pkg variable is not empty
-                if [[ -n $pkg ]]                                                    # checks, if length of string is non-zero ("-n" conditional bash expression is the opposite of "-z" (check, whether length of string is zero))
+                if [[ -n "$pkg" ]]                                                    # checks, if length of string is non-zero ("-n" conditional bash expression is the opposite of "-z" (check, whether length of string is zero))
                 then
                     echo -e " \e[1m The following packages are neither in your package repository nor the AUR. \e[0m"
                     echo -e " \e[1m They are orphaned and will never be updated. \e[0m"
@@ -435,7 +435,8 @@ function func_i
         # fzf lets you search and select a given list. "man fzf" lists all its arguments beautifully.
         # "fzf" commands are typically in a convoluted form. here, a long "fzf" command is listed in maximum readable form.
         # the package list in $pacui_list_install gets sorted and displayed by fzf. then it is filtered by awk and saved in pkg variable.
-        pkg=$(  echo "$pacui_list_install" |
+        pkg="$(
+                echo "$pacui_list_install" |                                        # load list of package names from $pacui_list_install variable
                 sort -k1,1 -u |                                                     # sort list (only first column gets used for sorting)
                 # the "--multi" flag makes it possible to select multiple list items
                 # $argument_input variable gets defined below (after function definitions) --> search for "argument_input="
@@ -484,39 +485,41 @@ function func_i
                         fi ) \
                     --header="TAB key to (un)select. ENTER to install. ESC to quit." \
                     --prompt="Enter string to filter list > " |
-                awk '{print $1}' )                                                  # use "awk" to filter output of "fzf". "fzf" should output a space separed list of all chosen packages anyway!
+                awk '{print $1}'                                                    # use "awk" to filter output of "fzf" and only get the first field (which contains the package name). "fzf" should output a separed list (by newline characters) of all chosen packages!
+            )"
 
         pacui_tty_clean                                                             # clear terminal
 
         # $pkg contains package names below each other (=separated by \n), but we need a list in 1 line (=space separated):
-        #pkg=$( echo $pkg | paste -sd " " )                                         # THIS IS NOT NEEDED, BECAUSE WE HAVE HAVE LEFT OUT THE PARENTHESIS ABOVE AROUND $( fzf... )
+        pkg="$( echo "$pkg" | paste -sd " " )"
 
-        # only run the command inside the if-statement, if variable $pkg is not empty - this happens when fzf is quit with ESC or CTRL+C
-        if [[ -n $pkg ]]
+
+        # only run the command inside the if-statement, if variable $pkg is not empty (this happens when fzf is quit with ESC or CTRL+C)
+        if [[ -n "$pkg" ]]
         then
 
             if [[ -e /usr/bin/trizen ]]
             then
-                trizen -S $pkg "$argument_flag"
+                trizen "$argument_flag"-S $pkg                                      # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
 
             elif [[ -e /usr/bin/yay ]]
             then
-                yay -S $pkg "$argument_flag"
+                yay "$argument_flag"-S $pkg                                         # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
 
             elif [[ -e /usr/bin/yaourt ]]
             then
-                yaourt -Syu $pkg "$argument_flag"
+                yaourt "$argument_flag"-Syu $pkg                                    # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
 
             elif [[ -e /usr/bin/pikaur ]]
             then
-                pikaur -S $pkg "$argument_flag"
+                pikaur "$argument_flag"-S $pkg                                      # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
 
             elif [[ -e /usr/bin/pacaur ]]
             then
-                pacaur -S $pkg --color always "$argument_flag"
+                pacaur "$argument_flag"-S $pkg --color always                       # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
 
             else
-                sudo pacman -Syu $pkg --color always "$argument_flag"
+                sudo pacman "$argument_flag"-Syu $pkg --color always                # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
 
             fi
 
@@ -561,7 +564,7 @@ function func_r
             # wrap the "sudo pacman -Rns" command in an if-statement, which checks, whether the removal of packages works. the removal of packages does not work, if the user tries to remove a dependency.
             # the failure of "sudo pacman -Rns" is especially annoying, if many packages has been chose for removal and 1 package is a dependency. by default, the list of packages (which are supposed to be removed) is NOT saved!
             # "sudo pacman -Rsn $pkg_remove --color always" always gets executed!
-            if ! ( sudo pacman -Rsn $pkg_remove --color always "$argument_flag" )
+            if ! ( sudo pacman "$argument_flag"-Rsn $pkg_remove --color always )
             then
 
                 # now, "sudo pacman -Rsn $pkg_remove --color always" has failed. this means that a dependency was selected. Print error message below the error output of pacman.
@@ -928,7 +931,7 @@ function func_b
             if [[ ! -z "$pkgR" ]]                                                   # this if-condition avoids error message when no package gets removed (and $pkgR is empty)
             then
                 # remove packages with pacman command. use parameter substitution with ${...} (without quotes!!!) for it, because otherwise the pacman command fails!
-                sudo pacman -Rdd ${pkgR} --color always "$argument_flag"
+                sudo pacman "$argument_flag"-Rdd ${pkgR} --color always
             fi
 
 
@@ -972,7 +975,7 @@ function func_b
                 if [[ ! -z "$pkgI" ]]
                 then
                     # install cannot be done as dependency, because sometimes packages are simply replaced by other packages. in this case, installing as dependency would be bad!
-                    sudo pacman -U ${pkgI} --color always "$argument_flag"
+                    sudo pacman "$argument_flag"-U ${pkgI} --color always
                 fi
 
             fi
@@ -1040,7 +1043,7 @@ function func_b
                 if [[ ! -z $pkgD ]]                                                 # checks, if variable is not empty
                 then
                     # downgrade packages by manually installing them: (sudo pacman -U --noconfirm --color always )
-                    sudo pacman -U ${pkgD} --color always "$argument_flag"
+                    sudo pacman "$argument_flag"-U ${pkgD} --color always
                 fi
 
             fi
@@ -1108,7 +1111,7 @@ function func_b
                 if [[ ! -z $pkgU ]]                                                 # checks, if variable is not empty
                 then
                     # upgrade packages by manually installing them: (sudo pacman -U --noconfirm --color always )
-                    sudo pacman -U ${pkgU} --color always "$argument_flag"
+                    sudo pacman "$argument_flag"-U ${pkgU} --color always
                 fi
 
             fi
@@ -1456,14 +1459,14 @@ function func_c
                 [[ -z "$EDITOR" ]] && EDITOR='nano'
                 # open "file" in "EDITOR": (attention: "$file" (including " symbols) does NOT WORK!!!)
                 sudo $EDITOR "$file"
-                sudo pacman -Syyu "$argument_flag"                                  # apply changes
+                sudo pacman "$argument_flag"-Syyu                                   # apply changes
             elif [[ "$file" == "/etc/pacman-mirrors.conf" ]]
             then
                 # if $EDITOR variable does not exist, set it to 'nano'
                 [[ -z "$EDITOR" ]] && EDITOR='nano'
                 # open "file" in "EDITOR": (attention: "$file" (including " symbols) does NOT WORK!!!)
                 sudo $EDITOR "$file"
-                sudo pacman-mirrors -f 0 && sudo pacman -Syyu "$argument_flag"
+                sudo pacman-mirrors -f 0 && sudo pacman "$argument_flag"-Syyu
             elif [[ "$file" == "/etc/fstab" ]] || [[ "$file" == "/etc/crypttab" ]]
             then
                 # if $EDITOR variable does not exist, set it to 'nano'
@@ -1523,23 +1526,23 @@ function func_ua
 {
         if [[ -e /usr/bin/trizen ]]
         then
-            trizen -Syu "$argument_flag" && trizen -Syu --devel --needed --noconfirm
+            trizen "$argument_flag"-Syu && trizen -Syu --devel --needed --noconfirm
 
         elif [[ -e /usr/bin/yay ]]
         then
-            yay -Syu "$argument_flag" && yay -Syu --devel --needed --noconfirm
+            yay "$argument_flag"-Syu && yay -Syu --devel --needed --noconfirm
 
         elif [[ -e /usr/bin/yaourt ]]
         then
-            yaourt -Syua "$argument_flag" && yaourt -Syua --devel --needed --noconfirm
+            yaourt "$argument_flag"-Syua && yaourt -Syua --devel --needed --noconfirm
 
         elif [[ -e /usr/bin/pikaur ]]
         then
-            pikaur -Syu --devel --needed --color always "$argument_flag"
+            pikaur "$argument_flag"-Syu --devel --needed --color always
 
         elif [[ -e /usr/bin/pacaur ]]
         then
-            pacaur -Syua --devel --needed --color always "$argument_flag"
+            pacaur "$argument_flag"-Syua --devel --needed --color always
 
         else
             echo -e " \e[41m No AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
@@ -1610,7 +1613,7 @@ function func_d
 
             if [[ -n $pkg ]]
             then
-                downgrade $pkg_downgrade "$argument_flag"
+                downgrade "$argument_flag"$pkg_downgrade
             fi
 
         fi
@@ -2100,6 +2103,7 @@ argument_number="${#:-}"                                                        
 
 # save the argument, which contains a function name to this variable:
 function_call=""
+function_call_previous=""                                                           # this variable is not really necessary, but its usage saves many lines of code
 
 # save all unknown input in this variable:
 argument_input=""
@@ -2131,220 +2135,86 @@ do
     case $key in
 
         1|u|update|update-system)                                                   # the following commands will get executed if $choice is "1" or "u" or "update" until a code line containing only ";;" is encountered
-            if [[ -z $function_call ]]
-            then
-                function_call=u
-            else
-                echo -e " \e[41m Only one PacUI option can be called at the same time. Please try again. \e[0m"
-                exit
-            fi
-
+            function_call=u
             shift                                                                   # shift to next argument (which is currently known as '$2'), and make it first argument ( referred to as '$1'). this command throws away the current argument, because we have done everything with it we wanted to do and it is no longer needed.
             ;;
         2|m|maintain|maintain-system )
-            if [[ -z $function_call ]]
-            then
-                function_call=m
-            else
-                echo -e " \e[41m Only one PacUI option can be called at the same time. Please try again. \e[0m"
-                exit
-            fi
-
+            function_call=m
             shift
             ;;
         3|i|install|install-packages )
-            if [[ -z $function_call ]]
-            then
-                function_call=i
-            else
-                echo -e " \e[41m Only one PacUI option can be called at the same time. Please try again. \e[0m"
-                exit
-            fi
-
+            function_call=i
             shift
             ;;
         4|r|remove|remove-packages-and-deps )
-            if [[ -z $function_call ]]
-            then
-                function_call=r
-            else
-                echo -e " \e[41m Only one PacUI option can be called at the same time. Please try again. \e[0m"
-                exit
-            fi
-
+            function_call=r
             shift
             ;;
         5|t|tree|dependency-tree )
-            if [[ -z $function_call ]]
-            then
-                function_call=t
-            else
-                echo -e " \e[41m Only one PacUI option can be called at the same time. Please try again. \e[0m"
-                exit
-            fi
-
+            function_call=t
             shift
             ;;
         6|rt|reversetree|reverse-dependency-tree )
-            if [[ -z $function_call ]]
-            then
-                function_call=rt
-            else
-                echo -e " \e[41m Only one PacUI option can be called at the same time. Please try again. \e[0m"
-                exit
-            fi
-
+            function_call=rt
             shift
             ;;
         7|l|list|list-package-files )
-            if [[ -z $function_call ]]
-            then
-                function_call=l
-            else
-                echo -e " \e[41m Only one PacUI option can be called at the same time. Please try again. \e[0m"
-                exit
-            fi
-
+            function_call=l
             shift
             ;;
         8|s|search|search-package-files )
-            if [[ -z $function_call ]]
-            then
-                function_call=s
-            else
-                echo -e " \e[41m Only one PacUI option can be called at the same time. Please try again. \e[0m"
-                exit
-            fi
-
+            function_call=s
             shift
             ;;
         9|b|back|roll-back-system )
-            if [[ -z $function_call ]]
-            then
-                function_call=b
-            else
-                echo -e " \e[41m Only one PacUI option can be called at the same time. Please try again. \e[0m"
-                exit
-            fi
-
+            function_call=b
             shift
             ;;
         10|f|fix|fix-pacman-errors )
-            if [[ -z $function_call ]]
-            then
-                function_call=f
-            else
-                echo -e " \e[41m Only one PacUI option can be called at the same time. Please try again. \e[0m"
-                exit
-            fi
-
+            function_call=f
             shift
             ;;
         11|c|conf|config|edit-config-files )
-            if [[ -z $function_call ]]
-            then
-                function_call=c
-            else
-                echo -e " \e[41m Only one PacUI option can be called at the same time. Please try again. \e[0m"
-                exit
-            fi
-
+            function_call=c
             shift
             ;;
         12|ls|listsize|list-packages-by-size )
-            if [[ -z $function_call ]]
-            then
-                function_call=ls
-            else
-                echo -e " \e[41m Only one PacUI option can be called at the same time. Please try again. \e[0m"
-                exit
-            fi
-
+            function_call=ls
             shift
             ;;
         13|ua|fua|forceupdateaur|updateaur|force-update-aur )
-            if [[ -z $function_call ]]
-            then
-                function_call=ua
-            else
-                echo -e " \e[41m Only one PacUI option can be called at the same time. Please try again. \e[0m"
-                exit
-            fi
-
+            function_call=ua
             shift
             ;;
         14|la|listaur|list-installed-from-aur )
-            if [[ -z $function_call ]]
-            then
-                function_call=la
-            else
-                echo -e " \e[41m Only one PacUI option can be called at the same time. Please try again. \e[0m"
-                exit
-            fi
-
+            function_call=la
             shift
             ;;
-
         d|down|downgrade|downgrade-packages )
-            if [[ -z $function_call ]]
-            then
-                function_call=d
-            else
-                echo -e " \e[41m Only one PacUI option can be called at the same time. Please try again. \e[0m"
-                exit
-            fi
-
+            function_call=d
             shift
             ;;
         a|aur|search-and-install-from-aur )
-            if [[ -z $function_call ]]
-            then
-                function_call=a
-            else
-                echo -e " \e[41m Only one PacUI option can be called at the same time. Please try again. \e[0m"
-                exit
-            fi
-
+            function_call=a
             shift
             ;;
-
         h )
-            if [[ -z $function_call ]]
-            then
-                function_call=h
-            else
-                echo -e " \e[41m Only one PacUI option can be called at the same time. Please try again. \e[0m"
-                exit
-            fi
-
+            function_call=h
             shift
             ;;
         00|help|man )
-            if [[ -z $function_call ]]
-            then
-                function_call=help
-            else
-                echo -e " \e[41m Only one PacUI option can be called at the same time. Please try again. \e[0m"
-                exit
-            fi
-
+            function_call=help
             shift
             ;;
 
+        # next, all other possible arguments pacui can be called with are listed:
 
         diff )
-            if [[ -z $function_call ]]
-            then
-                function_call=diff
-            else
-                echo -e " \e[41m Only one PacUI option can be called at the same time. Please try again. \e[0m"
-                exit
-            fi
-
+            function_call=diff
             shift
             ;;
         flag=* )                                                                    # this means 'flag=' string and every following string (no matter how long it is or what characters (except for " ") it contains)
-            argument_flag="${key#*=}"                                               # replace '*=' (i.e. everything in front of = sign) in 'key' variable with nothing. save result in $argument_flag.
+            argument_flag="${key#*=}"                                               # replace '*=' (i.e. everything in front of = sign and = sign itself) in 'key' variable with nothing. save result in $argument_flag.
             shift
             ;;
         flag )
@@ -2361,8 +2231,26 @@ do
 
     esac
 
+
+    # print error message when more than 1 argument is recognized as a argument calling a pacui function
+    if [[ -n $function_call_previous ]] && [[ "$function_call_previous" !=  "$function_call" ]]
+    then
+
+        echo -e " \e[41m Only one PacUI option can be called at the same time. Please try again. \e[0m"
+        exit
+
+    fi
+    # save $function_call in $function_call_previous variable, because $function_call can get overwritten when the loop runs the next time.
+    function_call_previous="$function_call"
+
+
 done
 
+# add trailing space to content of $argument_flag variable, because pacman and AUR helpers react in a strange way when an extra space is added.
+if [[ -n  $argument_flag ]]                                                         # check, whether output of "$argument_flag" is not-zero, i.e. $argument_flag contains something
+then
+    argument_flag+=" "
+fi
 
 # remove trailing white spaces from $argument_input variable. this is needed e.g. for 'func_s' to not search for "<SEARCH TERM><SPACE>" but "<SEARCH TERM>"
 argument_input="$( echo "$argument_input" | sed 's/ *$//g' )"
@@ -2376,6 +2264,7 @@ then
 
     # unset global variables:
     unset function_call
+    unset function_call_previous
     unset argument_input
     unset argument_flag
 
@@ -2386,6 +2275,7 @@ elif (( $argument_number > 0 ))                                                 
 then
 
     unset function_call
+    unset function_call_previous
     unset argument_input
     unset argument_flag
 

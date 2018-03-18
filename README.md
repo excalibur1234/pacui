@@ -113,7 +113,7 @@ pacui s "^zsh"
 ```
 
 ### Start PacUI without UI: Passing Arguments to AUR helper or Pacman
-For scripting or use with an alias, PacUI can have an "flag" argument, which gets passed directly to the AUR helper and/or Pacman.
+For advanced use (e.g. in scripting or an alias), PacUI can have a "flag" argument, which gets passed directly to an AUR helper and/or Pacman.
 Examples:
 - ` pacui -r 0ad --flag="--noconfirm"`
 - ` pacui u flag --noconfirm`
