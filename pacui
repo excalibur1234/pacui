@@ -126,12 +126,12 @@ function func_u
 
 
         # if one of the above update commands has failed, the following if-statement is true:
-        if [[ $install_successful == "false" ]]
+        if [[ "$install_successful" == "false" ]]
         then
 
             local server
             # extract mirror/repository server url from /etc/pacman.d/mirrorlist file with command:
-            server=$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" |awk -F '=' '{print $2}' | awk -F '$' '{print $1}' )
+            server="$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" |awk -F '=' '{print $2}' | awk -F '$' '{print $1}' )"
 
             # if one of the above update commands has failed, there are multiple points of failure. the first one is the internet/repository/mirror connection of the user:
             # check, whether there is a connection to the mirror/repository server. this is needed for package download/update!
@@ -190,7 +190,7 @@ function func_diff
         tput sgr0                                                                   # printf does not support any ANSI escape sequences, so output (= red and bold text) has to be reset manually using "tput".
 
         # use "diff" as a file difference viewer with many options, which make it look good. "diff" takes 2 arguments (=the files, which are supposed to be compared)
-        diff --side-by-side --suppress-common-lines --ignore-all-space --color=always --width=$(tput cols) "$temp2" "$temp3"
+        diff --side-by-side --suppress-common-lines --ignore-all-space --color=always --width="$(tput cols)" "$temp2" "$temp3"
 }
 
 
@@ -198,7 +198,7 @@ function func_diff
 # this core functionality of "Maintain System" (note the bold "M") can be started in the terminal using "pacui m". it is separated into multiple parts. most parts begin (or contain) an "echo" command, which explains what is being done. the help page explains the core functionality of every part in detail, too.
 function func_m
 {
-        if  [[ -n $( command ls /tmp ) ]]
+        if  [[ -n "$( command ls /tmp )" ]]
         then
             echo " deleting PacUI cache ..."
             sudo rm -r /tmp/*
@@ -239,7 +239,7 @@ function func_m
 
         else                                                                        # this is the case, when tirzen, pacaur, pikaur, or no AUR helper is installed.
 
-            if [[ -n $(pacman -Qdt) ]]                                              # only run these commands, if output of "pacman -Qdt" is not empty. this happens if there are no orphans.
+            if [[ -n "$(pacman -Qdt)" ]]                                              # only run these commands, if output of "pacman -Qdt" is not empty. this happens if there are no orphans.
             then
 
                 pacman -Qdt --color always
@@ -249,7 +249,7 @@ function func_m
 
                 case ${answer:-y} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "y".
                     y|Y|yes|YES|Yes )                                               # do this, if "answer" is y or Y or yes or YES or Yes
-                        sudo pacman -Rsn $(pacman -Qqdt) --color always --noconfirm
+                        sudo pacman -Rsn "$(pacman -Qqdt)" --color always --noconfirm
                         ;;
                     * )                                                             # do this in all other cases
                         echo -e " \e[1m Packages have not been removed.\e[0m"
@@ -278,7 +278,7 @@ function func_m
 
 
         echo " checking symlinks ..."
-        if [[ -n $(sudo find -xtype l) ]]                                           # only run, if output of "sudo find -xtype l -print" is not empty
+        if [[ -n "$(sudo find -xtype l)" ]]                                           # only run, if output of "sudo find -xtype l -print" is not empty
         then
             echo -e " \e[41m The following symbolic links are broken, please fix them manually: \e[0m"
             sudo find -xtype l
@@ -317,7 +317,7 @@ function func_m
                 # the "comm" command compares 2 files and outputs the differences between them. both files have to be sorted!
                 # "pacman -Qqm | sort" outputs a list of all installed packages from the AUR
                 #pkg=$(  comm -23 <(pacman -Qqm | sort) <(sort -u /tmp/aur/packages.gz)  )
-                pkg=$(  comm -23 <(pacman -Qqm | sort) <(sort -u /tmp/aur/packages)  )
+                pkg="$(  comm -23 <(pacman -Qqm | sort) <(sort -u /tmp/aur/packages)  )"
 
                 # only run the command inside the if-statement, if $pkg variable is not empty
                 if [[ -n "$pkg" ]]                                                    # checks, if length of string is non-zero ("-n" conditional bash expression is the opposite of "-z" (check, whether length of string is zero))
@@ -334,7 +334,7 @@ function func_m
         echo ""
 
 
-        if [[ $(cat /proc/1/comm) == "systemd" ]]                                   # if init system is systemd
+        if [[ "$(cat /proc/1/comm)" == "systemd" ]]                                   # if init system is systemd
         then
             echo " cleaning systemd log files ..."
             # limit logs in journalctl to an age of 30 days and a combined size of 50mb
@@ -355,13 +355,13 @@ function func_m
 
         # 1. extract the name of hard drive the / partition is installed on and write it to the "disk" variatble"
         local disk                                                                   # declare local variable
-        disk=$( lsblk -o "name,mountpoint" -pa | sed -n '/^\//h;/\/$/{g;p}' | cut -d/ -f3 )
+        disk="$( lsblk -o "name,mountpoint" -pa | sed -n '/^\//h;/\/$/{g;p}' | cut -d/ -f3 )"
         disk="${disk:0:3}"
         # 2. check, whether "disk" is not empty and whether the path to "disk" exists
-        if [[ -n $disk && -e "/dev/$disk" ]]
+        if [[ -n "$disk" && -e "/dev/$disk" ]]
         then
             # open the "rotational" file belonging to your "disk" and checking, whether it contains a "1" - this means your "disk" is a traditional hard drive and no SSD.
-            if [[ $(cat "$( find "/sys" -name "rotational" 2>/dev/null | grep "$disk/queue" )" ) == "1" ]]
+            if (( $(cat "$( find "/sys" -name "rotational" 2>/dev/null | grep "$disk/queue" )" ) == 1 ))                        # do NOT add quotes around $(...) in (( $(...) == 1 ))
             then
             # only execute the following line when your / parition is installed on a hard drive.
             echo " sudo pacman-optimize ..."
@@ -374,19 +374,19 @@ function func_m
         echo " checking installed kernels ..."
         local {installed_kernels,available_kernels,eol_kernels}                     # declare local variables
         # filter installed kernels from boot sector and determine, which package owns that file. this yields the package name of all installed kernels (including kernels from the AUR):
-        installed_kernels=$(
-            for p in $( command ls -1 /boot | grep -E '^vmlinuz' )
+        installed_kernels="$(
+            for p in "$( command ls -1 /boot | grep -E '^vmlinuz' )"
             do
                 pacman -Qqo /boot/$p
-            done | sort -u )
+            done | sort -u )"
         # Check if installed kernels are available in repositories and forward it/them to available_kernels variable:
-        available_kernels=$(
-            for p in $( echo "$installed_kernels" )
+        available_kernels="$(
+            for p in "$( echo "$installed_kernels" )"
             do
                 pacman -Ssq "^$p$"
-            done | sort -u )
+            done | sort -u )"
         # filter kernels to $eol_kernels variable, which are installed but no longer available:
-        eol_kernels=$( comm -13 <(echo "$available_kernels") <(echo "$installed_kernels") )
+        eol_kernels="$( comm -13 <(echo "$available_kernels") <(echo "$installed_kernels") )"
         # print warning message, if end-of-life kernel(s) are found:
         if [[ -n "$eol_kernels" ]]
         then
@@ -477,12 +477,14 @@ function func_i
                         else
                             pacman -Si {1} --color always                           # do this, if no AUR helper is installed
                         fi' \
-                    $(  if (( $(tput cols) >= 120 ))
+                    "$(
+                        if (( $(tput cols) >= 120 ))
                         then
                             echo "--preview-window=right:55%:wrap"                  # depending on the terminal width (determined by "tput cols"), the preview window is either shown on the right or the bottom
                         else
                             echo "--preview-window=bottom:55%:wrap"
-                        fi ) \
+                        fi
+                    )" \
                     --header="TAB key to (un)select. ENTER to install. ESC to quit." \
                     --prompt="Enter string to filter list > " |
                 awk '{print $1}'                                                    # use "awk" to filter output of "fzf" and only get the first field (which contains the package name). "fzf" should output a separed list (by newline characters) of all chosen packages!
@@ -543,7 +545,7 @@ function func_r
         pacui_tty_clean                                                             # clear terminal
 
         # take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf. see above for a "fzf" command with good readability and many comments
-        pkg=$( sort -k1,1 -u /tmp/pacui-packages-group | fzf -i --multi --exact --no-sort --select-1 --query="$argument_input" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+        pkg="$( sort -k1,1 -u /tmp/pacui-packages-group | fzf -i --multi --exact --no-sort --select-1 --query="$argument_input" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
             if ( pacman -Qq {1} &>/dev/null )                                       # check, if selected line is a locally installed package
             then
                 pacman -Qi {1} --color always
@@ -551,20 +553,20 @@ function func_r
                 echo -e "\e[1m{1} group has the following members: \e[0m"
                 pacman -Sgq {1}
             fi
-            ' $( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi ) --header="TAB key to (un)select. ENTER to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+            ' "$( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )" --header="TAB key to (un)select. ENTER to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )"
 
         pacui_tty_clean                                                             # clear terminal
 
-        if [[ -n $pkg ]]                                                            # check, whether $pkg variable is not empty. this happens when fzf is quit with CTRL+C.
+        if [[ -n "$pkg" ]]                                                          # check, whether $pkg variable is not empty. this happens when fzf is quit with CTRL+C.
         then
             # $pkg contains package names below each other, but we need a list (in 1 line, space separated):
-            #pkg=$( echo $pkg | paste -sd " " )                                     # THIS IS NOT NEEDED, BECAUSE WE HAVE HAVE LEFT OUT THE PARENTHESIS ABOVE AROUND $(...fzf...)
-            pkg_remove=$( echo $pkg )
+            pkg="$( echo "$pkg" | paste -sd " " )"
+            pkg_remove="$( echo "$pkg" )"
 
             # wrap the "sudo pacman -Rns" command in an if-statement, which checks, whether the removal of packages works. the removal of packages does not work, if the user tries to remove a dependency.
             # the failure of "sudo pacman -Rns" is especially annoying, if many packages has been chose for removal and 1 package is a dependency. by default, the list of packages (which are supposed to be removed) is NOT saved!
             # "sudo pacman -Rsn $pkg_remove --color always" always gets executed!
-            if ! ( sudo pacman "$argument_flag"-Rsn $pkg_remove --color always )
+            if ! ( sudo pacman "$argument_flag"-Rsn $pkg_remove --color always )    # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
             then
 
                 # now, "sudo pacman -Rsn $pkg_remove --color always" has failed. this means that a dependency was selected. Print error message below the error output of pacman.
@@ -589,17 +591,17 @@ function func_r
 
                     y|Y|yes|YES|Yes )                                               # do this, if "answer" is y or Y or yes or YES or Yes
 
-                        sudo pacman -Rdd $pkg_remove --color always
+                        sudo pacman -Rdd "$pkg_remove" --color always
                         ;;
 
                     n|N|no|NO|No )                                                  # do this, if "answer" is n or N or no or NO or No
 
                         # continue here only if "sudo pacman -Rns" has failed:
                         # 1. save list of packages to variable
-                        pkg_remove_backup=$( echo $pkg_remove | tr " " "\n" )       # tr " " "\n" is needed to convert the list of package names (in 1 line) back to multiple lines. otherwise, fzf cannot work with it.
+                        pkg_remove_backup="$( echo "$pkg_remove" | tr " " "\n" )"   # tr " " "\n" is needed to convert the list of package names (in 1 line) back to multiple lines. otherwise, fzf cannot work with it.
 
                         # 2. try again with a limited list of packages in fzf. this loop is dependent on the pkg_remove_backup variable!
-                        while [[ -n $pkg_remove_backup ]]
+                        while [[ -n "$pkg_remove_backup" ]]
                         do
 
                             local {pkg,pkg_remove}                                  # declare local variables
@@ -607,7 +609,7 @@ function func_r
                             pacui_tty_clean                                         # clear terminal
 
                             # fzf lets you search and select the given list in a fast way. see above for a "fzf" command with good readability and many comments
-                            pkg=$( echo "$pkg_remove_backup" | fzf -i --multi --exact --no-sort --query="$argument_input" --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+                            pkg="$( echo "$pkg_remove_backup" | fzf -i --multi --exact --no-sort --query="$argument_input" --reverse --margin=4%,1%,1%,2% --inline-info --preview '
                                 if ( pacman -Qq {1} &>/dev/null )                           # check, if selected line is a locally installed package
                                 then
                                     pacman -Qi {1} --color always
@@ -615,23 +617,23 @@ function func_r
                                     echo -e "\e[1m{1} group has the following members: \e[0m"
                                     pacman -Sgq {1}
                                 fi
-                                ' $( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi ) --header="TAB key to (un)select. ENTER to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+                                ' "$( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )" --header="TAB key to (un)select. ENTER to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )"
 
                             pacui_tty_clean                                         # clear terminal
 
-                            if ! [[ -n $pkg ]]                                      # check, whether $pkg variable is empty. this happens when fzf is quit with CTRL+C.
+                            if ! [[ -n "$pkg" ]]                                      # check, whether $pkg variable is empty. this happens when fzf is quit with CTRL+C.
                             then
                                 break                                               # break while-loop, if fzf was quit using CTRL+C
                             fi
 
                             # $pkg contains package names below each other, but we need a list (in 1 line, space separated):
-                            pkg_remove=$(echo $pkg | paste -sd " ")
+                            pkg_remove="$(echo "$pkg" | paste -sd " ")"
 
-                            if ! ( sudo pacman -Rsn $pkg_remove --color always )    # the "sudo pacman -Rsn" command is always executed!
+                            if ! ( sudo pacman -Rsn "$pkg_remove" --color always )    # the "sudo pacman -Rsn" command is always executed!
                             then
                                 # continue here only if "sudo pacman -Rns" has failed (again):
                                 # a) save list of packages to backup varialbe
-                                pkg_remove_backup=$( echo $pkg_remove | tr " " "\n" )           # here, do NOT write selection to file. this enables the user to guess which packages are dependencies.
+                                pkg_remove_backup="$( echo "$pkg_remove" | tr " " "\n" )"           # here, do NOT write selection to file. this enables the user to guess which packages are dependencies.
 
                                 # b) Print error message. the user can read all error messages (of pacman) and decide what to do next.
                                 echo
@@ -672,19 +674,19 @@ function func_t
 
         pacui_tty_clean                                                             # clear terminal
 
-        pkg=$( sort -k1,1 -u /tmp/pacui-packages-local | fzf -i --exact --no-sort --select-1 --query="$argument_input" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+        pkg="$( sort -k1,1 -u /tmp/pacui-packages-local | fzf -i --exact --no-sort --select-1 --query="$argument_input" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
             if ( pacman -Qq {1} &>/dev/null )                                       # check, if 1. element of selected line is a locally installed package
             then
                 pacman -Qi {1} --color always
             else
                 pacman -Si {1} --color always                                       # do this, if package is not locally installed
             fi
-            ' $( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )  --header="Press ENTER to show dependency tree. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+            ' "$( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )"  --header="Press ENTER to show dependency tree. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )"
 
         pacui_tty_clean                                                             # clear terminal
 
         # look in func_info for explanations
-        if [[ -n $pkg ]]
+        if [[ -n "$pkg" ]]
         then
             if ( pacman -Qq "$pkg" &>/dev/null )
             then
@@ -692,19 +694,19 @@ function func_t
                 # explain the " echo {} | sed 's/^[│├└─ ]*//g' | cut -d ' ' -f 1 " command used below:
                 # first echo selected line in fzf. then, remove all symbols from the beginning of the line, which does not belong to the package name. if there are multiple package names (e.g. with "provides") in 1 line all other (except for the first package name) are cut from the result.
                 pactree -c "$pkg" | fzf -i --multi --exact --no-sort --ansi --reverse --margin=4%,1%,1%,1% --inline-info --preview '
-                    pacman -Qi $( echo {} | sed "s/^[│├└─ ]*//g" | cut -d " " -f 1 ) --color always
-                    ' $( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi ) --header="Dependency Tree of \"$pkg\" (installed). ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-t
+                    pacman -Qi "$( echo {} | sed "s/^[│├└─ ]*//g" | cut -d " " -f 1 )" --color always
+                    ' "$( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )" --header="Dependency Tree of \"$pkg\" (installed). ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-t
 
             else
 
                 pactree -c -s "$pkg" | fzf -i --multi --exact --no-sort --ansi --reverse --margin=4%,1%,1%,1% --inline-info --preview '
-                    if ( pacman -Qq $( echo {} | sed "s/^[│├└─ ]*//g" | cut -d " " -f 1 ) &>/dev/null )                                                 # check, if selected line contains a locally installed package.
+                    if ( pacman -Qq "$( echo {} | sed "s/^[│├└─ ]*//g" | cut -d " " -f 1 )" &>/dev/null )                                                 # check, if selected line contains a locally installed package.
                     then
-                        pacman -Qi $( echo {} | sed "s/^[│├└─ ]*//g" | cut -d " " -f 1 ) --color always                                                 # display local package information in preview window of fzf
+                        pacman -Qi "$( echo {} | sed "s/^[│├└─ ]*//g" | cut -d " " -f 1 )" --color always                                                 # display local package information in preview window of fzf
                     else
-                        pacman -Si $( echo {} | sed "s/^[│├└─ ]*//g" | cut -d " " -f 1 ) --color always                                                 # display package info from repository, if package is not locally installed
+                        pacman -Si "$( echo {} | sed "s/^[│├└─ ]*//g" | cut -d " " -f 1 )" --color always                                                 # display package info from repository, if package is not locally installed
                     fi
-                    ' $( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi ) --header="Dependency Tree of \"$pkg\" (not installed). ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-t
+                    ' "$( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )" --header="Dependency Tree of \"$pkg\" (not installed). ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-t
 
             fi
 
@@ -721,21 +723,21 @@ function func_rt
         pacui_tty_clean                                                             # clear terminal
 
         local pkg
-        pkg=$( expac -Q "%-33n\t%d" | fzf -i --exact --no-sort --select-1 --query="$argument_input" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+        pkg="$( expac -Q "%-33n\t%d" | fzf -i --exact --no-sort --select-1 --query="$argument_input" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
             pacman -Qi {1} --color always
-            ' $( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )  --header="Press ENTER to show reverse dependency tree. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+            ' "$( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )"  --header="Press ENTER to show reverse dependency tree. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )"
 
         pacui_tty_clean                                                             # clear terminal
 
         # look in func_info for explanations
-        if [[ -n $pkg ]]
+        if [[ -n "$pkg" ]]
         then
 
             # explain the " echo {} | sed 's/^[│├└─ ]*//g' | cut -d ' ' -f 1 " command used below:
             # first echo selected line in fzf. then, remove all symbols from the beginning of the line, which does not belong to the package name.
             pactree -c -r "$pkg" | fzf -i --multi --exact --no-sort --ansi --reverse --margin=4%,1%,1%,1% --inline-info --preview '
-                pacman -Qi $( echo {} | sed "s/^[│├└─ ]*//g" ) --color always
-                ' $( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi ) --header="Reverse Dependency Tree of \"$pkg\". ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-rt
+                pacman -Qi "$( echo {} | sed "s/^[│├└─ ]*//g" )" --color always
+                ' "$( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )" --header="Reverse Dependency Tree of \"$pkg\". ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-rt
 
             pacui_tty_clean                                                         # clear terminal
 
@@ -757,18 +759,18 @@ function func_l
 
         pacui_tty_clean                                                             # clear terminal
 
-        pkg=$( sort -k1,1 -u /tmp/pacui-packages-local | fzf -i --exact --no-sort --select-1 --query="$argument_input" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+        pkg="$( sort -k1,1 -u /tmp/pacui-packages-local | fzf -i --exact --no-sort --select-1 --query="$argument_input" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
             if ( pacman -Qq {1} &>/dev/null )                                       # check, if selected line is a locally installed package
             then
                 pacman -Qi {1} --color always                                       # for local packages, local query is sufficient.
             else
                 pacman -Si {1} --color always                                       # do this, if package is not locally installed
             fi
-            ' $( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi ) --header="Press ENTER to list files. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+            ' "$( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )" --header="Press ENTER to list files. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )"
 
         pacui_tty_clean                                                             # clear terminal
 
-        if [[ -n $pkg ]]
+        if [[ -n "$pkg" ]]
         then
             # next, it is checked, whether "pkg" is part of a list of all installed packages (pacman -Qq): the if-statement checks the exit code of the command "pacman -Qq $pkg &>/dev/null".
             if ( pacman -Qq "$pkg" &>/dev/null )
@@ -819,7 +821,7 @@ function func_s
             echo
         fi
 
-        if [[ -n $file ]]
+        if [[ -n "$file" ]]
         then
 
             # use as many local variables as possible. unfortunately, it is still necessary to use a couple of temporary files (i have done a lot of tests and this current form of 'pacui s' seems to be the fastest):
@@ -886,9 +888,9 @@ function func_b
         pacui_aur_install=""                                                        # needed to avoid "unbound variable error"
 
         # get cache directory from file /etc/pacman.conf (without any white spaces) and write results to variable $cache:
-        cache=$( awk -F '=' '/^CacheDir/ {gsub(" ","",$2); print $2}' '/etc/pacman.conf' )
+        cache="$( awk -F '=' '/^CacheDir/ {gsub(" ","",$2); print $2}' '/etc/pacman.conf' )"
         # set variable $cache to default directory, if  variable $cache is empty:
-        if [[ -z $cache ]]                                                          # if "cache" variable is empty
+        if [[ -z "$cache" ]]                                                        # if "cache" variable is empty (exact: if output of $cache is zero)
         then
             cache="/var/cache/pacman/pkg/"
         fi
@@ -931,7 +933,7 @@ function func_b
             if [[ ! -z "$pkgR" ]]                                                   # this if-condition avoids error message when no package gets removed (and $pkgR is empty)
             then
                 # remove packages with pacman command. use parameter substitution with ${...} (without quotes!!!) for it, because otherwise the pacman command fails!
-                sudo pacman "$argument_flag"-Rdd ${pkgR} --color always
+                sudo pacman "$argument_flag"-Rdd ${pkgR} --color always             # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkgR variable breaks AUR helper and pacman
             fi
 
 
@@ -945,37 +947,39 @@ function func_b
                 if [[ -e /usr/bin/pacaur ]]                                         # checks, whether file "pacaur" exists, i.e. pacaur is installed
                 then
                     # the while-loop here is needed to read the content of every line of $pacui_cache_install variable and save that line to variable $line.
-                    pacui_aur_install=$( while IFS='' read -r line || [[ -n "$line" ]]
+                    pacui_aur_install="$(
+                    while IFS='' read -r line || [[ -n "$line" ]]
                     do
                         ## the problem here is that AUR packages are not named/numbered in a constant and easy sortable way. therefore, we search for all files and output their modification date in an easy searchable format (and then, the file name).
                         ## then, "grep" is used to get only package files. then, the list is sorted (by the modification date).
                         ## awk gets rid of the modification date. grep filters for the file name $line. sed only chooses the first/top line.
                         find "$cachePACAUR" -maxdepth 2 -mindepth 2 -type f -printf "%T+\t%p\n" | grep ".pkg.tar.[gx]z$" | sort -rn | awk '{print $2}' | grep "$line""-" | sed -n '1p'
-                    done < <(echo "${pacui_cache_install}") )
+                    done < <(echo "${pacui_cache_install}") )"
                 fi
 
                 # read line by line from variable $pacui_cache_install in while loop and save that line to variable $line
-                pacui_install=$( while IFS='' read -r line || [[ -n "$line" ]]
+                pacui_install="$(
+                while IFS='' read -r line || [[ -n "$line" ]]
                 do
                     # write name of latest version in cache into variable $pacui_install ("sort" puts latest version on top, which is then selected):
-                    find $cache -name "${line}-[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r | sed -n '1p'
-                done < <(echo "${pacui_cache_install}") )
+                    find "$cache" -name "${line}-[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r | sed -n '1p'
+                done < <(echo "${pacui_cache_install}") )"
 
                 # sort output to suit pacman's syntax. pacman needs a list of package names separated by single spaces.
                 if [[ ! -z "$pacui_aur_install" ]]
                 then
                     # if AUR packages should be installed, the lists of package names are first combined before they get sorted and rearranged to space separated lists.
                     # use parameter substitution to combine 2 lists of packages.
-                    pkgI=$( printf "${pacui_install}\n${pacui_aur_install}" | sort -u | paste -sd " " )
+                    pkgI="$( printf "${pacui_install}\n${pacui_aur_install}" | sort -u | paste -sd " " )"
                 else
-                    pkgI=$( echo "${pacui_install}" | sort -u | paste -sd " " )
+                    pkgI="$( echo "${pacui_install}" | sort -u | paste -sd " " )"
                 fi
 
                 # finally, all packages get installed manually using "pacman -U":
                 if [[ ! -z "$pkgI" ]]
                 then
                     # install cannot be done as dependency, because sometimes packages are simply replaced by other packages. in this case, installing as dependency would be bad!
-                    sudo pacman "$argument_flag"-U ${pkgI} --color always
+                    sudo pacman "$argument_flag"-U ${pkgI} --color always           # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkgI variable breaks AUR helper and pacman
                 fi
 
             fi
@@ -991,7 +995,7 @@ function func_b
                 # here, it is impossible to use variables instead of temporary files. therefore, the temporary files should be as tamper-proof as possible.
                 # Create temp file with mktemp command (Important for security). the XXXXXXXX indicates numbers assigned by "mktemp" command.
                 # the XXXXXXXXX numbers make it necessary to call the temporary file in the code below with ${pacui_tmp_downgrade} !
-                pacui_tmp_downgrade=$( mktemp /tmp/pacui-tmp-downgrade.XXXXXXXX )
+                pacui_tmp_downgrade="$( mktemp /tmp/pacui-tmp-downgrade.XXXXXXXX )"
 
                 # add trap command to immediately remove upon ctrl+c (or any other case this function quits in the middle) for security purposes
                 # this is the normal syntax for "trap" command.
@@ -1002,17 +1006,18 @@ function func_b
                 # "uniq" command: first argument in variable $pacui_cache_downgrade_counted is the number of times the package name appears and the second is the package name.
 
                 # read line by line from variable $pacui_cache_downgrade_counted in while loop and save that line to variable $line
-                pacui_downgrade=$( while read -r line && [[ -n "$line" ]]
+                pacui_downgrade="$(
+                while read -r line && [[ -n "$line" ]]
                 do
 
                     # attention, the following variables can be empty:
-                    temp1=$( echo "$line" | awk '{print $1}' )                      # this variable is the no. of times a package has to be downgraded
-                    temp2=$( echo "$line" | awk '{print $2}' )                      # this variable is the package name to be downgraded
+                    temp1="$( echo "$line" | awk '{print $1}' )"                    # this variable is the no. of times a package has to be downgraded
+                    temp2="$( echo "$line" | awk '{print $2}' )"                    # this variable is the package name to be downgraded
 
-                    if [[ -n $temp2 ]]   # checks, if length of string is non-zero ("-n" conditional bash expression is the opposite of "-z" (check, whether length of string is zero))
+                    if [[ -n "$temp2" ]]                                            # checks, if length of string is non-zero ("-n" conditional bash expression is the opposite of "-z" (check, whether length of string is zero))
                     then
                         # write list with all versions of package in cache into file ${pacui_tmp_downgrade} (sorted - newest package version is on top)
-                        find $cache -name "${temp2}-[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r > ${pacui_tmp_downgrade}
+                        find "$cache" -name "${temp2}-[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r > ${pacui_tmp_downgrade}
 
                         if [[ -e /usr/bin/pacaur ]]                                 # checks, whether file "pacaur" exists, i.e. pacaur is installed
                         then
@@ -1031,19 +1036,19 @@ function func_b
                         grep "$( pacman -Q "$temp2" | awk '{print $2}' )" -A 100 "$pacui_tmp_downgrade" | sed -n "$temp3"
                     fi
 
-                done < <(echo "${pacui_cache_downgrade_counted}") )
+                done < <(echo "${pacui_cache_downgrade_counted}") )"
 
                 # remove temporary file. it is no longer needed and should not be left on the system.
                 unlink ${pacui_tmp_downgrade}
 
                 # sort output to suit pacman's syntax. pacman needs a list of package names separated by single spaces.
-                pkgD=$( echo "${pacui_downgrade}" | sort -u | paste -sd " ")
+                pkgD="$( echo "${pacui_downgrade}" | sort -u | paste -sd " ")"
 
                 # the following if-statement prevents the following error, in case there is no older package version available: "error: no targets specified (use -h for help)"
-                if [[ ! -z $pkgD ]]                                                 # checks, if variable is not empty
+                if [[ ! -z "$pkgD" ]]                                               # checks, if variable is not empty
                 then
                     # downgrade packages by manually installing them: (sudo pacman -U --noconfirm --color always )
-                    sudo pacman "$argument_flag"-U ${pkgD} --color always
+                    sudo pacman "$argument_flag"-U ${pkgD} --color always           # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkgD variable breaks AUR helper and pacman
                 fi
 
             fi
@@ -1059,7 +1064,7 @@ function func_b
                 # here, it is impossible to use variables instead of temporary files. therefore, the temporary files should be as tamper-proof as possible.
                 # Create temp file with mktemp command (Important for security). the XXXXXXXX indicates numbers assigned by "mktemp" command.
                 # the XXXXXXXXX numbers make it necessary to call the temporary file in the code below with "${pacui_tmp_upgrade}" (without ")!
-                pacui_tmp_upgrade=$( mktemp /tmp/pacui-tmp-upgrade.XXXXXXXX )
+                pacui_tmp_upgrade="$( mktemp /tmp/pacui-tmp-upgrade.XXXXXXXX )"
 
                 # add trap command to immediately remove upon ctrl+c (or any other case this function quits in the middle) for security purposes
                 # this is the normal syntax for "trap" command.
@@ -1070,17 +1075,18 @@ function func_b
                 # "uniq" command: first argument in variable $pacui_cache_upgrade_counted is the number of times the package name appears and the second is the package name.
 
                 # read line by line from variable $pacui_cache_upgrade_counted in while loop and save that line to variable $line
-                pacui_upgrade=$( while read -r line && [[ -n "$line" ]]
+                pacui_upgrade="$(
+                while read -r line && [[ -n "$line" ]]
                 do
 
                     # attention, the following variables can be empty:
-                    temp1=$( echo "$line" | awk '{print $1}' )                      # this variable is the no. of times a package has to be upgraded
-                    temp2=$( echo "$line" | awk '{print $2}' )                      # this variable is the package name to be upgraded
+                    temp1="$( echo "$line" | awk '{print $1}' )"                    # this variable is the no. of times a package has to be upgraded
+                    temp2="$( echo "$line" | awk '{print $2}' )"                    # this variable is the package name to be upgraded
 
-                    if [[ -n $temp2 ]]   # checks, if length of string is non-zero ("-n" conditional bash expression is the opposite of "-z" (check, whether length of string is zero))
+                    if [[ -n "$temp2" ]]   # checks, if length of string is non-zero ("-n" conditional bash expression is the opposite of "-z" (check, whether length of string is zero))
                     then
                         # write list with all versions of package in cache into file ${pacui_tmp_upgrade} (sorted - newest package version is on top)
-                        find $cache -name "${temp2}-[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r > ${pacui_tmp_upgrade}
+                        find "$cache" -name "${temp2}-[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r > ${pacui_tmp_upgrade}
 
                         if [[ -e /usr/bin/pacaur ]]                                 # checks, whether file "pacaur" exists, i.e. pacaur is installed
                         then
@@ -1099,19 +1105,19 @@ function func_b
                         grep "$( pacman -Q "$temp2" | awk '{print $2}' )" -B 100 "$pacui_tmp_upgrade" | tac | sed -n "$temp3"
                     fi
 
-                done < <(echo "${pacui_cache_upgrade_counted}") )
+                done < <(echo "${pacui_cache_upgrade_counted}") )"
 
                 # remove temporary file. it is no longer needed an should not be left on the system.
                 unlink ${pacui_tmp_upgrade}
 
                 # sort output to suit pacman's syntax. pacman needs a list of package names separated by single spaces.
-                pkgU=$( echo "${pacui_upgrade}" | sort -u | paste -sd " ")
+                pkgU="$( echo "${pacui_upgrade}" | sort -u | paste -sd " " )"
 
                 # the following if-statement prevents the following error, in case there is no older package version available: "error: no targets specified (use -h for help)"
-                if [[ ! -z $pkgU ]]                                                 # checks, if variable is not empty
+                if [[ ! -z "$pkgU" ]]                                               # checks, if variable is not empty
                 then
                     # upgrade packages by manually installing them: (sudo pacman -U --noconfirm --color always )
-                    sudo pacman "$argument_flag"-U ${pkgU} --color always
+                    sudo pacman "$argument_flag"-U ${pkgU} --color always           # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkgU variable breaks AUR helper and pacman
                 fi
 
             fi
@@ -1125,7 +1131,7 @@ function func_b
 # this core functionality of "Fix Pacman Errors" (note the bold "fix") can be started in the terminal using "pacui fix". it is separated into multiple parts. most parts begin (or contain) an introcing "echo" command or comment, which explains what is being done. the help page explains the core functionality of every part in detail, too.
 function func_f
 {
-        if  [[ -n $( command ls /tmp ) ]]
+        if  [[ -n "$( command ls /tmp )" ]]
         then
             echo " deleting PacUI cache ..."
             sudo rm -r /tmp/*
@@ -1163,7 +1169,7 @@ function func_f
 
         local server
         # extract mirror/repository server url from /etc/pacman.d/mirrorlist file with command:
-        server=$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" |awk -F '=' '{print $2}' | awk -F '$' '{print $1}' )
+        server="$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" |awk -F '=' '{print $2}' | awk -F '$' '{print $1}' )"
 
         # check, whether there is a connection to the mirror/repository server. this is needed for package download/update!
         if ! ( wget --spider $(echo "$server") &>/dev/null )                        # the "wget --spider" command gets executed in any case in order to check its output.
@@ -1194,7 +1200,7 @@ function func_f
             echo ""
 
 
-            if [[ $(cat /proc/1/comm) == "systemd" ]]                               # if init system is systemd
+            if [[ "$(cat /proc/1/comm)" == "systemd" ]]                             # if init system is systemd
             then
 
                 # set almost correct time (while ignoring time zone and daylight saving time):
@@ -1235,7 +1241,7 @@ function func_f
 
             echo " installing all necessary keyrings ..."
             # This command will install all keyrings from avialable current repository
-            sudo pacman -Sy $( pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | paste -sd " " ) --noconfirm
+            sudo pacman -Sy "$( pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | paste -sd " " )" --noconfirm
             echo ""
 
 
@@ -1248,7 +1254,7 @@ function func_f
 
 
             echo " initializing and populating keyring ..."
-            sudo pacman-key --init && echo "" && sudo pacman-key --populate $(pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | sed 's/-keyring//' | paste -sd " " )
+            sudo pacman-key --init && echo "" && sudo pacman-key --populate "$( pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | sed 's/-keyring//' | paste -sd " " )"
             echo ""
 
 
@@ -1281,7 +1287,7 @@ function func_f
             echo ""
 
 
-            if [[ $(cat /proc/1/comm) == "systemd" ]]                               # if init system is systemd
+            if [[ "$(cat /proc/1/comm)" == "systemd" ]]                               # if init system is systemd
             then
                 echo " updating systemd first..."
                 # updating systemd first sometimes solves update problems
@@ -1308,7 +1314,7 @@ function func_c
         # here, it is impossible to use variables instead of temporary files. therefore, the temporary files should be as tamper-proof as possible.
         # Create temp file with mktemp command (Important for security). the XXXXXXXX indicates numbers assigned by "mktemp" command.
         # the XXXXXXXXX numbers make it necessary to call the temporary file in the code below with ${pacui_config} !
-        pacui_config=$( mktemp /tmp/pacui-config.XXXXXXXX )
+        pacui_config="$( mktemp /tmp/pacui-config.XXXXXXXX )"
 
         # add trap command to immediately remove upon ctrl+c (or any other case this function quits in the middle) for security purposes
         # this is the normal syntax for "trap" command:
@@ -1387,7 +1393,7 @@ function func_c
         pacui_tty_clean                                                             # clear terminal
 
         # echo -e "$( cat ${pacui_config} )"  -- this command interprets the ANSI escape sequences contained in ${pacui_config}.
-        file=$( echo -e "$( cat ${pacui_config} )" | fzf -i --exact --no-sort --select-1 --ansi --cycle --query="$argument_input" --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+        file="$( echo -e "$( cat ${pacui_config} )" | fzf -i --exact --no-sort --select-1 --ansi --cycle --query="$argument_input" --reverse --margin=4%,1%,1%,2% --inline-info --preview '
             echo -e "\e[1m$(echo {2..}) $(echo {1})\e[0m"                           # display file/folder description ( {2..} = second to last field in selected line)
             echo
             if ( echo {1} | grep "/$" &>/dev/null )                                 # check, if 1. field ends with a "/"" (= is a directory)
@@ -1399,7 +1405,7 @@ function func_c
             else
                 echo "{1}: Read permission denied"
             fi
-            ' $( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:60%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi ) --header="ENTER to continue. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+            ' "$( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:60%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi )" --header="ENTER to continue. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )"
         # the output of fzf is saved in the $file variable. $file can contain a filename (with its full path) or a directory (with its full path).
 
         pacui_tty_clean                                                             # clear terminal
@@ -1408,10 +1414,10 @@ function func_c
         check=1                                                                     # set initial value
 
         # only run the command inside the if-statement, if $file variable is not empty <-- this happens when fzf is quit with ESC or CTRL+C
-        if [[ -n $file ]]                                                           # checks, if length of string is non-zero ("-n" conditional bash expression is the opposite of "-z" (check, whether length of string is zero))
+        if [[ -n "$file" ]]                                                           # checks, if length of string is non-zero ("-n" conditional bash expression is the opposite of "-z" (check, whether length of string is zero))
         then
             # if $file contains a directory, another instance of fzf is opened to let the user choose the file (within the directory) he wants to edit:
-            if ( echo $file | grep "/$" &>/dev/null )
+            if ( echo "$file" | grep "/$" &>/dev/null )
             then
 
                 # set $check to 0. 0 means a text editor will NOT open.
@@ -1419,14 +1425,14 @@ function func_c
 
                 # attention: currently $file contains directory path and NOT the file name!
                 # find $file -maxdepth 1 -xtype f  --  this command displays a list of files (including their full path) and symlinks to files (including their full path) in a directory given by $file.
-                file=$( find "$file" -maxdepth 1 -xtype f | sort -u | fzf -i --exact --no-sort --select-1 --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+                file="$( find "$file" -maxdepth 1 -xtype f | sort -u | fzf -i --exact --no-sort --select-1 --reverse --margin=4%,1%,1%,2% --inline-info --preview '
                     echo -e "\e[1mFile preview: \e[0m"
                     cat {1}                                                         # {1} is the first field of the marked line in fzf. the file given by {1} is shown in the preview window.
-                    ' $( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi ) --header="ENTER to edit file in text editor. ESC to quit." --prompt='Enter string to filter list of files > ' )
+                    ' "$( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )" --header="ENTER to edit file in text editor. ESC to quit." --prompt='Enter string to filter list of files > ' )"
 
                 pacui_tty_clean                                                     # clear terminal
 
-                if [[ -n $file ]]                                                   # $file is empty when fzf is quit with ESC.
+                if [[ -n "$file" ]]                                                   # $file is empty when fzf is quit with ESC.
                 then
                     check=1                                                         # only set $check varialbe back to 1, if fzf is not quit with ESC.
                 fi
@@ -1442,7 +1448,7 @@ function func_c
 
             set +u                                                                  # temporarily disable strict mode for environment variables. "$EDITOR" variable gets used extensibely in the following code!
 
-            if [[ $( echo "$file" | cut -c -6 ) == "/home/" ]]
+            if [[ "$( echo "$file" | cut -c -6 )" == "/home/" ]]
             # if "file"'s first characters are "/home/", the "file" should NOT be opened as root!
             then
                 # if $EDITOR variable does not exist, set it to 'nano'
@@ -1508,9 +1514,9 @@ function func_ls
 
         # list all packages on local system sorted by their installed size using "expac" and "sort".
         # $( comm -23 <(pacman -Qq | sort) <(pacman -Qqg base base-devel | sort) )  only shows packages, which are not part of "base" or "base-devel" group.
-        expac -H M -Q '%12m - \e[1m%n\e[0m %v' $( comm -23 <(pacman -Qq | sort) <(pacman -Qqg base base-devel | sort) ) | sort -n -r | fzf -i --multi --exact --no-sort --ansi --reverse --margin=4%,1%,1%,1% --inline-info --preview '
+        expac -H M -Q '%12m - \e[1m%n\e[0m %v' "$( comm -23 <(pacman -Qq | sort) <(pacman -Qqg base base-devel | sort) )" | sort -n -r | fzf -i --multi --exact --no-sort --ansi --reverse --margin=4%,1%,1%,1% --inline-info --preview '
             pacman -Qi {4} --color always
-            ' $( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:60%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi ) --header="Navigate with PageUp / PageDown. ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-ls
+            ' "$( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:60%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi )" --header="Navigate with PageUp / PageDown. ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-ls
         # alternative command to "expac" and "sort": package-query -Qe --rsort 2 -f "%2 - \e[1m%n \e[0m%v" | numfmt --to=iec
 
         pacui_tty_clean                                                             # clear terminal
@@ -1567,7 +1573,7 @@ function func_la
         # "pacman -Qm --color always"
         pacman -Qqm --color always | fzf -i --multi --exact --no-sort --cycle --ansi --reverse --margin=4%,1%,1%,2% --inline-info --preview '
             pacman -Qi {} --color always
-            ' $( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:60%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi ) --header="List of manually installed packages. ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-la
+            ' "$( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:60%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi )" --header="List of manually installed packages. ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-la
 
         pacui_tty_clean                                                             # clear terminal
 }
@@ -1597,23 +1603,23 @@ function func_d
 
             pacui_tty_clean                                                         # clear terminal
 
-            pkg=$( sort -k1,1 -u /tmp/pacui-packages-local | fzf -i --multi --exact --no-sort --select-1 --query="$argument_input" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
+            pkg="$( sort -k1,1 -u /tmp/pacui-packages-local | fzf -i --multi --exact --no-sort --select-1 --query="$argument_input" --cycle --reverse --margin=4%,1%,1%,2% --inline-info --preview '
                 if ( pacman -Qq {1} &>/dev/null )                                   # check, if selected line is a locally installed package
                 then
                     pacman -Qi {1} --color always                                   # for local packages, local query is sufficient.
                 else
                     pacman -Si {1} --color always                                   # do this, if package is not locally installed
                 fi
-                ' $( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi ) --header="TAB to (un)select. ENTER to downgrade. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )
+                ' "$( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )" --header="TAB to (un)select. ENTER to downgrade. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )"
 
             pacui_tty_clean                                                         # clear terminal
 
             # $pkg contains package names below each other, but we need a list (in 1 line, space separated):
-            pkg_downgrade=$(echo $pkg | paste -sd " ")
+            pkg_downgrade="$(echo "$pkg" | paste -sd " ")"
 
-            if [[ -n $pkg ]]
+            if [[ -n "$pkg" ]]
             then
-                downgrade "$argument_flag"$pkg_downgrade
+                downgrade "$argument_flag"$pkg_downgrade                            # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg_downgrade variable breaks AUR helper and pacman
             fi
 
         fi
@@ -2132,7 +2138,7 @@ do
 
 
     # test, whether 'key' fits any of the following strings listed inside this 'case' command:
-    case $key in
+    case "$key" in
 
         1|u|update|update-system)                                                   # the following commands will get executed if $choice is "1" or "u" or "update" until a code line containing only ";;" is encountered
             function_call=u
@@ -2233,7 +2239,7 @@ do
 
 
     # print error message when more than 1 argument is recognized as a argument calling a pacui function
-    if [[ -n $function_call_previous ]] && [[ "$function_call_previous" !=  "$function_call" ]]
+    if [[ -n "$function_call_previous" && "$function_call_previous" != "$function_call" ]]
     then
 
         echo -e " \e[41m Only one PacUI option can be called at the same time. Please try again. \e[0m"
@@ -2247,7 +2253,7 @@ do
 done
 
 # add trailing space to content of $argument_flag variable, because pacman and AUR helpers react in a strange way when an extra space is added.
-if [[ -n  $argument_flag ]]                                                         # check, whether output of "$argument_flag" is not-zero, i.e. $argument_flag contains something
+if [[ -n  "$argument_flag" ]]                                                         # check, whether output of "$argument_flag" is not-zero, i.e. $argument_flag contains something
 then
     argument_flag+=" "
 fi
@@ -2257,7 +2263,7 @@ argument_input="$( echo "$argument_input" | sed 's/ *$//g' )"
 
 
 # the following code checks, whether a prefix (func_) + varialbe "function_call" is a valid function defined above.
-if [[ $( type -t "func_$function_call") == "function" ]]
+if [[ "$( type -t "func_$function_call")" == "function" ]]
 then
 
     "func_$function_call" 1                                                         # pass the parameter "1" with the funciton when it gets called directly from terminal.
@@ -2268,7 +2274,7 @@ then
     unset argument_input
     unset argument_flag
 
-    exit $?                                                                         # exit pacui here and return error code if present. this "exit" command is needed to prevent the UI from loading!
+    exit "$?"                                                                       # exit pacui here and return error code if present. this "exit" command is needed to prevent the UI from loading!
     #exit                                                                           # exit pacui here. this "exit" command is needed to prevent the UI from loading!
 
 elif (( $argument_number > 0 ))                                                     # if "func_$function_call" is no valid function AND if one or more arguments are given. this condition is needed to exclude the "pacui" command (note, there are NO arguments. "pacui" is supposed to start the UI) from running this section.
@@ -2306,7 +2312,7 @@ function pacui_clean
 
         local lines
         # number of lines of the user's terminal.
-        lines=$( tput lines )
+        lines="$( tput lines )"
         for (( i=1; i<lines; i++ ))
         do
                 # insert "lines" number of empty lines:
@@ -2346,12 +2352,12 @@ do
     # save entered numbers/letters in varialbe "choice"
     read -r choice
     # convert "choice" variable to lowercase:
-    choice=$(echo "$choice" | tr '[:upper:]' '[:lower:]' )
+    choice="$(echo "$choice" | tr '[:upper:]' '[:lower:]' )"
     echo
 
 
     # test, whether "choice" fits any of the following numbers, letters, or words
-    case $choice in
+    case "$choice" in
 
         1|u|update|update-system )                                                  # the following commands will get executed if $choice is "1" or "u" or "update" until a code line containing only ";;" is encountered
             func_u                                                                  # call function "func_u"
