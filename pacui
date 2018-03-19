@@ -917,7 +917,7 @@ function func_b
         # when fzf quits, only selected package names (including the words " installed/upgraded/removed/downgraded") are saved to variable $pacui_cache_packages
         #  the space in front of "installed" prevents reinstallations being displayed (otherwise, they would be removed)! the ] in "] installed" prevents config file changes being displayed, e.g. "warning: /etc/sddm.conf installed as /etc/sddm.conf.pacnew"
         # awk '{ $3="" ; $5="\033[1m" $5 "\033[0m" ; print }': this simply prints everything, but hides the third column and marks the 5th column as bold text.
-        pacui_cache_packages="$( tail -5000 /var/log/pacman.log | grep "] installed\|removed\|upgraded\|downgraded" | awk '{ $3="" ; $5="\033[1m" $5 "\033[0m" ; print }' | fzf -i --multi --exact --no-sort --select-1 --ansi --query="$argument_input" --cycle --tac --reverse --margin="4%,1%,1%,2%" --inline-info --header="TAB key to (un)select. ENTER to roll back. ESC to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}' )"
+        pacui_cache_packages="$( tail -5000 /var/log/pacman.log | grep "] installed\|removed\|upgraded\|downgraded" | awk '{ $3="" ; $5="\t\033[1m" $5 " \033[0m" ; print }' | fzf -i --multi --exact --no-sort --select-1 --ansi --query="$argument_input" --cycle --tac --reverse --margin="4%,1%,1%,2%" --inline-info --header="TAB key to (un)select. ENTER to roll back. ESC to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}' )"
 
         pacui_tty_clean                                                             # clear terminal
 
