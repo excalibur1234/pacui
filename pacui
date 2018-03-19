@@ -1515,7 +1515,7 @@ function func_ls
         # list all packages on local system sorted by their installed size using "expac" and "sort".
         # $( comm -23 <(pacman -Qq | sort) <(pacman -Qqg base base-devel | sort) )  only shows packages, which are not part of "base" or "base-devel" group.
         # ATTENTION: (i do not know why but) using quotes (" symbols) around $( comm ...) breaks expac
-        expac -H M -Q '%12m - \e[1m%n\e[0m %v' $( comm -23 <(pacman -Qq | sort) <(pacman -Qqg base base-devel | sort) ) | sort -n -r | fzf -i --multi --exact --no-sort --ansi --reverse --margin=4%,1%,1%,1% --inline-info --preview '
+        expac -H M -Q "%12m - \\e[1m%n\\e[0m %v" $( comm -23 <(pacman -Qq | sort) <(pacman -Qqg base base-devel | sort) ) | sort -n -r | fzf -i --multi --exact --no-sort --ansi --reverse --margin=4%,1%,1%,1% --inline-info --preview '
             pacman -Qi {4} --color always
             ' "$( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:60%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi )" --header="Navigate with PageUp / PageDown. ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-ls
         # alternative command to "expac" and "sort": package-query -Qe --rsort 2 -f "%2 - \\e[1m%n \\e[0m%v" | numfmt --to=iec
@@ -1746,7 +1746,7 @@ function func_h
             [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]   && echo -e "      pacui  a    - Search and Install from \\e[1mA\\e[0mUR"
             echo
             echo -e "      pacui  h    - This short \\e[1mH\\e[0melp."
-            echo -e '  00  pacui  help - Full \\e[1mHelp\\e[0m page. "q" key quits.'
+            echo -e "  00  pacui  help - Full \\e[1mHelp\\e[0m page. "q" key quits."
 
         else
 
