@@ -1746,7 +1746,7 @@ function func_h
             [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]   && echo -e "      pacui  a    - Search and Install from \e[1mA\e[0mUR"
             echo
             echo -e "      pacui  h    - This short \e[1mH\e[0melp."
-            echo -e "  00  pacui  help - Full \e[1mHelp\e[0m page. "q" key quits."
+            echo -e "  00  pacui  help - Full \e[1mHelp\e[0m page. 'q' key quits."
 
         else
 
