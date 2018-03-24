@@ -1458,7 +1458,7 @@ function func_c
             then
                 # the sudoers file should never be edited directly! if something goes wrong, sudo stops working. instead, visudo should be used. this is much safer.
                 # if $SUDO_EDITOR variable does not exist, use 'nano'. visudo uses $SUDO_EDITOR variable by default!
-                sudo EDITOR="${SUDO_EDITOR:-/usr/bin/nano}" visudo
+                sudo SUDO_EDITOR="${SUDO_EDITOR:-/usr/bin/nano}" visudo
 
             elif [[ "$file" == "/etc/pacman.d/mirrorlist" ]] || [[ "$file" == "/etc/pacman.conf" ]]
             then
@@ -1981,8 +1981,8 @@ This command forces a sync of the file database of your system repository with y
 
 \e[1m11 - EDIT CONFIG FILES
 \e[36m"$EDITOR <FILE NAME>"
-This command opens <FILE NAME> in your default text editor. You can choose between multiple important system configuration files. Files in the root directory are opened with root privileges. The "sudoers" file is edited with the help of "visudo". For some configuration files, additional commands are executed after the text editor is closed.
-By default the text editor Nano gets used, except a custom $EDITOR variable has been exported. In the text editor Nano, Press CTRL+O to save your changes, ENTER to choose a directory, and CTRL+X to quit Nano.
+This command opens <FILE NAME> in your default text editor. You can choose between multiple important system configuration files. Files in the root directory are opened with root privileges. The "sudoers" file is edited with \e[36m"sudo visudo"\e[0m (which uses the $SUDO_EDITOR environment variable by default). For some configuration files, additional commands are executed after the text editor is closed in order to avoid system breakage.
+By default the text editor Nano gets used, except custom $EDITOR and $SUDO_EDITOR environment variables have been set. In the text editor Nano, Press CTRL+O to save your changes, ENTER to choose a directory, and CTRL+X to quit Nano.
 \e[1mAttention\e[0m: Changing system configuration files can harm or even destroy your system. In some cases, this can happen with a single mistake. Be extremely careful and always double check your changes before saving and rebooting - especially when editing the files marked in red! It is recommended to search the Arch Wiki for the configuration file you want to edit and read about available and recommended settings.
 
 
