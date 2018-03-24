@@ -1446,54 +1446,48 @@ function func_c
         if [[ -n "$file" ]] && (( check == 1 ))                                     # here $check variable needs to be 1 in order to continue normally and display files in a text editor.
         then
 
-            set +u                                                                  # temporarily disable strict mode for environment variables. "$EDITOR" variable gets used extensibely in the following code!
+            set +u                                                                  # temporarily disable strict mode for environment variables. "$EDITOR" and "$SUDO_EDITOR" variable gets used extensibely in the following code!
 
-            if [[ "$( echo "$file" | cut -c -6 )" == "/home/" ]]
-            # if "file"'s first characters are "/home/", the "file" should NOT be opened as root!
+            if [[ "$( echo "$file" | cut -c -6 )" == "/home/" ]]                    # check, if "file"'s first characters is "/home/"
             then
-                # if $EDITOR variable does not exist, set it to 'nano'
-                [[ -z "$EDITOR" ]] && EDITOR='nano'
-                # open "file" in "EDITOR": (attention: "$file" (including " symbols) does NOT WORK!!!, but strangely $file (without " symbols") works fine.)
-                $EDITOR "$file"
+                # if $file starts with "/home/", open it in "EDITOR" (without root privileges).
+                # "${EDITOR:-/usr/bin/nano}" outputs the content of the $EDITOR environment variable. if it is not set, '/usr/bin/nano' gets used.
+                "${EDITOR:-/usr/bin/nano}" "$file"
+
             elif [[ "$file" == "/etc/sudoers" ]]
             then
                 # the sudoers file should never be edited directly! if something goes wrong, sudo stops working. instead, visudo should be used. this is much safer.
-                sudo EDITOR=nano visudo
+                # if $SUDO_EDITOR variable does not exist, use 'nano'. visudo uses $SUDO_EDITOR variable by default!
+                sudo EDITOR="${SUDO_EDITOR:-/usr/bin/nano}" visudo
+
             elif [[ "$file" == "/etc/pacman.d/mirrorlist" ]] || [[ "$file" == "/etc/pacman.conf" ]]
             then
-                # if $EDITOR variable does not exist, set it to 'nano'
-                [[ -z "$EDITOR" ]] && EDITOR='nano'
-                # open "file" in "EDITOR": (attention: "$file" (including " symbols) does NOT WORK!!!)
-                sudo $EDITOR "$file"
+                sudo "${EDITOR:-/usr/bin/nano}" "$file"
                 sudo pacman "$argument_flag"-Syyu                                   # apply changes
+
             elif [[ "$file" == "/etc/pacman-mirrors.conf" ]]
             then
-                # if $EDITOR variable does not exist, set it to 'nano'
-                [[ -z "$EDITOR" ]] && EDITOR='nano'
-                # open "file" in "EDITOR": (attention: "$file" (including " symbols) does NOT WORK!!!)
-                sudo $EDITOR "$file"
+                sudo "${EDITOR:-/usr/bin/nano}" "$file"
                 sudo pacman-mirrors -f 0 && sudo pacman "$argument_flag"-Syyu
+
             elif [[ "$file" == "/etc/fstab" ]] || [[ "$file" == "/etc/crypttab" ]]
             then
-                # if $EDITOR variable does not exist, set it to 'nano'
-                [[ -z "$EDITOR" ]] && EDITOR='nano'
-                # open "file" in "EDITOR": (attention: "$file" (including " symbols) does NOT WORK!!!)
-                sudo $EDITOR "$file"
+                sudo "${EDITOR:-/usr/bin/nano}" "$file"
                 sudo mount -a                                                       # mount all drives/partitions in /etc/fstab file. this shows immediately mistakes in your /etc/fstab file and prevents non-working systems.
+
             elif [[ "$file" == "/etc/mkinitcpio.conf" ]]
             then
-                [[ -z "$EDITOR" ]] && EDITOR='nano'
-                sudo $EDITOR "$file"
+                sudo "${EDITOR:-/usr/bin/nano}" "$file"
                 sudo mkinitcpio -P && sudo grub-mkconfig -o /boot/grub/grub.cfg     # apply changes   # "grub-mkconfig -o /boot/grub/grub.cfg" == "udpate-grub" (in manjaro)
+
             elif [[ "$file" == "/etc/default/grub" ]] || [[ "$file" == "/boot/grub/custom.cfg" ]]
             then
-                [[ -z "$EDITOR" ]] && EDITOR='nano'
-                sudo $EDITOR "$file"
+                sudo "${EDITOR:-/usr/bin/nano}" "$file"
                 sudo grub-mkconfig -o /boot/grub/grub.cfg                           # apply changes   # "grub-mkconfig -o /boot/grub/grub.cfg" == "udpate-grub" (in manjaro)
+
             else
                 # start "sudo nano $file" for all other files (not mentioned separately in elif-statements above)
-                [[ -z "$EDITOR" ]] && EDITOR='nano'
-                sudo $EDITOR "$file"
+                sudo "${EDITOR:-/usr/bin/nano}" "$file"
             fi
 
             set -u
