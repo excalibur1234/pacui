@@ -2,7 +2,7 @@
 # Maintainer: excalibur1234 @forum.manjaro.org
 
 pkgname=pacui
-pkgver=1.9.3
+pkgver=1.10
 pkgrel=1
 pkgdesc="Bash script providing advanced Pacman and Trizen/Yay/Yaourt/Pikaur/Pacaur functionality in a simple UI"
 arch=(any)
