@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+# SC1117: Backslash is literal in "\e". Prefer explicit escaping: "\\e".
+# SC1117: Backslash is literal in "\n". Prefer explicit escaping: "\\n".
+# SC1117: Backslash is literal in "\t". Prefer explicit escaping: "\\t".
+# SC2086: Double quote to prevent globbing and word splitting.                      # ${variable}  does not work when double quoted. also, double quote breaks this script in many cases --> there are warning comments containing "ATTENTION" about this.
+# SC2162: read without -r will mangle backslashes.                                  # "read" is often used to wait for user input (e.g. a press of ENTER). "-r" is pointless in this case and makes the script harder to read.
+# shellcheck disable=SC1117,SC2086,SC2162                                           # exclude MANY false-positive shellcheck warnings (see above)
+
 #  This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as
 #  published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
 #
@@ -13,18 +20,17 @@
 #
 #  Design based on IceFox script. Heavily modified by pekman, excalibur1234, Chrysostomus, papajoker, and thefallenrat.
 
-
-# use unofficial strict mode in order to make bash behave like modern programming languages:
-set -e                                                                              # exit script immediately, if any command exits with non-zero error code
-set -u                                                                              # only allow previously defined variables
-set -o pipefail                                                                     # if one command in a pipe fails, all fail (this is not default behavior!)
-
-# ANSI Escape sequences used in this script (do NOT use \\e[..., because it does not always work):
+# ANSI Escape sequences used in this script:                                        # ATTENTION: do NOT use \\e[..., because it does not always work!
 #  \e[31m                                                                           # red text
 #  \e[36m                                                                           # cyan text
 #  \e[41m                                                                           # red background
 #  \e[0m         \033[0m                                                            # non-colored, non-bold text without background color  ( \033[0m has to be used in "awk")
 #  \e[1m         \033[1m                                                            # bold text  ( \033[1m has to be used in "awk")
+
+# use unofficial strict mode in order to make bash behave like modern programming languages:
+set -e                                                                              # exit script immediately, if any command exits with non-zero error code
+set -u                                                                              # only allow previously defined variables
+set -o pipefail                                                                     # if one command in a pipe fails, all fail (this is not default behavior!)
 
 
 
