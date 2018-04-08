@@ -81,18 +81,6 @@ function func_u
                 install_successful=false
             fi
 
-        elif [[ -e /usr/bin/yaourt ]]
-        then
-
-            # execute "sudo pacman -Syu --color always && yaourt -Syua" command:
-            if ( sudo pacman "$argument_flag"-Syu --color always && yaourt "$argument_flag"-Syua )
-            then
-                # only set $install_successful=true, if the command "sudo pacman -Syu --color always && yaourt -Syua" was executed without errors
-                install_successful=true
-            else
-                install_successful=false
-            fi
-
         elif [[ -e /usr/bin/pikaur ]]
         then
 
@@ -100,6 +88,18 @@ function func_u
             if ( pikaur "$argument_flag"-Syu )
             then
                 # only set $install_successful=true, if the command "pikaur -Syu" was executed without errors
+                install_successful=true
+            else
+                install_successful=false
+            fi
+
+        elif [[ -e /usr/bin/yaourt ]]
+        then
+
+            # execute "sudo pacman -Syu --color always && yaourt -Syua" command:
+            if ( sudo pacman "$argument_flag"-Syu --color always && yaourt "$argument_flag"-Syua )
+            then
+                # only set $install_successful=true, if the command "sudo pacman -Syu --color always && yaourt -Syua" was executed without errors
                 install_successful=true
             else
                 install_successful=false
@@ -230,22 +230,20 @@ function func_m
         echo " searching orphans ..."
         if [[ -e /usr/bin/yay ]]
         then
-
             yay -Cd
 
         elif [[ -e /usr/bin/yaourt ]]
         then
-
             # bugfix #4: use if-statement.
-            # "yaourt -Qdt" exists with error code 1 when orphans are not removed (this is the default setting). this means that pacui also exits immediately with error code 1.
-            if ( yaourt -Qdt )
+            # "yaourt -Qdt" exists with error code 1 when orphans are not removed (this is the default setting). because of unofficial strict bash mode, pacui also exits immediately with error code 1.
+            if ( yaourt -Qdt )                                                      # always execute "yaourt -Qdt" no matter what happens.
             then
                 echo ""
             fi
 
         else                                                                        # this is the case, when tirzen, pacaur, pikaur, or no AUR helper is installed.
 
-            if [[ -n "$(pacman -Qdt)" ]]                                              # only run these commands, if output of "pacman -Qdt" is not empty. this happens if there are no orphans.
+            if [[ -n "$(pacman -Qdt)" ]]                                            # only run these commands, if output of "pacman -Qdt" is not empty. this happens if there are no orphans.
             then
 
                 pacman -Qdt --color always
@@ -471,12 +469,12 @@ function func_i
                         elif [[ -e /usr/bin/yay ]]
                         then
                             yay -Si {1}                                             # this does not work yet, because "yay -Si <repository package>" needs root privileges --> destroys layout of fzf!
-                        elif [[ -e /usr/bin/yaourt ]]
-                        then
-                            yaourt -Si {1} 2>/dev/null                              # bugfix #5: yaourt displays an error, e.g. when doing "yaourt -Si trizen-git" --> do not display an errors with "2>/dev/null".
                         elif [[ -e /usr/bin/pikaur ]]
                         then
                             pikaur -Si {1}
+                        elif [[ -e /usr/bin/yaourt ]]
+                        then
+                            yaourt -Si {1} 2>/dev/null                              # bugfix #5: yaourt displays an error, e.g. when doing "yaourt -Si trizen-git" --> do not display an errors with "2>/dev/null".
                         elif [[ -e /usr/bin/pacaur ]]
                         then
                             pacaur -Si {1} --color always | grep -v "::"            # bugfix #6: display repo package information in preview window of fzf. grep command removes all errors displayed by pacaur
@@ -514,13 +512,13 @@ function func_i
             then
                 yay "$argument_flag"-S $pkg                                         # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
 
-            elif [[ -e /usr/bin/yaourt ]]
-            then
-                yaourt "$argument_flag"-Syu $pkg                                    # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
-
             elif [[ -e /usr/bin/pikaur ]]
             then
                 pikaur "$argument_flag"-S $pkg                                      # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
+
+            elif [[ -e /usr/bin/yaourt ]]
+            then
+                yaourt "$argument_flag"-Syu $pkg                                    # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
 
             elif [[ -e /usr/bin/pacaur ]]
             then
@@ -1539,13 +1537,13 @@ function func_ua
         then
             yay "$argument_flag"-Syu && yay -Syu --devel --needed --noconfirm
 
-        elif [[ -e /usr/bin/yaourt ]]
-        then
-            yaourt "$argument_flag"-Syua && yaourt -Syua --devel --needed --noconfirm
-
         elif [[ -e /usr/bin/pikaur ]]
         then
             pikaur "$argument_flag"-Syu --devel --needed
+
+        elif [[ -e /usr/bin/yaourt ]]
+        then
+            yaourt "$argument_flag"-Syua && yaourt -Syua --devel --needed --noconfirm
 
         elif [[ -e /usr/bin/pacaur ]]
         then
@@ -1555,8 +1553,8 @@ function func_ua
             echo -e " \e[41m No AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
             echo -e " \e[1m  trizen \e[0m"
             echo -e " \e[1m  yay \e[0m"
-            echo -e " \e[1m  yaourt \e[0m"
             echo -e " \e[1m  pikaur \e[0m"
+            echo -e " \e[1m  yaourt \e[0m"
             echo -e " \e[1m  pacaur \e[0m"
 
         fi
@@ -1645,13 +1643,13 @@ function func_a
             then
                 yay "$argument_input"
 
-            elif [[ -e /usr/bin/yaourt ]]
-            then
-                yaourt "$argument_input"
-
             elif [[ -e /usr/bin/pikaur ]]
             then
                 pikaur -Ss "$argument_input"
+
+            elif [[ -e /usr/bin/yaourt ]]
+            then
+                yaourt "$argument_input"
 
             elif [[ -e /usr/bin/pacaur ]]
             then
@@ -1661,8 +1659,8 @@ function func_a
                 echo -e " \e[41m No AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
                 echo -e " \e[1m  trizen \e[0m"
                 echo -e " \e[1m  yay \e[0m"
-                echo -e " \e[1m  yaourt \e[0m"
                 echo -e " \e[1m  pikaur \e[0m"
+                echo -e " \e[1m  yaourt \e[0m"
                 echo -e " \e[1m  pacaur \e[0m"
 
             fi
@@ -1684,13 +1682,13 @@ function func_a
                 then
                     yay "$pkg"
 
-                elif [[ -e /usr/bin/yaourt ]]
-                then
-                    yaourt "$pkg"
-
                 elif [[ -e /usr/bin/pikaur ]]
                 then
                     pikaur -Ss "$pkg"
+
+                elif [[ -e /usr/bin/yaourt ]]
+                then
+                    yaourt "$pkg"
 
                 elif [[ -e /usr/bin/pacaur ]]
                 then
@@ -1702,8 +1700,8 @@ function func_a
                 echo -e " \e[41m No AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
                 echo -e " \e[1m  trizen \e[0m"
                 echo -e " \e[1m  yay \e[0m"
-                echo -e " \e[1m  yaourt \e[0m"
                 echo -e " \e[1m  pikaur \e[0m"
+                echo -e " \e[1m  yaourt \e[0m"
                 echo -e " \e[1m  pacaur \e[0m"
 
             fi
@@ -1755,7 +1753,7 @@ function func_h
 
 \e[1mWelcome to PacUIs Help Page
 
-PacUI is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Trizen/Yay/Pacaur/Pikaur/Yaourt as back ends.
+PacUI is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Trizen/Yay/Pikaur/Yaourt/Pacaur as back ends.
 
 Navigate this help page with your Arrow Keys, PageUp/PageDown Keys, SpaceBar, or your Mouse Wheel. To search this Help Page, enter /<SEARCH TERM> and press ENTER. For example, enter the following (without quotes " ") in order to search for the word "update": "/update". Press N key to continue searching for other occurances of "/update". Search is not case sensitive. To exit this Help Page, press your Q key.
 PacUI uses Fuzzy Finder (fzf) to display selectable lists, which can be easily searched by starting to type. Advanced users can even use regular expressions to search in fzf. Use your TAB key to select multiple items from the list and your ENTER key to choose your selection. Navigate fzf's list the same way you navigate this help page.
