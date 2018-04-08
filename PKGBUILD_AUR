@@ -1,6 +1,7 @@
 
 # Maintainer: excalibur1234 @forum.manjaro.org
 
+
 pkgname=pacui
 pkgver=1.10
 pkgrel=1
@@ -9,6 +10,8 @@ arch=(any)
 url="https://github.com/excalibur1234/$pkgname"
 license=('GPL3')
 depends=('expac' 'wget' 'sudo' 'fzf')
+
+
 conflicts=("pacui-git")
 optdepends=('pacaur: Needed for AUR support.'
         'yaourt: Needed for AUR support.'
@@ -20,6 +23,7 @@ optdepends=('pacaur: Needed for AUR support.'
         'downgrade: Needed for hidden "downgrade" option.')
 source=("$url/archive/$pkgver.tar.gz")
 md5sums=('981894a5bff2203c3aa02877b35461a3')
+
 
 # how to update md5sum:
 #  1. do "updpkgsums" inside the folder with PKGBUILD file
