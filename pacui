@@ -1245,7 +1245,7 @@ function func_f
 
             echo " installing all necessary keyrings ..."
             # This command will install all keyrings from avialable current repository
-            sudo pacman -Sy "$( pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | paste -sd " " )" --noconfirm
+            sudo pacman -Sy $( pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | paste -sd " " ) --noconfirm                   # ATTENTION: (i do not know why but) using quotes (" symbols) around $(...) does not work!
             echo ""
 
 
@@ -1258,7 +1258,7 @@ function func_f
 
 
             echo " initializing and populating keyring ..."
-            sudo pacman-key --init && echo "" && sudo pacman-key --populate "$( pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | sed 's/-keyring//' | paste -sd " " )"
+            sudo pacman-key --init && echo "" && sudo pacman-key --populate $( pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | sed 's/-keyring//' | paste -sd " " )                      # ATTENTION: (i do not know why but) using quotes (" symbols) around $(...) does not work!
             echo ""
 
 
