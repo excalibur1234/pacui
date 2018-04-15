@@ -1233,7 +1233,7 @@ function func_f
 
             # remove gnupg including all keys
             echo " sudo rm -r /etc/pacman.d/gnupg ..."
-            sudo rm -r /etc/pacman.d/gnupg
+            sudo rm -r /etc/pacman.d/gnupg &>/dev/null
             echo ""
 
 
@@ -1293,9 +1293,9 @@ function func_f
 
             if [[ "$(cat /proc/1/comm)" == "systemd" ]]                               # if init system is systemd
             then
-                echo " updating systemd first..."
+                echo " updating systemd first (which can take a while)..."
                 # updating systemd first sometimes solves update problems
-                sudo pacman -S --needed --noconfirm systemd libsystemd systemd-sysvcompat && sleep 30
+                sudo pacman -S --needed --noconfirm systemd libsystemd systemd-sysvcompat && sleep 20
                 echo ""
             fi
 
