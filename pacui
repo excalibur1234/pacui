@@ -1143,12 +1143,12 @@ function func_f
         fi
 
 
-        echo " removing pacman database lock ..."
         if [[ -e /var/lib/pacman/db.lck ]]
         then
+            echo " removing pacman database lock ..."
             sudo unlink /var/lib/pacman/db.lck
+            echo ""
         fi
-        echo ""
 
 
         # check for "pacman-mirrors" or "reflector" packages. one of those is needed!
@@ -1232,9 +1232,12 @@ function func_f
 
 
             # remove gnupg including all keys
-            echo " sudo rm -r /etc/pacman.d/gnupg ..."
-            sudo rm -r /etc/pacman.d/gnupg &>/dev/null
-            echo ""
+            if [[ -e /etc/pacman.d/gnupg ]]
+            then
+                echo " sudo rm -r /etc/pacman.d/gnupg ..."
+                sudo rm -r /etc/pacman.d/gnupg &>/dev/null
+                echo ""
+            fi
 
 
             # reinstall gnupg (without keys)
