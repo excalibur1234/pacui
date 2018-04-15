@@ -27,7 +27,7 @@
 #  \e[0m         \033[0m                                                            # non-colored, non-bold text without background color  ( \033[0m has to be used in "awk")
 #  \e[1m         \033[1m                                                            # bold text  ( \033[1m has to be used in "awk")
 
-# use unofficial strict mode in order to make bash behave like modern programming languages:
+# use unofficial strict mode in order to make bash behave like modern programming languages. this should only be used for development:
 set -e                                                                              # exit script immediately, if any command exits with non-zero error code
 set -u                                                                              # only allow previously defined variables
 set -o pipefail                                                                     # if one command in a pipe fails, all fail (this is not default behavior!)
