@@ -64,7 +64,7 @@ Because PacUI is contained within one file, it is easy to download and run witho
 wget https://raw.githubusercontent.com/excalibur1234/pacui/master/pacui
 ```
 ```
-chmod +x pacui
+cd pacui && chmod +x pacui
 ```
 ```
 pacui
