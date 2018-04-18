@@ -595,7 +595,7 @@ function func_r
 
                     y|Y|yes|YES|Yes )                                               # do this, if "answer" is y or Y or yes or YES or Yes
 
-                        sudo pacman -Rdd "$pkg_remove" --color always
+                        sudo pacman -Rdd $pkg_remove --color always                 # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
                         ;;
 
                     n|N|no|NO|No )                                                  # do this, if "answer" is n or N or no or NO or No
@@ -625,7 +625,7 @@ function func_r
 
                             pacui_tty_clean                                         # clear terminal
 
-                            if ! [[ -n "$pkg" ]]                                      # check, whether $pkg variable is empty. this happens when fzf is quit with CTRL+C.
+                            if ! [[ -n "$pkg" ]]                                    # check, whether $pkg variable is empty. this happens when fzf is quit with CTRL+C.
                             then
                                 break                                               # break while-loop, if fzf was quit using CTRL+C
                             fi
@@ -633,7 +633,7 @@ function func_r
                             # $pkg contains package names below each other, but we need a list (in 1 line, space separated):
                             pkg_remove="$(echo "$pkg" | paste -sd " ")"
 
-                            if ! ( sudo pacman -Rsn "$pkg_remove" --color always )    # the "sudo pacman -Rsn" command is always executed!
+                            if ! ( sudo pacman -Rsn $pkg_remove --color always )    # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
                             then
                                 # continue here only if "sudo pacman -Rns" has failed (again):
                                 # a) save list of packages to backup varialbe
