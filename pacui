@@ -253,7 +253,7 @@ function func_m
 
                 case ${answer:-y} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "y".
                     y|Y|yes|YES|Yes )                                               # do this, if "answer" is y or Y or yes or YES or Yes
-                        sudo pacman -Rsn "$(pacman -Qqdt)" --color always --noconfirm
+                        sudo pacman -Rsn $(pacman -Qqdt) --color always --noconfirm     # ATTENTION: (i do not know why but) using quotes (" symbols) around $(...) breaks pacman command for multiple packages
                         ;;
                     * )                                                             # do this in all other cases
                         echo -e " \e[1m Packages have not been removed.\e[0m"
