@@ -3,9 +3,9 @@
 
 
 pkgname=pacui
-pkgver=1.10
+pkgver=1.10.1
 pkgrel=1
-pkgdesc="Bash script providing advanced Pacman and Trizen/Yay/Yaourt/Pikaur/Pacaur functionality in a simple UI"
+pkgdesc="Bash script providing advanced Pacman and Trizen/Yay/Pikaur/Yaourt/Pacaur functionality in a simple UI"
 arch=(any)
 url="https://github.com/excalibur1234/$pkgname"
 license=('GPL3')
@@ -22,7 +22,7 @@ optdepends=('pacaur: Needed for AUR support.'
         'reflector: Needed for Arch Linux mirror support'
         'downgrade: Needed for hidden "downgrade" option.')
 source=("$url/archive/$pkgver.tar.gz")
-md5sums=('981894a5bff2203c3aa02877b35461a3')
+md5sums=('3d6ac0d3bf3febb6338c99a814f3c8d2')
 
 
 # how to update md5sum:
