@@ -53,7 +53,7 @@ function pacui_tty_clean
 
 
 # Update System
-# this core functionality of "Update System" (note the bold "U") can be started in the terminal using "pacui u". the help page provides additional explanations.
+# this function provides core functionality of "Update System". the help page provides additional explanations.
 function func_u
 {
         # define local variable, which indicates whether the installation process was successful or not.
@@ -183,7 +183,7 @@ function func_u
 
 
 # "pacui --diff" helper function
-# this function is not called by pacui or pacui's UI directly. instead, it gets called in func_c (using "pacui --diff") when no DIFFPROG evironment variable is found. it provides simple file difference viewer functionality and is essentially a wrapper around the GNU program "diff". therefore, this function expects 2 arguments!
+# this function is not called by pacui or pacui's UI directly. instead, it gets called in func_m (using "pacui --diff") when no DIFFPROG evironment variable is found. it provides simple file difference viewer functionality and is essentially a wrapper around the GNU program "diff". therefore, this function expects 2 arguments!
 function func_diff
 {
         # $(( ... )) does arithmetic evaluation. always use this when dealing with numbers, instead of strings - $[[ ... ]] does sting evaluation!
@@ -203,7 +203,7 @@ function func_diff
 
 
 # Maintain System
-# this core functionality of "Maintain System" (note the bold "M") can be started in the terminal using "pacui m". it is separated into multiple parts. most parts begin (or contain) an "echo" command, which explains what is being done. the help page explains the core functionality of every part in detail, too.
+# this function provides core functionality of "Maintain System". it is separated into multiple parts. most parts begin (or contain) an "echo" command, which explains what is being done. the help page explains the core functionality of every part in detail, too.
 function func_m
 {
         if  [[ -n "$( command ls /tmp )" ]]
@@ -406,7 +406,7 @@ function func_m
 
 
 # Install Packages
-# this core functionality of "Install Packages" (note the bold "i") can be started in the terminal using "pacui i". the help page provides additional explanations.
+# this function provides core functionality of "Install Packages". the help page provides additional explanations.
 function func_i
 {
         local {pacui_list_install,pkg}                                              # declare local variables
@@ -534,7 +534,7 @@ function func_i
 
 
 # Remove Packages
-# this core functionality of "Remove Packages" (note the bold "r") can be started in the terminal using "pacui r". the help page provides additional explanations.
+# this function provides core functionality of "Remove Packages". the help page provides additional explanations.
 function func_r
 {
         # write package list of local repository to /tmp/pacui-packages-group. then add all installed package groups to the bottom.
@@ -665,7 +665,7 @@ function func_r
 
 
 # Dependency Tree
-# this core functionality of "Dependency Tree" (note the bold "t") can be started in the terminal using "pacui t". the help page provides additional explanations.
+# this function provides core functionality of "Dependency Tree". the help page provides additional explanations.
 function func_t
 {
         # write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
@@ -721,7 +721,7 @@ function func_t
 
 
 # Reverse Dependency Tree
-# this core functionality of "Reverse Dependency Tree" (note the bold "r" and "t") can be started in the terminal using "pacui rt". the help page provides additional explanations.
+# this function provides core functionality of "Reverse Dependency Tree". the help page provides additional explanations.
 function func_rt
 {
         pacui_tty_clean                                                             # clear terminal
@@ -750,7 +750,7 @@ function func_rt
 
 
 # List Package Files
-# this core functionality of "List Package Files" (note the bold "l") can be started in the terminal using "pacui l". the help page provides additional explanations.
+# this function provides core functionality of "List Package Files". the help page provides additional explanations.
 function func_l
 {
         # write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
@@ -807,7 +807,7 @@ function func_l
 
 
 # Search Package Files
-# this core functionality of "Search Package Files" (note the bold "s") can be started in the terminal using "pacui s". the help page provides additional explanations.
+# this function provides core functionality of "Search Package Files". the help page provides additional explanations.
 function func_s
 {
         # define local variables - all get deleted automatically when the function is exited
@@ -884,7 +884,7 @@ function func_s
 
 
 # Roll Back System
-# this core functionality of "Roll Back System" (note the bold "b") can be started in the terminal using "pacui b". the help page provides additional explanations.
+# this function provides core functionality of "Roll Back System". the help page provides additional explanations.
 function func_b
 {
         # declare local variables
@@ -1132,7 +1132,7 @@ function func_b
 
 
 # Fix Pacman Errors
-# this core functionality of "Fix Pacman Errors" (note the bold "fix") can be started in the terminal using "pacui fix". it is separated into multiple parts. most parts begin (or contain) an introcing "echo" command or comment, which explains what is being done. the help page explains the core functionality of every part in detail, too.
+# this function provides core functionality of "Fix Pacman Errors". it is separated into multiple parts. most parts begin (or contain) an introcing "echo" command or comment, which explains what is being done. the help page explains the core functionality of every part in detail, too.
 function func_f
 {
         if  [[ -n "$( command ls /tmp )" ]]
@@ -1315,7 +1315,7 @@ function func_f
 
 
 # Edit Config Files
-# this core functionality of "Edit Config Files" (note the bold "c") can be started in the terminal using "pacui c". the help page provides additional explanations.
+# this function provides core functionality of "Edit Config Files". the help page provides additional explanations.
 function func_c
 {
         # here, it is impossible to use variables instead of temporary files. therefore, the temporary files should be as tamper-proof as possible.
@@ -1508,7 +1508,7 @@ function func_c
 
 
 # List Packages by Size
-# this core functionality of "List Packages by Size" (note the bold "l" and "s") can be started in the terminal using "pacui ls". the help page provides additional explanations.
+# this function provides core functionality of "List Packages by Size". the help page provides additional explanations.
 function func_ls
 {
         pacui_tty_clean                                                             # clear terminal
@@ -1529,7 +1529,7 @@ function func_ls
 
 
 # Force Update AUR
-# this core functionality of "Force Update AUR" (note the bold "u" and "a") can be started in the terminal using "pacui ua". the help page provides additional explanations.
+# this function provides core functionality of "Force Update AUR". the help page provides additional explanations.
 function func_ua
 {
         if [[ -e /usr/bin/trizen ]]
@@ -1565,7 +1565,7 @@ function func_ua
 
 
 # List Installed from AUR
-# this core functionality of "List Installed from AUR" (note the bold "l" and "a") can be started in the terminal using "pacui la". the help page provides additional explanations.
+# this function provides core functionality of "List Installed from AUR". the help page provides additional explanations.
 function func_la
 {
         pacui_tty_clean                                                             # clear terminal
@@ -1586,7 +1586,7 @@ function func_la
 
 
 # Downgrade Packages
-# this core functionality of "Downgrade Packages" (note the bold "d") can be started in the terminal using "pacui d". the help page provides additional explanations.
+# this function provides core functionality of "Downgrade Packages". the help page provides additional explanations.
 function func_d
 {
         # check for "downgrade" package
@@ -1629,7 +1629,7 @@ function func_d
 
 
 # Search + Install from AUR
-# this core functionality of "Search + Install from AUR" (note the bold "a") can be started in the terminal using "pacui a". the help page provides additional explanations.
+# this function provides core functionality of "Search + Install from AUR". the help page provides additional explanations.
 function func_a
 {
          local pkg
@@ -1717,42 +1717,11 @@ function func_a
 
 
 # Help
-# this core functionality of "Help" (note the bold "h") can be started in the terminal using "pacui h". when the UI is opened, it can also be started using "h" or "help" or "00". the help page provides additional explanations.
-function func_h
+# this function provides core functionality of "Help" page: Helpful text (including ANSI escapes) is written to /tmp/pacui-help file and read with "less".
+function func_help
 {
-        # the "then" part of this if-statement is displayed, when started directly from terminal (the last function calls func_h with the "1" parameter). the "else" part gets displayed when started from UI.
-        if [[ "${1:-}" == "1" ]]                                                    # check, whether func_h got started with the parameter "1"
-        then
-
-            echo -e "      pacui       - \e[1mPac\e[0mUI with \e[1mU\e[0mser \e[1mI\e[0mnterface"
-            echo
-            echo -e "  1   pacui  u    - \e[1mU\e[0mpdate System"
-            echo -e "  2   pacui  m    - \e[1mM\e[0maintain System"
-            echo -e "  3   pacui  i    - \e[1mI\e[0mnstall Packages"
-            echo -e "  4   pacui  r    - \e[1mR\e[0memove Packages and Deps"
-            echo -e "  5   pacui  t    - Dependency \e[1mT\e[0mree"
-            echo -e "  6   pacui  rt   - \e[1mR\e[0meverse Dependency \e[1mT\e[0mree"
-            echo -e "  7   pacui  l    - \e[1mL\e[0mist Package Files"
-            echo -e "  8   pacui  s    - \e[1mS\e[0mearch Package Files"
-            echo
-            echo -e "  9   pacui  b    - Roll \e[1mB\e[0mack System"
-            echo -e " \e[31m 10  pacui  f    - \e[1mF\e[0;31mix Pacman Errors\e[0m"
-            echo -e "  11  pacui  c    - Edit \e[1mC\e[0monfig Files"
-            echo -e "  12  pacui  ls   - \e[1mL\e[0mist Packages by \e[1mS\e[0mize"
-            echo
-            [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]   && echo -e "  13  pacui  ua   - Force \e[1mU\e[0mpdate \e[1mA\e[0mUR"
-            echo -e "  14  pacui  la   - \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
-            [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]   && echo
-            [[ -e /usr/bin/downgrade ]]                                                                                 && echo -e "      pacui  d    - \e[1mD\e[0mowngrade Packages"
-            [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]   && echo -e "      pacui  a    - Search and Install from \e[1mA\e[0mUR"
-            echo
-            echo -e "      pacui  h    - This short \e[1mH\e[0melp."
-            echo -e "  00  pacui  help - Full \e[1mHelp\e[0m page. 'q' key quits."
-
-        else
-
-            # this "heredoc" command pushes all the following lines into "cat" (and "cat pushes it to file /tmp/pacui-help) until a line containing the "EOF" keyword is encountered
-            cat > /tmp/pacui-help <<- "EOF"
+        # this "heredoc" command pushes all the following lines into "cat" (and "cat pushes it to file /tmp/pacui-help) until a line containing the "EOF" keyword is encountered
+        cat > /tmp/pacui-help <<- "EOF"
 
 \e[1mWelcome to PacUIs Help Page
 
@@ -1998,10 +1967,10 @@ By default the text editor Nano gets used, except custom $EDITOR and $SUDO_EDITO
 This command lists packages on your system sorted by their installation size. Both explicitly installed packages and dependencies are displayed. Important system packages part of the "base" or "base-devel" group are not displayed. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-ls.
 
 EOF
-
-            if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]
-            then
-                cat >> /tmp/pacui-help <<- "EOF"
+        # only write the following paragraph to file, if an AUR helper is installed
+        if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]
+        then
+            cat >> /tmp/pacui-help <<- "EOF"
 \e[1m13 - FORCE UPDATE AUR
 \e[36m"yaourt -Syua && yaourt -Syua --devel --needed --noconfirm"
 The Arch User Repository (AUR) is a repository of (mostly) PKGBUILD files. Everybody can create such a PKGBUILD file and upload it to the AUR. A PKGBUILD file contains simple and human readable instructions like where to download the source code from, what dependencies are needed, where to copy files for installation, etc. Yaourt is a so called AUR Helper: It can interpret PKGBUILD files and download the source code, install dependencies, build files on your system, and copy these files to the right location (a.k.a. installing a program).
@@ -2012,18 +1981,19 @@ The second command of FORCE UPDATE AUR forces a reinstall of ALL your developmen
 \e[1mAttention\e[0m: This might take a long time! When using Yaourt, after every 15min this command will pause and ask again for your password.
 
 EOF
-            fi
+        fi
 
-            cat >> /tmp/pacui-help <<- "EOF"
+        cat >> /tmp/pacui-help <<- "EOF"
 \e[1m14 - LIST INSTALLED FROM AUR
 \e[36m"pacman -Qm"
 This command lists all installed packages, which are from the AUR or which were manually installed. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-la.
 If you want a list of all installed packages use REMOVE PACKAGES AND DEPS as described in this Help Page.
 
 EOF
-            if [[ -e /usr/bin/downgrade ]]
-            then
-                cat >> /tmp/pacui-help <<- "EOF"
+        # only write the following paragraph to file, if "downgrade" is installed
+        if [[ -e /usr/bin/downgrade ]]
+        then
+            cat >> /tmp/pacui-help <<- "EOF"
 \e[1mDOWNGRADE PACKAGES
 \e[36m"downgrade <PACKAGE NAME>"
 Manjaro and Arch Linux use a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. If the latest version of a packages does not work on your system, you can downgrade that package to an earlier, working version.
@@ -2035,11 +2005,12 @@ Alternatively, you can run future updates with the command "sudo pacman -Syu --i
 \e[1mAttention\e[0m: DOWNGRADE PACKAGES will show you a selection of packages you can downgrade. If you are using Pacaur to install AUR packages, you will not be able to downgrade AUR packages using DOWNGRADE PACKAGES! instead, the ROLL BACK SYSTEM option is recommended.
 
 EOF
-            fi
+        fi
 
-            if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]
-            then
-                cat >> /tmp/pacui-help <<- "EOF"
+        # only write the following paragraph to file, if an AUR helper is installed
+        if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]
+        then
+            cat >> /tmp/pacui-help <<- "EOF"
 \e[1mSEARCH AND INSTALL FROM AUR
 \e[36m"yaourt <PACKAGE NAME>"
 This command searches for <PACKAGE NAME> in all system repositories and the Arch User Repository (AUR). It searches for package names and package descriptions.
@@ -2047,9 +2018,9 @@ Example: You can search for "web browser" and you will find Firefox and other we
 If you want to exit this mode without installing any packages, simply press CTRL+C or ENTER.
 
 EOF
-            fi
+        fi
 
-            cat >> /tmp/pacui-help <<- "EOF"
+        cat >> /tmp/pacui-help <<- "EOF"
 
 Press "q" to quit this Help Page.
 
@@ -2057,17 +2028,37 @@ EOF
 
         # display /tmp/pacui-help file in "less" and interpret all ANSI escape sequences in it (which only works with "echo -e ..."):
         echo -e "$( cat '/tmp/pacui-help' )" | less -RMi
-
-        fi
 }
 
 
 # Help
-# "pacui --help" helper function. this function maps the "help" argument to the "h" argument. This is done for new users, who are too lazy to read the documentation on the github page and expect "pacui --help" to work (as it does in most unix tools).
-function func_help
+# this function provides short Help.
+function func_h
 {
-        func_h                                                                      # this calls the full help page
-        # func_h 1                                                                  # this calls the short help page
+        echo -e "      pacui       - \e[1mPac\e[0mUI with \e[1mU\e[0mser \e[1mI\e[0mnterface"
+        echo
+        echo -e "  1   pacui  u    - \e[1mU\e[0mpdate System"
+        echo -e "  2   pacui  m    - \e[1mM\e[0maintain System"
+        echo -e "  3   pacui  i    - \e[1mI\e[0mnstall Packages"
+        echo -e "  4   pacui  r    - \e[1mR\e[0memove Packages and Deps"
+        echo -e "  5   pacui  t    - Dependency \e[1mT\e[0mree"
+        echo -e "  6   pacui  rt   - \e[1mR\e[0meverse Dependency \e[1mT\e[0mree"
+        echo -e "  7   pacui  l    - \e[1mL\e[0mist Package Files"
+        echo -e "  8   pacui  s    - \e[1mS\e[0mearch Package Files"
+        echo
+        echo -e "  9   pacui  b    - Roll \e[1mB\e[0mack System"
+        echo -e " \e[31m 10  pacui  f    - \e[1mF\e[0;31mix Pacman Errors\e[0m"
+        echo -e "  11  pacui  c    - Edit \e[1mC\e[0monfig Files"
+        echo -e "  12  pacui  ls   - \e[1mL\e[0mist Packages by \e[1mS\e[0mize"
+        echo
+        [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]   && echo -e "  13  pacui  ua   - Force \e[1mU\e[0mpdate \e[1mA\e[0mUR"
+        echo -e "  14  pacui  la   - \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
+        [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]   && echo
+        [[ -e /usr/bin/downgrade ]]                                                                                 && echo -e "      pacui  d    - \e[1mD\e[0mowngrade Packages"
+        [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]   && echo -e "      pacui  a    - Search and Install from \e[1mA\e[0mUR"
+        echo
+        echo -e "      pacui  h    - This short \e[1mH\e[0melp."
+        echo -e "  00  pacui  help - Full \e[1mHelp\e[0m page. 'q' key quits."
 }
 
 
@@ -2207,18 +2198,18 @@ do
             shift
             ;;
         h )
-            function_call="h"
+            function_call="h"                                                       # call short help
             shift
             ;;
         00|help|man )
-            function_call="help"
+            function_call="help"                                                    # call full help page
             shift
             ;;
 
         # next, all other possible arguments pacui can be called with are listed:
 
         diff )
-            function_call="diff"
+            function_call="diff"                                                    # call "diff" helper function
             shift
             ;;
         flag=* )                                                                    # this means 'flag=' string and every following string (no matter how long it is or what characters (except for " ") it contains)
@@ -2255,7 +2246,7 @@ do
 done
 
 # add trailing space to content of $argument_flag variable, because pacman and AUR helpers react in a strange way when an extra space is added.
-if [[ -n  "$argument_flag" ]]                                                         # check, whether output of "$argument_flag" is not-zero, i.e. $argument_flag contains something
+if [[ -n  "$argument_flag" ]]                                                       # check, whether output of "$argument_flag" is not-zero, i.e. $argument_flag contains something
 then
     argument_flag+=" "
 fi
@@ -2268,7 +2259,7 @@ argument_input="$( echo "$argument_input" | sed 's/ *$//g' )"
 if [[ "$( type -t "func_$function_call")" == "function" ]]
 then
 
-    "func_$function_call" 1                                                         # pass the parameter "1" with the funciton when it gets called directly from terminal.
+    "func_$function_call"                                                           # call pacui function
 
     # unset global variables:
     unset function_call
@@ -2324,6 +2315,7 @@ function pacui_clean
         # move cursor to the top left of the terminal
         tput cup 0 0
 }
+
 
 
 # Run infinte loop for UI / menu, till the user quits using the "quit" option or CTRL+C.
@@ -2455,7 +2447,7 @@ do
 
 
         00|h|help )
-            func_h
+            func_help                                                               # call full help page
             echo
             ;;
         0|q|quit|$'\e'|$'\e'$'\e' )
