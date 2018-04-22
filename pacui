@@ -30,9 +30,9 @@
 # use unofficial strict mode in order to make bash behave like modern programming languages.
 # this should only be used for development.
 # ATTENTION: in order to complete this script in strict mode, EVERY command, which can fail with an error, should be called like this: "if ( <command> ); then echo ''; fi"
-#set -e                                                                              # exit script immediately, if any command exits with non-zero error code
-#set -u                                                                              # only allow previously defined variables
-#set -o pipefail                                                                     # if one command in a pipe fails, all fail (this is not default behavior!)
+#set -e                                                                             # exit script immediately, if any command exits with non-zero error code
+#set -u                                                                             # only allow previously defined variables
+#set -o pipefail                                                                    # if one command in a pipe fails, all fail (this is not default behavior!)
 
 
 
@@ -193,7 +193,7 @@ function func_diff
         temp="$((  ( $(tput cols) / 2 ) - ${#temp2} + ${#temp3}  ))"                # calculate half the width of the terminal window ( $(tput cols)=width of terminal window ; ${#temp2}=width of second argument )
 
         # insert extra line with file paths above the diff viewer output:
-        echo -n -e "\e[31;1m$temp2"                                                # print $temp2 (without \newline at the end) = file path of file1 . use ANSI escape sequence to print file names in this line bold and red.
+        echo -n -e "\e[31;1m$temp2"                                                 # print $temp2 (without \newline at the end) = file path of file1 . use ANSI escape sequence to print file names in this line bold and red.
         printf "%*s\n" "$temp" "$temp3"                                             # print (still in the same line) $temp3 ( = file path of file2) with $temp number of spaces in front and \newline at the end.
         tput sgr0                                                                   # printf does not support any ANSI escape sequences, so output (= red and bold text) has to be reset manually using "tput".
 
@@ -267,7 +267,7 @@ function func_m
 
 
         echo " sudo pacdiff ..."
-        #set +u                                                                      # temporarily disable strict mode for environment variables
+        #set +u                                                                     # temporarily disable strict mode for environment variables
 
         if [[ -n $DIFFPROG ]]                                                       # this if-condition avoids error message when $DIFFPROG is not set/empty
         then
@@ -282,7 +282,7 @@ function func_m
 
 
         echo " checking symlinks ..."
-        if [[ -n "$(sudo find -xtype l)" ]]                                           # only run, if output of "sudo find -xtype l -print" is not empty
+        if [[ -n "$(sudo find -xtype l)" ]]                                         # only run, if output of "sudo find -xtype l -print" is not empty
         then
             echo -e " \e[41m The following symbolic links are broken, please fix them manually: \e[0m"
             sudo find -xtype l
@@ -324,7 +324,7 @@ function func_m
                 pkg="$(  comm -23 <(pacman -Qqm | sort) <(sort -u /tmp/aur/packages)  )"
 
                 # only run the command inside the if-statement, if $pkg variable is not empty
-                if [[ -n "$pkg" ]]                                                    # checks, if length of string is non-zero ("-n" conditional bash expression is the opposite of "-z" (check, whether length of string is zero))
+                if [[ -n "$pkg" ]]                                                  # checks, if length of string is non-zero ("-n" conditional bash expression is the opposite of "-z" (check, whether length of string is zero))
                 then
                     echo -e " \e[1m The following packages are neither in your package repository nor the AUR. \e[0m"
                     echo -e " \e[1m They are orphaned and will never be updated. \e[0m"
@@ -338,7 +338,7 @@ function func_m
         echo ""
 
 
-        if [[ "$(cat /proc/1/comm)" == "systemd" ]]                                   # if init system is systemd
+        if [[ "$(cat /proc/1/comm)" == "systemd" ]]                                 # if init system is systemd
         then
             echo " cleaning systemd log files ..."
             # limit logs in journalctl to an age of 30 days and a combined size of 50mb
@@ -358,7 +358,7 @@ function func_m
 
 
         # 1. extract the name of hard drive the / partition is installed on and write it to the "disk" variatble"
-        local disk                                                                   # declare local variable
+        local disk                                                                  # declare local variable
         disk="$( lsblk -o "name,mountpoint" -pa | sed -n '/^\//h;/\/$/{g;p}' | cut -d/ -f3 )"
         disk="${disk:0:3}"
         # 2. check, whether "disk" is not empty and whether the path to "disk" exists
@@ -901,7 +901,7 @@ function func_b
 
         if [[ -e /usr/bin/pacaur ]]                                                 # checks, whether file "pacaur" exists, i.e. pacaur is installed
         then
-            #set +u                                                                  # temporarily disable strict mode for environment variables
+            #set +u                                                                 # temporarily disable strict mode for environment variables
 
             # the cache location of pacaur is important for downgrading packages installed from the AUR or reinstalling removed packages from the AUR:
             if [[ -z $AURDEST ]]                                                    # $AURDEST is environment variable for changing pacaur's default cache directory. check, if "AURDEST" variable is empty
@@ -1087,7 +1087,7 @@ function func_b
                     temp1="$( echo "$line" | awk '{print $1}' )"                    # this variable is the no. of times a package has to be upgraded
                     temp2="$( echo "$line" | awk '{print $2}' )"                    # this variable is the package name to be upgraded
 
-                    if [[ -n "$temp2" ]]   # checks, if length of string is non-zero ("-n" conditional bash expression is the opposite of "-z" (check, whether length of string is zero))
+                    if [[ -n "$temp2" ]]   # checks, if length of string is non-zero ("-n" conditional bash expression is the opposite of "-z" (check, whether length of string is zero) )
                     then
                         # write list with all versions of package in cache into file ${pacui_tmp_upgrade} (sorted - newest package version is on top)
                         find "$cache" -name "${temp2}-[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r > ${pacui_tmp_upgrade}
@@ -1294,7 +1294,7 @@ function func_f
             echo ""
 
 
-            if [[ "$(cat /proc/1/comm)" == "systemd" ]]                               # if init system is systemd
+            if [[ "$(cat /proc/1/comm)" == "systemd" ]]                             # if init system is systemd
             then
                 echo " updating systemd first (which can take a while)..."
                 # updating systemd first sometimes solves update problems
@@ -1421,7 +1421,7 @@ function func_c
         check=1                                                                     # set initial value
 
         # only run the command inside the if-statement, if $file variable is not empty <-- this happens when fzf is quit with ESC or CTRL+C
-        if [[ -n "$file" ]]                                                           # checks, if length of string is non-zero ("-n" conditional bash expression is the opposite of "-z" (check, whether length of string is zero))
+        if [[ -n "$file" ]]                                                         # checks, if length of string is non-zero ("-n" conditional bash expression is the opposite of "-z" (check, whether length of string is zero))
         then
             # if $file contains a directory, another instance of fzf is opened to let the user choose the file (within the directory) he wants to edit:
             if ( echo "$file" | grep "/$" &>/dev/null )
@@ -1439,7 +1439,7 @@ function func_c
 
                 pacui_tty_clean                                                     # clear terminal
 
-                if [[ -n "$file" ]]                                                   # $file is empty when fzf is quit with ESC.
+                if [[ -n "$file" ]]                                                 # $file is empty when fzf is quit with ESC.
                 then
                     check=1                                                         # only set $check varialbe back to 1, if fzf is not quit with ESC.
                 fi
@@ -1453,7 +1453,7 @@ function func_c
         if [[ -n "$file" ]] && (( check == 1 ))                                     # here $check variable needs to be 1 in order to continue normally and display files in a text editor.
         then
 
-            #set +u                                                                  # temporarily disable strict mode for environment variables. "$EDITOR" and "$SUDO_EDITOR" variable gets used extensibely in the following code!
+            #set +u                                                                 # temporarily disable strict mode for environment variables. "$EDITOR" and "$SUDO_EDITOR" variable gets used extensibely in the following code!
 
             if [[ "$( echo "$file" | cut -c -6 )" == "/home/" ]]                    # check, if "file"'s first characters is "/home/"
             then
@@ -1634,7 +1634,7 @@ function func_a
 {
          local pkg
 
-        if [[ -n "$argument_input" ]]                                                       # checks, if length of string is non-zero ("-n" conditional bash expression is the opposite of "-z" (check, whether length of string is zero))
+        if [[ -n "$argument_input" ]]                                               # checks, if length of string is non-zero ("-n" conditional bash expression is the opposite of "-z" (check, whether length of string is zero))
         then
             # do this if variable "$argument_input" is not empty:
 
@@ -1656,7 +1656,7 @@ function func_a
 
             elif [[ -e /usr/bin/pacaur ]]
             then
-                pacaur -Ss "$argument_input" --color always | grep -v "::"                  # grep command removes errors being displayed in pacaur
+                pacaur -Ss "$argument_input" --color always | grep -v "::"          # grep command removes errors being displayed in pacaur
 
             else
                 echo -e " \e[41m No AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
@@ -1714,6 +1714,7 @@ function func_a
 
 
 # =======================
+# 2 different help functions
 
 
 # Help
@@ -2075,7 +2076,7 @@ function func_h
 # pacaur sometimes does not find an editor to use and the --preview window in fzf does not show any package information.
 # instead, it shows "::editor variable unset".
 
-#set +u                                                                              # temporarily disable strict mode for environment variables
+#set +u                                                                             # temporarily disable strict mode for environment variables
 
 # check, whether pacaur is installed, user config file exists, $EDITOR variable is empty, "vi" is not installed:
 if [[ -e /usr/bin/pacaur ]] && [[ ! -e $HOME/.config/pacaur/config ]] && [[ ! -n $EDITOR ]] && [[ ! -e /usr/bin/vi ]]
@@ -2088,11 +2089,10 @@ fi
 #set -u
 
 
+
 # =======================
 
-
-
-# the following section of code is executed when pacui gets called directly from a terminal/tty without using the UI:
+# the following section of code is executed when pacui gets called directly from a terminal/tty without using the UI
 
 
 # the 'pacui' command gets called (mostly) with arguments. in the following while-loop, all arguments are assigned to their designated variables:
@@ -2268,9 +2268,8 @@ then
     unset argument_flag
 
     exit "$?"                                                                       # exit pacui here and return error code if present. this "exit" command is needed to prevent the UI from loading!
-    #exit                                                                           # exit pacui here. this "exit" command is needed to prevent the UI from loading!
 
-elif (( argument_number > 0 ))                                                      # if "func_$function_call" is no valid function AND if one or more arguments are given. this condition is needed to exclude the "pacui" command (note, there are NO arguments. "pacui" is supposed to start the UI) from running this section.
+elif (( argument_number > 0 ))                                                      # if "func_$function_call" is no valid function AND if any arguments are given. this condition is needed to exclude the "pacui" command (note, there are NO arguments. "pacui" is supposed to start the UI) from running this section.
 then
 
     unset function_call
@@ -2278,10 +2277,10 @@ then
     unset argument_input
     unset argument_flag
 
-    # error, if $function_call does not refer to a valid function. the UI will be started by default.
+    # display error, if $function_call does not refer to a valid function. the UI will be started by default.
     echo -e " \e[41m Bad console command. Press ENTER to start PacUI or CTRL+C to abort. \e[0m"
     read
-    # now, continue this script without exiting.
+    # now, continue this script without exiting, i.e. load pacui's UI.
 
 fi
 
@@ -2324,7 +2323,7 @@ do
 
     pacui_clean                                                                     # clear the terminal screen
 
-    # draw UI / menu. please note the use of ANSI Escape sequences mentioned above. The text/code can be hard to read...
+    # draw UI / menu. please note the use of ANSI Escape sequences mentioned at the top. The text/code can be hard to read and should be changed carfully: spaces are important here!
     echo
     echo -e "                     \e[7m PacUI - Package manager \e[0m                     "
     echo -e " ┌───────────────────────────────────────────────────────────────┐"
@@ -2451,7 +2450,7 @@ do
             echo
             ;;
         0|q|quit|$'\e'|$'\e'$'\e' )
-            pacui_clean && exit                                                     # clear terminal screen first. alternatively, "reset" works as well, but then the terminal history is lost. the "exit" command quits pacui.
+            pacui_clean && exit                                                     # clear terminal screen first (alternatively, "reset" works as well, but then the terminal history is lost). the "exit" command quits pacui.
             ;;
 
 
