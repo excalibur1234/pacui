@@ -33,12 +33,12 @@ Table of Contents
 
 UI of PacUI:
 
-![Screenshot 01](https://s14.postimg.org/ekwbm4a0h/pacui.png)
+![Screenshot 01](https://s31.postimg.cc/afwlfh1wr/2018.1.16.png)
 
 
 Installing the package "cantata" from system repositories by entering its name:
 
-![Screenshot 02](https://s14.postimg.org/sekob7cwh/cantata.gif)
+![Screenshot 02](https://s31.postimg.cc/7ltg222bf/2018.1.16.gif)
 
 
 ## Installation
