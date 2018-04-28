@@ -217,13 +217,16 @@ function func_m
         # check for "pacman-mirrors" or "reflector" packages. one of those is needed!
         if [[ -e /usr/bin/pacman-mirrors ]] || [[ -e /usr/bin/reflector ]]
         then
+
             echo " choosing fastest mirror (which can take a while) ..."
             if [[ -e /usr/bin/pacman-mirrors ]]                                     # checks, whether file "pacman-mirrors" exists
             then
                 sudo pacman-mirrors -f 0 && sudo pacman -Syyu                       # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
+
             elif [[ -e /usr/bin/reflector ]]                                        # checks, whether file "reflector" exists
             then
                 sudo reflector --verbose --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist && sleep 20 && sudo pacman -Syyu          # If it does exists, then the mirror will sort by it
+
             fi
             echo ""
         fi
