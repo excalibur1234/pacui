@@ -59,19 +59,16 @@ Please note that PacUI optionally requires also [Trizen](https://github.com/triz
 
 
 ### Execute without prior Installation
-Because PacUI is contained within one file, it is easy to download and run without prior installation. For a minimal working version of PacUI, please install its dependencies [expac](https://github.com/falconindy/expac) and [fzf](https://github.com/junegunn/fzf). Marking the "pacui" file as executable is essential, too:
+For a minimal working version of PacUI, please install its dependencies [expac](https://github.com/falconindy/expac) and [fzf](https://github.com/junegunn/fzf) using Pacman first (if possible). Then, the PacUI file can be downloaded and run without prior installation:
 ```
 wget https://raw.githubusercontent.com/excalibur1234/pacui/master/pacui
 ```
 ```
-cd pacui && chmod +x pacui
-```
-```
-pacui
+bash pacui/pacui
 ```
 I find this feature of PacUI invaluable for fixing systems. Here are two examples:
-- A large number of updates broke (parts of) the UI, e.g. xorg, window manager, or desktop environment. In this case, switching to a tty (with CTRL + ALT + F2), installing PacUI and using "Roll Back System" to roll back all the latest updates can fix the system (temporarily).
-- A broken keyring makes it impossible to apply updates or install any packages. Executing PacUI without prior installation and using "Fix Pacman Errors" (which does not require "expac" or "fzf" to run) to fix the keyring and all related problems is the easiest and fastest solution I know of.
+- A large number of updates broke (parts of) the GUI, e.g. xorg, window manager, or desktop environment. In this case, switching to a tty (with CTRL + ALT + F2), installing PacUI and using "Roll Back System" to roll back all the latest updates can fix the system (temporarily).
+- A broken keyring makes it impossible to apply updates or install any packages. Executing PacUI without prior installation and using "Fix Pacman Errors" (which does not require "expac" or "fzf") to fix the keyring and all related problems is the easiest and fastest solution I know of.
 
 
 ## Usage
