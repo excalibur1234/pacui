@@ -209,7 +209,7 @@ function func_m
         if  [[ -n "$( command ls /tmp )" ]]
         then
             echo " deleting PacUI cache ..."
-            sudo rm -r /tmp/*
+            sudo rm -r /tmp/pacui*
             echo ""
         fi
 
@@ -303,25 +303,25 @@ function func_m
         if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]] || [[ -e /usr/bin/pikaur ]]
         then
             echo " checking AUR packages ..."
-            # download AUR package list (only when not already downloaded) to /tmp/aur/packages.
-            #if [[ ! -e /tmp/aur/packages.gz ]]
-            if [[ ! -e /tmp/aur/packages ]]
+            # download AUR package list (only when not already downloaded) to /tmp/pacui-aur/packages.
+            #if [[ ! -e /tmp/pacui-aur/packages.gz ]]
+            if [[ ! -e /tmp/pacui-aur/packages ]]
             then
-                #wget -P "/tmp/aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null
-                wget -P "/tmp/aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && gunzip -f "/tmp/aur/packages.gz"
-                # now, file /tmp/aur/packages contains a list of all packages from the AUR.
+                #wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null
+                wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && gunzip -f "/tmp/pacui-aur/packages.gz"
+                # now, file /tmp/pacui-aur/packages contains a list of all packages from the AUR.
             fi
 
-            # check, if /tmp/aur/packages exists. /tmp/aur/packages does not exist, if there is no internet connection or something went wrong during the download of the list of AUR packages.
-            #if [[ -e /tmp/aur/packages.gz ]]
-            if [[ -e /tmp/aur/packages ]]
+            # check, if /tmp/pacui-aur/packages exists. /tmp/pacui-aur/packages does not exist, if there is no internet connection or something went wrong during the download of the list of AUR packages.
+            #if [[ -e /tmp/pacui-aur/packages.gz ]]
+            if [[ -e /tmp/pacui-aur/packages ]]
             then
 
                 local pkg
                 # the "comm" command compares 2 files and outputs the differences between them. both files have to be sorted!
                 # "pacman -Qqm | sort" outputs a list of all installed packages from the AUR
-                #pkg=$(  comm -23 <(pacman -Qqm | sort) <(sort -u /tmp/aur/packages.gz)  )
-                pkg="$(  comm -23 <(pacman -Qqm | sort) <(sort -u /tmp/aur/packages)  )"
+                #pkg=$(  comm -23 <(pacman -Qqm | sort) <(sort -u /tmp/pacui-aur/packages.gz)  )
+                pkg="$(  comm -23 <(pacman -Qqm | sort) <(sort -u /tmp/pacui-aur/packages)  )"
 
                 # only run the command inside the if-statement, if $pkg variable is not empty
                 if [[ -n "$pkg" ]]                                                  # checks, if length of string is non-zero ("-n" conditional bash expression is the opposite of "-z" (check, whether length of string is zero))
@@ -422,16 +422,16 @@ function func_i
         if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]] || [[ -e /usr/bin/pikaur ]]
         then
             # finally, download AUR package list (only when not already downloaded) and add it to the bottom of $pacui_list_install.
-            #if  [[ ! -e /tmp/aur/packages.gz ]]
-            if  [[ ! -e /tmp/aur/packages ]]
+            #if  [[ ! -e /tmp/pacui-aur/packages.gz ]]
+            if  [[ ! -e /tmp/pacui-aur/packages ]]
             then
-                #wget -P "/tmp/aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null
-                wget -P "/tmp/aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && gunzip -f "/tmp/aur/packages.gz"
+                #wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null
+                wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && gunzip -f "/tmp/pacui-aur/packages.gz"
             fi
             # remove line with download date from list of AUR packages with "grep"
             # delete all trailing spaces with "tr". command equivalent to "awk '{print $1}'"
-            #pacui_list_install+="$( grep -v '#' '/tmp/aur/packages.gz' | tr -d ' ' )"
-            pacui_list_install+="$( grep -v '#' '/tmp/aur/packages' )"
+            #pacui_list_install+="$( grep -v '#' '/tmp/pacui-aur/packages.gz' | tr -d ' ' )"
+            pacui_list_install+="$( grep -v '#' '/tmp/pacui-aur/packages' )"
         fi
 
         pacui_tty_clean                                                             # clear terminal
@@ -863,7 +863,7 @@ function func_s
             grep -a -f <(echo "$pacui_search_temp_only_in_repo2") "/tmp/pacui-search-temp-repo" | awk -F '\0' '{print  $1 "/" "\033[1m" $2 "\033[0m  " $4}' >> /tmp/pacui-search
 
             ### the last command (above) is REALLY fast, but the result is much less exact than desired!!! if an exact result is needed, the following command at the end of this comment block can provide it.
-            # "system( "grep -q " $2 " /tmp/pacui-search-temp-local" ) == 1" check exit status of "grep -q <package name> /tmp/pacui-search-temp-local"(checks, if <package name> is part of list /tmp//tmp/pacui-search-temp-local). if error occurs (==1), the package is printed to /tmp/pacui-search-temp
+            # "system( "grep -q " $2 " /tmp/pacui-search-temp-local" ) == 1" check exit status of "grep -q <package name> /tmp/pacui-search-temp-local"(checks, if <package name> is part of list /tmp/pacui-search-temp-local). if error occurs (==1), the package is printed to /tmp/pacui-search-temp
             # "{print $1 "/" $2, $4}" prints output nicely formatted to /tmp/pacui-search.
             # instead of regular ANSI escape sequences, i need to use \033[1m instead of \e[1m inside the awk command.
             #pacman -Fsx --machinereadable "$file" | awk -F '\0' 'system("grep -q " $2 " /tmp/pacui-search-temp-local") == 1 {print  $1 "/" "\033[1m" $2 "\033[0m " $4}' >> /tmp/pacui-search
@@ -1138,7 +1138,7 @@ function func_f
         if  [[ -n "$( command ls /tmp )" ]]
         then
             echo " deleting PacUI cache ..."
-            sudo rm -r /tmp/*
+            sudo rm -r /tmp/pacui*
             echo ""
         fi
 
@@ -1759,8 +1759,8 @@ If updates from system repositories fail, the user is offered the choice to upda
 
 
 \e[1m2 - MAINTAIN SYSTEM
-\e[36m"sudo rm -r /tmp/*"
-This command deletes the entire content of /tmp. PacUI uses this temporary directory to cache package lists and fzf selections. By deleting the /tmp directory, PacUI behaves exactly as after a reboot: Its first usage probably feels slower but any strange bugs and incompatibilities, e.g. originating from PacUI updates, should be gone.
+\e[36m"sudo rm -r /tmp/pacui*"
+This command deletes all PacUI files in /tmp directory. PacUI uses this temporary directory to cache package lists and fzf selections. By deleting the /tmp directory, PacUI behaves exactly as after a reboot: Its first usage probably feels slower but any strange bugs and incompatibilities, e.g. originating from PacUI updates, should be gone.
 
 \e[36m"sudo pacman-mirrors -f 0 && sudo pacman -Syyu" \e[0m(for Manjaro)
 This command generates a new mirrorslist of all available Manjaro repository mirrors/servers and sorts it by ping of up-to-date mirrors/servers. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror and the system is updated. If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -f 0 -c Germany,France". In order to prevent partial updates, the whole system needs to be updated after the change to another repository mirror/server.
@@ -1881,8 +1881,8 @@ Multiple commands attempt to fix the most common issues Manjaro users have with 
 Please make sure that your root partition is not full. If you have doubts about this, run MAINTAIN SYSTEM before FIX PACMAN ERRORS.
 A working internet connection is required for FIX PACMAN ERRORS!
 
-\e[36m"sudo rm -r /tmp/*"
-This command deletes the entire content of /tmp. PacUI uses this temporary directory to cache package lists and fzf selections. By deleting the /tmp directory, PacUI behaves exactly as after a reboot: Its first usage probably feels slower but any strange bugs and incompatibilities, e.g. originating from PacUI updates, should be gone.
+\e[36m"sudo rm -r /tmp/pacui*"
+This command deletes all PacUI files in /tmp directory. PacUI uses this temporary directory to cache package lists and fzf selections. By deleting the /tmp directory, PacUI behaves exactly as after a reboot: Its first usage probably feels slower but any strange bugs and incompatibilities, e.g. originating from PacUI updates, should be gone.
 
 \e[36m"sudo unlink /var/lib/pacman/db.lck"
 This command removes Pacmans database lock. The database lock prevents multiple Pacman instances from running at the same time and interfering with each other.
