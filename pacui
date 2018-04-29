@@ -206,7 +206,8 @@ function func_diff
 # this function provides core functionality of "Maintain System". it is separated into multiple parts. most parts begin (or contain) an "echo" command, which explains what is being done. the help page explains the core functionality of every part in detail, too.
 function func_m
 {
-        if  [[ -n "$( command ls /tmp )" ]]
+        # delete only pacui-related packages in /tmp directory. if other files are deleted, linux starts to act strange!
+        if ( sudo find /tmp/ -iname "pacui*" &>/dev/null )                          # check if "pacui*" file or directory is found in /tmp/ directory. do not output anything to terminal.
         then
             echo " deleting PacUI cache ..."
             sudo rm -r /tmp/pacui*
@@ -303,7 +304,7 @@ function func_m
         echo ""
 
 
-        if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]] || [[ -e /usr/bin/pikaur ]]
+        if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]
         then
             echo " checking AUR packages ..."
             # download AUR package list (only when not already downloaded) to /tmp/pacui-aur/packages.
@@ -422,7 +423,7 @@ function func_i
         pacui_list_install+="\n"
 
         # only download AUR package list, if at least one AUR helper is installed
-        if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]] || [[ -e /usr/bin/pikaur ]]
+        if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]
         then
             # finally, download AUR package list (only when not already downloaded) and add it to the bottom of $pacui_list_install.
             #if  [[ ! -e /tmp/pacui-aur/packages.gz ]]
@@ -1138,7 +1139,8 @@ function func_b
 # this function provides core functionality of "Fix Pacman Errors". it is separated into multiple parts. most parts begin (or contain) an introcing "echo" command or comment, which explains what is being done. the help page explains the core functionality of every part in detail, too.
 function func_f
 {
-        if  [[ -n "$( command ls /tmp )" ]]
+        # delete only pacui-related packages in /tmp directory. if other files are deleted, linux starts to act strange!
+        if ( sudo find /tmp/ -iname "pacui*" &>/dev/null )                          # check if "pacui*" file or directory is found in /tmp/ directory. do not output anything to terminal.
         then
             echo " deleting PacUI cache ..."
             sudo rm -r /tmp/pacui*
@@ -1673,7 +1675,7 @@ function func_a
 
         else
 
-            if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]
+            if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/pikaur ]]  || [[ -e /usr/bin/yaourt ]]|| [[ -e /usr/bin/pacaur ]]
             then
 
                 # do this if pacui is used with UI or no argument is specified in "pacui a" command:
@@ -1972,7 +1974,7 @@ This command lists packages on your system sorted by their installation size. Bo
 
 EOF
         # only write the following paragraph to file, if an AUR helper is installed
-        if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]
+        if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]
         then
             cat >> /tmp/pacui-help <<- "EOF"
 \e[1m13 - FORCE UPDATE AUR
@@ -2012,7 +2014,7 @@ EOF
         fi
 
         # only write the following paragraph to file, if an AUR helper is installed
-        if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]
+        if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]
         then
             cat >> /tmp/pacui-help <<- "EOF"
 \e[1mSEARCH AND INSTALL FROM AUR
@@ -2055,11 +2057,11 @@ function func_h
         echo -e "  11  pacui  c    - Edit \e[1mC\e[0monfig Files"
         echo -e "  12  pacui  ls   - \e[1mL\e[0mist Packages by \e[1mS\e[0mize"
         echo
-        [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]   && echo -e "  13  pacui  ua   - Force \e[1mU\e[0mpdate \e[1mA\e[0mUR"
+        [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]   && echo -e "  13  pacui  ua   - Force \e[1mU\e[0mpdate \e[1mA\e[0mUR"
         echo -e "  14  pacui  la   - \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
-        [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]   && echo
+        [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]   && echo
         [[ -e /usr/bin/downgrade ]]                                                                                 && echo -e "      pacui  d    - \e[1mD\e[0mowngrade Packages"
-        [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]   && echo -e "      pacui  a    - Search and Install from \e[1mA\e[0mUR"
+        [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]   && echo -e "      pacui  a    - Search and Install from \e[1mA\e[0mUR"
         echo
         echo -e "      pacui  h    - This short \e[1mH\e[0melp."
         echo -e "  00  pacui  help - Full \e[1mHelp\e[0m page. 'q' key quits."
@@ -2339,8 +2341,8 @@ do
     echo -e "      9   Roll \e[1mB\e[0mack System      \e[31m 10   \e[1mF\e[0;31mix Pacman Errors\e[0m "
     echo -e "     11   Edit \e[1mC\e[0monfig Files      12   \e[1mL\e[0mist Packages by \e[1mS\e[0mize "
     echo -e " ┌───────────────────────────────────────────────────────────────┐"
-    [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/pacaur ]]         && echo -e " │   13   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR       14   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
-    [[ ! -e /usr/bin/trizen ]] && [[ ! -e /usr/bin/yay ]] && [[ ! -e /usr/bin/yaourt ]] && [[ ! -e /usr/bin/pikaur ]] && [[ ! -e /usr/bin/pacaur ]] && echo -e " │                               14   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
+    [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]         && echo -e " │   13   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR       14   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
+    [[ ! -e /usr/bin/trizen ]] && [[ ! -e /usr/bin/yay ]] && [[ ! -e /usr/bin/pikaur ]] && [[ ! -e /usr/bin/yaourt ]] && [[ ! -e /usr/bin/pacaur ]] && echo -e " │                               14   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
     echo -e " └───────────────────────────────────────────────────────────────┘"
     echo
     echo -e "  Enter number or marked letter(s)   -   00   \e[1mH\e[0melp   -   0   \e[1mQ\e[0muit "
