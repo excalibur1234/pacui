@@ -741,7 +741,7 @@ function func_rt
         if [[ -n "$pkg" ]]
         then
 
-            # explain the " echo {} | sed 's/^[│├└─ ]*//g' | cut -d ' ' -f 1 " command used below:
+            # explain the " echo {} | sed 's/^[│├└─ ]*//g' " command used below:
             # first echo selected line in fzf. then, remove all symbols from the beginning of the line, which does not belong to the package name.
             pactree -c -r "$pkg" | fzf -i --multi --exact --no-sort --ansi --reverse --margin=4%,1%,1%,1% --inline-info --preview '
                 pacman -Qi "$( echo {} | sed "s/^[│├└─ ]*//g" )" --color always
