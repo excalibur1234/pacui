@@ -313,7 +313,7 @@ function func_m
             then
                 #wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null
                 wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && gunzip -f "/tmp/pacui-aur/packages.gz"
-                # now, file /tmp/pacui-aur/packages contains a list of all packages from the AUR.
+                # now, file /tmp/pacui-aur/packages contains an unsorted list of all packages from the AUR with the download date on top (in a commented line).
             fi
 
             # check, if /tmp/pacui-aur/packages exists. /tmp/pacui-aur/packages does not exist, if there is no internet connection or something went wrong during the download of the list of AUR packages.
@@ -425,7 +425,7 @@ function func_i
         # only download AUR package list, if at least one AUR helper is installed
         if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]
         then
-            # finally, download AUR package list (only when not already downloaded) and add it to the bottom of $pacui_list_install.
+            # download AUR package list (only when not already downloaded) and add it to the bottom of $pacui_list_install.
             #if  [[ ! -e /tmp/pacui-aur/packages.gz ]]
             if  [[ ! -e /tmp/pacui-aur/packages ]]
             then
@@ -433,8 +433,7 @@ function func_i
                 wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && gunzip -f "/tmp/pacui-aur/packages.gz"
             fi
             # remove line with download date from list of AUR packages with "grep"
-            # delete all trailing spaces with "tr". command equivalent to "awk '{print $1}'"
-            #pacui_list_install+="$( grep -v '#' '/tmp/pacui-aur/packages.gz' | tr -d ' ' )"
+            #pacui_list_install+="$( grep -v '#' '/tmp/pacui-aur/packages.gz' | tr -d ' ' )"                # delete all trailing spaces with "tr". command equivalent to "awk '{print $1}'"
             pacui_list_install+="$( grep -v '#' '/tmp/pacui-aur/packages' )"
         fi
 
