@@ -24,8 +24,9 @@
 #  \e[31m                                                                           # red text
 #  \e[36m                                                                           # cyan text
 #  \e[41m                                                                           # red background
-#  \e[0m         \033[0m                                                            # non-colored, non-bold text without background color  ( \033[0m has to be used in "awk")
 #  \e[1m         \033[1m                                                            # bold text  ( \033[1m has to be used in "awk")
+#  \e[0m         \033[0m                                                            # non-colored, non-bold text without background color  ( \033[0m has to be used in "awk")
+
 
 # use unofficial strict mode in order to make bash behave like modern programming languages.
 # this should only be used for development.
