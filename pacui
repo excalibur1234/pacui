@@ -220,7 +220,7 @@ function func_m
         if [[ -e /usr/bin/pacman-mirrors ]] || [[ -e /usr/bin/reflector ]]
         then
 
-            echo " choosing fastest mirror (which can take a while) ..."
+            echo " choosing fastest mirror (which can take a while) and updating system ..."
             if [[ -e /usr/bin/pacman-mirrors ]]                                     # checks, whether file "pacman-mirrors" exists
             then
                 sudo pacman-mirrors -f 0 && sudo pacman -Syyu                       # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
@@ -418,10 +418,10 @@ function func_i
 
         # write package list of system repositories (package name and description) to $pacui_list_install. %-33n uses printf support in expac to format output nicely (reserve a 33 character wide field for package name %n). then add all package groups to the bottom.
         # awk 'NF != 0' removes all empty lines ("number of fields" in one line has to be non-zero)
-        pacui_list_install="$(  expac -S "%-33n\t%d" )"                             # here the parenthesis in "$(...)" are essential to write multiple lines to a variable! without parenthesis the variable will contain only a single line (space separated)!
-        pacui_list_install+="\n"                                                    # by default, the "+=" operator adds all stuff to the end of a variable (but without a newline!)
-        pacui_list_install+="$( expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' )"
-        pacui_list_install+="\n"
+        pacui_list_install="$(  expac -S "%-33n\t%d" )" && pacui_list_install+="\n"                    # here the parenthesis in "$(...)" are essential to write multiple lines to a variable! without parenthesis the variable will contain only a single line (space separated)!
+        # by default, the "+=" operator adds all stuff to the end of a variable (but without a newline!). therefore, an additional "\n" (newline) is needed.
+        pacui_list_install+="$( expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' )" && pacui_list_install+="\n"
+
 
         # only download AUR package list, if at least one AUR helper is installed
         if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]
@@ -2093,6 +2093,34 @@ fi
 
 #set -u
 
+
+# bug # :
+# when database of system repositories has not been saved, it is impossible to use pacman (or expac) in any meaningful way.
+# therefore, the existance of the "core" database is tested here. if it does not exist, a repository server is chosen and the repository database synced to the user's system
+
+local dbpath
+dbpath="$( awk -F '=' '/DBPath/ {gsub(" ","",$2); print $2}' '/etc/pacman.conf' )"  # extract path of database file from pacman.conf
+if ! [[ -e "$dbpath"sync/core.db ]]                                                 # check, whether repository database file "core.db" exists
+then
+
+    # check for "pacman-mirrors" or "reflector" packages. one of those is needed!
+    if [[ -e /usr/bin/pacman-mirrors ]] || [[ -e /usr/bin/reflector ]]
+    then
+
+        echo " choosing fastest mirror (which can take a while) and updating system ..."
+        if [[ -e /usr/bin/pacman-mirrors ]]                                     # checks, whether file "pacman-mirrors" exists
+        then
+            sudo pacman-mirrors -f 0 && sudo pacman -Syyu                       # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
+
+        elif [[ -e /usr/bin/reflector ]]                                        # checks, whether file "reflector" exists
+        then
+            sudo reflector --verbose --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist && sleep 20 && sudo pacman -Syyu          # If it does exists, then the mirror will sort by it
+
+        fi
+    fi
+
+fi
+unset dbpath
 
 
 # =======================
