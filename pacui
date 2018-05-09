@@ -2098,7 +2098,6 @@ fi
 # when database of system repositories has not been saved, it is impossible to use pacman (or expac) in any meaningful way.
 # therefore, the existance of the "core" database is tested here. if it does not exist, a repository server is chosen and the repository database synced to the user's system
 
-local dbpath
 dbpath="$( awk -F '=' '/DBPath/ {gsub(" ","",$2); print $2}' '/etc/pacman.conf' )"  # extract path of database file from pacman.conf
 if ! [[ -e "$dbpath"sync/core.db ]]                                                 # check, whether repository database file "core.db" exists
 then
