@@ -160,7 +160,7 @@ function func_u
 
                     case ${answer:-n} in                                            # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "n".
                         y|Y|yes|Yes|YES )                                           # do this, if "answer" is y or Y or yes or Yes or YES
-                            sudo pacman -Syu --force --color always
+                            sudo pacman -Syu --color always --overwrite A-Z,a-z,0-9,-,.,_
                             ;;
                         * )                                                         # do this in all other cases
                             echo -e " \e[1m Packages have not been updated.\e[0m"
@@ -1776,7 +1776,7 @@ This will quit PacUI and clear your terminal. Scroll up to see all terminal outp
 \e[36m"yaourt -Syua"
 The first command compares a list of all installed packages with package database on your system repository mirror/server. If an updated package is available from your system repositories, it will get downloaded and installed on your system.
 The second command does the same as the first part, but with one exception: It also downloads, compiles, and installs all packages from the Arch User Repository (AUR), which have an updated PKGBUILD file. The first command is still needed occasionaly, because major Pacman and Yaourt updates require "pacman -Syu" and will fail when started with Yaourt.
-If updates from system repositories fail, the user is offered the choice to update packages using \e[36m"sudo pacman -Syu --force"\e[0m.
+If updates from system repositories fail, the user is offered the choice to update packages using \e[36m"sudo pacman -Syu --overwrite A-Z,a-z,0-9,-,.,_"\e[0m.
 \e[1mAttention\e[0m: When a new version of an AUR package is available, sometimes the PKGBUILD file is not updated. If you want to install the latest version of a single AUR package, (re-)install it with INSTALL PACKAGES. If you want to install the latest versions of ALL AUR packages use FORCE UPDATE AUR.
 
 
@@ -1795,9 +1795,9 @@ This command generates a new mirrorslist of secure and fast repository mirrors/s
 This option lists all orphaned packages on your system. Orphaned packages are old and no longer needed dependencies (packages not explicitly installed by you), which were never removed from your system.
 
 \e[36m"sudo pacdiff"
-A .pacnew file may be created during a package upgrade to avoid overwriting a file (e.g. a config file) which already exists and was previously modified by the user. A .pacsave file may be created during a package removal, or by a package installation (the package must be removed first). When the Pacman database has record that a certain file owned by the package should be backed up it will create a .pacsave file. These files require manual intervention from the user and it is good practice to handle them regularly. If left unhandled, improper configurations can result in improper function of the software, or the software being unable to run altogether.
+A .pacnew file may be created during a package upgrade to avoid overwriting a file (e.g. a config file) which already exists and was previously modified by the user. A .pacsave file may be created during a package removal, or by a package installation (the package must be removed first). When the Pacman database has record that a certain file owned by the package should be backed up it will create a .pacsave file. These files require manual intervention from the user and it is good practice to handle them regularly. If left unhandled, improper configuration files can result in improper functionality of software, or software being unable to run altogether.
 This command offers you a choice, whether you want to keep the original file (in most cases, these are config files) or the .pacnew/.pacsave file. Simply view both files by choosing "v".
-If you keep the original file, the program could not recognize the old syntax anymore, because it uses now a new syntax. In the worst case, your program could brake or stop working. If you remove the original file and use the new file without any changes, all your configurations might be reset to the default values. This can result in a changed system behavior, including removing passowrds or even sudo capability.
+If you keep the original file, the program could not recognize the old syntax anymore, because it uses now a new syntax. In the worst case, your program could break or stop working. If you remove the original file and use the new file without any changes, all your configurations might be reset to the default values. This can result in changed system behavior, including removing passowrds or even sudo capability.
 In most cases, the syntax does not change and you can simply remove the new file (with the default configuration settings).
 If you notice a syntax change, it is highly recommended to solve this conflict in another way (e.g. by manually editing one of those files and deleting the other).
 \e[1mAttention\e[0m: This command requires a default file difference viewer by setting the environment variable DIFFPROG. If this varialbe is not set, a minimal default is provided by PacUI using "diff".
@@ -1838,8 +1838,7 @@ Kernels from the AUR are also listed by the "comm" command and trigger a warning
 \e[1m3 - INSTALL PACKAGES
 \e[36m"yaourt -Syu <PACKAGE NAME>"
 This option downloads and installs <PACKAGE NAME> on your system. The list of packages shows packages from your system repository with their description while package groups or packages from the AUR are only shown with their name.
-If package installation from system repositories fails, the user is offered the choice to install packages using \e[36m"sudo pacman -Syu --force <PACKAGE NAME>"\e[0m.
-\e[1mAttention\e[0m: Experienced users can install packages from the AUR without the need to answer questions all the time by using the command "yaourt -S <PACKAGE NAME> --noconfirm". The "--noconfirm" flag is great for quick and dirty installations of AUR packages on non-secure systems. Please keep always in mind that the AUR can contain any sort of package - including malicious and destructive (parts of) packages. Therefore, it is recommended to always check the PKGBUILD and .INSTALL file manually before installing a package from the AUR.
+\e[1mAttention\e[0m: Experienced users can install packages from the AUR without the need to answer questions all the time by using the command "yaourt -S <PACKAGE NAME> --noconfirm". The "--noconfirm" flag is great for quick and dirty installations of AUR packages on non-secure systems. Please keep always in mind that the AUR can contain any sort of packages - including malicious and destructive (parts of) packages. Therefore, it is recommended to always check the PKGBUILD and .INSTALL file manually before installing a package from the AUR.
 
 
 \e[1m4 - REMOVE PACKAGES AND DEPS
