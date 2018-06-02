@@ -501,7 +501,7 @@ function func_i
 
         pacui_tty_clean                                                             # clear terminal
 
-        # $pkg contains package names below each other (=separated by \n), but we need a list in 1 line (=space separated):
+        # $pkg contains package names below each other (=separated by \n), but we need a list in 1 line (which is space separated):
         pkg="$( echo "$pkg" | paste -sd " " )"
 
 
@@ -523,14 +523,14 @@ function func_i
 
             elif [[ -e /usr/bin/yaourt ]]
             then
-                yaourt "$argument_flag"-Syu $pkg                                    # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
+                yaourt "$argument_flag"-Sy $pkg                                     # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
 
             elif [[ -e /usr/bin/pacaur ]]
             then
-                pacaur "$argument_flag"-S $pkg --color always                       # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
+                pacaur "$argument_flag"--color always -S $pkg                       # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
 
             else
-                sudo pacman "$argument_flag"-Syu $pkg --color always                # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
+                sudo pacman "$argument_flag"--color always -Syu $pkg                # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
 
             fi
 
@@ -1836,8 +1836,8 @@ Kernels from the AUR are also listed by the "comm" command and trigger a warning
 
 
 \e[1m3 - INSTALL PACKAGES
-\e[36m"yaourt -Syu <PACKAGE NAME>"
-This option downloads and installs <PACKAGE NAME> on your system. The list of packages shows packages from your system repository with their description while package groups or packages from the AUR are only shown with their name.
+\e[36m"yaourt -Sy <PACKAGE NAME>"
+This option first updates your system and then downloads and installs <PACKAGE NAME> on your system. The list of packages shows packages from your system repository with their description while package groups or packages from the AUR are only shown with their name.
 \e[1mAttention\e[0m: Experienced users can install packages from the AUR without the need to answer questions all the time by using the command "yaourt -S <PACKAGE NAME> --noconfirm". The "--noconfirm" flag is great for quick and dirty installations of AUR packages on non-secure systems. Please keep always in mind that the AUR can contain any sort of packages - including malicious and destructive (parts of) packages. Therefore, it is recommended to always check the PKGBUILD and .INSTALL file manually before installing a package from the AUR.
 
 
