@@ -287,9 +287,13 @@ function func_m
 
 
         echo " checking systemctl ..."
-
+        if (( $( systemctl --failed | awk -F 'loaded' 'NR==1 {print $1}' ) > 0 ))
+        then
+            echo -e " \e[41m The following systemd service(s) have failed. Please fix them manually. \e[0m"
+            echo -e " \e[41m Display detailed information about a systemd service with: systemctl status <SYSTEMD SERVICE NAME> \e[0m"
+            systemctl --failed
+        fi
         echo ""
-
 
 
         echo " checking symlinks ..."
@@ -1808,6 +1812,9 @@ If you keep the original config file, the new program version could not recogniz
 In most cases, the syntax does not change and you can simply remove the .pacnew file. However, if you notice a syntax change, it is highly recommended to solve this conflict in another way (e.g. by manually editing one of those files and deleting the other).
 \e[1mAttention\e[0m: This command requires a default file difference viewer by setting the environment variable DIFFPROG. If this varialbe is not set, a minimal default is provided by PacUI using "diff".
 \e[1mAttention\e[0m: In severe and rare cases, removing your old config file (and using the new .pacnew config file) OR keeping your old config file (and deleting the .pacnew config file) can result in a broken system. PLEASE BE CAUTIOUS WHEN USING THIS COMMAND!
+
+\e[36m"systemctl --failed"
+This command checks for systemd services in a failed state. It is possible the systemd service will no longer be failed after a reboot. But if a systemd service still fails after a reboot, you should manually fix the problem. Start by using the command "systemctl status <SYSTEMD SERVICE NAME>".
 
 \e[36m"sudo find -xtype l" \e[0m(only if there are broken symlinks)
 This command displays a list of broken symbolic links on your system. These links are not deleted by default. You have to decide yourself what to do with them. When you have doubt about deleting them, leave them on your system. They can sometimes cause problems, but they use almost no hard drive space.
