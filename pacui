@@ -286,6 +286,12 @@ function func_m
         echo ""
 
 
+        echo " checking systemctl ..."
+
+        echo ""
+
+
+
         echo " checking symlinks ..."
         if [[ -n "$(sudo find -xtype l)" ]]                                         # only run, if output of "sudo find -xtype l -print" is not empty
         then
@@ -905,7 +911,7 @@ function func_b
         fi
 
         # get log file path from file /etc/pacman.conf (without any white spaces) and write results to variable $logpath:
-        logpath="$( awk -F '=' '/^logpath/ {gsub(" ","",$2); print $2}' '/etc/pacman.conf' )"
+        logpath="$( awk -F '=' '/^LogFile/ {gsub(" ","",$2); print $2}' '/etc/pacman.conf' )"
         # set variable $logpath to default directory, if  variable $logpath is empty:
         if [[ -z "$logpath" ]]                                                        # if "logpath" variable is empty (exact: if output of $logpath is zero)
         then
