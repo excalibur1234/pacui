@@ -533,7 +533,7 @@ function func_i
 
             elif [[ -e /usr/bin/yaourt ]]
             then
-                yaourt "$argument_flag"-Sy $pkg                                     # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
+                yaourt "$argument_flag"-S $pkg                                      # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
 
             elif [[ -e /usr/bin/pacaur ]]
             then
@@ -1192,7 +1192,7 @@ function func_f
             then
                 sudo pacman-mirrors -f 0 && sudo pacman -Syy                        # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
                 # here, "pacman -Syy" is used to sync to the (potentially new) repository server. this is important!
-                # but "pacman -Syy" (when pacman -S is executed later on) can result in a partially updated system. this cannot be prevented here, because it is possible the user's keys are corruped and he is no longer able to install any packages.
+                # but "pacman -Syy" (when pacman -S is executed later on) can result in a partially updated system. this cannot be prevented here, because it is possible the user's keys are corruped and he is no longer able to install/update any packages.
             fi
             # do this, if system uses reflector (default on Arch Linux or distributions using Arch Linux mirrors/repo servers)
             if [[ -e /usr/bin/reflector ]]
@@ -1338,7 +1338,7 @@ function func_f
             echo " updating core system ..."
             sudo pacman -Syyu --color always --noconfirm
             echo ""
-            sudo pacman -Syu --color always
+            sudo pacman -Syu --color always                                         # in case manual intervention during updates is needed, the user can intervene here
             echo ""
             sudo pacman -Fyy
 
@@ -2021,7 +2021,7 @@ EOF
         cat >> /tmp/pacui-help <<- "EOF"
 \e[1m14 - LIST INSTALLED FROM AUR
 \e[36m"pacman -Qm"
-This command lists all installed packages, which are from the AUR or which were manually installed. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-la.
+This command lists all installed packages, which are from the AUR or which were manually installed. Packages, which are installed on your local system, but are no longer available in remote system repositories are listed here, too. They are orphaned and can get removed with MAINTAIN SYSTEM. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-la.
 If you want a list of all installed packages use REMOVE PACKAGES AND DEPS as described in this Help Page.
 
 EOF
