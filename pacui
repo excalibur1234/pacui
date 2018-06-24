@@ -38,7 +38,7 @@
 # =======================
 
 # here, the preferred AUR helper can be set manually by the user. if AUR_Helper="", the installed AUR helpers are detected and one is chosen automatically:
-AUR_Helper=""
+AUR_Helper=""                                                                       # global variable, which does not get unset (i.e. cleaned up), because it is needed both in GUI and non-GUI
 
 if [[ -z "$AUR_Helper" ]]                                                           # check, if AUR_Helper variable is empty. more precise: check, if output of "$AUR_Helper" is zero
 then
@@ -92,7 +92,7 @@ function func_u
         # define local variable, which indicates whether the installation process was successful or not.
         local install_successful
 
-        if [[ "$AUR_Helper" == "trizen" ]]
+        if [[ "$AUR_Helper" == "trizen" ]]                                          # check, if $AUR_Helper varialbe is set to "trizen". ATTENTION: sometimes, this requires [[ "$AUR_Helper" == "trizen" ]] and sometimes [[ '$AUR_Helper' == "trizen" ]]. i do not know why this is the case.
         then
 
             # execute "trizen -Syu" command:
@@ -510,19 +510,19 @@ function func_i
                         then
                             echo -e "\e[1m{1} group has the following members: \e[0m"
                             pacman -Sgq {1}                                         # display package name of group members in preview window of fzf
-                        elif [[ "$AUR_Helper" == "trizen" ]]                               # if {1} is neither locally installed nor a group, it is from the AUR. display info with AUR helper
+                        elif [[ '$AUR_Helper' == "trizen" ]]                               # if {1} is neither locally installed nor a group, it is from the AUR. display info with AUR helper
                         then
                             trizen -Si {1}
-                        elif [[ "$AUR_Helper" == "yay" ]]
+                        elif [[ '$AUR_Helper' == "yay" ]]
                         then
                             yay -Si {1}                                             # this does not work yet, because "yay -Si <repository package>" needs root privileges --> destroys layout of fzf!
-                        elif [[ "$AUR_Helper" == "pikaur" ]]
+                        elif [[ '$AUR_Helper' == "pikaur" ]]
                         then
                             pikaur -Si {1}
-                        elif [[ "$AUR_Helper" == "yaourt" ]]
+                        elif [[ '$AUR_Helper' == "yaourt" ]]
                         then
                             yaourt -Si {1} 2>/dev/null                              # bugfix #5: yaourt displays an error, e.g. when doing "yaourt -Si trizen-git" --> do not display an errors with "2>/dev/null".
-                        elif [[ "$AUR_Helper" == "pacaur" ]]
+                        elif [[ '$AUR_Helper' == "pacaur" ]]
                         then
                             pacaur -Si {1} --color always | grep -v "::"            # bugfix #6: display repo package information in preview window of fzf. grep command removes all errors displayed by pacaur
                         else
