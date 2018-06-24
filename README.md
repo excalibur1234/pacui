@@ -55,7 +55,11 @@ yaourt -S pacui-git
 
 This will install PacUI including the latest commits on Github. If you ever encounter any bugs, please reinstall (and thereby update) PacUI with the this command and check whether the bug is still there before reporting it.
 
-Please note that PacUI optionally requires also [Trizen](https://github.com/trizen/trizen), [Yay](https://github.com/Jguer/yay), [Pikaur](https://github.com/actionless/pikaur), [Pakku](https://github.com/kitsunyan/pakku), [Yaourt](https://github.com/archlinuxfr/yaourt), or [Pacaur](https://github.com/rmarquis/pacaur) to enable use of the AUR. If more than one AUR helper is installed, they are used in the same order as listed above.
+Please note that PacUI optionally requires also [Trizen](https://github.com/trizen/trizen), [Yay](https://github.com/Jguer/yay), [Pikaur](https://github.com/actionless/pikaur), [Pakku](https://github.com/kitsunyan/pakku), [Yaourt](https://github.com/archlinuxfr/yaourt), or [Pacaur](https://github.com/rmarquis/pacaur) to enable use of the AUR. If more than one AUR helper is installed, they are automatically used in the same order as listed above. Your desired AUR helper can be set manually by entering its name into the following variable (within `/usr/bin/pacui` file):
+```
+# here, the preferred AUR helper can be set manually by the user. if AUR_Helper="", the installed AUR helpers are detected and one is chosen automatically:
+AUR_Helper=""
+```
 
 
 ### Execute without prior Installation
