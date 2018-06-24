@@ -22,7 +22,7 @@ optdepends=('pacaur: Needed for AUR support.'
         'reflector: Needed for Arch Linux mirror support'
         'downgrade: Needed for hidden "downgrade" option.')
 source=("$url/archive/$pkgver.tar.gz")
-md5sums=('6dbdff81a25a0223bcbfc80e2690fcbb')
+md5sums=('8fcc4c5f85be56de69f6660ac91544e9')
 
 
 # how to update md5sum:
