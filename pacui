@@ -1769,38 +1769,33 @@ function func_a
 
         else
 
-            if [[ -n "$AUR_Helper" ]]                                               # check, if output of "$AUR_Helper" is non-zero
+            # do this if pacui is used with UI or no argument is specified in "pacui a" command:
+            echo -e " \e[41m Enter (parts of) name and/or description of package to be searched. Then press ENTER. \e[0m"
+            read -r pkg
+
+            if [[ "$AUR_Helper" == "trizen" ]]
             then
+                trizen "$pkg"
 
-                # do this if pacui is used with UI or no argument is specified in "pacui a" command:
-                echo -e " \e[41m Enter (parts of) name and/or description of package to be searched. Then press ENTER. \e[0m"
-                read -r pkg
+            elif [[ "$AUR_Helper" == "yay" ]]
+            then
+                yay "$pkg"
 
-                if [[ "$AUR_Helper" == "trizen" ]]
-                then
-                    trizen "$pkg"
+            elif [[ "$AUR_Helper" == "pikaur" ]]
+            then
+                pikaur -Ss "$pkg"
 
-                elif [[ "$AUR_Helper" == "yay" ]]
-                then
-                    yay "$pkg"
+            elif [[ "$AUR_Helper" == "pakku" ]]
+            then
+                pakku -Ss "$pkg"
 
-                elif [[ "$AUR_Helper" == "pikaur" ]]
-                then
-                    pikaur -Ss "$pkg"
+            elif [[ "$AUR_Helper" == "yaourt" ]]
+            then
+                yaourt "$pkg"
 
-                elif [[ "$AUR_Helper" == "pakku" ]]
-                then
-                    pakku -Ss "$pkg"
-
-                elif [[ "$AUR_Helper" == "yaourt" ]]
-                then
-                    yaourt "$pkg"
-
-                elif [[ "$AUR_Helper" == "pacaur" ]]
-                then
-                    pacaur -Ss "$pkg" --color always | grep -v "::"                 # grep command removes errors being displayed in pacaur
-
-                fi
+            elif [[ "$AUR_Helper" == "pacaur" ]]
+            then
+                pacaur -Ss "$pkg" --color always | grep -v "::"                 # grep command removes errors being displayed in pacaur
 
             else
                 echo -e " \e[41m No AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
