@@ -55,6 +55,10 @@ then
     then
         AUR_Helper="pikaur"
 
+    elif [[ -e /usr/bin/pakku ]]
+    then
+        AUR_Helper="pakku"
+
     elif [[ -e /usr/bin/yaourt ]]
     then
         AUR_Helper="yaourt"
@@ -123,6 +127,18 @@ function func_u
             if ( pikaur "$argument_flag"-Syu )
             then
                 # only set $install_successful=true, if the command "pikaur -Syu" was executed without errors
+                install_successful=true
+            else
+                install_successful=false
+            fi
+
+        elif [[ "$AUR_Helper" == "pakku" ]]
+        then
+
+            # execute "pakku -Syu" command:
+            if ( pakku "$argument_flag"-Syu )
+            then
+                # only set $install_successful=true, if the command "pakku -Syu" was executed without errors
                 install_successful=true
             else
                 install_successful=false
@@ -278,7 +294,7 @@ function func_m
             yaourt -Qdt
             echo ""
 
-        else                                                                        # this is the case, when tirzen, pacaur, pikaur, or no AUR helper is installed.
+        else                                                                        # this is the case, when tirzen, pacaur, pikaur, pakku, or no AUR helper is installed.
 
             if [[ -n "$(pacman -Qdt)" ]]                                            # only run these commands, if output of "pacman -Qdt" is not empty. this happens if there are no orphans.
             then
@@ -515,16 +531,19 @@ function func_i
                             trizen -Si {1}
                         elif [[ '$AUR_Helper' == "yay" ]]
                         then
-                            yay -Si {1}                                             # this does not work yet, because "yay -Si <repository package>" needs root privileges --> destroys layout of fzf!
+                            yay -Si {1} | grep -v "::"                              # grep command removes all errors displayed by pacaur
                         elif [[ '$AUR_Helper' == "pikaur" ]]
                         then
                             pikaur -Si {1}
+                        elif [[ '$AUR_Helper' == "pakku" ]]
+                        then
+                            pakku -Si {1}
                         elif [[ '$AUR_Helper' == "yaourt" ]]
                         then
                             yaourt -Si {1} 2>/dev/null                              # bugfix #5: yaourt displays an error, e.g. when doing "yaourt -Si trizen-git" --> do not display an errors with "2>/dev/null".
                         elif [[ '$AUR_Helper' == "pacaur" ]]
                         then
-                            pacaur -Si {1} --color always | grep -v "::"            # bugfix #6: display repo package information in preview window of fzf. grep command removes all errors displayed by pacaur
+                            pacaur -Si {1} --color always | grep -v "::"            # grep command removes all errors displayed by pacaur
                         else
                             pacman -Si {1} --color always                           # do this, if no AUR helper is installed
                         fi' \
@@ -562,6 +581,10 @@ function func_i
             elif [[ "$AUR_Helper" == "pikaur" ]]
             then
                 pikaur "$argument_flag"-S $pkg                                      # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
+
+            elif [[ "$AUR_Helper" == "pakku" ]]
+            then
+                pakku "$argument_flag"-S $pkg                                       # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
 
             elif [[ "$AUR_Helper" == "yaourt" ]]
             then
@@ -1408,6 +1431,7 @@ function func_c
         [[ -e /etc/yaourtrc ]]                          && echo -e "/etc/yaourtrc                                                                                                                                                                                                                                                    Configure Yaourt in file:" >> ${pacui_config}
         [[ -e $XDG_CONFIG_DIRS/pacaur/config ]]         && echo -e "$XDG_CONFIG_DIRS/pacaur/config                                                                                                                                                                                                                                   Configure Pacaur in file:" >> ${pacui_config}
         [[ -e $HOME/.config/pikaur.conf ]]              && echo -e "$HOME/.config/pikaur.conf                                                                                                                                                                                                                                        Configure Pikaur in file:" >> ${pacui_config}
+        [[ -e /etc/pakku.conf ]]                        && echo -e "/etc/pakku.conf                                                                                                                                                                                                                                                  Configure Pakku in file:" >> ${pacui_config}
         [[ -e /etc/makepkg.conf ]]                      && echo -e "/etc/makepkg.conf                                                                                                                                                                                                                                                Configure package compilation in file:" >> ${pacui_config}
         [[ -e /usr/lib/NetworkManager/conf.d ]]         && echo -e "/usr/lib/NetworkManager/conf.d/                                                                                                                                                                                                                                  Configure NetworkManager in files:" >> ${pacui_config}
         [[ -e /etc/resolv.conf ]]                       && echo -e "/etc/resolv.conf                                                                                                                                                                                                                                                 Configure DNS servers in file:" >> ${pacui_config}
@@ -1609,6 +1633,10 @@ function func_ua
         then
             pikaur "$argument_flag"-Syu --devel --needed
 
+        elif [[ "$AUR_Helper" == "pakku" ]]
+        then
+            pakku "$argument_flag"-Syu --needed                                     # does not support "--devel" flag
+
         elif [[ "$AUR_Helper" == "yaourt" ]]
         then
             yaourt "$argument_flag"-Syua && yaourt -Syua --devel --needed --noconfirm
@@ -1622,6 +1650,7 @@ function func_ua
             echo -e " \e[1m  trizen \e[0m"
             echo -e " \e[1m  yay \e[0m"
             echo -e " \e[1m  pikaur \e[0m"
+            echo -e " \e[1m  pakku \e[0m"
             echo -e " \e[1m  yaourt \e[0m"
             echo -e " \e[1m  pacaur \e[0m"
 
@@ -1715,6 +1744,10 @@ function func_a
             then
                 pikaur -Ss "$argument_input"
 
+            elif [[ "$AUR_Helper" == "pakku" ]]
+            then
+                pakku -Ss "$argument_input"
+
             elif [[ "$AUR_Helper" == "yaourt" ]]
             then
                 yaourt "$argument_input"
@@ -1728,6 +1761,7 @@ function func_a
                 echo -e " \e[1m  trizen \e[0m"
                 echo -e " \e[1m  yay \e[0m"
                 echo -e " \e[1m  pikaur \e[0m"
+                echo -e " \e[1m  pakku \e[0m"
                 echo -e " \e[1m  yaourt \e[0m"
                 echo -e " \e[1m  pacaur \e[0m"
 
@@ -1754,6 +1788,10 @@ function func_a
                 then
                     pikaur -Ss "$pkg"
 
+                elif [[ "$AUR_Helper" == "pakku" ]]
+                then
+                    pakku -Ss "$pkg"
+
                 elif [[ "$AUR_Helper" == "yaourt" ]]
                 then
                     yaourt "$pkg"
@@ -1769,6 +1807,7 @@ function func_a
                 echo -e " \e[1m  trizen \e[0m"
                 echo -e " \e[1m  yay \e[0m"
                 echo -e " \e[1m  pikaur \e[0m"
+                echo -e " \e[1m  pakku \e[0m"
                 echo -e " \e[1m  yaourt \e[0m"
                 echo -e " \e[1m  pacaur \e[0m"
 
@@ -1791,7 +1830,7 @@ function func_help
 
 \e[1mWelcome to PacUIs Help Page
 
-PacUI is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Trizen/Yay/Pikaur/Yaourt/Pacaur as back ends.
+PacUI is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Trizen/Yay/Pikaur/Pakku/Yaourt/Pacaur as back ends.
 
 Navigate this help page with your Arrow Keys, PageUp/PageDown Keys, SpaceBar, or your Mouse Wheel. To search this Help Page, enter /<SEARCH TERM> and press ENTER. For example, enter the following (without quotes " ") in order to search for the word "update": "/update". Press N key to continue searching for other occurances of "/update". Search is not case sensitive. To exit this Help Page, press your Q key.
 PacUI uses Fuzzy Finder (fzf) to display selectable lists, which can be easily searched by starting to type. Advanced users can even use regular expressions to search in fzf. Use your TAB key to select multiple items from the list and your ENTER key to choose your selection. Navigate fzf's list the same way you navigate this help page.
