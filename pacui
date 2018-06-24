@@ -16,7 +16,7 @@
 #  You should have received a copy of the GNU General Public License along with this program; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
-#  =======================
+# =======================
 #
 #  Design based on IceFox script. Heavily modified by pekman, excalibur1234, Chrysostomus, papajoker, and thefallenrat.
 
@@ -35,9 +35,41 @@
 #set -u                                                                             # only allow previously defined variables
 #set -o pipefail                                                                    # if one command in a pipe fails, all fail (this is not default behavior!)
 
+# =======================
+
+# here, the preferred AUR helper can be set manually by the user. if AUR_Helper="", the installed AUR helpers are detected and one is chosen automatically:
+AUR_Helper=""
+
+if [[ -z "$AUR_Helper" ]]                                                           # check, if AUR_Helper variable is empty. more precise: check, if output of "$AUR_Helper" is zero
+then
+
+    if [[ -e /usr/bin/trizen ]]                                                     # check, if /usr/bin/trizen file exists
+    then
+        AUR_Helper="trizen"
+
+    elif [[ -e /usr/bin/yay ]]
+    then
+        AUR_Helper="yay"
+
+    elif [[ -e /usr/bin/pikaur ]]
+    then
+        AUR_Helper="pikaur"
+
+    elif [[ -e /usr/bin/yaourt ]]
+    then
+        AUR_Helper="yaourt"
+
+    elif [[ -e /usr/bin/pacaur ]]
+    then
+        AUR_Helper="pacaur"
+
+    fi
+fi
 
 
-# all functions of pacui are defined here in the same order as they appear in pacui's UI (with some helper functions):
+# =======================
+
+# all functions of pacui are defined here in the same order as they appear in pacui's UI (including some additional some helper functions):
 
 
 # bug #3:
@@ -60,7 +92,7 @@ function func_u
         # define local variable, which indicates whether the installation process was successful or not.
         local install_successful
 
-        if [[ -e /usr/bin/trizen ]]
+        if [[ "$AUR_Helper" == "trizen" ]]
         then
 
             # execute "trizen -Syu" command:
@@ -72,7 +104,7 @@ function func_u
                 install_successful=false
             fi
 
-        elif [[ -e /usr/bin/yay ]]
+        elif [[ "$AUR_Helper" == "yay" ]]
         then
 
             # execute "yay -Syu" command:
@@ -84,7 +116,7 @@ function func_u
                 install_successful=false
             fi
 
-        elif [[ -e /usr/bin/pikaur ]]
+        elif [[ "$AUR_Helper" == "pikaur" ]]
         then
 
             # execute "pikaur -Syu" command:
@@ -96,7 +128,7 @@ function func_u
                 install_successful=false
             fi
 
-        elif [[ -e /usr/bin/yaourt ]]
+        elif [[ "$AUR_Helper" == "yaourt" ]]
         then
 
             # execute "sudo pacman -Syu --color always && yaourt -Syua" command:
@@ -108,7 +140,7 @@ function func_u
                 install_successful=false
             fi
 
-        elif [[ -e /usr/bin/pacaur ]]
+        elif [[ "$AUR_Helper" == "pacaur" ]]
         then
 
             # execute "pacaur -Syu --color always" command:
@@ -235,11 +267,11 @@ function func_m
 
 
         echo " searching orphans ..."
-        if [[ -e /usr/bin/yay ]]
+        if [[ "$AUR_Helper" == "yay" ]]
         then
             yay -Cd
 
-        elif [[ -e /usr/bin/yaourt ]]
+        elif [[ "$AUR_Helper" == "yaourt" ]]
         then
             # bugfix #4: use if-statement.
             # "yaourt -Qdt" exists with error code 1 when orphans are not removed (this is the default setting). because of unofficial strict bash mode, pacui also exits immediately with error code 1.
@@ -315,7 +347,7 @@ function func_m
         echo ""
 
 
-        if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]
+        if [[ -n "$AUR_Helper" ]]                                                   # check, if output of "$AUR_Helper" is non-zero
         then
             echo " checking AUR packages ..."
             # download AUR package list (only when not already downloaded) to /tmp/pacui-aur/packages.
@@ -434,7 +466,7 @@ function func_i
 
 
         # only download AUR package list, if at least one AUR helper is installed
-        if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]
+        if [[ -n "$AUR_Helper" ]]                                                                           # check, if output of "$AUR_Helper" is non-zero
         then
             # download AUR package list (only when not already downloaded) and add it to the bottom of $pacui_list_install.
             #if  [[ ! -e /tmp/pacui-aur/packages.gz ]]
@@ -478,19 +510,19 @@ function func_i
                         then
                             echo -e "\e[1m{1} group has the following members: \e[0m"
                             pacman -Sgq {1}                                         # display package name of group members in preview window of fzf
-                        elif [[ -e /usr/bin/trizen ]]                               # if {1} is neither locally installed nor a group, it is from the AUR. display info with AUR helper
+                        elif [[ "$AUR_Helper" == "trizen" ]]                               # if {1} is neither locally installed nor a group, it is from the AUR. display info with AUR helper
                         then
                             trizen -Si {1}
-                        elif [[ -e /usr/bin/yay ]]
+                        elif [[ "$AUR_Helper" == "yay" ]]
                         then
                             yay -Si {1}                                             # this does not work yet, because "yay -Si <repository package>" needs root privileges --> destroys layout of fzf!
-                        elif [[ -e /usr/bin/pikaur ]]
+                        elif [[ "$AUR_Helper" == "pikaur" ]]
                         then
                             pikaur -Si {1}
-                        elif [[ -e /usr/bin/yaourt ]]
+                        elif [[ "$AUR_Helper" == "yaourt" ]]
                         then
                             yaourt -Si {1} 2>/dev/null                              # bugfix #5: yaourt displays an error, e.g. when doing "yaourt -Si trizen-git" --> do not display an errors with "2>/dev/null".
-                        elif [[ -e /usr/bin/pacaur ]]
+                        elif [[ "$AUR_Helper" == "pacaur" ]]
                         then
                             pacaur -Si {1} --color always | grep -v "::"            # bugfix #6: display repo package information in preview window of fzf. grep command removes all errors displayed by pacaur
                         else
@@ -519,23 +551,23 @@ function func_i
         if [[ -n "$pkg" ]]
         then
 
-            if [[ -e /usr/bin/trizen ]]
+            if [[ "$AUR_Helper" == "trizen" ]]
             then
                 trizen "$argument_flag"-S $pkg                                      # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
 
-            elif [[ -e /usr/bin/yay ]]
+            elif [[ "$AUR_Helper" == "yay" ]]
             then
                 yay "$argument_flag"-S $pkg                                         # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
 
-            elif [[ -e /usr/bin/pikaur ]]
+            elif [[ "$AUR_Helper" == "pikaur" ]]
             then
                 pikaur "$argument_flag"-S $pkg                                      # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
 
-            elif [[ -e /usr/bin/yaourt ]]
+            elif [[ "$AUR_Helper" == "yaourt" ]]
             then
                 yaourt "$argument_flag"-S $pkg                                      # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
 
-            elif [[ -e /usr/bin/pacaur ]]
+            elif [[ "$AUR_Helper" == "pacaur" ]]
             then
                 pacaur "$argument_flag"--color always -S $pkg                       # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
 
@@ -922,7 +954,7 @@ function func_b
             logpath="/var/log/pacman.log"
         fi
 
-        if [[ -e /usr/bin/pacaur ]]                                                 # checks, whether file "pacaur" exists, i.e. pacaur is installed
+        if [[ "$AUR_Helper" == "pacaur" ]]                                                 # checks, whether file "pacaur" exists, i.e. pacaur is installed
         then
             #set +u                                                                 # temporarily disable strict mode for environment variables
 
@@ -971,7 +1003,7 @@ function func_b
             if [[ ! -z "$pacui_cache_install" ]]                                    # this if-condition avoids error messages when no package gets installed (and variable $pacui_cache_install is empty)
             then
 
-                if [[ -e /usr/bin/pacaur ]]                                         # checks, whether file "pacaur" exists, i.e. pacaur is installed
+                if [[ "$AUR_Helper" == "pacaur" ]]                                         # checks, whether file "pacaur" exists, i.e. pacaur is installed
                 then
                     # the while-loop here is needed to read the content of every line of $pacui_cache_install variable and save that line to variable $line.
                     pacui_aur_install="$(
@@ -1046,7 +1078,7 @@ function func_b
                         # write list with all versions of package in cache into file ${pacui_tmp_downgrade} (sorted - newest package version is on top)
                         find "$cache" -name "${temp2}-[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r > ${pacui_tmp_downgrade}
 
-                        if [[ -e /usr/bin/pacaur ]]                                 # checks, whether file "pacaur" exists, i.e. pacaur is installed
+                        if [[ "$AUR_Helper" == "pacaur" ]]                                 # checks, whether file "pacaur" exists, i.e. pacaur is installed
                         then
                             # do the same as below for files from pacaur's cache directory.
                             # the problem here is that AUR packages are not named/numbered in a constant and easy sortable way. therefore, we search for all files and output their modification date in an easy searchable format (and then, the file name).
@@ -1115,7 +1147,7 @@ function func_b
                         # write list with all versions of package in cache into file ${pacui_tmp_upgrade} (sorted - newest package version is on top)
                         find "$cache" -name "${temp2}-[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r > ${pacui_tmp_upgrade}
 
-                        if [[ -e /usr/bin/pacaur ]]                                 # checks, whether file "pacaur" exists, i.e. pacaur is installed
+                        if [[ "$AUR_Helper" == "pacaur" ]]                                 # checks, whether file "pacaur" exists, i.e. pacaur is installed
                         then
                             # do the same as below for files from pacaur's cache directory.
                             # the problem here is that AUR packages are not named/numbered in a constant and easy sortable way. therefore, we search for all files and output their modification date in an easy searchable format (and then, the file name).
@@ -1565,23 +1597,23 @@ function func_ls
 # this function provides core functionality of "Force Update AUR". the help page provides additional explanations.
 function func_ua
 {
-        if [[ -e /usr/bin/trizen ]]
+        if [[ "$AUR_Helper" == "trizen" ]]
         then
             trizen "$argument_flag"-Syu && trizen -Syu --devel --needed --noconfirm
 
-        elif [[ -e /usr/bin/yay ]]
+        elif [[ "$AUR_Helper" == "yay" ]]
         then
             yay "$argument_flag"-Syu && yay -Syu --devel --needed --noconfirm
 
-        elif [[ -e /usr/bin/pikaur ]]
+        elif [[ "$AUR_Helper" == "pikaur" ]]
         then
             pikaur "$argument_flag"-Syu --devel --needed
 
-        elif [[ -e /usr/bin/yaourt ]]
+        elif [[ "$AUR_Helper" == "yaourt" ]]
         then
             yaourt "$argument_flag"-Syua && yaourt -Syua --devel --needed --noconfirm
 
-        elif [[ -e /usr/bin/pacaur ]]
+        elif [[ "$AUR_Helper" == "pacaur" ]]
         then
             pacaur "$argument_flag"-Syua --devel --needed --color always
 
@@ -1671,23 +1703,23 @@ function func_a
         then
             # do this if variable "$argument_input" is not empty:
 
-            if [[ -e /usr/bin/trizen ]]
+            if [[ "$AUR_Helper" == "trizen" ]]
             then
                 trizen "$argument_input"
 
-            elif [[ -e /usr/bin/yay ]]
+            elif [[ "$AUR_Helper" == "yay" ]]
             then
                 yay "$argument_input"
 
-            elif [[ -e /usr/bin/pikaur ]]
+            elif [[ "$AUR_Helper" == "pikaur" ]]
             then
                 pikaur -Ss "$argument_input"
 
-            elif [[ -e /usr/bin/yaourt ]]
+            elif [[ "$AUR_Helper" == "yaourt" ]]
             then
                 yaourt "$argument_input"
 
-            elif [[ -e /usr/bin/pacaur ]]
+            elif [[ "$AUR_Helper" == "pacaur" ]]
             then
                 pacaur -Ss "$argument_input" --color always | grep -v "::"          # grep command removes errors being displayed in pacaur
 
@@ -1703,30 +1735,30 @@ function func_a
 
         else
 
-            if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/pikaur ]]  || [[ -e /usr/bin/yaourt ]]|| [[ -e /usr/bin/pacaur ]]
+            if [[ -n "$AUR_Helper" ]]                                               # check, if output of "$AUR_Helper" is non-zero
             then
 
                 # do this if pacui is used with UI or no argument is specified in "pacui a" command:
                 echo -e " \e[41m Enter (parts of) name and/or description of package to be searched. Then press ENTER. \e[0m"
                 read -r pkg
 
-                if [[ -e /usr/bin/trizen ]]
+                if [[ "$AUR_Helper" == "trizen" ]]
                 then
                     trizen "$pkg"
 
-                elif [[ -e /usr/bin/yay ]]
+                elif [[ "$AUR_Helper" == "yay" ]]
                 then
                     yay "$pkg"
 
-                elif [[ -e /usr/bin/pikaur ]]
+                elif [[ "$AUR_Helper" == "pikaur" ]]
                 then
                     pikaur -Ss "$pkg"
 
-                elif [[ -e /usr/bin/yaourt ]]
+                elif [[ "$AUR_Helper" == "yaourt" ]]
                 then
                     yaourt "$pkg"
 
-                elif [[ -e /usr/bin/pacaur ]]
+                elif [[ "$AUR_Helper" == "pacaur" ]]
                 then
                     pacaur -Ss "$pkg" --color always | grep -v "::"                 # grep command removes errors being displayed in pacaur
 
@@ -2003,7 +2035,7 @@ This command lists packages on your system sorted by their installation size. Bo
 
 EOF
         # only write the following paragraph to file, if an AUR helper is installed
-        if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]
+        if [[ -n "$AUR_Helper" ]]
         then
             cat >> /tmp/pacui-help <<- "EOF"
 \e[1m13 - FORCE UPDATE AUR
@@ -2043,7 +2075,7 @@ EOF
         fi
 
         # only write the following paragraph to file, if an AUR helper is installed
-        if [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]
+        if [[ -n "$AUR_Helper" ]]
         then
             cat >> /tmp/pacui-help <<- "EOF"
 \e[1mSEARCH AND INSTALL FROM AUR
@@ -2086,11 +2118,11 @@ function func_h
         echo -e "  11  pacui  c    - Edit \e[1mC\e[0monfig Files"
         echo -e "  12  pacui  ls   - \e[1mL\e[0mist Packages by \e[1mS\e[0mize"
         echo
-        [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]   && echo -e "  13  pacui  ua   - Force \e[1mU\e[0mpdate \e[1mA\e[0mUR"
+        [[ -n "$AUR_Helper" ]]      && echo -e "  13  pacui  ua   - Force \e[1mU\e[0mpdate \e[1mA\e[0mUR"
         echo -e "  14  pacui  la   - \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
-        [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]   && echo
-        [[ -e /usr/bin/downgrade ]]                                                                                 && echo -e "      pacui  d    - \e[1mD\e[0mowngrade Packages"
-        [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]   && echo -e "      pacui  a    - Search and Install from \e[1mA\e[0mUR"
+        [[ -n "$AUR_Helper" ]]      && echo
+        [[ -e /usr/bin/downgrade ]] && echo -e "      pacui  d    - \e[1mD\e[0mowngrade Packages"
+        [[ -n "$AUR_Helper" ]]      && echo -e "      pacui  a    - Search and Install from \e[1mA\e[0mUR"
         echo
         echo -e "      pacui  h    - This short \e[1mH\e[0melp."
         echo -e "  00  pacui  help - Full \e[1mHelp\e[0m page. 'q' key quits."
@@ -2113,7 +2145,7 @@ function func_h
 #set +u                                                                             # temporarily disable strict mode for environment variables
 
 # check, whether pacaur is installed, user config file exists, $EDITOR variable is empty, "vi" is not installed:
-if [[ -e /usr/bin/pacaur ]] && [[ ! -e $HOME/.config/pacaur/config ]] && [[ ! -n $EDITOR ]] && [[ ! -e /usr/bin/vi ]]
+if [[ "$AUR_Helper" == "pacaur" ]] && [[ ! -e $HOME/.config/pacaur/config ]] && [[ ! -n $EDITOR ]] && [[ ! -e /usr/bin/vi ]]
 then
     # export "editor='${EDITOR:-nano}'" to config file. '${EDITOR:-nano}'" outputs "nano", if there is no $EDITOR variable set.
     mkdir -p "$HOME/.config/pacaur/"
@@ -2402,8 +2434,8 @@ do
     echo -e "      9   Roll \e[1mB\e[0mack System      \e[31m 10   \e[1mF\e[0;31mix Pacman Errors\e[0m "
     echo -e "     11   Edit \e[1mC\e[0monfig Files      12   \e[1mL\e[0mist Packages by \e[1mS\e[0mize "
     echo -e " ┌───────────────────────────────────────────────────────────────┐"
-    [[ -e /usr/bin/trizen ]] || [[ -e /usr/bin/yay ]] || [[ -e /usr/bin/pikaur ]] || [[ -e /usr/bin/yaourt ]] || [[ -e /usr/bin/pacaur ]]         && echo -e " │   13   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR       14   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
-    [[ ! -e /usr/bin/trizen ]] && [[ ! -e /usr/bin/yay ]] && [[ ! -e /usr/bin/pikaur ]] && [[ ! -e /usr/bin/yaourt ]] && [[ ! -e /usr/bin/pacaur ]] && echo -e " │                               14   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
+    [[ -n "$AUR_Helper" ]] && echo -e " │   13   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR       14   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
+    [[ -z "$AUR_Helper" ]] && echo -e " │                               14   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
     echo -e " └───────────────────────────────────────────────────────────────┘"
     echo
     echo -e "  Enter number or marked letter(s)   -   00   \e[1mH\e[0melp   -   0   \e[1mQ\e[0muit "
