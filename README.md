@@ -19,6 +19,7 @@ Table of Contents
       * [Start PacUI without UI: Using Options](#start-pacui-without-ui-using-options)
       * [Start PacUI without UI: Using Options and Package Names](#start-pacui-without-ui-using-options-and-package-names)
       * [Start PacUI without UI: Passing Arguments to AUR helper or Pacman](#start-pacui-without-ui-passing-arguments-to-aur-helper-or-pacman)
+      * [Multiple installed AUR helpers](#multiple-installed-aur-helpers)
    * [Useful Tips and Recommended Settings](#useful-tips-and-recommended-settings)
       * [Fancy List View](#fancy-list-view)
       * [Alias](#alias)
@@ -55,12 +56,7 @@ yaourt -S pacui-git
 
 This will install PacUI including the latest commits on Github. If you ever encounter any bugs, please reinstall (and thereby update) PacUI with the this command and check whether the bug is still there before reporting it.
 
-Please note that PacUI optionally requires also [Trizen](https://github.com/trizen/trizen), [Yay](https://github.com/Jguer/yay), [Pikaur](https://github.com/actionless/pikaur), [Pakku](https://github.com/kitsunyan/pakku), [Yaourt](https://github.com/archlinuxfr/yaourt), or [Pacaur](https://github.com/rmarquis/pacaur) to enable use of the AUR. If more than one AUR helper is installed, they are automatically used in the same order as listed above. Your desired AUR helper can be set manually by entering its name into the following variable (within `/usr/bin/pacui` file):
-```
-# here, the preferred AUR helper can be set manually by the user. if AUR_Helper="", the installed AUR helpers are detected and one is chosen automatically:
-AUR_Helper=""
-```
-
+Please note that PacUI optionally requires also [Trizen](https://github.com/trizen/trizen), [Yay](https://github.com/Jguer/yay), [Pikaur](https://github.com/actionless/pikaur), [Pakku](https://github.com/kitsunyan/pakku), [Yaourt](https://github.com/archlinuxfr/yaourt), or [Pacaur](https://github.com/rmarquis/pacaur) to enable use of the AUR.
 
 ### Execute without prior Installation
 For a minimal working version of PacUI, please install its dependencies [expac](https://github.com/falconindy/expac) and [fzf](https://github.com/junegunn/fzf) using Pacman first (if possible). Then, the PacUI file can be downloaded and run without prior installation:
@@ -120,6 +116,17 @@ Examples:
 - ` pacui u flag --noconfirm`
 - ` pacui --FLAG --asdeps --i --bash`
 - ` pacui b --flag=--noconfirm`
+
+
+### Multiple installed AUR helpers
+Please note that PacUI optionally requires [Trizen](https://github.com/trizen/trizen), [Yay](https://github.com/Jguer/yay), [Pikaur](https://github.com/actionless/pikaur), [Pakku](https://github.com/kitsunyan/pakku), [Yaourt](https://github.com/archlinuxfr/yaourt), or [Pacaur](https://github.com/rmarquis/pacaur) to enable use of the AUR.
+
+If more than one AUR helper is installed, they are automatically used in the same order as listed above. Your desired AUR helper can be set manually by entering its name into the following variable (within `/usr/bin/pacui` file):
+```
+# here, the preferred AUR helper can be set manually by the user. if AUR_Helper="", the installed AUR helpers are detected and one is chosen automatically:
+AUR_Helper=""
+```
+Note that this variable needs to be edited (again) after each PacUI update.
 
 
 ## Useful Tips and Recommended Settings
