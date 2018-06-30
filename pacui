@@ -1406,7 +1406,7 @@ function func_f
 
             if [[ "$(cat /proc/1/comm)" == "systemd" ]]                             # if init system is systemd
             then
-                echo " updating systemd first (which can take a while)..."
+                echo " updating systemd first ..."
                 # updating systemd first sometimes solves update problems
                 sudo pacman -S --needed --noconfirm systemd libsystemd systemd-sysvcompat
                 echo ""
