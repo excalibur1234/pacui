@@ -43,7 +43,11 @@ AUR_Helper=""                                                                   
 if [[ -z "$AUR_Helper" ]]                                                           # check, if AUR_Helper variable is empty. more precise: check, if output of "$AUR_Helper" is zero
 then
 
-    if [[ -e /usr/bin/trizen ]]                                                     # check, if /usr/bin/trizen file exists
+    if [[ -e /usr/bin/aurman ]]                                                     # check, if /usr/bin/aurman file exists
+    then
+        AUR_Helper="aurman"
+
+    elif [[ -e /usr/bin/trizen ]]
     then
         AUR_Helper="trizen"
 
@@ -96,7 +100,19 @@ function func_u
         # define local variable, which indicates whether the installation process was successful or not.
         local install_successful
 
-        if [[ "$AUR_Helper" == "trizen" ]]                                          # check, if $AUR_Helper varialbe is set to "trizen". ATTENTION: sometimes, this requires [[ "$AUR_Helper" == "trizen" ]] and sometimes [[ '$AUR_Helper' == "trizen" ]]. i do not know why this is the case.
+        if [[ "$AUR_Helper" == "aurman" ]]                                          # check, if $AUR_Helper varialbe is set to "aurman". ATTENTION: sometimes, this requires [[ "$AUR_Helper" == "aurman" ]] and sometimes [[ '$AUR_Helper' == "aurman" ]]. i do not know why this is the case.
+        then
+
+            # execute "aurman -Syu" command:
+            if ( aurman "$argument_flag"-Syu )
+            then
+                # only set $install_successful=true, if the command "aurman -Syu" was executed without errors
+                install_successful=true
+            else
+                install_successful=false
+            fi
+
+        elif [[ "$AUR_Helper" == "trizen" ]]
         then
 
             # execute "trizen -Syu" command:
@@ -294,7 +310,7 @@ function func_m
             yaourt -Qdt
             echo ""
 
-        else                                                                        # this is the case, when tirzen, pacaur, pikaur, pakku, or no AUR helper is installed.
+        else                                                                        # this is the case, when aurman, tirzen, pacaur, pikaur, pakku, or no AUR helper is installed.
 
             if [[ -n "$(pacman -Qdt)" ]]                                            # only run these commands, if output of "pacman -Qdt" is not empty. this happens if there are no orphans.
             then
@@ -526,7 +542,10 @@ function func_i
                         then
                             echo -e "\e[1m{1} group has the following members: \e[0m"
                             pacman -Sgq {1}                                         # display package name of group members in preview window of fzf
-                        elif [[ '$AUR_Helper' == "trizen" ]]                               # if {1} is neither locally installed nor a group, it is from the AUR. display info with AUR helper
+                        elif [[ '$AUR_Helper' == "aurman" ]]                        # if {1} is neither locally installed nor a group, it is from the AUR. display info with AUR helper
+                        then
+                            aurman -Si {1} | grep -v "::"                           # missing feature: "aurman -Si" does not work yet, but should be included shortly.
+                        elif [[ '$AUR_Helper' == "trizen" ]]
                         then
                             trizen -Si {1}
                         elif [[ '$AUR_Helper' == "yay" ]]
@@ -570,7 +589,11 @@ function func_i
         if [[ -n "$pkg" ]]
         then
 
-            if [[ "$AUR_Helper" == "trizen" ]]
+            if [[ "$AUR_Helper" == "aurman" ]]
+            then
+                aurman "$argument_flag"-S $pkg                                      # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
+
+            elif [[ "$AUR_Helper" == "trizen" ]]
             then
                 trizen "$argument_flag"-S $pkg                                      # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
 
@@ -1432,6 +1455,8 @@ function func_c
         [[ -e $XDG_CONFIG_DIRS/pacaur/config ]]         && echo -e "$XDG_CONFIG_DIRS/pacaur/config                                                                                                                                                                                                                                   Configure Pacaur in file:" >> ${pacui_config}
         [[ -e $HOME/.config/pikaur.conf ]]              && echo -e "$HOME/.config/pikaur.conf                                                                                                                                                                                                                                        Configure Pikaur in file:" >> ${pacui_config}
         [[ -e /etc/pakku.conf ]]                        && echo -e "/etc/pakku.conf                                                                                                                                                                                                                                                  Configure Pakku in file:" >> ${pacui_config}
+        [[ -e $XDG_CONFIG_HOME/aurman/aurman_config ]]  && echo -e "$XDG_CONFIG_HOME/aurman/aurman_config                                                                                                                                                                                                                            Configure Aurman in file:" >> ${pacui_config}
+        [[ -e $HOME/.config/aurman/aurman_config ]]     && echo -e "$HOME/.config/aurman/aurman_config                                                                                                                                                                                                                               Configure Aurman in fallback file:" >> ${pacui_config}
         [[ -e /etc/makepkg.conf ]]                      && echo -e "/etc/makepkg.conf                                                                                                                                                                                                                                                Configure package compilation in file:" >> ${pacui_config}
         [[ -e /usr/lib/NetworkManager/conf.d ]]         && echo -e "/usr/lib/NetworkManager/conf.d/                                                                                                                                                                                                                                  Configure NetworkManager in files:" >> ${pacui_config}
         [[ -e /etc/resolv.conf ]]                       && echo -e "/etc/resolv.conf                                                                                                                                                                                                                                                 Configure DNS servers in file:" >> ${pacui_config}
@@ -1621,7 +1646,11 @@ function func_ls
 # this function provides core functionality of "Force Update AUR". the help page provides additional explanations.
 function func_ua
 {
-        if [[ "$AUR_Helper" == "trizen" ]]
+        if [[ "$AUR_Helper" == "aurman" ]]
+        then
+            aurman "$argument_flag"-Syu && aurman -Syu --devel --needed --noconfirm
+
+        elif [[ "$AUR_Helper" == "trizen" ]]
         then
             trizen "$argument_flag"-Syu && trizen -Syu --devel --needed --noconfirm
 
@@ -1647,6 +1676,7 @@ function func_ua
 
         else
             echo -e " \e[41m No AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
+            echo -e " \e[1m  aurman \e[0m"
             echo -e " \e[1m  trizen \e[0m"
             echo -e " \e[1m  yay \e[0m"
             echo -e " \e[1m  pikaur \e[0m"
@@ -1732,7 +1762,11 @@ function func_a
         then
             # do this if variable "$argument_input" is not empty:
 
-            if [[ "$AUR_Helper" == "trizen" ]]
+            if [[ "$AUR_Helper" == "aurman" ]]
+            then
+                aurman "$argument_input"
+
+            elif [[ "$AUR_Helper" == "trizen" ]]
             then
                 trizen "$argument_input"
 
@@ -1758,6 +1792,7 @@ function func_a
 
             else
                 echo -e " \e[41m No AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
+                echo -e " \e[1m  aurman \e[0m"
                 echo -e " \e[1m  trizen \e[0m"
                 echo -e " \e[1m  yay \e[0m"
                 echo -e " \e[1m  pikaur \e[0m"
@@ -1773,7 +1808,11 @@ function func_a
             echo -e " \e[41m Enter (parts of) name and/or description of package to be searched. Then press ENTER. \e[0m"
             read -r pkg
 
-            if [[ "$AUR_Helper" == "trizen" ]]
+            if [[ "$AUR_Helper" == "aurman" ]]
+            then
+                aurman "$pkg"
+
+            elif [[ "$AUR_Helper" == "trizen" ]]
             then
                 trizen "$pkg"
 
@@ -1799,6 +1838,7 @@ function func_a
 
             else
                 echo -e " \e[41m No AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
+                echo -e " \e[1m  aurman \e[0m"
                 echo -e " \e[1m  trizen \e[0m"
                 echo -e " \e[1m  yay \e[0m"
                 echo -e " \e[1m  pikaur \e[0m"
@@ -1825,7 +1865,7 @@ function func_help
 
 \e[1mWelcome to PacUIs Help Page
 
-PacUI is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Trizen/Yay/Pikaur/Pakku/Yaourt/Pacaur as back ends.
+PacUI is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Aurman/Trizen/Yay/Pikaur/Pakku/Yaourt/Pacaur as back ends.
 
 Navigate this help page with your Arrow Keys, PageUp/PageDown Keys, SpaceBar, or your Mouse Wheel. To search this Help Page, enter /<SEARCH TERM> and press ENTER. For example, enter the following (without quotes " ") in order to search for the word "update": "/update". Press N key to continue searching for other occurances of "/update". Search is not case sensitive. To exit this Help Page, press your Q key.
 PacUI uses Fuzzy Finder (fzf) to display selectable lists, which can be easily searched by starting to type. Advanced users can even use regular expressions to search in fzf. Use your TAB key to select multiple items from the list and your ENTER key to choose your selection. Navigate fzf's list the same way you navigate this help page.
