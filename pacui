@@ -443,24 +443,6 @@ function func_m
         # general comment: "pacaur" is the only aur helper, which creates its own download directory for aur packages. the content of this download folder can be cleaned with "pacaur -Sc".
 
 
-        # 1. extract the name of hard drive the / partition is installed on and write it to the "disk" variatble"
-        local disk                                                                  # declare local variable
-        disk="$( lsblk -o "name,mountpoint" -pa | sed -n '/^\//h;/\/$/{g;p}' | cut -d/ -f3 )"
-        disk="${disk:0:3}"
-        # 2. check, whether "disk" is not empty and whether the path to "disk" exists
-        if [[ -n "$disk" && -e "/dev/$disk" ]]
-        then
-            # open the "rotational" file belonging to your "disk" and checking, whether it contains a "1" - this means your "disk" is a traditional hard drive and no SSD.
-            if (( $(cat "$( find "/sys" -name "rotational" 2>/dev/null | grep "$disk/queue" )" ) == 1 ))                        # do NOT add quotes around $(...) in (( $(...) == 1 ))
-            then
-            # only execute the following line when your / parition is installed on a hard drive.
-            echo " sudo pacman-optimize ..."
-            sudo pacman-optimize
-            echo ""
-            fi
-        fi
-
-
         echo " checking installed kernels ..."
         local {installed_kernels,available_kernels,eol_kernels}                     # declare local variables
         # filter installed kernels from boot sector and determine, which package owns that file. this yields the package name of all installed kernels (including kernels from the AUR):
@@ -1949,11 +1931,6 @@ This command limits all log files in journalctl to a combined size of 50 megabyt
 By default Pacman uses this cache directory for downloading packages: /var/cache/pacman/pkg/ . No cached packages get deleted automatically. The package cache of an old and actively used installation can become quite large. Clean it to regain space on your root partition.
 The first command removes all old packages from cache, which are not installed (anymore) on your system (except the latest version of that package).
 The second command removes all old packages from cache except the 3 latest versions: The version you have currently installed on your system and 2 previous versions. Old package versions are kept to enable you to use ROLL BACK SYSTEM (or to manually downgrade packages) even without a working internet connection.
-
-\e[36m"sudo pacman-optimize" \e[0m(only when installed on a HDD)
-This command effectively defragments your Pacman database.
-On traditional hard drives (HDD) this command can speed up all actions related to Pacman.
-\e[1mAttention\e[0m: It is NOT recommended to use this command on modern solid state drives (SSDs)!
 
 \e[36m"comm -13 <(echo "$available_kernels") <(echo "$installed_kernels")"
 This long "comm" command compares the output of 2 lists: The first list of <KERNEL NAME> contains (still) available kernels in your repository (which are also installed on your system) and the second list of <KERNEL NAME> contains installed kernels.
