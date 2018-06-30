@@ -37,9 +37,14 @@
 
 # =======================
 
-# here, the preferred AUR helper can be set manually by the user. if AUR_Helper="", the installed AUR helpers are detected and one is chosen automatically:
-AUR_Helper=""                                                                       # global variable, which does not get unset (i.e. cleaned up), because it is needed both in GUI and non-GUI
+#set +u
 
+# here, the preferred AUR helper can be set manually by the user. for example, AUR_Helper="$yay" uses Yay despite any other installed AUR helpers.
+AUR_Helper="$PACUI_AUR_HELPER"                                                      # global variable, which does not get unset (i.e. cleaned up), because it is needed both in GUI and non-GUI
+
+#set -u
+
+# if $PACUI_AUR_HELPER environment variable is not set, the installed AUR helpers are detected and one is chosen automatically:
 if [[ -z "$AUR_Helper" ]]                                                           # check, if AUR_Helper variable is empty. more precise: check, if output of "$AUR_Helper" is zero
 then
 
@@ -73,6 +78,7 @@ then
 
     fi
 fi
+
 
 
 # =======================

@@ -119,12 +119,14 @@ Examples:
 ### Multiple installed AUR helpers
 Please note that PacUI optionally requires at least one of these AUR helpers to enable use of the AUR.: [Aurman](https://github.com/polygamma/aurman), [Trizen](https://github.com/trizen/trizen), [Yay](https://github.com/Jguer/yay), [Pikaur](https://github.com/actionless/pikaur), [Pakku](https://github.com/kitsunyan/pakku), [Yaourt](https://github.com/archlinuxfr/yaourt), or [Pacaur](https://github.com/rmarquis/pacaur).
 
-If more than one AUR helper is installed, they are automatically used in the same order as listed above (i.e. Aurman is used with priority while Pacaur is only used as a last resort). A specific AUR helper can be set manually by entering its name into the following variable (within `/usr/bin/pacui` file):
+If more than one AUR helper is installed, they are automatically used in the same order as listed above (i.e. Aurman is used with priority while Pacaur is only used as a last resort). A specific AUR helper can be set with the `$PACUI_AUR_HELPER` environment variable.
+
+Alternatively, replacing `$PACUI_AUR_HELPER` with the name of your preferred AUR helper in the following variable (within `/usr/bin/pacui` file) works as well:
 ```
-# here, the preferred AUR helper can be set manually by the user. if AUR_Helper="", the installed AUR helpers are detected and one is chosen automatically:
-AUR_Helper=""
+# here, the preferred AUR helper can be set manually by the user. for example, AUR_Helper="$yay" uses Yay despite any other installed AUR helpers.
+AUR_Helper="$PACUI_AUR_HELPER"
 ```
-Note that this variable needs to be edited (again) after each PacUI update.
+Note that `$PACUI_AUR_HELPER` needs to be replaced (again) after each PacUI update.
 
 
 ## Useful Tips and Recommended Settings
