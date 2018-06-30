@@ -1281,6 +1281,12 @@ function func_f
             echo
 
 
+            echo " cleaning pacman cache ..."
+            # if keyring was broken, all non-installed (and potentially newer) packages cannot be manually installed anymore, because of key mismatch. solution: delete all non-installed packages from cache.
+            sudo pacman -Sc --noconfirm
+            echo ""
+
+
             # "SigLevel = Never" in pacman.conf lets us download and install ALL packages, even if the keyring is broken!
             echo -e " Lowering pacman securities (In case keyring is broken) ..."
             # This command will edit /etc/pacman.conf, and replaces all "SigLevel =" strings with "SigLevel = Never #":
@@ -1375,17 +1381,11 @@ function func_f
             #set -u
 
 
-            echo " cleaning pacman cache ..."
-            # if keyring was broken, all non-installed (and potentially newer) packages cannot be manually installed anymore, because of key mismatch. solution: delete all non-installed packages from cache.
-            sudo pacman -Sc --noconfirm
-            echo ""
-
-
             if [[ "$(cat /proc/1/comm)" == "systemd" ]]                             # if init system is systemd
             then
                 echo " updating systemd first (which can take a while)..."
                 # updating systemd first sometimes solves update problems
-                sudo pacman -S --needed --noconfirm systemd libsystemd systemd-sysvcompat && sleep 20
+                sudo pacman -S --needed --noconfirm systemd libsystemd systemd-sysvcompat
                 echo ""
             fi
 
@@ -1873,7 +1873,7 @@ This option lists all orphaned packages on your system. Orphaned packages are ol
 
 \e[36m"sudo pacdiff"
 A .pacnew file may be created during a package upgrade to avoid overwriting a file (e.g. a config file) which already exists and was previously modified by the user. A .pacsave file may be created during a package removal, or by a package installation (the package must be removed first). These files require manual intervention from the user and it is good practice to handle them regularly.
-This command offers you a choice, whether you want to keep the original file (and delete the .pacnew/.pacsave file) or overwrite the original file with the .pacnew/.pacsave file (the original file will be backed up by with an added dash "-" to the end of its name). Simply view and compare both files by choosing "v".
+This command offers you a choice, whether you want to keep the original file (and delete the .pacnew/.pacsave file) or overwrite the original file with the .pacnew/.pacsave file (the original file is backed up automatically with an added dash "-" to the end of its file name). Simply view and compare both files by choosing "v".
 If you keep the original config file, the new program version could not recognize the old syntax in the original config file anymore. In the worst case, your program could break or stop working. If you remove the original file and use the new file without any changes, all your configuration settings might be reset to the default values. This can result in changed system behavior, including missing passowrds or even sudo capability.
 In most cases, the syntax does not change and you can simply remove the .pacnew file. However, if you notice a syntax change, it is highly recommended to solve this conflict in another way (e.g. by manually editing one of those files and deleting the other).
 \e[1mAttention\e[0m: This command requires a default file difference viewer by setting the environment variable DIFFPROG. If this varialbe is not set, a minimal default is provided by PacUI using "diff".
@@ -1998,6 +1998,11 @@ This command generates a new mirrorslist of secure and fast repository mirrors/s
 \e[36m"sudo dirmngr </dev/null"
 Sometimes during key management the package "dirmngr" outputs error messages, which interrupt key management processes (such as the following commands). This command prevents any output from "dirmngr".
 
+\e[36m"sudo pacman -Sc"
+After an unseccessful attempt to update your system (which quits with a key error), you might have already downloaded unsigned (or wrongly signed) packages to your Pacman cache. These packages cannot be installed anymore.
+This command removes all packages from your Pacman cache, which are not installed on your system. Afterwards, you need to download all previously downloaded but not installed packages again.
+\e[1mAttention\e[0m: This command makes it impossible to ROLL BACK SYSTEM on systems without an internet connection.
+
 \e[36m"sudo sed -i 's/SigLevel[ ]*=/SigLevel = Never #/' /etc/pacman.conf "
 The following commands delete and reinstall some essential packages. If your keyring is broken, no packages could be installed because of a key mismatch. Therefore, it is important to disable Pacman's key check before continuing.
 This command disables the signature key check of packages by Pacman.
@@ -2037,14 +2042,8 @@ These two commands create a fresh key for you and import and (re-)install all ke
 There are 2 different places in Arch Linux and Manjaro to store keys: One place is used by Pacman and the other gets used by GPG.
 This command imports all keys for Pacman into GPG. This essentially means that the user trusts all Arch Linux Trusted Users and your distro's developers. After that, you will be able to install AUR packages from Arch Linux Trusted Users and your distro's developers without the need to import those keys (again) manually.
 
-\e[36m"sudo pacman -Sc"
-After an unseccessful attempt to update your system (which quits with a key error), you might have already downloaded unsigned (or wrongly signed) packages to your Pacman cache. These packages cannot be installed anymore.
-This command removes all packages from your Pacman cache, which are not installed on your system. Afterwards, you need to download all previously downloaded but not installed packages again.
-\e[1mAttention\e[0m: This command makes it impossible to ROLL BACK SYSTEM on systems without an internet connection.
-
-\e[36m"sudo pacman -S --needed libsystemd systemd-sysvcompat systemd && sleep 30"
+\e[36m"sudo pacman -S --needed libsystemd systemd-sysvcompat systemd"
 The first command updates - if necessary - systemd including important components before all other packages are updated. This is necessary, because sometimes a successful update of systemd causes a short crash on some systems, which prevents a successful update of all other packages.
-The second command simply does nothing for 30 seconds before the update of all other packages get started. It is only here as precaution.
 
 \e[36m"sudo pacman -Syyu --noconfirm"
 This command forces a redownload of the latest package database from the best repository mirror. Then, all your installed packages are checked against this latest package database. If an updated package is available from your system repositories, it will get downloaded and installed on your system. If an installed package is newer than the same package in your system repositories, it will not be installed. This behavior ensures your packages are always in sync with (or newer than) your system repositories.
