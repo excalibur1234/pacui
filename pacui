@@ -357,10 +357,11 @@ function func_m
 
 
         echo " checking systemctl ..."
-        if (( $( systemctl --failed | awk -F 'loaded' 'NR==1 {print $1}' ) > 0 ))
+        if [[ "$( LC_ALL=C systemctl --failed | head -n 1 | awk '{print $1}' )" == "UNIT" ]]
         then
             echo -e " \e[41m The following systemd service(s) have failed. Please fix them manually. \e[0m"
             echo -e " \e[41m Display detailed information about a systemd service with: systemctl status <SYSTEMD SERVICE NAME> \e[0m"
+            echo
             systemctl --failed
         fi
         echo ""
