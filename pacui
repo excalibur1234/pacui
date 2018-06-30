@@ -1299,13 +1299,13 @@ function func_f
             echo ""
 
 
-            # "SigLevel = Never" in pacman.conf lets us download and install ALL packages, even if the keyring is broken!
-            echo -e " Lowering pacman securities (In case keyring is broken) ..."
-            # This command will edit /etc/pacman.conf, and replaces all "SigLevel =" strings with "SigLevel = Never #":
+            echo -e " Lowering pacman securities (in case keyring is broken) ..."
+            # first, make a backup of /etc/pacman.conf, which preserves all file permissions and other attributes. "cp -f" overwrites the target file, if it already exists.
+            # the second command replaces all "SigLevel = ....." strings with "SigLevel = Never" in the /etc/pacman.conf file. This change deactivates all key signature checks in pacman.
             # general comment about "sed" usage in scripts: in order to avoid breakage, it is recommended to escape all the following characters /\.*[]^$ with a \ character!
-            sudo sed -i 's/SigLevel[ ]*=/SigLevel = Never #/' '/etc/pacman.conf'
-            # if something goes wrong in the following code, the SigLevel is never raised back and we would mess on a user's system. THIS HAS TO BE PREVENTED! solution: use trap, which reverses our changes in /etc/pacman.conf file whenever pacui quits:
-            trap "sudo sed -i 's/SigLevel = Never #/SigLevel =/' '/etc/pacman.conf'" EXIT
+            sudo cp --preserve=all -f /etc/pacman.conf /etc/pacman.conf.backup && sudo sed -i 's/SigLevel[ ]*=[A-Za-z ]*/SigLevel = Never/' '/etc/pacman.conf'
+            # if something goes wrong in the following code, the SigLevel is never raised back and we would mess on a user's system. THIS HAS TO BE PREVENTED! solution: use trap, which reverses our changes in /etc/pacman.conf file whenever pacui quits unexpectedly:
+            trap "sudo cp --preserve=all -f /etc/pacman.conf.backup /etc/pacman.conf && sudo rm /etc/pacman.conf.backup" EXIT
             echo ""
 
 
@@ -1358,8 +1358,8 @@ function func_f
 
 
             echo " raising pacman securities back ..."
-            # This command will revert the change from above
-            sudo sed -i 's/SigLevel = Never #/SigLevel =/' /etc/pacman.conf
+            # This command will revert the change from above: overwrite (modified) /etc/pacman.conf file with its (unmodified) backup. then, the backup file is deleted.
+            sudo cp --preserve=all -f /etc/pacman.conf.backup /etc/pacman.conf && sudo rm /etc/pacman.conf.backup
             # now, the trap is longer needed. reset trap:
             trap − EXIT
             echo ""
@@ -2027,9 +2027,9 @@ After an unseccessful attempt to update your system (which quits with a key erro
 This command removes all packages from your Pacman cache, which are not installed on your system. Afterwards, you need to download all previously downloaded but not installed packages again.
 \e[1mAttention\e[0m: This command makes it impossible to ROLL BACK SYSTEM on systems without an internet connection.
 
-\e[36m"sudo sed -i 's/SigLevel[ ]*=/SigLevel = Never #/' /etc/pacman.conf "
+\e[36m"sudo cp --preserve=all -f /etc/pacman.conf /etc/pacman.conf.backup && sudo sed -i 's/SigLevel[ ]*=[A-Za-z ]*/SigLevel = Never/' '/etc/pacman.conf' "
 The following commands delete and reinstall some essential packages. If your keyring is broken, no packages could be installed because of a key mismatch. Therefore, it is important to disable Pacman's key check before continuing.
-This command disables the signature key check of packages by Pacman.
+This command disables the signature key check of packages in Pacman.
 
 \e[36m"sudo systemctl stop ntpd.service"
 This command stops (temporarily) the Network Time Protocol daemon service NTPD (if it is installed and running). In case NTPD is not installed, the output is ignored.
@@ -2054,9 +2054,8 @@ This command deletes your key database. It does not output an error in case the 
 \e[36m"sudo pacman -Sy gnupg $(pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | paste -sd " " )"
 This command (re-)installs the gnupg and keyring packages. PacUI actually does not use this command but instead downloads and installs this package manually in order to bypass key database and key chain errors.
 
-\e[36m"sudo sed -i 's/SigLevel = Never #/SigLevel =/' /etc/pacman.conf "
-This command enables the signature check of packages by Pacman again.
-\e[1mAttention\e[0m: If this command fails or the PacUI script is exited after the signature check has been disabled and this command, it is highly recommended to manually check your /etc/pacman.conf file and remove all "Never #" strings you can find. Only by doing this, you can trust package installations on your system again!
+\e[36m"sudo cp --preserve=all -f /etc/pacman.conf.backup /etc/pacman.conf && sudo rm /etc/pacman.conf.backup "
+This command enables the signature check of packages in Pacman again.
 
 \e[36m"sudo pacman-key --init && sudo pacman-key --populate $(pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | sed 's/-keyring//' | paste -sd " " )"
 These two commands create a fresh key for you and import and (re-)install all keyrings. This will solve problems with your local key database and your distro's and Arch's key database. Such problems can occur when new new Arch Linux or your distro packagers get added, for example.
