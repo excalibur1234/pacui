@@ -424,6 +424,23 @@ function func_m
         echo ""
 
 
+        echo " checking for packages moved to the AUR ..."
+        local pkg
+        # "pacman -Qqm" lists all packages, which are not from the system repositories.  "pacman -Qqem" lists all files, which were explicitly installed, but are not present in the system repositories.
+        # comm -23 only outputs unique packages from the 1. list (not present in the 2. list)
+        pkg="$(  comm -23 <(pacman -Qqm | sort) <(pacman -Qqem | sort)  )"
+
+        # only run the command inside the if-statement, if $pkg variable is not empty
+        if [[ -n "$pkg" ]]                                                          # checks, if length of string is non-zero ("-n" conditional bash expression is the opposite of "-z" (check, whether length of string is zero))
+        then
+            echo -e " \e[1m The following packages were not explicitly installed and are not part of your system repository. \e[0m"
+            echo -e " \e[41m If no important packages depend on them, it is recommended to remove these packages carefully: \e[0m"
+            echo "$pkg"
+            echo ""
+        fi
+        echo ""
+
+
         if [[ "$(cat /proc/1/comm)" == "systemd" ]]                                 # if init system is systemd
         then
             echo " cleaning systemd log files ..."
@@ -1922,6 +1939,11 @@ This command checks your local package repository for consistency and shows miss
 This command compares 2 lists: The first list contains packages, which were not installed from your system repository. The second list contains all AUR package names. By comparing these 2 lists, it is possible to find EOL packages, which will never receive any updates.
 These EOL packages were either installed manually by the user or from the AUR (and have been removed from there in the meantime).
 Unless you know exactly what you are doing, it is recommended to remove these EOL packages.
+
+\e[36m"comm -23 <(pacman -Qqm | sort) <(pacman -Qqem | sort)"
+This command compares 2 lists: The first list contains packages, which were not installed from your system repository. The second list contains explicitly installed packages, which were not installed from your system repository. Packages unique to the first list are output.
+Sometimes, packages from the system repository are no longer maintained. Typically, they get put into the AUR instead of deleting them. Such packages get filtered by this command.
+These packages can cause really long update times and are generally a security risk. Unless important packages depend on them, it is recommended to remove these packages manually. You can check, which packages depend on them by using REVERSE DEPENDENCY TREE.
 
 \e[36m"sudo journalctl --vacuum-size=50M --vacuum-time=30days"
 This command limits all log files in journalctl to a combined size of 50 megabytes and a maximum age of 30 days. This leaves plenty of log files behind to analyze systematic and reoccuring errors while preventing excessive amounts of log files.

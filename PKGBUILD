@@ -12,17 +12,17 @@ license=('GPL3')
 depends=('pacman-contrib' 'expac' 'wget' 'sudo' 'fzf')
 
 
-conflicts=("pacui-git")
+conflicts=("$pkgname-git")
 optdepends=('pacaur: Needed for AUR support.'
-        'yaourt: Needed for AUR support.'
-        'yay: Needed for AUR support.'
-        'pikaur: Needed for AUR support.'
-        'pakku: Needed for AUR support.'
-        'aurman: Needed for AUR support.'
-        'trizen: Needed for AUR support.'
-        'pacman-mirrors: Needed for Manjaro mirror support'
-        'reflector: Needed for Arch Linux mirror support'
-        'downgrade: Needed for hidden "downgrade" option.')
+            'yaourt: Needed for AUR support.'
+            'yay: Needed for AUR support.'
+            'pikaur: Needed for AUR support.'
+            'pakku: Needed for AUR support.'
+            'aurman: Needed for AUR support.'
+            'trizen: Needed for AUR support.'
+            'pacman-mirrors: Needed for Manjaro mirror support'
+            'reflector: Needed for Arch Linux mirror support'
+            'downgrade: Needed for hidden "downgrade" option.')
 source=("$url/archive/$pkgver.tar.gz")
 md5sums=('8fcc4c5f85be56de69f6660ac91544e9')
 
@@ -32,5 +32,5 @@ md5sums=('8fcc4c5f85be56de69f6660ac91544e9')
 
 
 package () {
-        install -Dm755 "$srcdir/$pkgname-$pkgver/pacui" "$pkgdir/usr/bin/pacui"
+            install -Dm755 "$srcdir/$pkgname-$pkgver/pacui" "$pkgdir/usr/bin/pacui"
 }
