@@ -39,7 +39,7 @@
 
 #set +u
 
-# here, the preferred AUR helper can be set manually by the user. for example, AUR_Helper="$yay" uses Yay despite any other installed AUR helpers.
+# here, the preferred AUR helper can be set manually by the user. for example, AUR_Helper="yay" uses Yay despite any other installed AUR helpers.
 AUR_Helper="$PACUI_AUR_HELPER"                                                      # global variable, which does not get unset (i.e. cleaned up), because it is needed both in GUI and non-GUI
 
 #set -u
@@ -357,6 +357,7 @@ function func_m
 
 
         echo " checking systemctl ..."
+        # "LC_ALL=C" forces the output to use english language. this is important, if the output is queried.
         if [[ "$( LC_ALL=C systemctl --failed | head -n 1 | awk '{print $1}' )" == "UNIT" ]]
         then
             echo -e " \e[41m The following systemd service(s) have failed. Please fix them manually. \e[0m"
