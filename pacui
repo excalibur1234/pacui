@@ -1347,115 +1347,149 @@ function func_f
             echo ""
 
 
-            echo -e " Lowering pacman securities (in case keyring is broken) ..."
-            # first, make a backup of /etc/pacman.conf, which preserves all file permissions and other attributes. "cp -f" overwrites the target file, if it already exists.
-            # the second command replaces all "SigLevel = ....." strings with "SigLevel = Never" in the /etc/pacman.conf file. This change deactivates all key signature checks in pacman.
-            # general comment about "sed" usage in scripts: in order to avoid breakage, it is recommended to escape all the following characters /\.*[]^$ with a \ character!
-            sudo cp --preserve=all -f /etc/pacman.conf /etc/pacman.conf.backup && sudo sed -i 's/SigLevel[ ]*=[A-Za-z ]*/SigLevel = Never/' '/etc/pacman.conf'
-            # if something goes wrong in the following code, the SigLevel is never raised back and we would mess on a user's system. THIS HAS TO BE PREVENTED! solution: use trap, which reverses our changes in /etc/pacman.conf file whenever pacui quits unexpectedly:
-            trap "sudo cp --preserve=all -f /etc/pacman.conf.backup /etc/pacman.conf && sudo rm /etc/pacman.conf.backup" EXIT
-            echo ""
-
-
-            if [[ "$(cat /proc/1/comm)" == "systemd" ]]                             # if init system is systemd
+            echo " trying to update system conventionally ..."
+            if ! ( sudo pacman -Syu --noconfirm)                                    # if keyring is not broken, packages are properly updated now.
             then
 
-                # set almost correct time (while ignoring time zone and daylight saving time):
-                # 1. stop running NTPD service (and ignore output in case NTPD is not installed):
-                echo " sudo systemctl stop ntpd.service ..."
-                sudo systemctl stop ntpd.service &>/dev/null
+                echo
+                echo -e " \e[41m Conventional update not successful. \e[0m"
+                echo
+
+                echo -e " Lowering pacman securities (in case keyring is broken) ..."
+                # first, make a backup of /etc/pacman.conf, which preserves all file permissions and other attributes. "cp -f" overwrites the target file, if it already exists.
+                # the second command replaces all "SigLevel = ....." strings with "SigLevel = Never" in the /etc/pacman.conf file. This change deactivates all key signature checks in pacman.
+                # general comment about "sed" usage in scripts: in order to avoid breakage, it is recommended to escape all the following characters /\.*[]^$ with a \ character!
+                sudo cp --preserve=all -f /etc/pacman.conf /etc/pacman.conf.backup && sudo sed -i 's/SigLevel[ ]*=[A-Za-z ]*/SigLevel = Never/' '/etc/pacman.conf'
+                # if something goes wrong in the following code, the SigLevel is never raised back and we would mess on a user's system. THIS HAS TO BE PREVENTED! solution: use trap, which reverses our changes in /etc/pacman.conf file whenever pacui quits unexpectedly:
+                trap "sudo cp --preserve=all -f /etc/pacman.conf.backup /etc/pacman.conf && sudo rm /etc/pacman.conf.backup" EXIT
                 echo ""
 
 
-                # 2. download and install ntp:
-                echo " installing ntp ..."
-                sudo pacman -Sy ntp --noconfirm
-                # in general, "pacman -Sy" should be avoided to prevent partial updates. but in this situation it is necessary (as explained above). later on, the entire system is updated.
-                echo ""
-
-
-                # 3. start NTP daemon and set system clock
-                # 4. wait for 30 seconds (maximum time needed for system clock to set to new time)
-                # 5. write time from system clock to hardware clock
-                echo " setting clock (which can take a while) ..."
-                sudo ntpd -qg && sleep 30 && sudo hwclock -w
-                echo ""
-
-            fi
-
-
-            # remove gnupg including all keys
-            if [[ -f /etc/pacman.d/gnupg ]]
-            then
-                echo " sudo rm -r /etc/pacman.d/gnupg ..."
-                sudo rm -r /etc/pacman.d/gnupg &>/dev/null
-                echo ""
-            fi
-
-
-            # reinstall gnupg (without keys)
-            echo " installing gnupg ..."
-            sudo pacman -Sy gnupg --noconfirm
-            echo ""
-
-
-            echo " installing all necessary keyrings ..."
-            # This command will install all keyrings from avialable current repository
-            sudo pacman -Sy $( pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | paste -sd " " ) --noconfirm                   # ATTENTION: (i do not know why but) using quotes (" symbols) around $(...) does not work!
-            echo ""
-
-
-            echo " raising pacman securities back ..."
-            # This command will revert the change from above: overwrite (modified) /etc/pacman.conf file with its (unmodified) backup. then, the backup file is deleted.
-            sudo cp --preserve=all -f /etc/pacman.conf.backup /etc/pacman.conf && sudo rm /etc/pacman.conf.backup
-            # now, the trap is longer needed. reset trap:
-            trap − EXIT
-            echo ""
-
-
-            echo " initializing and populating keyring ..."
-            sudo pacman-key --init && echo "" && sudo pacman-key --populate $( pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | sed 's/-keyring//' | paste -sd " " )                      # ATTENTION: (i do not know why but) using quotes (" symbols) around $(...) does not work!
-            echo ""
-
-
-            #set +u
-
-            if [[ -f $HOME/.gnupg/gpg.conf ]]                                       # check, whether file $HOME/.gnupg/gpg.conf exists
-            then
-                if ! ( grep "/etc/pacman.d/gnupg/pubring.gpg" "$HOME/.gnupg/gpg.conf" &>/dev/null )             # check, whether string "/etc/pacman.d/gnupg/pubring.gpg" is already present in file "$HOME/.gnupg/gpg.conf".
+                if [[ "$(cat /proc/1/comm)" == "systemd" ]]                             # if init system is systemd
                 then
 
-                    echo " preventing confusing key errors ..."
+                    # set almost correct time (while ignoring time zone and daylight saving time):
+                    # 1. stop running NTPD service (and ignore output in case NTPD is not installed):
+                    echo " sudo systemctl stop ntpd.service ..."
+                    sudo systemctl stop ntpd.service &>/dev/null
+                    echo ""
 
-                    # sometimes, people get a "missing key" error about keys they have already installed. this can be confusing
-                    # automatically trust all keys from arch linux trusted users (and manjaro developers) - both for packages from the repositories and packages fom the AUR.
-                    # there are 2 different places on system for keys to be stored. move all keys for pacman to your private collection of keys. this collection is needed when installing packages from the AUR, e.g. for verifying who signed the package.
-                    echo "# "                                                   >> "$HOME/.gnupg/gpg.conf"
-                    echo "# Automatically trust all keys in Pacman's keyring: " >> "$HOME/.gnupg/gpg.conf"
-                    echo "keyring /etc/pacman.d/gnupg/pubring.gpg"              >> "$HOME/.gnupg/gpg.conf"
-                    echo
+
+                    # 2. download and install ntp:
+                    echo " installing ntp ..."
+                    sudo pacman -S ntp --noconfirm
+                    # if "sudo pacman -Syu --noconfirm" (above) was not completed successfully, a partial update is done here in order to try to fix the update machanism.
+                    # if "sudo pacman -Syu --noconfirm" (without checking keys) (below) is successful, the system will not be left in a partially updated state!
+                    echo ""
+
+
+                    # 3. start NTP daemon and set system clock
+                    # 4. wait for 10 seconds (maximum time needed for system clock to set to new time)
+                    # 5. write time from system clock to hardware clock
+                    echo " setting clock (which can take a while) ..."
+                    sudo ntpd -qg && sleep 10 && sudo hwclock -w
+                    echo ""
 
                 fi
-            fi
-
-            #set -u
 
 
-            if [[ "$(cat /proc/1/comm)" == "systemd" ]]                             # if init system is systemd
-            then
-                echo " updating systemd first ..."
-                # updating systemd first sometimes solves update problems
-                sudo pacman -S --needed --noconfirm systemd libsystemd systemd-sysvcompat
+                echo " trying to update system without checking keys ..."
+                # if keyring is broken, updates (without checking keys) can be manually installed now.
+                if ! ( sudo pacman -Syu )                                               # this update does not use "--noconfirm" and allows user intervention
+                then
+
+                    echo
+                    echo -e " \e[41m Update still not successful. \e[0m"
+                    echo -e " \e[1;41m Please read all error messages and remove non-critical packages, which cause conflicts. \e[0m"
+                    echo -e " \e[1;41m Then, rerun this part of PacUI. \e[0m"
+                    echo -e " \e[1;41m After the system is updated successfully, those packages can be reinstalled. \e[0m"
+                    echo
+
+                    echo " raising pacman securities back ..."
+                    # This command will revert the change from above: overwrite (modified) /etc/pacman.conf file with its (unmodified) backup. then, the backup file is deleted.
+                    sudo cp --preserve=all -f /etc/pacman.conf.backup /etc/pacman.conf && sudo rm /etc/pacman.conf.backup
+                    # now, the trap is longer needed. reset trap:
+                    trap − EXIT
+                    echo ""
+
+                else
+
+
+                    # if the update (without checking keys) was successful, a keyring problem is present. this part prevents any future key problems:
+
+
+                    # remove gnupg including all keys
+                    if [[ -f /etc/pacman.d/gnupg ]]
+                    then
+                        echo " sudo rm -r /etc/pacman.d/gnupg ..."
+                        sudo rm -r /etc/pacman.d/gnupg &>/dev/null
+                        echo ""
+                    fi
+
+
+                    # reinstall gnupg (without keys)
+                    echo " installing gnupg ..."
+                    sudo pacman -Syu gnupg --noconfirm
+                    echo ""
+
+
+                    echo " installing all necessary keyrings ..."
+                    # This command will install all keyrings from avialable current repository
+                    sudo pacman -Syu $( pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | paste -sd " " ) --noconfirm                    # ATTENTION: (i do not know why but) using quotes (" symbols) around $(...) does not work!
+                    echo ""
+
+
+                    echo " raising pacman securities back ..."
+                    # This command will revert the change from above: overwrite (modified) /etc/pacman.conf file with its (unmodified) backup. then, the backup file is deleted.
+                    sudo cp --preserve=all -f /etc/pacman.conf.backup /etc/pacman.conf && sudo rm /etc/pacman.conf.backup
+                    # now, the trap is longer needed. reset trap:
+                    trap − EXIT
+                    echo ""
+
+
+                    echo " initializing and populating keyring ..."
+                    sudo pacman-key --init && echo "" && sudo pacman-key --populate $( pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | sed 's/-keyring//' | paste -sd " " )                      # ATTENTION: (i do not know why but) using quotes (" symbols) around $(...) does not work!
+                    echo ""
+
+
+                    #set +u
+
+                    if [[ -f $HOME/.gnupg/gpg.conf ]]                                       # check, whether file $HOME/.gnupg/gpg.conf exists
+                    then
+                        if ! ( grep "/etc/pacman.d/gnupg/pubring.gpg" "$HOME/.gnupg/gpg.conf" &>/dev/null )             # check, whether string "/etc/pacman.d/gnupg/pubring.gpg" is already present in file "$HOME/.gnupg/gpg.conf".
+                        then
+
+                            echo " preventing confusing key errors ..."
+
+                            # sometimes, people get a "missing key" error about keys they have already installed. this can be confusing
+                            # automatically trust all keys from arch linux trusted users (and manjaro developers) - both for packages from the repositories and packages fom the AUR.
+                            # there are 2 different places on system for keys to be stored. move all keys for pacman to your private collection of keys. this collection is needed when installing packages from the AUR, e.g. for verifying who signed the package.
+                            echo "# "                                                   >> "$HOME/.gnupg/gpg.conf"
+                            echo "# Automatically trust all keys in Pacman's keyring: " >> "$HOME/.gnupg/gpg.conf"
+                            echo "keyring /etc/pacman.d/gnupg/pubring.gpg"              >> "$HOME/.gnupg/gpg.conf"
+                            echo
+
+                        fi
+                    fi
+
+                    #set -u
+
+
+                    echo " updating file database ..."
+                    sudo pacman -Fyy
+                    echo ""
+
+                fi
+
+            else
+
+                # do this, if conventional system update was successful
+                echo
+                echo " updating file database ..."
+                sudo pacman -Fyy
                 echo ""
+
             fi
-
-
-            echo " updating core system ..."
-            sudo pacman -Syyu --color always --noconfirm
-            echo ""
-            sudo pacman -Syu --color always                                         # in case manual intervention during updates is needed, the user can intervene here
-            echo ""
-            sudo pacman -Fyy
 
         fi
 }
@@ -2080,6 +2114,9 @@ After an unseccessful attempt to update your system (which quits with a key erro
 This command removes all packages from your Pacman cache, which are not installed on your system. Afterwards, you need to download all previously downloaded but not installed packages again.
 \e[1mAttention\e[0m: This command makes it impossible to ROLL BACK SYSTEM on systems without an internet connection.
 
+\e[36m"sudo pacman -Syyu --noconfirm"
+This command forces a redownload of the latest package database from the best repository mirror. Then, all your installed packages are checked against this latest package database. If an updated package is available from your system repositories, it will get downloaded and installed on your system. If an installed package is newer than the same package in your system repositories, it will not be installed. This behavior ensures your packages are always in sync with (or newer than) your system repositories.
+
 \e[36m"sudo cp --preserve=all -f /etc/pacman.conf /etc/pacman.conf.backup && sudo sed -i 's/SigLevel[ ]*=[A-Za-z ]*/SigLevel = Never/' '/etc/pacman.conf' "
 The following commands delete and reinstall some essential packages. If your keyring is broken, no packages could be installed because of a key mismatch. Therefore, it is important to disable Pacman's key check before continuing.
 This command disables the signature key check of packages in Pacman.
@@ -2088,24 +2125,26 @@ This command disables the signature key check of packages in Pacman.
 This command stops (temporarily) the Network Time Protocol daemon service NTPD (if it is installed and running). In case NTPD is not installed, the output is ignored.
 This is the first command of a series of commands, which try to set the system and hardware clock on your computer (ignoring time zone and daylight saving time). An (almost) correct system time is needed for checking and importing keys or fingerprints later on in the fixing process!
 
-\e[36m"sudo pacman -Sy ntp"
-This command (re-)installs the "ntp" package. PacUI actually does not use this command but instead downloads and installs this package manually in order to bypass key database and key chain errors.
-\e[1mAttention\e[0m: PacUI will fail if you cannot install any packages on your system anymore due to key database and key chain errors AND "ntp" was not installed on your system before. As long as your system clock is set (almost) correct, you do not have to worry about it. But if your system clock is set completely wrong AND you cannot install any packages on your system anymore AND "ntp" was not installed on your system before, you have to set your system clock manually before you run PacUIs "fix" command. You can do this with the following command:
-sudo timedatectl set-time "yyyy-MM-dd hh:mm:ss"
-( example: sudo timedatectl set-time "2018-01-26 11:13:54" )
+\e[36m"sudo pacman -S ntp"
+This command (re-)installs the "ntp" package.
+Because the keyring is not checked, in certain situations your system could be left in a partially updated state. However, if you follow PacUIs instructions, this does not happen.
 
-\e[36m"sudo ntpd -qg && sleep 60 && sudo hwclock -w"
+\e[36m"sudo ntpd -qg && sleep 10 && sudo hwclock -w"
 The first command starts the just (re-)installed Network Time Protocol daemon (ntpd.service). Next, your system clock is set. Finally, the ntpd.service is quit.
 The second command makes your system wait for 60 seconds. This is done as precaution to ensure your system has enough time to connect to an internet or network server and set the system clock.
 The third command is only run when the first and second command have been successfully finished. It writes the time from your system clock to your hardware clock.
-\e[1mAttention\e[0m: The last command is needed in order to prevent another services on your system to set your system clock according to your hardware clock in regular intervals. This may result in a hardware clock, which is not set to UTC anymore and/or a system clock, which shows the wrong time. If you encounter this problem read the Arch Linux Wiki article about time: "https://wiki.archlinux.org/index.php/Time"
+\e[1mAttention\e[0m: The last command is needed in order to prevent other services on your system to set your system clock according to your hardware clock in regular intervals. This may result in a hardware clock, which is not set to UTC anymore and/or a system clock, which shows the wrong time. If you encounter this problem read the Arch Linux Wiki article about time: "https://wiki.archlinux.org/index.php/Time"
+
+\e[36m"sudo pacman -Syu"
+This command makes abolutely sure all packages get updated. No keyring check is performed here.
+If manual intervention is necessary, the user can do it here. Please follow Pacman and/or PacUI instructions, which appear during this update. It is important that this step completes without any errors in order to continue FIX PACMAN ERRORS.
 
 \e[36m"sudo rm -r /etc/pacman.d/gnupg"
 This command deletes your key database. It does not output an error in case the package "gnupg" is not installed on your system.
 \e[1mAttention\e[0m: This command will remove all keys from your system, including manually installed keys (with "sudo pacman-key --lsign-key <KEY>"). Please remember to reinstall those keys again after FIX PACMAN ERRORS has completed!
 
-\e[36m"sudo pacman -Sy gnupg $(pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | paste -sd " " )"
-This command (re-)installs the gnupg and keyring packages. PacUI actually does not use this command but instead downloads and installs this package manually in order to bypass key database and key chain errors.
+\e[36m"sudo pacman -Syu gnupg $(pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | paste -sd " " )" --noconfirm
+This command (re-)installs the gnupg and keyring packages.
 
 \e[36m"sudo cp --preserve=all -f /etc/pacman.conf.backup /etc/pacman.conf && sudo rm /etc/pacman.conf.backup "
 This command enables the signature check of packages in Pacman again.
@@ -2117,15 +2156,6 @@ These two commands create a fresh key for you and import and (re-)install all ke
 \e[36m"echo 'keyring /etc/pacman.d/gnupg/pubring.gpg' >> $HOME/.gnupg/gpg.conf"
 There are 2 different places in Arch Linux and Manjaro to store keys: One place is used by Pacman and the other gets used by GPG.
 This command imports all keys for Pacman into GPG. This essentially means that the user trusts all Arch Linux Trusted Users and your distro's developers. After that, you will be able to install AUR packages from Arch Linux Trusted Users and your distro's developers without the need to import those keys (again) manually.
-
-\e[36m"sudo pacman -S --needed libsystemd systemd-sysvcompat systemd"
-The first command updates - if necessary - systemd including important components before all other packages are updated. This is necessary, because sometimes a successful update of systemd causes a short crash on some systems, which prevents a successful update of all other packages.
-
-\e[36m"sudo pacman -Syyu --noconfirm"
-This command forces a redownload of the latest package database from the best repository mirror. Then, all your installed packages are checked against this latest package database. If an updated package is available from your system repositories, it will get downloaded and installed on your system. If an installed package is newer than the same package in your system repositories, it will not be installed. This behavior ensures your packages are always in sync with (or newer than) your system repositories.
-
-\e[36m"sudo pacman -Syu"
-This command makes abolutely sure all packages get updated. If manual intervention is necessary, the user can do it here.
 
 \e[36m"sudo pacman -Fyy"
 This command forces a sync of the file database of your system repository with your used repository mirror server. The file database is separate from the package database. The file database enables SEARCH PACKAGE FILES and LIST PACKAGE FILES of packages, which are not installed on your system but only available on your system repository.
