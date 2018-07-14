@@ -5,7 +5,7 @@ _pkgname=pacui
 pkgname=$_pkgname-git
 pkgver=r886.7191902
 pkgrel=1
-pkgdesc="Bash script providing advanced Pacman and Aurman/Trizen/Yay/Pikaur/Pakku/Yaourt/Pacaur functionality in a simple UI"
+pkgdesc="Bash script providing advanced Pacman and Yay/Pikaur/Aurman/Pakku/Trizen/Pacaur functionality in a simple UI"
 arch=(any)
 url="https://github.com/excalibur1234/$_pkgname"
 license=('GPL3')
@@ -13,13 +13,12 @@ depends=('pacman-contrib' 'expac' 'wget' 'sudo' 'fzf')
 makedepends=('git')
 provides=('$_pkgname')
 conflicts=("$_pkgname")
-optdepends=('pacaur: Needed for AUR support.'
-            'yaourt: Needed for AUR support.'
-            'yay: Needed for AUR support.'
-            'pikaur: Needed for AUR support.'
-            'pakku: Needed for AUR support.'
-            'aurman: Needed for AUR support.'
-            'trizen: Needed for AUR support.'
+optdepends=('yay: One AUR helper is needed for AUR support.'
+            'pikaur: One AUR helper is needed for AUR support.'
+            'aurman: One AUR helper is needed for AUR support.'
+            'pakku: One AUR helper is needed for AUR support.'
+            'trizen: One AUR helper is needed for AUR support.'
+            'pacaur: One AUR helper is needed for AUR support.'
             'pacman-mirrors: Needed for Manjaro mirror support'
             'reflector: Needed for Arch Linux mirror support'
             'downgrade: Needed for hidden "downgrade" option.')
