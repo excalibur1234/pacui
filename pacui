@@ -48,31 +48,31 @@ AUR_Helper="$PACUI_AUR_HELPER"                                                  
 if [[ -z "$AUR_Helper" ]]                                                           # check, if AUR_Helper variable is empty. more precise: check, if output of "$AUR_Helper" is zero
 then
 
-    if [[ -e /usr/bin/aurman ]]                                                     # check, if /usr/bin/aurman file exists
+    if [[ -f /usr/bin/aurman ]]                                                     # check, if /usr/bin/aurman file exists
     then
         AUR_Helper="aurman"
 
-    elif [[ -e /usr/bin/trizen ]]
+    elif [[ -f /usr/bin/trizen ]]
     then
         AUR_Helper="trizen"
 
-    elif [[ -e /usr/bin/yay ]]
+    elif [[ -f /usr/bin/yay ]]
     then
         AUR_Helper="yay"
 
-    elif [[ -e /usr/bin/pikaur ]]
+    elif [[ -f /usr/bin/pikaur ]]
     then
         AUR_Helper="pikaur"
 
-    elif [[ -e /usr/bin/pakku ]]
+    elif [[ -f /usr/bin/pakku ]]
     then
         AUR_Helper="pakku"
 
-    elif [[ -e /usr/bin/yaourt ]]
+    elif [[ -f /usr/bin/yaourt ]]
     then
         AUR_Helper="yaourt"
 
-    elif [[ -e /usr/bin/pacaur ]]
+    elif [[ -f /usr/bin/pacaur ]]
     then
         AUR_Helper="pacaur"
 
@@ -287,15 +287,15 @@ function func_m
 
 
         # check for "pacman-mirrors" or "reflector" packages. one of those is needed!
-        if [[ -e /usr/bin/pacman-mirrors ]] || [[ -e /usr/bin/reflector ]]
+        if [[ -f /usr/bin/pacman-mirrors ]] || [[ -f /usr/bin/reflector ]]
         then
 
             echo " choosing fastest mirror (which can take a while) and updating system ..."
-            if [[ -e /usr/bin/pacman-mirrors ]]                                     # checks, whether file "pacman-mirrors" exists
+            if [[ -f /usr/bin/pacman-mirrors ]]                                     # checks, whether file "pacman-mirrors" exists
             then
                 sudo pacman-mirrors -f 0 && sudo pacman -Syyu                       # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
 
-            elif [[ -e /usr/bin/reflector ]]                                        # checks, whether file "reflector" exists
+            elif [[ -f /usr/bin/reflector ]]                                        # checks, whether file "reflector" exists
             then
                 sudo reflector --verbose --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist && sleep 20 && sudo pacman -Syyu          # If it does exists, then the mirror will sort by it
 
@@ -390,18 +390,15 @@ function func_m
         if [[ -n "$AUR_Helper" ]]                                                   # check, if output of "$AUR_Helper" is non-zero
         then
             echo " checking AUR packages ..."
-            # download AUR package list (only when not already downloaded) to /tmp/pacui-aur/packages.
-            #if [[ ! -e /tmp/pacui-aur/packages.gz ]]
-            if [[ ! -e /tmp/pacui-aur/packages ]]
-            then
-                #wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null
-                wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && gunzip -f "/tmp/pacui-aur/packages.gz"
-                # now, file /tmp/pacui-aur/packages contains an unsorted list of all packages from the AUR with the download date on top (in a commented line).
-            fi
+            # download AUR package list to /tmp/pacui-aur/packages.
+
+            #wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null
+            wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && gunzip -f "/tmp/pacui-aur/packages.gz"
+            # now, file /tmp/pacui-aur/packages contains an unsorted list of all packages from the AUR with the download date on top (in a commented line).
 
             # check, if /tmp/pacui-aur/packages exists. /tmp/pacui-aur/packages does not exist, if there is no internet connection or something went wrong during the download of the list of AUR packages.
-            #if [[ -e /tmp/pacui-aur/packages.gz ]]
-            if [[ -e /tmp/pacui-aur/packages ]]
+            #if [[ -f /tmp/pacui-aur/packages.gz ]]
+            if [[ -f /tmp/pacui-aur/packages ]]
             then
 
                 local pkg
@@ -518,8 +515,8 @@ function func_i
         then
 
             # download AUR package list (only when not already downloaded) and add it to $pacui_list_install_aur.
-            #if  [[ ! -e /tmp/pacui-aur/packages.gz ]]
-            if  [[ ! -e /tmp/pacui-aur/packages ]]
+            #if  [[ ! -f /tmp/pacui-aur/packages.gz ]]
+            if  [[ ! -f /tmp/pacui-aur/packages ]]
             then
                 #wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null
                 wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && gunzip -f "/tmp/pacui-aur/packages.gz"
@@ -1350,7 +1347,7 @@ function func_f
             dbpath="/var/lib/pacman/"                                               # default database path
         fi
 
-        if [[ -e "$dbpath"db.lck ]]                                                 # check, if pacman database lock file "db.lck" exists
+        if [[ -f "$dbpath"db.lck ]]                                                 # check, if pacman database lock file "db.lck" exists
         then
             echo " removing pacman database lock ..."
             sudo unlink "$dbpath"db.lck                                             # remove file
@@ -1360,18 +1357,18 @@ function func_f
 
 
         # check for "pacman-mirrors" or "reflector" packages. one of those is needed!
-        if [[ -e /usr/bin/pacman-mirrors ]] || [[ -e /usr/bin/reflector ]]
+        if [[ -f /usr/bin/pacman-mirrors ]] || [[ -f /usr/bin/reflector ]]
         then
             echo " fixing mirrors (which can take a while) ..."
             # do this, if system uses pacman-mirrors (default in Manjaro)
-            if [[ -e /usr/bin/pacman-mirrors ]]
+            if [[ -f /usr/bin/pacman-mirrors ]]
             then
                 sudo pacman-mirrors -f 0 && sudo pacman -Syy                        # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
                 # here, "pacman -Syy" is used to sync to the (potentially new) repository server. this is important!
                 # but "pacman -Syy" (when pacman -S is executed later on) can result in a partially updated system. this cannot be prevented here, because it is possible the user's keys are corruped and he is no longer able to install/update any packages.
             fi
             # do this, if system uses reflector (default on Arch Linux or distributions using Arch Linux mirrors/repo servers)
-            if [[ -e /usr/bin/reflector ]]
+            if [[ -f /usr/bin/reflector ]]
             then
                 sudo reflector --verbose --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist && sleep 20 && sudo pacman -Syy
             fi
@@ -1446,7 +1443,7 @@ function func_f
 
 
             # remove gnupg including all keys
-            if [[ -e /etc/pacman.d/gnupg ]]
+            if [[ -f /etc/pacman.d/gnupg ]]
             then
                 echo " sudo rm -r /etc/pacman.d/gnupg ..."
                 sudo rm -r /etc/pacman.d/gnupg &>/dev/null
@@ -1481,7 +1478,7 @@ function func_f
 
             #set +u
 
-            if [[ -e $HOME/.gnupg/gpg.conf ]]                                       # check, whether file $HOME/.gnupg/gpg.conf exists
+            if [[ -f $HOME/.gnupg/gpg.conf ]]                                       # check, whether file $HOME/.gnupg/gpg.conf exists
             then
                 if ! ( grep "/etc/pacman.d/gnupg/pubring.gpg" "$HOME/.gnupg/gpg.conf" &>/dev/null )             # check, whether string "/etc/pacman.d/gnupg/pubring.gpg" is already present in file "$HOME/.gnupg/gpg.conf".
                 then
@@ -1538,70 +1535,70 @@ function func_c
         #set +u
 
         # if file /etc/default/tlp exists, push string "/etc/default/tlp              Configure power management." into ${pacui_config} file. there are enough spaces added to avoid users seeing file/folder description:
-        [[ -e /etc/default/tlp ]]                       && echo -e "/etc/default/tlp                                                                                                                                                                                                                                                 Configure power management in file:" >> ${pacui_config}
-        [[ -e /etc/default/cpupower ]]                  && echo -e "/etc/default/cpupower                                                                                                                                                                                                                                            Configure CPU power management in file:" >> ${pacui_config}
-        [[ -e /etc/profile.d/freetype2.sh ]]            && echo -e "/etc/profile.d/freetype2.sh                                                                                                                                                                                                                                      Configure TrueType interpreter (including Infinality mode) in file:" >> ${pacui_config}
-        [[ -e /etc/pulse/daemon.conf ]]                 && echo -e "/etc/pulse/daemon.conf                                                                                                                                                                                                                                           Configure global PulseAudio daemon in file:" >> ${pacui_config}
-        [[ -e /etc/pulse/default.pa ]]                  && echo -e "/etc/pulse/default.pa                                                                                                                                                                                                                                            Configure PulseAudio modules in file:" >> ${pacui_config}
-        [[ -e $HOME/.gnupg/gpg.conf ]]                  && echo -e "\e[31m$HOME/.gnupg/gpg.conf                                                                                                                                                                                                                                      Configure GnuPG user settings in file:\e[0m" >> ${pacui_config}
-        [[ -e /etc/pacman.conf ]]                       && echo -e "\e[31m/etc/pacman.conf                                                                                                                                                                                                                                           Configure Pacman in file:\e[0m" >> ${pacui_config}
-        [[ -e /etc/pacman-mirrors.conf ]]               && echo -e "/etc/pacman-mirrors.conf                                                                                                                                                                                                                                         Configure Manjaro's pacman-mirrors in file:" >> ${pacui_config}
-        [[ -e /etc/pacman.d/mirrorlist ]]               && echo -e "/etc/pacman.d/mirrorlist                                                                                                                                                                                                                                         Configure mirror list manually in file:" >> ${pacui_config}
-        [[ -e $HOME/.config/trizen/trizen.conf ]]       && echo -e "$HOME/.config/trizen/trizen.conf                                                                                                                                                                                                                                 Configure Trizen in file:" >> ${pacui_config}
-        [[ -e $HOME/.config/yay/config.json ]]          && echo -e "$HOME/.config/yay/config.json                                                                                                                                                                                                                                    Configure Yay in file:" >> ${pacui_config}
-        [[ -e /etc/yaourtrc ]]                          && echo -e "/etc/yaourtrc                                                                                                                                                                                                                                                    Configure Yaourt in file:" >> ${pacui_config}
-        [[ -e $XDG_CONFIG_DIRS/pacaur/config ]]         && echo -e "$XDG_CONFIG_DIRS/pacaur/config                                                                                                                                                                                                                                   Configure Pacaur in file:" >> ${pacui_config}
-        [[ -e $HOME/.config/pikaur.conf ]]              && echo -e "$HOME/.config/pikaur.conf                                                                                                                                                                                                                                        Configure Pikaur in file:" >> ${pacui_config}
-        [[ -e /etc/pakku.conf ]]                        && echo -e "/etc/pakku.conf                                                                                                                                                                                                                                                  Configure Pakku in file:" >> ${pacui_config}
-        [[ -e $XDG_CONFIG_HOME/aurman/aurman_config ]]  && echo -e "$XDG_CONFIG_HOME/aurman/aurman_config                                                                                                                                                                                                                            Configure Aurman in file:" >> ${pacui_config}
-        [[ -e $HOME/.config/aurman/aurman_config ]]     && echo -e "$HOME/.config/aurman/aurman_config                                                                                                                                                                                                                               Configure Aurman in fallback file:" >> ${pacui_config}
-        [[ -e /etc/makepkg.conf ]]                      && echo -e "/etc/makepkg.conf                                                                                                                                                                                                                                                Configure package compilation in file:" >> ${pacui_config}
-        [[ -e /usr/lib/NetworkManager/conf.d ]]         && echo -e "/usr/lib/NetworkManager/conf.d/                                                                                                                                                                                                                                  Configure NetworkManager in files:" >> ${pacui_config}
-        [[ -e /etc/resolv.conf ]]                       && echo -e "/etc/resolv.conf                                                                                                                                                                                                                                                 Configure DNS servers in file:" >> ${pacui_config}
-        [[ -e /etc/hostname ]]                          && echo -e "/etc/hostname                                                                                                                                                                                                                                                    Configure your network hostname in file:" >> ${pacui_config}
-        [[ -e /etc/hosts ]]                             && echo -e "/etc/hosts                                                                                                                                                                                                                                                       Configure local DNS in file:" >> ${pacui_config}
-        [[ -e /etc/environment ]]                       && echo -e "/etc/environment                                                                                                                                                                                                                                                 Configure system-wide environment variables in file:" >> ${pacui_config}
-        [[ -e /etc/locale.conf ]]                       && echo -e "/etc/locale.conf                                                                                                                                                                                                                                                 Configure regional standards in file:" >> ${pacui_config}
-        [[ -e /etc/slim.conf ]]                         && echo -e "/etc/slim.conf                                                                                                                                                                                                                                                   Configure slim display manager in file:" >> ${pacui_config}
-        [[ -e /etc/lightdm.conf ]]                      && echo -e "/etc/lightdm.conf                                                                                                                                                                                                                                                Configure lightdm display manager in file:" >> ${pacui_config}
-        [[ -e /etc/sddm.conf ]]                         && echo -e "/etc/sddm.conf                                                                                                                                                                                                                                                   Configure sddm display manager in file:" >> ${pacui_config}
-        [[ -e /etc/mdm/mdm.conf ]]                      && echo -e "/etc/mdm/mdm.conf                                                                                                                                                                                                                                                Configure mdm display manager in file:" >> ${pacui_config}
-        [[ -e /etc/lxdm/lxdm.conf ]]                    && echo -e "/etc/lxdm/lxdm.conf                                                                                                                                                                                                                                              Configure lxdm display manager in file:" >> ${pacui_config}
-        [[ -e /etc/gdm/custom.conf ]]                   && echo -e "/etc/gdm/custom.conf                                                                                                                                                                                                                                             Configure gdm display manager in file:" >> ${pacui_config}
-        [[ -e /etc/entrance/entrance.conf ]]            && echo -e "/etc/entrance/entrance.conf                                                                                                                                                                                                                                      Configure entrance display manager in file:" >> ${pacui_config}
-        [[ -e /etc/conf.d/xdm ]]                        && echo -e "/etc/conf.d/xdm                                                                                                                                                                                                                                                  Configure xdm display manager in file:" >> ${pacui_config}
-        [[ -e /etc/updatedb.conf ]]                     && echo -e "/etc/updatedb.conf                                                                                                                                                                                                                                               Configure database of locate in file:" >> ${pacui_config}
-        [[ -e $HOME/.bashrc ]]                          && echo -e "$HOME/.bashrc                                                                                                                                                                                                                                                    Configure bash shell in file:" >> ${pacui_config}
-        [[ -e $HOME/.zshrc ]]                           && echo -e "$HOME/.zshrc                                                                                                                                                                                                                                                     Configure zsh shell in file:" >> ${pacui_config}
-        [[ -e $HOME/.config/fish ]]                     && echo -e "$HOME/.config/fish/                                                                                                                                                                                                                                              Configure fish shell in file:" >> ${pacui_config}
-        [[ -e $HOME/.xinitrc ]]                         && echo -e "\e[31m$HOME/.xinitrc                                                                                                                                                                                                                                             Configure X server startup in file:\e[0m" >> ${pacui_config}
-        [[ -e $HOME/.Xresources ]]                      && echo -e "\e[31m$HOME/.Xresources                                                                                                                                                                                                                                          Configure X client applications in file:\e[0m" >> ${pacui_config}
-        [[ -e /etc/fstab ]]                             && echo -e "\e[31m/etc/fstab                                                                                                                                                                                                                                                 Configure file system mount table in file:\e[0m" >> ${pacui_config}
-        [[ -e /etc/crypttab ]]                          && echo -e "\e[31m/etc/crypttab                                                                                                                                                                                                                                              Configure encrypted file system mount table in file:\e[0m" >> ${pacui_config}
-        [[ -e /etc/sudoers ]]                           && echo -e "\e[31m/etc/sudoers                                                                                                                                                                                                                                               Configure sudo in file:\e[0m" >> ${pacui_config}
-        [[ -e /etc/udev/rules.d/ ]]                     && echo -e "/etc/udev/rules.d/                                                                                                                                                                                                                                               Configure device manager for Linux kernel in these files:" >> ${pacui_config}
-        [[ -e /etc/systemd/swap.conf ]]                 && echo -e "/etc/systemd/swap.conf                                                                                                                                                                                                                                           Configure systemd swap in file:" >> ${pacui_config}
-        [[ -e /etc/systemd/logind.conf ]]               && echo -e "/etc/systemd/logind.conf                                                                                                                                                                                                                                         Configure systemd user logins in file:" >> ${pacui_config}
-        [[ -e /etc/systemd/journald.conf ]]             && echo -e "/etc/systemd/journald.conf                                                                                                                                                                                                                                       Configure systemd logging in file:" >> ${pacui_config}
-        [[ -e /etc/systemd/coredump.conf ]]             && echo -e "/etc/systemd/coredump.conf                                                                                                                                                                                                                                       Configure systemd coredumps in file:" >> ${pacui_config}
-        [[ -e /etc/systemd/system.conf ]]               && echo -e "/etc/systemd/system.conf                                                                                                                                                                                                                                         Configure systemd system in file:" >> ${pacui_config}
-        [[ -e /etc/systemd/timesyncd.conf ]]            && echo -e "/etc/systemd/timesyncd.conf                                                                                                                                                                                                                                      Configure systemd-timesyncd in file:" >> ${pacui_config}
-        [[ -e /etc/systemd/user.conf ]]                 && echo -e "/etc/systemd/user.conf                                                                                                                                                                                                                                           Configure systemd user units in file:" >> ${pacui_config}
-        [[ -e /usr/lib/systemd/system  ]]               && echo -e "/usr/lib/systemd/system/                                                                                                                                                                                                                                         Configure systemd in these files:" >> ${pacui_config}
-        [[ -e /usr/lib/systemd/network  ]]              && echo -e "/usr/lib/systemd/network/                                                                                                                                                                                                                                        Configure systemd-networkd in these files:" >> ${pacui_config}
-        [[ -e /etc/X11/xorg.conf.d ]]                   && echo -e "\e[31m/etc/X11/xorg.conf.d/                                                                                                                                                                                                                                      Configure Xorg display server in these files:\e[0m" >> ${pacui_config}
-        [[ -e $HOME/.config/weston.ini ]]               && echo -e "$HOME/.config/weston.ini                                                                                                                                                                                                                                         Configure Weston compositor in file:" >> ${pacui_config}
-        [[ -e /usr/lib/sysctl.d ]]                      && echo -e "/usr/lib/sysctl.d/                                                                                                                                                                                                                                               Configure kernel parameter files at runtime:" >> ${pacui_config}
-        [[ -e /etc/modules-load.d ]]                    && echo -e "\e[31m/etc/modules-load.d/                                                                                                                                                                                                                                       Configure Kernel module loading during boot in files:\e[0m" >> ${pacui_config}
-        [[ -e /etc/mkinitcpio.conf ]]                   && echo -e "\e[31m/etc/mkinitcpio.conf                                                                                                                                                                                                                                       Configure initial ramdisk environment in file:\e[0m" >> ${pacui_config}
-        [[ -e /etc/default/grub ]]                      && echo -e "\e[31m/etc/default/grub                                                                                                                                                                                                                                          Configure GRUB boot loader in file:\e[0m" >> ${pacui_config}
-        [[ -e /boot/grub/custom.cfg ]]                  && echo -e "/boot/grub/custom.cfg                                                                                                                                                                                                                                            Configure custom GRUB entries in file:" >> ${pacui_config}
-        [[ -e /boot/loader/loader.conf ]]               && echo -e "\e[31m/boot/loader/loader.conf                                                                                                                                                                                                                                   Configure systemd-boot boot loader in file:\e[0m" >> ${pacui_config}
-        [[ -e /boot/loader/entries ]]                   && echo -e "\e[31m/boot/loader/entries/                                                                                                                                                                                                                                      Configure systemd-boot boot loader entries:\e[0m" >> ${pacui_config}
-        [[ -e /boot/refind_linux.conf ]]                && echo -e "\e[31m/boot/refind_linux.conf                                                                                                                                                                                                                                    Configure rEFInd boot loader in file:\e[0m" >> ${pacui_config}
-        [[ -e /boot/EFI/refind/refind.conf ]]           && echo -e "\e[31m/boot/EFI/refind/refind.conf                                                                                                                                                                                                                               Configure rEFInd boot loader in file:\e[0m" >> ${pacui_config}
-        [[ -e /boot/EFI/CLOVER/config.plist ]]          && echo -e "\e[31m/boot/EFI/CLOVER/config.plist                                                                                                                                                                                                                              Configure Clover boot loader in file:\e[0m" >> ${pacui_config}
-        [[ -e /boot/syslinux/syslinux.cfg ]]            && echo -e "\e[31m/boot/syslinux/syslinux.cfg                                                                                                                                                                                                                                Configure syslinux boot loaders in file:\e[0m" >> ${pacui_config}
+        [[ -f /etc/default/tlp ]]                       && echo -e "/etc/default/tlp                                                                                                                                                                                                                                                 Configure power management in file:" >> ${pacui_config}
+        [[ -f /etc/default/cpupower ]]                  && echo -e "/etc/default/cpupower                                                                                                                                                                                                                                            Configure CPU power management in file:" >> ${pacui_config}
+        [[ -f /etc/profile.d/freetype2.sh ]]            && echo -e "/etc/profile.d/freetype2.sh                                                                                                                                                                                                                                      Configure TrueType interpreter (including Infinality mode) in file:" >> ${pacui_config}
+        [[ -f /etc/pulse/daemon.conf ]]                 && echo -e "/etc/pulse/daemon.conf                                                                                                                                                                                                                                           Configure global PulseAudio daemon in file:" >> ${pacui_config}
+        [[ -f /etc/pulse/default.pa ]]                  && echo -e "/etc/pulse/default.pa                                                                                                                                                                                                                                            Configure PulseAudio modules in file:" >> ${pacui_config}
+        [[ -f $HOME/.gnupg/gpg.conf ]]                  && echo -e "\e[31m$HOME/.gnupg/gpg.conf                                                                                                                                                                                                                                      Configure GnuPG user settings in file:\e[0m" >> ${pacui_config}
+        [[ -f /etc/pacman.conf ]]                       && echo -e "\e[31m/etc/pacman.conf                                                                                                                                                                                                                                           Configure Pacman in file:\e[0m" >> ${pacui_config}
+        [[ -f /etc/pacman-mirrors.conf ]]               && echo -e "/etc/pacman-mirrors.conf                                                                                                                                                                                                                                         Configure Manjaro's pacman-mirrors in file:" >> ${pacui_config}
+        [[ -f /etc/pacman.d/mirrorlist ]]               && echo -e "/etc/pacman.d/mirrorlist                                                                                                                                                                                                                                         Configure mirror list manually in file:" >> ${pacui_config}
+        [[ -f $HOME/.config/trizen/trizen.conf ]]       && echo -e "$HOME/.config/trizen/trizen.conf                                                                                                                                                                                                                                 Configure Trizen in file:" >> ${pacui_config}
+        [[ -f $HOME/.config/yay/config.json ]]          && echo -e "$HOME/.config/yay/config.json                                                                                                                                                                                                                                    Configure Yay in file:" >> ${pacui_config}
+        [[ -f /etc/yaourtrc ]]                          && echo -e "/etc/yaourtrc                                                                                                                                                                                                                                                    Configure Yaourt in file:" >> ${pacui_config}
+        [[ -f $XDG_CONFIG_DIRS/pacaur/config ]]         && echo -e "$XDG_CONFIG_DIRS/pacaur/config                                                                                                                                                                                                                                   Configure Pacaur in file:" >> ${pacui_config}
+        [[ -f $HOME/.config/pikaur.conf ]]              && echo -e "$HOME/.config/pikaur.conf                                                                                                                                                                                                                                        Configure Pikaur in file:" >> ${pacui_config}
+        [[ -f /etc/pakku.conf ]]                        && echo -e "/etc/pakku.conf                                                                                                                                                                                                                                                  Configure Pakku in file:" >> ${pacui_config}
+        [[ -f $XDG_CONFIG_HOME/aurman/aurman_config ]]  && echo -e "$XDG_CONFIG_HOME/aurman/aurman_config                                                                                                                                                                                                                            Configure Aurman in file:" >> ${pacui_config}
+        [[ -f $HOME/.config/aurman/aurman_config ]]     && echo -e "$HOME/.config/aurman/aurman_config                                                                                                                                                                                                                               Configure Aurman in fallback file:" >> ${pacui_config}
+        [[ -f /etc/makepkg.conf ]]                      && echo -e "/etc/makepkg.conf                                                                                                                                                                                                                                                Configure package compilation in file:" >> ${pacui_config}
+        [[ -d /usr/lib/NetworkManager/conf.d ]]         && echo -e "/usr/lib/NetworkManager/conf.d/                                                                                                                                                                                                                                  Configure NetworkManager in files:" >> ${pacui_config}
+        [[ -f /etc/resolv.conf ]]                       && echo -e "/etc/resolv.conf                                                                                                                                                                                                                                                 Configure DNS servers in file:" >> ${pacui_config}
+        [[ -f /etc/hostname ]]                          && echo -e "/etc/hostname                                                                                                                                                                                                                                                    Configure your network hostname in file:" >> ${pacui_config}
+        [[ -f /etc/hosts ]]                             && echo -e "/etc/hosts                                                                                                                                                                                                                                                       Configure local DNS in file:" >> ${pacui_config}
+        [[ -f /etc/environment ]]                       && echo -e "/etc/environment                                                                                                                                                                                                                                                 Configure system-wide environment variables in file:" >> ${pacui_config}
+        [[ -f /etc/locale.conf ]]                       && echo -e "/etc/locale.conf                                                                                                                                                                                                                                                 Configure regional standards in file:" >> ${pacui_config}
+        [[ -f /etc/slim.conf ]]                         && echo -e "/etc/slim.conf                                                                                                                                                                                                                                                   Configure slim display manager in file:" >> ${pacui_config}
+        [[ -f /etc/lightdm.conf ]]                      && echo -e "/etc/lightdm.conf                                                                                                                                                                                                                                                Configure lightdm display manager in file:" >> ${pacui_config}
+        [[ -f /etc/sddm.conf ]]                         && echo -e "/etc/sddm.conf                                                                                                                                                                                                                                                   Configure sddm display manager in file:" >> ${pacui_config}
+        [[ -f /etc/mdm/mdm.conf ]]                      && echo -e "/etc/mdm/mdm.conf                                                                                                                                                                                                                                                Configure mdm display manager in file:" >> ${pacui_config}
+        [[ -f /etc/lxdm/lxdm.conf ]]                    && echo -e "/etc/lxdm/lxdm.conf                                                                                                                                                                                                                                              Configure lxdm display manager in file:" >> ${pacui_config}
+        [[ -f /etc/gdm/custom.conf ]]                   && echo -e "/etc/gdm/custom.conf                                                                                                                                                                                                                                             Configure gdm display manager in file:" >> ${pacui_config}
+        [[ -f /etc/entrance/entrance.conf ]]            && echo -e "/etc/entrance/entrance.conf                                                                                                                                                                                                                                      Configure entrance display manager in file:" >> ${pacui_config}
+        [[ -f /etc/conf.d/xdm ]]                        && echo -e "/etc/conf.d/xdm                                                                                                                                                                                                                                                  Configure xdm display manager in file:" >> ${pacui_config}
+        [[ -f /etc/updatedb.conf ]]                     && echo -e "/etc/updatedb.conf                                                                                                                                                                                                                                               Configure database of locate in file:" >> ${pacui_config}
+        [[ -f $HOME/.bashrc ]]                          && echo -e "$HOME/.bashrc                                                                                                                                                                                                                                                    Configure bash shell in file:" >> ${pacui_config}
+        [[ -f $HOME/.zshrc ]]                           && echo -e "$HOME/.zshrc                                                                                                                                                                                                                                                     Configure zsh shell in file:" >> ${pacui_config}
+        [[ -f $HOME/.config/fish ]]                     && echo -e "$HOME/.config/fish/                                                                                                                                                                                                                                              Configure fish shell in file:" >> ${pacui_config}
+        [[ -f $HOME/.xinitrc ]]                         && echo -e "\e[31m$HOME/.xinitrc                                                                                                                                                                                                                                             Configure X server startup in file:\e[0m" >> ${pacui_config}
+        [[ -f $HOME/.Xresources ]]                      && echo -e "\e[31m$HOME/.Xresources                                                                                                                                                                                                                                          Configure X client applications in file:\e[0m" >> ${pacui_config}
+        [[ -f /etc/fstab ]]                             && echo -e "\e[31m/etc/fstab                                                                                                                                                                                                                                                 Configure file system mount table in file:\e[0m" >> ${pacui_config}
+        [[ -f /etc/crypttab ]]                          && echo -e "\e[31m/etc/crypttab                                                                                                                                                                                                                                              Configure encrypted file system mount table in file:\e[0m" >> ${pacui_config}
+        [[ -f /etc/sudoers ]]                           && echo -e "\e[31m/etc/sudoers                                                                                                                                                                                                                                               Configure sudo in file:\e[0m" >> ${pacui_config}
+        [[ -d /etc/udev/rules.d/ ]]                     && echo -e "/etc/udev/rules.d/                                                                                                                                                                                                                                               Configure device manager for Linux kernel in these files:" >> ${pacui_config}
+        [[ -f /etc/systemd/swap.conf ]]                 && echo -e "/etc/systemd/swap.conf                                                                                                                                                                                                                                           Configure systemd swap in file:" >> ${pacui_config}
+        [[ -f /etc/systemd/logind.conf ]]               && echo -e "/etc/systemd/logind.conf                                                                                                                                                                                                                                         Configure systemd user logins in file:" >> ${pacui_config}
+        [[ -f /etc/systemd/journald.conf ]]             && echo -e "/etc/systemd/journald.conf                                                                                                                                                                                                                                       Configure systemd logging in file:" >> ${pacui_config}
+        [[ -f /etc/systemd/coredump.conf ]]             && echo -e "/etc/systemd/coredump.conf                                                                                                                                                                                                                                       Configure systemd coredumps in file:" >> ${pacui_config}
+        [[ -f /etc/systemd/system.conf ]]               && echo -e "/etc/systemd/system.conf                                                                                                                                                                                                                                         Configure systemd system in file:" >> ${pacui_config}
+        [[ -f /etc/systemd/timesyncd.conf ]]            && echo -e "/etc/systemd/timesyncd.conf                                                                                                                                                                                                                                      Configure systemd-timesyncd in file:" >> ${pacui_config}
+        [[ -f /etc/systemd/user.conf ]]                 && echo -e "/etc/systemd/user.conf                                                                                                                                                                                                                                           Configure systemd user units in file:" >> ${pacui_config}
+        [[ -d /usr/lib/systemd/system  ]]               && echo -e "/usr/lib/systemd/system/                                                                                                                                                                                                                                         Configure systemd in these files:" >> ${pacui_config}
+        [[ -d /usr/lib/systemd/network  ]]              && echo -e "/usr/lib/systemd/network/                                                                                                                                                                                                                                        Configure systemd-networkd in these files:" >> ${pacui_config}
+        [[ -d /etc/X11/xorg.conf.d ]]                   && echo -e "\e[31m/etc/X11/xorg.conf.d/                                                                                                                                                                                                                                      Configure Xorg display server in these files:\e[0m" >> ${pacui_config}
+        [[ -f $HOME/.config/weston.ini ]]               && echo -e "$HOME/.config/weston.ini                                                                                                                                                                                                                                         Configure Weston compositor in file:" >> ${pacui_config}
+        [[ -d /usr/lib/sysctl.d ]]                      && echo -e "/usr/lib/sysctl.d/                                                                                                                                                                                                                                               Configure kernel parameter files at runtime:" >> ${pacui_config}
+        [[ -d /etc/modules-load.d ]]                    && echo -e "\e[31m/etc/modules-load.d/                                                                                                                                                                                                                                       Configure Kernel module loading during boot in files:\e[0m" >> ${pacui_config}
+        [[ -f /etc/mkinitcpio.conf ]]                   && echo -e "\e[31m/etc/mkinitcpio.conf                                                                                                                                                                                                                                       Configure initial ramdisk environment in file:\e[0m" >> ${pacui_config}
+        [[ -f /etc/default/grub ]]                      && echo -e "\e[31m/etc/default/grub                                                                                                                                                                                                                                          Configure GRUB boot loader in file:\e[0m" >> ${pacui_config}
+        [[ -f /boot/grub/custom.cfg ]]                  && echo -e "/boot/grub/custom.cfg                                                                                                                                                                                                                                            Configure custom GRUB entries in file:" >> ${pacui_config}
+        [[ -f /boot/loader/loader.conf ]]               && echo -e "\e[31m/boot/loader/loader.conf                                                                                                                                                                                                                                   Configure systemd-boot boot loader in file:\e[0m" >> ${pacui_config}
+        [[ -f /boot/loader/entries ]]                   && echo -e "\e[31m/boot/loader/entries/                                                                                                                                                                                                                                      Configure systemd-boot boot loader entries:\e[0m" >> ${pacui_config}
+        [[ -f /boot/refind_linux.conf ]]                && echo -e "\e[31m/boot/refind_linux.conf                                                                                                                                                                                                                                    Configure rEFInd boot loader in file:\e[0m" >> ${pacui_config}
+        [[ -f /boot/EFI/refind/refind.conf ]]           && echo -e "\e[31m/boot/EFI/refind/refind.conf                                                                                                                                                                                                                               Configure rEFInd boot loader in file:\e[0m" >> ${pacui_config}
+        [[ -f /boot/EFI/CLOVER/config.plist ]]          && echo -e "\e[31m/boot/EFI/CLOVER/config.plist                                                                                                                                                                                                                              Configure Clover boot loader in file:\e[0m" >> ${pacui_config}
+        [[ -f /boot/syslinux/syslinux.cfg ]]            && echo -e "\e[31m/boot/syslinux/syslinux.cfg                                                                                                                                                                                                                                Configure syslinux boot loaders in file:\e[0m" >> ${pacui_config}
 
         #set -u
 
@@ -1812,7 +1809,7 @@ function func_la
 function func_d
 {
         # check for "downgrade" package
-        if [[ ! -e /usr/bin/downgrade ]]
+        if [[ ! -f /usr/bin/downgrade ]]
         then
 
             echo -e " \e[41m No 'downgrade' package has been found. Please install it. Alternatively, use PacUI's 'Roll Back System' option. \e[0m"
@@ -2228,7 +2225,7 @@ If you want a list of all installed packages use REMOVE PACKAGES AND DEPS as des
 
 EOF
         # only write the following paragraph to file, if "downgrade" is installed
-        if [[ -e /usr/bin/downgrade ]]
+        if [[ -f /usr/bin/downgrade ]]
         then
             cat >> /tmp/pacui-help <<- "EOF"
 \e[1mDOWNGRADE PACKAGES
@@ -2291,7 +2288,7 @@ function func_h
         [[ -n "$AUR_Helper" ]]      && echo -e "  13  pacui  ua   - Force \e[1mU\e[0mpdate \e[1mA\e[0mUR"
         echo -e "  14  pacui  la   - \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
         [[ -n "$AUR_Helper" ]]      && echo
-        [[ -e /usr/bin/downgrade ]] && echo -e "      pacui  d    - \e[1mD\e[0mowngrade Packages"
+        [[ -f /usr/bin/downgrade ]] && echo -e "      pacui  d    - \e[1mD\e[0mowngrade Packages"
         [[ -n "$AUR_Helper" ]]      && echo -e "      pacui  a    - Search and Install from \e[1mA\e[0mUR"
         echo
         echo -e "      pacui  h    - This short \e[1mH\e[0melp."
@@ -2315,7 +2312,7 @@ function func_h
 #set +u                                                                             # temporarily disable strict mode for environment variables
 
 # check, whether pacaur is installed, user config file exists, $EDITOR variable is empty, "vi" is not installed:
-if [[ "$AUR_Helper" == "pacaur" ]] && [[ ! -e $HOME/.config/pacaur/config ]] && [[ ! -n $EDITOR ]] && [[ ! -e /usr/bin/vi ]]
+if [[ "$AUR_Helper" == "pacaur" ]] && [[ ! -f $HOME/.config/pacaur/config ]] && [[ ! -n $EDITOR ]] && [[ ! -f /usr/bin/vi ]]
 then
     # export "editor='${EDITOR:-nano}'" to config file. '${EDITOR:-nano}'" outputs "nano", if there is no $EDITOR variable set.
     mkdir -p "$HOME/.config/pacaur/"
@@ -2335,19 +2332,19 @@ then
     dbpath="/var/lib/pacman/"                                                       # default database path
 fi
 
-if ! [[ -e "$dbpath"sync/core.db ]]                                                 # check, whether repository database file "core.db" exists
+if ! [[ -f "$dbpath"sync/core.db ]]                                                 # check, whether repository database file "core.db" exists
 then
 
     # check for "pacman-mirrors" or "reflector" packages. one of those is needed!
-    if [[ -e /usr/bin/pacman-mirrors ]] || [[ -e /usr/bin/reflector ]]
+    if [[ -f /usr/bin/pacman-mirrors ]] || [[ -f /usr/bin/reflector ]]
     then
 
         echo " choosing fastest mirror (which can take a while) and updating system ..."
-        if [[ -e /usr/bin/pacman-mirrors ]]                                     # checks, whether file "pacman-mirrors" exists
+        if [[ -f /usr/bin/pacman-mirrors ]]                                     # checks, whether file "pacman-mirrors" exists
         then
             sudo pacman-mirrors -f 0 && sudo pacman -Syyu                       # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
 
-        elif [[ -e /usr/bin/reflector ]]                                        # checks, whether file "reflector" exists
+        elif [[ -f /usr/bin/reflector ]]                                        # checks, whether file "reflector" exists
         then
             sudo reflector --verbose --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist && sleep 20 && sudo pacman -Syyu          # If it does exists, then the mirror will sort by it
 
