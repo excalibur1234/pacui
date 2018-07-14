@@ -492,26 +492,28 @@ function func_m
 # this function provides core functionality of "Install Packages". the help page provides additional explanations.
 function func_i
 {
-        local {pacui_list_install_all,pacui_list_install_repo,pacui_list_install_groups,pkg}                # declare local variables
+        local {pacui_list_install,pkg}                                              # declare local variables
 
         # for performance reasons, there are multiple files of package lists created in the following code. a comparison to local files is much faster than checking, whether a selected package is part of an online repository.
         # the use of variables instead of files can give more performance (and security) gains, but variables cannot be called from within fzf's preview.
         # these files do not need a trap (for security reasons), because they are only used for comparison. if tampered with, the comparison (which is done in "comm" without root privileges) simply fails and no package info is shown.
         expac -Q "%n" > /tmp/pacui-list-installed                                   # get locally installed packages (equivalent to "pacman -Qq", but faster)
 
-        if [[ ! -f /tmp/pacui-list-install-groups ]]                                # check, if file does not exist.
-        then
-            pacman -Sgq  > /tmp/pacui-list-install-groups                           # equivalent to "expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0'", but much faster
-        fi
-
-        if [[ ! -f /tmp/pacui-list-install-repo ]] && [[ -n "$AUR_Helper" ]]        # /tmp/pacui-list-install-repo file is only needed, if an AUR helper is installed.
+        if [[ ! -f /tmp/pacui-list-install-repo ]]                                  # check, if file does not exist.
         then
             expac -S "%n" > /tmp/pacui-list-install-repo                            # get packages from system repository (equivalent to "pacman -Slq", but faster)
         fi
 
-        # write package list of system repositories (package name and description) to $pacui_list_install_repo. %-33n uses printf support in expac to format output nicely (reserve a 33 character wide field for package name %n).
-        pacui_list_install_repo="$(   expac -S "%-33n\t%d" )"                       # here the parenthesis in "$(...)" are essential to write multiple lines to a variable! without parenthesis the variable will contain only a single line (space separated)!
-        pacui_list_install_groups="$( pacman -Sgq )"                                # a (separate - for security reasons) list of package groups in the system repositories is always needed within $pacui_list_install_groups variable.
+        if [[ ! -f /tmp/pacui-list-install-groups ]]
+        then
+            pacman -Sgq  > /tmp/pacui-list-install-groups                           # equivalent to "expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0'", but much faster
+        fi
+
+
+        # write package list of system repositories (package name and description) to $pacui_list_install. %-33n uses printf support in expac to format output nicely (reserve a 33 character wide field for package name %n).
+        pacui_list_install="$(  expac -S "%-33n\t%d" )"                             # here the parenthesis in "$(...)" are essential to write multiple lines to a variable! without parenthesis the variable will contain only a single line (space separated)!
+        pacui_list_install+="\n"                                                    # by default, the "+=" operator adds all stuff directly to the end of a variable (but without a newline!). therefore, an additional "\n" (newline) is needed before adding stuff to a list.
+        pacui_list_install+="$( pacman -Sgq )"                                      # (for security reasons) a separate list of package groups in the system repositories is always needed within $pacui_list_install_groups variable.
 
         if [[ -n "$AUR_Helper" ]]                                                   # check, if output of "$AUR_Helper" is non-zero
         then
@@ -523,47 +525,26 @@ function func_i
                 #wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null
                 wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && gunzip -f "/tmp/pacui-aur/packages.gz"
             fi
+
             # check, if /tmp/pacui-aur/packages exists. /tmp/pacui-aur/packages does not exist, if there is no internet connection or something went wrong during the download of the list of AUR packages.
             #if [[ -f /tmp/pacui-aur/packages.gz ]]
             if [[ -f /tmp/pacui-aur/packages ]]
             then
+                pacui_list_install+="\n"
                 # remove line with download date from list of AUR packages with "grep"
-                #pacui_list_install_all+="$( grep -v '#' '/tmp/pacui-aur/packages.gz' | tr -d ' ' )"            # delete all trailing spaces with "tr". command equivalent to "awk '{print $1}'"
-                pacui_list_install_all="$( grep -v '#' '/tmp/pacui-aur/packages' )"
-                pacui_list_install_all+="\n"                                        # by default, the "+=" operator adds all stuff directly to the end of a variable (but without a newline!). therefore, an additional "\n" (newline) is needed before adding stuff to a list.
-            else
-                pacui_list_install_all=""
+                #pacui_list_install+="$( grep -v '#' '/tmp/pacui-aur/packages.gz' | tr -d ' ' )"            # delete all trailing spaces with "tr". command equivalent to "awk '{print $1}'"
+                pacui_list_install+="$( grep -v '#' '/tmp/pacui-aur/packages' )"
             fi
 
-            # add other lists of packages/groups to pacui_list_install_all:
-            pacui_list_install_all+="$pacui_list_install_repo"
-            pacui_list_install_all+="\n"
-            pacui_list_install_all+="$pacui_list_install_groups"
-
-        else
-
-            # add $pacui_list_install_repo to $pacui_list_install_groups:
-            pacui_list_install_groups+="\n"                                         # by default, the "+=" operator adds all stuff directly to the end of a variable (but without a newline!). therefore, an additional "\n" (newline) is needed before adding stuff to a list.
-            pacui_list_install_groups+="$pacui_list_install_repo"
-
         fi
-        # here, we either have a list of all packages (repo, groups, and maybe aur) either in
-        # pacui_list_install_all
-        # or
-        # pacui_list_install_groups
 
 
         pacui_tty_clean                                                             # clear terminal
 
-        # fzf lets you search and select a given list. "man fzf" lists all its arguments beautifully.
-        # "fzf" commands are typically in a convoluted form. here, a long "fzf" command is listed in maximum readable form.
+        # fzf lets you search and select a given list. "man fzf" lists all its arguments beautifully. "fzf" commands in this script are typically in a convoluted form. here, a long "fzf" command is listed in maximum readable form.
         # the package list in $pacui_list_install gets sorted and displayed by fzf. then it is filtered by awk and saved in pkg variable.
-
-        if [[ -n "$AUR_Helper" ]]                                                   # check, if output of "$AUR_Helper" is non-zero
-        then
-
-            pkg="$(
-                echo -e "$pacui_list_install_all" |                                 # load list of package names from $pacui_list_install_all variable. "-e" interprets the added newlines.
+        pkg="$(
+                echo -e "$pacui_list_install" |                                     # load list of package names from $pacui_list_install_all variable. "-e" interprets the added newlines.
                 sort -k1,1 -u |                                                     # sort list (only first column gets used for sorting)
                 # the "--multi" flag makes it possible to select multiple list items
                 # $argument_input variable gets defined below (after function definitions) --> search for "argument_input="
@@ -584,7 +565,7 @@ function func_i
                         then
                             pacman -Qi {1} --color always                           # display local package information in preview window of fzf
 
-                        elif [[ $(comm -12 <(echo {1}) <(sort /tmp/pacui-list-install-groups)) ]]             # check, if 1. field of selected line in fzf is part of $pacui_list_install_groups
+                        elif [[ $(comm -12 <(echo {1}) <(sort /tmp/pacui-list-install-groups)) ]]             # check, if 1. field of selected line in fzf is part of /tmp/pacui-list-install-groups file
                         then
                             echo -e "\e[1m{1} group has the following members: \e[0m"
                             pacman -Sgq {1}                                         # display package name of group members in preview window of fzf
@@ -603,7 +584,7 @@ function func_i
 
                         elif [[ '$AUR_Helper' == "yay" ]]
                         then
-                            yay -Si {1} | grep -v "::"                              # grep command removes all errors displayed by pacaur
+                            yay -Si {1} | grep -v "::"                              # grep command removes all errors displayed by yay
 
                         elif [[ '$AUR_Helper' == "pikaur" ]]
                         then
@@ -633,55 +614,7 @@ function func_i
                     --header="TAB key to (un)select. ENTER to install. ESC to quit." \
                     --prompt="Enter string to filter list > " |
                 awk '{print $1}'                                                    # use "awk" to filter output of "fzf" and only get the first field (which contains the package name). "fzf" should output a separed list (by newline characters) of all chosen packages!
-            )"
-
-        else
-
-            pkg="$(
-                echo -e "$pacui_list_install_groups" |                              # load list of package names from $pacui_list_install_groups variable. "-e" interprets the added newlines.
-                sort -k1,1 -u |                                                     # sort list (only first column gets used for sorting)
-                # the "--multi" flag makes it possible to select multiple list items
-                # $argument_input variable gets defined below (after function definitions) --> search for "argument_input="
-                # the "--preview" flag displays information about the currently selected line (in fzf) in a preview window
-                fzf -i \
-                    --multi \
-                    --exact \
-                    --no-sort \
-                    --select-1 \
-                    --query="$argument_input" \
-                    --cycle \
-                    --reverse \
-                    --bind=right:half-page-down,left:half-page-up \
-                    --margin="4%,1%,1%,2%" \
-                    --inline-info \
-                    --preview '
-                        if [[ $(comm -12 <(echo {1}) <(sort /tmp/pacui-list-installed)) ]]                    # check, if 1. field of selected line is a locally installed package.
-                        then
-                            pacman -Qi {1} --color always                           # display local package information in preview window of fzf
-
-                        elif [[ $(comm -12 <(echo {1}) <(sort /tmp/pacui-list-install-groups)) ]]             # check, if 1. field of selected line in fzf is part of $pacui_list_install_groups
-                        then
-                            echo -e "\e[1m{1} group has the following members: \e[0m"
-                            pacman -Sgq {1}                                         # display package name of group members in preview window of fzf
-
-                        else
-                            pacman -Si {1} --color always                           # do this, if no AUR helper is installed
-
-                        fi' \
-                    "$(
-                        if (( $(tput cols) >= 120 ))
-                        then
-                            echo "--preview-window=right:55%:wrap"                  # depending on the terminal width (determined by "tput cols"), the preview window is either shown on the right or the bottom
-                        else
-                            echo "--preview-window=bottom:55%:wrap"
-                        fi
-                    )" \
-                    --header="TAB key to (un)select. ENTER to install. ESC to quit." \
-                    --prompt="Enter string to filter list > " |
-                awk '{print $1}'                                                    # use "awk" to filter output of "fzf" and only get the first field (which contains the package name). "fzf" should output a separed list (by newline characters) of all chosen packages!
-            )"
-
-        fi
+        )"
 
         pacui_tty_clean                                                             # clear terminal
 
