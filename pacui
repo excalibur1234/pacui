@@ -496,20 +496,22 @@ function func_i
 
         # for performance reasons, there are multiple files of package lists created in the following code. a comparison to local files is much faster than checking, whether a selected package is part of an online repository.
         # the use of variables instead of files can give more performance (and security) gains, but variables cannot be called from within fzf's preview.
+        # these files do not need a trap (for security reasons), because they are only used for comparison. if tampered with, the comparison (which is done in "comm" without root privileges) simply fails and no package info is shown.
         expac -Q "%n" > /tmp/pacui-list-installed                                   # get locally installed packages (equivalent to "pacman -Qq", but faster)
-        #pacman -Sgq  > /tmp/pacui-list-install-groups                              # not needed here - see below
-        if [[ -n "$AUR_Helper" ]] && [[ ! -f /tmp/pacui-list-install-repo ]]        # check, if file does not exist. /tmp/pacui-list-install-repo file is only needed, if an AUR helper is installed.
+
+        if [[ ! -f /tmp/pacui-list-install-groups ]]                                # check, if file does not exist.
+        then
+            pacman -Sgq  > /tmp/pacui-list-install-groups                           # equivalent to "expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0'", but much faster
+        fi
+
+        if [[ ! -f /tmp/pacui-list-install-repo ]] && [[ -n "$AUR_Helper" ]]        # /tmp/pacui-list-install-repo file is only needed, if an AUR helper is installed.
         then
             expac -S "%n" > /tmp/pacui-list-install-repo                            # get packages from system repository (equivalent to "pacman -Slq", but faster)
         fi
 
-
         # write package list of system repositories (package name and description) to $pacui_list_install_repo. %-33n uses printf support in expac to format output nicely (reserve a 33 character wide field for package name %n).
         pacui_list_install_repo="$(   expac -S "%-33n\t%d" )"                       # here the parenthesis in "$(...)" are essential to write multiple lines to a variable! without parenthesis the variable will contain only a single line (space separated)!
-
-        # create list of package groups in $pacui_list_install_groups variable and /tmp/pacui-list-install-groups file by splitting the STD output with "tee":
-        pacui_list_install_groups="$( pacman -Sgq | tee /tmp/pacui-list-install-groups )"
-        #pacui_list_install_groups="$( expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' )"             # awk 'NF != 0' removes all empty lines ("number of fields" in one line has to be non-zero)           # this "expac" command is much slower than "pacman -Sgq"!
+        pacui_list_install_groups="$( pacman -Sgq )"                                # a (separate - for security reasons) list of package groups in the system repositories is always needed within $pacui_list_install_groups variable.
 
         if [[ -n "$AUR_Helper" ]]                                                   # check, if output of "$AUR_Helper" is non-zero
         then
@@ -521,12 +523,19 @@ function func_i
                 #wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null
                 wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && gunzip -f "/tmp/pacui-aur/packages.gz"
             fi
-            # remove line with download date from list of AUR packages with "grep"
-            #pacui_list_install_all+="$( grep -v '#' '/tmp/pacui-aur/packages.gz' | tr -d ' ' )"            # delete all trailing spaces with "tr". command equivalent to "awk '{print $1}'"
-            pacui_list_install_all="$( grep -v '#' '/tmp/pacui-aur/packages' )"
+            # check, if /tmp/pacui-aur/packages exists. /tmp/pacui-aur/packages does not exist, if there is no internet connection or something went wrong during the download of the list of AUR packages.
+            #if [[ -f /tmp/pacui-aur/packages.gz ]]
+            if [[ -f /tmp/pacui-aur/packages ]]
+            then
+                # remove line with download date from list of AUR packages with "grep"
+                #pacui_list_install_all+="$( grep -v '#' '/tmp/pacui-aur/packages.gz' | tr -d ' ' )"            # delete all trailing spaces with "tr". command equivalent to "awk '{print $1}'"
+                pacui_list_install_all="$( grep -v '#' '/tmp/pacui-aur/packages' )"
+                pacui_list_install_all+="\n"                                        # by default, the "+=" operator adds all stuff directly to the end of a variable (but without a newline!). therefore, an additional "\n" (newline) is needed before adding stuff to a list.
+            else
+                pacui_list_install_all=""
+            fi
 
             # add other lists of packages/groups to pacui_list_install_all:
-            pacui_list_install_all+="\n"                                            # by default, the "+=" operator adds all stuff directly to the end of a variable (but without a newline!). therefore, an additional "\n" (newline) is needed before adding stuff to a list.
             pacui_list_install_all+="$pacui_list_install_repo"
             pacui_list_install_all+="\n"
             pacui_list_install_all+="$pacui_list_install_groups"
@@ -629,7 +638,7 @@ function func_i
         else
 
             pkg="$(
-                echo -e "$pacui_list_install_groups" |                                 # load list of package names from $pacui_list_install_groups variable. "-e" interprets the added newlines.
+                echo -e "$pacui_list_install_groups" |                              # load list of package names from $pacui_list_install_groups variable. "-e" interprets the added newlines.
                 sort -k1,1 -u |                                                     # sort list (only first column gets used for sorting)
                 # the "--multi" flag makes it possible to select multiple list items
                 # $argument_input variable gets defined below (after function definitions) --> search for "argument_input="
