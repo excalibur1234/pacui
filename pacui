@@ -470,26 +470,34 @@ function func_i
 {
         local {pacui_list_install,pkg}                                              # declare local variables
 
+        # write package list of system repositories (package name and description) to $pacui_list_install. %-33n uses printf support in expac to format output nicely (reserve a 33 character wide field for package name %n).
+        pacui_list_install="$(  expac -S "%-33n\t%d" )"                             # here the parenthesis in "$(...)" are essential to write multiple lines to a variable! without parenthesis the variable will contain only a single line (space separated)!
+
+
         # for performance reasons, there are multiple files of package lists created in the following code. a comparison to local files is much faster than checking, whether a selected package is part of an online repository.
-        # the use of variables instead of files can give more performance (and security) gains, but variables cannot be called from within fzf's preview.
+        # the use of variables instead of files can give more performance (and security) gains, but variables cannot be called from within fzf's preview, because it needs to be used with ' symbols (e.g. --preview '...')
         # these files do not need a trap (for security reasons), because they are only used for comparison. if tampered with, the comparison (which is done in "comm" without root privileges) simply fails and no package info is shown.
-        expac -Q "%n" > /tmp/pacui-list-installed                                   # get locally installed packages (equivalent to "pacman -Qq", but faster)
+        expac -Q "%n" > /tmp/pacui-list-installed                                   # get locally installed packages (equivalent to "pacman -Qq", but faster).
 
         if [[ ! -f /tmp/pacui-list-install-repo ]]                                  # check, if file does not exist.
         then
-            expac -S "%n" > /tmp/pacui-list-install-repo                            # get packages from system repository (equivalent to "pacman -Slq", but faster)
+            echo "$pacui_list_install" | cut -d " " -f 1 > /tmp/pacui-list-install-repo                     # get the content of $pacui_list_install variable and save (only a list of package names) to /tmp/pacui-list-install-repo file.
         fi
+
+        # add a list of package groups in the system repositories to $pacui_list_install variable
+        pacui_list_install+="\n"                                                    # by default, the "+=" operator adds all stuff directly to the end of a variable (but without a newline!). therefore, an additional "\n" (newline) is needed before adding stuff to a list.
 
         if [[ ! -f /tmp/pacui-list-install-groups ]]
         then
-            pacman -Sgq  > /tmp/pacui-list-install-groups                           # equivalent to "expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0'", but much faster
+            # "pacman -Sgq" is equivalent to "expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0'", but much faster
+            # split output of "pacman -Sgq" using "tee" to $pacui_list_install variable and /tmp/pacui-list-install-groups file. this saves a little time.
+            pacui_list_install+="$( pacman -Sgq | tee /tmp/pacui-list-install-groups )"
+        else
+            pacui_list_install+="$( cat /tmp/pacui-list-install-groups )"           # if /tmp/pacui-list-install-groups file already exists, its content is added to $pacui_list_install variable. this is insecure, but because the same is done below (which i do not know how to do differently) with a list of AUR packages, i think it is an acceptable performance optimization.
+            #pacui_list_install+="$( pacman -Sgq )"                                  # secure solution needs a bit of extra time.
         fi
 
 
-        # write package list of system repositories (package name and description) to $pacui_list_install. %-33n uses printf support in expac to format output nicely (reserve a 33 character wide field for package name %n).
-        pacui_list_install="$(  expac -S "%-33n\t%d" )"                             # here the parenthesis in "$(...)" are essential to write multiple lines to a variable! without parenthesis the variable will contain only a single line (space separated)!
-        pacui_list_install+="\n"                                                    # by default, the "+=" operator adds all stuff directly to the end of a variable (but without a newline!). therefore, an additional "\n" (newline) is needed before adding stuff to a list.
-        pacui_list_install+="$( pacman -Sgq )"                                      # (for security reasons) a separate list of package groups in the system repositories is needed within $pacui_list_install variable, despite the information in /tmp/pacui-list-install-groups file!
 
         if [[ -n "$AUR_Helper" ]]                                                   # check, if output of "$AUR_Helper" is non-zero
         then
@@ -507,7 +515,7 @@ function func_i
             if [[ -f /tmp/pacui-aur/packages ]]
             then
                 pacui_list_install+="\n"
-                # remove line with download date from list of AUR packages with "grep"
+                # remove line with download date from list of AUR packages with "grep" and add content of /tmp/pacui-aur/packages file to $pacui_list_install variable. this is insecure, but i do not know how to download the list of AUR packages directly into a variable. doing this with temporary files and traps would be a (quite slow!) secure solution, which i am not willing to implement yet.
                 #pacui_list_install+="$( grep -v '#' '/tmp/pacui-aur/packages.gz' | tr -d ' ' )"            # delete all trailing spaces with "tr". command equivalent to "awk '{print $1}'"
                 pacui_list_install+="$( grep -v '#' '/tmp/pacui-aur/packages' )"
             fi
@@ -521,10 +529,10 @@ function func_i
         # the package list in $pacui_list_install gets sorted and displayed by fzf. then it is filtered by awk and saved in pkg variable.
         pkg="$(
                 echo -e "$pacui_list_install" |                                     # load list of package names from $pacui_list_install_all variable. "-e" interprets the added newlines.
-                sort -k1,1 -u |                                                     # sort list (only first column gets used for sorting)
+                sort -k1,1 -u |                                                     # sort list: only first column gets used for sorting
                 # the "--multi" flag makes it possible to select multiple list items
-                # $argument_input variable gets defined below (after function definitions) --> search for "argument_input="
-                # the "--preview" flag displays information about the currently selected line (in fzf) in a preview window
+                # $argument_input variable gets defined after function definitions --> search for "argument_input="
+                # the "--preview" flag displays information about the currently selected line in fzf's preview window
                 fzf -i \
                     --multi \
                     --exact \
