@@ -1313,7 +1313,13 @@ function func_f
             # the following command sometimes prevents an error connecting to the key server
             echo
             echo " sudo dirmngr </dev/null ..."
-            sudo dirmngr </dev/null
+            # suppress error output with "2>/dev/null"
+            if ! ( sudo dirmngr </dev/null 2>/dev/null )                            # check, if any critical errors occured in command in parenthesis
+            then
+                echo
+                echo -e " \e[41m The following dirmngr errors have occured: \e[0m"
+                sudo dirmngr </dev/null
+            fi
             echo
 
 
