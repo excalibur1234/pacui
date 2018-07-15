@@ -288,31 +288,21 @@ function func_m
 
 
         echo " searching orphans ..."
-        if [[ "$AUR_Helper" == "yay" ]]
+        if [[ -n "$(pacman -Qdt)" ]]                                            # only run the following commands, if output of "pacman -Qdt" is not empty.
         then
-            yay -Cd
+            pacman -Qdt --color always                                          # display orhphaned packages
+            # ask, whether to remove the displayed orphaned packages:
+            echo -e " \e[41m Do you want to remove these orphaned packages? [Y|n] \e[0m"
+            read -rs -n1 answer                                                 # save user input in "answer" variable (only accept 1 character as input)
 
-        else                                                                        # this is the case when pikaur, aurman, pakku, tirzen, pacaur, or no AUR helper is installed.
-
-            if [[ -n "$(pacman -Qdt)" ]]                                            # only run these commands, if output of "pacman -Qdt" is not empty. this happens if there are no orphans.
-            then
-
-                pacman -Qdt --color always
-                # ask, whether to remove the displayed orphaned packages:
-                echo -e " \e[41m Do you want to remove these orphaned packages? [Y|n] \e[0m"
-                read -rs -n1 answer                                                 # save user input in "answer" variable (only accept 1 character as input)
-
-                case ${answer:-y} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "y".
-                    y|Y|yes|YES|Yes )                                               # do this, if "answer" is y or Y or yes or YES or Yes
-                        sudo pacman -Rsn $(pacman -Qqdt) --color always --noconfirm                     # ATTENTION: (i do not know why but) using quotes (" symbols) around $(...) breaks pacman command for multiple packages
-                        ;;
-                    * )                                                             # do this in all other cases
-                        echo -e " \e[1m Packages have not been removed.\e[0m"
-                        ;;
-                esac                                                                # end of "case" loop
-
-            fi
-
+            case ${answer:-y} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "y".
+                y|Y|yes|YES|Yes )                                               # do this, if "answer" is y or Y or yes or YES or Yes
+                    sudo pacman -Rsn $(pacman -Qqdt) --color always --noconfirm                     # ATTENTION: (i do not know why but) using quotes (" symbols) around $(...) breaks pacman command for multiple packages
+                    ;;
+                * )                                                             # do this in all other cases
+                    echo -e " \e[1m Packages have not been removed.\e[0m"
+                    ;;
+            esac                                                                # end of "case" loop
         fi
         echo ""
 
