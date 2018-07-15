@@ -4,8 +4,7 @@
 # SC1117: Backslash is literal in "\n". Prefer explicit escaping: "\\n".
 # SC1117: Backslash is literal in "\t". Prefer explicit escaping: "\\t".
 # SC2086: Double quote to prevent globbing and word splitting.                      # ${variable}  does not work when double quoted. also, double quote breaks this script in many cases --> there are warning comments containing "ATTENTION" about this.
-# SC2162: read without -r will mangle backslashes.                                  # "read" is often used to wait for user input (e.g. a press of ENTER). "-r" is pointless in this case and makes the script harder to read.
-# shellcheck disable=SC1117,SC2086,SC2162                                           # exclude MANY false-positive shellcheck warnings (see above)
+# shellcheck disable=SC1117,SC2086                                                  # exclude MANY false-positive shellcheck warnings (see above)
 
 #  This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as
 #  published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
@@ -56,7 +55,7 @@ then
     then
         AUR_Helper="pikaur"
 
-    elif [[ -f /usr/bin/aurman ]]                                                     # check, if /usr/bin/aurman file exists
+    elif [[ -f /usr/bin/aurman ]]                                                   # check, if /usr/bin/aurman file exists
     then
         AUR_Helper="aurman"
 
@@ -210,7 +209,7 @@ function func_u
                     # ask, whether to force update the system and save answer in "answer" variable:
                     echo -e " \e[1m Updates from system repositories have failed probably because of file conflicts. \e[0m"
                     echo -e " \e[41m Do you want to forcefully overwrite all conflicting files? [y|N] \e[0m"
-                    read -s -n1 answer                                              # this "read" command only accepts 1 letter as answer. this feels faster and is enough in this situation.
+                    read -rs -n1 answer                                             # this "read" command only accepts 1 letter as answer. this feels faster and is enough in this situation.
 
                     case ${answer:-n} in                                            # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "n".
                         y|Y|yes|Yes|YES )                                           # do this, if "answer" is y or Y or yes or Yes or YES
@@ -301,11 +300,11 @@ function func_m
                 pacman -Qdt --color always
                 # ask, whether to remove the displayed orphaned packages:
                 echo -e " \e[41m Do you want to remove these orphaned packages? [Y|n] \e[0m"
-                read -s -n1 answer                                                  # save user input in "answer" variable (only accept 1 character as input)
+                read -rs -n1 answer                                                 # save user input in "answer" variable (only accept 1 character as input)
 
                 case ${answer:-y} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "y".
                     y|Y|yes|YES|Yes )                                               # do this, if "answer" is y or Y or yes or YES or Yes
-                        sudo pacman -Rsn $(pacman -Qqdt) --color always --noconfirm     # ATTENTION: (i do not know why but) using quotes (" symbols) around $(...) breaks pacman command for multiple packages
+                        sudo pacman -Rsn $(pacman -Qqdt) --color always --noconfirm                     # ATTENTION: (i do not know why but) using quotes (" symbols) around $(...) breaks pacman command for multiple packages
                         ;;
                     * )                                                             # do this in all other cases
                         echo -e " \e[1m Packages have not been removed.\e[0m"
@@ -490,12 +489,12 @@ function func_i
         # write package list of system repositories (package name and description) to $pacui_list_install. %-33n uses printf support in expac to format output nicely (reserve a 33 character wide field for package name %n).
         pacui_list_install="$(  expac -S "%-33n\t%d" )"                             # here the parenthesis in "$(...)" are essential to write multiple lines to a variable! without parenthesis the variable will contain only a single line (space separated)!
         pacui_list_install+="\n"                                                    # by default, the "+=" operator adds all stuff directly to the end of a variable (but without a newline!). therefore, an additional "\n" (newline) is needed before adding stuff to a list.
-        pacui_list_install+="$( pacman -Sgq )"                                      # (for security reasons) a separate list of package groups in the system repositories is always needed within $pacui_list_install_groups variable.
+        pacui_list_install+="$( pacman -Sgq )"                                      # (for security reasons) a separate list of package groups in the system repositories is needed within $pacui_list_install variable, despite the information in /tmp/pacui-list-install-groups file!
 
         if [[ -n "$AUR_Helper" ]]                                                   # check, if output of "$AUR_Helper" is non-zero
         then
 
-            # download AUR package list (only when not already downloaded) and add it to $pacui_list_install_aur.
+            # download AUR package list (only when not already downloaded) and add it to $pacui_list_install
             #if  [[ ! -f /tmp/pacui-aur/packages.gz ]]
             if  [[ ! -f /tmp/pacui-aur/packages ]]
             then
@@ -586,7 +585,7 @@ function func_i
                     )" \
                     --header="TAB key to (un)select. ENTER to install. ESC to quit." \
                     --prompt="Enter string to filter list > " |
-                awk '{print $1}'                                                    # use "awk" to filter output of "fzf" and only get the first field (which contains the package name). "fzf" should output a separed list (by newline characters) of all chosen packages!
+                awk '{print $1}'                                                    # use "awk" to filter output of "fzf" and only get the first field (which contains the package name). "fzf" should output a separated (by newline characters) list of all chosen packages!
         )"
 
         pacui_tty_clean                                                             # clear terminal
@@ -688,7 +687,7 @@ function func_r
                 echo -e "\e[1m   ESC  Exit without removing any packages. \e[0m"
                 echo
                 # save answer in "answer" variable:
-                read -s -n1 answer
+                read -rs -n1 answer
 
                 case ${answer:-n} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "n".
 
@@ -713,7 +712,7 @@ function func_r
 
                             # fzf lets you search and select the given list in a fast way. see above for a "fzf" command with good readability and many comments
                             pkg="$( echo "$pkg_remove_backup" | fzf -i --multi --exact --no-sort --query="$argument_input" --reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --inline-info --preview '
-                                if ( pacman -Qq {1} &>/dev/null )                           # check, if selected line is a locally installed package
+                                if ( pacman -Qq {1} &>/dev/null )                   # check, if selected line is a locally installed package
                                 then
                                     pacman -Qi {1} --color always
                                 else
@@ -742,7 +741,7 @@ function func_r
                                 echo
                                 echo -e " \e[41m  Package removal failed because at least one dependency was selected. \e[0m"
                                 echo -e " \e[1m Press ENTER to try again or CTRL+C to quit. \e[0m"
-                                read
+                                read -r
                                 # now, start at the top of the while-loop again...
                             else
                                 # removing the pkg_remove_backup variable quits the while-loop
@@ -1001,12 +1000,12 @@ function func_b
         # get log file path from file /etc/pacman.conf (without any white spaces) and write results to variable $logpath:
         logpath="$( awk -F '=' '/^LogFile/ {gsub(" ","",$2); print $2}' '/etc/pacman.conf' )"
         # set variable $logpath to default directory, if  variable $logpath is empty:
-        if [[ -z "$logpath" ]]                                                        # if "logpath" variable is empty (exact: if output of $logpath is zero)
+        if [[ -z "$logpath" ]]                                                      # if "logpath" variable is empty (exact: if output of $logpath is zero)
         then
             logpath="/var/log/pacman.log"
         fi
 
-        if [[ "$AUR_Helper" == "pacaur" ]]                                                 # checks, whether file "pacaur" exists, i.e. pacaur is installed
+        if [[ "$AUR_Helper" == "pacaur" ]]                                          # checks, whether file "pacaur" exists, i.e. pacaur is installed
         then
             #set +u                                                                 # temporarily disable strict mode for environment variables
 
@@ -1055,7 +1054,7 @@ function func_b
             if [[ ! -z "$pacui_cache_install" ]]                                    # this if-condition avoids error messages when no package gets installed (and variable $pacui_cache_install is empty)
             then
 
-                if [[ "$AUR_Helper" == "pacaur" ]]                                         # checks, whether file "pacaur" exists, i.e. pacaur is installed
+                if [[ "$AUR_Helper" == "pacaur" ]]                                  # checks, whether file "pacaur" exists, i.e. pacaur is installed
                 then
                     # the while-loop here is needed to read the content of every line of $pacui_cache_install variable and save that line to variable $line.
                     pacui_aur_install="$(
@@ -1130,7 +1129,7 @@ function func_b
                         # write list with all versions of package in cache into file ${pacui_tmp_downgrade} (sorted - newest package version is on top)
                         find "$cache" -name "${temp2}-[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r > ${pacui_tmp_downgrade}
 
-                        if [[ "$AUR_Helper" == "pacaur" ]]                                 # checks, whether file "pacaur" exists, i.e. pacaur is installed
+                        if [[ "$AUR_Helper" == "pacaur" ]]                          # checks, whether file "pacaur" exists, i.e. pacaur is installed
                         then
                             # do the same as below for files from pacaur's cache directory.
                             # the problem here is that AUR packages are not named/numbered in a constant and easy sortable way. therefore, we search for all files and output their modification date in an easy searchable format (and then, the file name).
@@ -1199,7 +1198,7 @@ function func_b
                         # write list with all versions of package in cache into file ${pacui_tmp_upgrade} (sorted - newest package version is on top)
                         find "$cache" -name "${temp2}-[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r > ${pacui_tmp_upgrade}
 
-                        if [[ "$AUR_Helper" == "pacaur" ]]                                 # checks, whether file "pacaur" exists, i.e. pacaur is installed
+                        if [[ "$AUR_Helper" == "pacaur" ]]                          # checks, whether file "pacaur" exists, i.e. pacaur is installed
                         then
                             # do the same as below for files from pacaur's cache directory.
                             # the problem here is that AUR packages are not named/numbered in a constant and easy sortable way. therefore, we search for all files and output their modification date in an easy searchable format (and then, the file name).
@@ -1334,7 +1333,7 @@ function func_f
                 echo ""
 
 
-                if [[ "$(cat /proc/1/comm)" == "systemd" ]]                             # if init system is systemd
+                if [[ "$(cat /proc/1/comm)" == "systemd" ]]                         # if init system is systemd
                 then
 
                     # set almost correct time (while ignoring time zone and daylight saving time):
@@ -1364,7 +1363,7 @@ function func_f
 
                 echo " trying to update system without checking keys ..."
                 # if keyring is broken, updates (without checking keys) can be manually installed now.
-                if ! ( sudo pacman -Syu )                                               # this update does not use "--noconfirm" and allows user intervention
+                if ! ( sudo pacman -Syu )                                           # this update does not use "--noconfirm" and allows user intervention
                 then
 
                     echo
@@ -1423,7 +1422,7 @@ function func_f
 
                     #set +u
 
-                    if [[ -f $HOME/.gnupg/gpg.conf ]]                                       # check, whether file $HOME/.gnupg/gpg.conf exists
+                    if [[ -f $HOME/.gnupg/gpg.conf ]]                               # check, whether file $HOME/.gnupg/gpg.conf exists
                     then
                         if ! ( grep "/etc/pacman.d/gnupg/pubring.gpg" "$HOME/.gnupg/gpg.conf" &>/dev/null )             # check, whether string "/etc/pacman.d/gnupg/pubring.gpg" is already present in file "$HOME/.gnupg/gpg.conf".
                         then
@@ -1859,7 +1858,7 @@ function func_a
 
             elif [[ "$AUR_Helper" == "pacaur" ]]
             then
-                pacaur -Ss "$pkg" --color always | grep -v "::"                 # grep command removes errors being displayed in pacaur
+                pacaur -Ss "$pkg" --color always | grep -v "::"                     # grep command removes errors being displayed in pacaur
 
             else
                 echo -e " \e[41m No AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
@@ -2265,11 +2264,11 @@ then
     then
 
         echo " choosing fastest mirror (which can take a while) and updating system ..."
-        if [[ -f /usr/bin/pacman-mirrors ]]                                     # checks, whether file "pacman-mirrors" exists
+        if [[ -f /usr/bin/pacman-mirrors ]]                                         # checks, whether file "pacman-mirrors" exists
         then
-            sudo pacman-mirrors -f 0 && sudo pacman -Syyu                       # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
+            sudo pacman-mirrors -f 0 && sudo pacman -Syyu                           # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
 
-        elif [[ -f /usr/bin/reflector ]]                                        # checks, whether file "reflector" exists
+        elif [[ -f /usr/bin/reflector ]]                                            # checks, whether file "reflector" exists
         then
             sudo reflector --verbose --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist && sleep 20 && sudo pacman -Syyu          # If it does exists, then the mirror will sort by it
 
@@ -2469,7 +2468,7 @@ then
 
     # display error, if $function_call does not refer to a valid function. the UI will be started by default.
     echo -e " \e[41m Bad console command. Press ENTER to start PacUI or CTRL+C to abort. \e[0m"
-    read
+    read -r
     # now, continue this script without exiting, i.e. load pacui's UI.
 
 fi
@@ -2547,25 +2546,25 @@ do
             echo
             echo -e " \e[41m System updated. To return to PacUI press ENTER \e[0m"
             # wait for input, e.g. by pressing ENTER:
-            read
+            read -r
             ;;
         2|m|maintain|maintain-system )
             func_m
             echo
             echo -e " \e[41m System maintenance finished. To return to PacUI press ENTER \e[0m"
-            read
+            read -r
             ;;
         3|i|install|install-packages )
             func_i
             echo
             echo -e " \e[41m Package installation finished. To return to PacUI press ENTER \e[0m"
-            read
+            read -r
             ;;
         4|r|remove|remove-packages-and-deps )
             func_r
             echo
             echo -e " \e[41m Package(s) including all unneeded dependencies removed. To return to PacUI press ENTER \e[0m"
-            read
+            read -r
             ;;
         5|t|tree|dependency-tree )
             func_t
@@ -2589,19 +2588,19 @@ do
             func_b
             echo
             echo -e " \e[41m System roll back finished. To return to PacUI press ENTER \e[0m"
-            read
+            read -r
             ;;
         10|f|fix|fix-pacman-errors )
             func_f
             echo
             echo -e " \e[41m Operation finished. To return to PacUI press ENTER \e[0m"
-            read
+            read -r
             ;;
         11|c|conf|config|edit-config-files )
             func_c
             echo
             echo -e " \e[41m Configuration files edited. To return to PacUI press ENTER \e[0m"
-            read
+            read -r
             ;;
         12|ls|listsize|list-packages-by-size )
             func_ls
@@ -2613,7 +2612,7 @@ do
             func_ua
             echo
             echo -e " \e[41m All AUR packages updated and reinstalled. To return to PacUI press ENTER \e[0m"
-            read
+            read -r
             ;;
         14|la|listaur|list-installed-from-aur )
             func_la
@@ -2625,13 +2624,13 @@ do
             func_d
             echo
             echo -e " \e[41m Downgrade finished. To return to PacUI press ENTER \e[0m"
-            read
+            read -r
             ;;
         a|aur|search-and-install-from-aur )
             func_a
             echo
             echo -e " \e[41m Installation from AUR finished. To return to PacUI press ENTER \e[0m"
-            read
+            read -r
             ;;
 
 
