@@ -11,7 +11,7 @@ url="https://github.com/excalibur1234/$_pkgname"
 license=('GPL3')
 depends=('pacman-contrib' 'expac' 'wget' 'sudo' 'fzf')
 makedepends=('git')
-provides=('$_pkgname')
+provides=("$_pkgname")
 conflicts=("$_pkgname")
 optdepends=('yay: One AUR helper is needed for AUR support.'
             'pikaur: One AUR helper is needed for AUR support.'
