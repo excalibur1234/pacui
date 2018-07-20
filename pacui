@@ -3,7 +3,7 @@
 # SC1117: Backslash is literal in "\e". Prefer explicit escaping: "\\e".
 # SC1117: Backslash is literal in "\n". Prefer explicit escaping: "\\n".
 # SC1117: Backslash is literal in "\t". Prefer explicit escaping: "\\t".
-# SC2086: Double quote to prevent globbing and word splitting.                      # ${variable}  does not work when double quoted. also, double quote breaks this script in many cases --> there are warning comments containing "ATTENTION" about this.
+# SC2086: Double quote to prevent globing and word splitting.                      # ${variable}  does not work when double quoted. also, double quote breaks this script in many cases --> there are warning comments containing "ATTENTION" about this.
 # shellcheck disable=SC1117,SC2086                                                  # exclude MANY false-positive shellcheck warnings (see above)
 
 #  This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as
@@ -237,7 +237,7 @@ function func_u
 
 
 # "pacui --diff" helper function
-# this function is not called by pacui or pacui's UI directly. instead, it gets called in func_m (using "pacui --diff") when no DIFFPROG evironment variable is found. it provides simple file difference viewer functionality and is essentially a wrapper around the GNU program "diff". therefore, this function expects 2 arguments!
+# this function is not called by pacui or pacui's UI directly. instead, it gets called in func_m (using "pacui --diff") when no DIFFPROG environment variable is found. it provides simple file difference viewer functionality and is essentially a wrapper around the GNU program "diff". therefore, this function expects 2 arguments!
 function func_diff
 {
         # $(( ... )) does arithmetic evaluation. always use this when dealing with numbers, instead of strings - $[[ ... ]] does sting evaluation!
@@ -288,21 +288,21 @@ function func_m
 
 
         echo " searching orphans ..."
-        if [[ -n "$(pacman -Qdt)" ]]                                            # only run the following commands, if output of "pacman -Qdt" is not empty.
+        if [[ -n "$(pacman -Qdt)" ]]                                                # only run the following commands, if output of "pacman -Qdt" is not empty.
         then
-            pacman -Qdt --color always                                          # display orhphaned packages
+            pacman -Qdt --color always                                              # display orphaned packages
             # ask, whether to remove the displayed orphaned packages:
             echo -e " \e[41m Do you want to remove these orphaned packages? [Y|n] \e[0m"
-            read -rs -n1 answer                                                 # save user input in "answer" variable (only accept 1 character as input)
+            read -rs -n1 answer                                                     # save user input in "answer" variable (only accept 1 character as input)
 
-            case ${answer:-y} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "y".
-                y|Y|yes|YES|Yes )                                               # do this, if "answer" is y or Y or yes or YES or Yes
+            case ${answer:-y} in                                                    # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "y".
+                y|Y|yes|YES|Yes )                                                   # do this, if "answer" is y or Y or yes or YES or Yes
                     sudo pacman -Rsn $(pacman -Qqdt) --color always --noconfirm                     # ATTENTION: (i do not know why but) using quotes (" symbols) around $(...) breaks pacman command for multiple packages
                     ;;
-                * )                                                             # do this in all other cases
+                * )                                                                 # do this in all other cases
                     echo -e " \e[1m Packages have not been removed.\e[0m"
                     ;;
-            esac                                                                # end of "case" loop
+            esac                                                                    # end of "case" loop
         fi
         echo ""
 
@@ -415,7 +415,7 @@ function func_m
 
 
         echo " cleaning package cache ..."
-        # remove all packages, which are not installed on this system, except the latest verions (this is a back up, in case somebody removes networkmanager)
+        # remove all packages, which are not installed on this system, except the latest versions (this is a back up, in case somebody removes networkmanager)
         sudo paccache -rvu -k 1
         echo ""
         # remove all package versions, except the latest 3
@@ -936,7 +936,7 @@ function func_s
             pacui_search_temp_local="$( pacman -Ql | awk -v VAR="$file" -F '/' '$NF ~ VAR' | awk -F '/' '{print $1}' | sort -u | tr -d ' ' )"
 
             # update local package database. this needs a long time when internet connection is slow.
-            # in some cases, the local database has to be initialized with sudo pacman -Fyy
+            # in some cases, the local database has to be initialized with "sudo pacman -Fyy" first
             sudo pacman -Fy
 
 
@@ -1191,9 +1191,9 @@ function func_b
                     temp1="$( echo "$line" | awk '{print $1}' )"                    # this variable is the no. of times a package has to be upgraded
                     temp2="$( echo "$line" | awk '{print $2}' )"                    # this variable is the package name to be upgraded
 
-                    if [[ -n "$temp2" ]]   # checks, if length of string is non-zero ("-n" conditional bash expression is the opposite of "-z" (check, whether length of string is zero) )
+                    if [[ -n "$temp2" ]]   # checks, if length of string is non-zero: "-n" conditional bash expression is the opposite of "-z", which checks whether length of string is zero
                     then
-                        # write list with all versions of package in cache into file ${pacui_tmp_upgrade} (sorted - newest package version is on top)
+                        # write list with all versions of package in cache into file ${pacui_tmp_upgrade} - sorted by newest package version
                         find "$cache" -name "${temp2}-[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r > ${pacui_tmp_upgrade}
 
                         if [[ "$AUR_Helper" == "pacaur" ]]                          # checks, whether file "pacaur" exists, i.e. pacaur is installed
@@ -1209,7 +1209,7 @@ function func_b
                         temp3="$(( temp1 + 1 ))p"
 
                         # the next line moves the $((temp3-1))-th version below the currently installed package version to file $pacui_upgrade. if no such old version is available, nothing happens.
-                        # this command determines the currently installed verions of package $temp2:  pacman -Q "$temp2" | awk '{print $2}'
+                        # this command determines the currently installed versions of package $temp2:  pacman -Q "$temp2" | awk '{print $2}'
                         grep "$( pacman -Q "$temp2" | awk '{print $2}' )" -B 100 "$pacui_tmp_upgrade" | tac | sed -n "$temp3"
                     fi
 
@@ -1236,7 +1236,7 @@ function func_b
 
 
 # Fix Pacman Errors
-# this function provides core functionality of "Fix Pacman Errors". it is separated into multiple parts. most parts begin (or contain) an introcing "echo" command or comment, which explains what is being done. the help page explains the core functionality of every part in detail, too.
+# this function provides core functionality of "Fix Pacman Errors". it is separated into multiple parts. most parts begin (or contain) an introducing "echo" command or comment, which explains what is being done. the help page explains the core functionality of every part in detail, too.
 function func_f
 {
         # delete only pacui-related packages in /tmp directory. if other files are deleted, linux starts to act strange!
@@ -1273,7 +1273,7 @@ function func_f
             then
                 sudo pacman-mirrors -f 0 && sudo pacman -Syy                        # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
                 # here, "pacman -Syy" is used to sync to the (potentially new) repository server. this is important!
-                # but "pacman -Syy" (when pacman -S is executed later on) can result in a partially updated system. this cannot be prevented here, because it is possible the user's keys are corruped and he is no longer able to install/update any packages.
+                # but "pacman -Syy" (when pacman -S is executed later on) can result in a partially updated system. this cannot be prevented here, because it is possible the user's keys are corrupted and he is no longer able to install/update any packages.
             fi
             # do this, if system uses reflector (default on Arch Linux or distributions using Arch Linux mirrors/repo servers)
             if [[ -f /usr/bin/reflector ]]
@@ -1304,7 +1304,7 @@ function func_f
             echo
             echo " sudo dirmngr </dev/null ..."
             # suppress error output with "2>/dev/null"
-            if ! ( sudo dirmngr </dev/null 2>/dev/null )                            # check, if any critical errors occured in command in parenthesis
+            if ! ( sudo dirmngr </dev/null 2>/dev/null )                            # check, if any critical errors occurred in command in parenthesis
             then
                 echo
                 echo -e " \e[41m The following dirmngr errors have occured: \e[0m"
@@ -1434,7 +1434,7 @@ function func_f
                             echo " preventing confusing key errors ..."
 
                             # sometimes, people get a "missing key" error about keys they have already installed. this can be confusing
-                            # automatically trust all keys from arch linux trusted users (and manjaro developers) - both for packages from the repositories and packages fom the AUR.
+                            # automatically trust all keys from arch linux trusted users (and manjaro developers) - both for packages from the repositories and packages from the AUR.
                             # there are 2 different places on system for keys to be stored. move all keys for pacman to your private collection of keys. this collection is needed when installing packages from the AUR, e.g. for verifying who signed the package.
                             echo "# "                                                   >> "$HOME/.gnupg/gpg.conf"
                             echo "# Automatically trust all keys in Pacman's keyring: " >> "$HOME/.gnupg/gpg.conf"
@@ -1608,7 +1608,7 @@ function func_c
         if [[ -n "$file" ]] && (( check == 1 ))                                     # here $check variable needs to be 1 in order to continue normally and display files in a text editor.
         then
 
-            #set +u                                                                 # temporarily disable strict mode for environment variables. "$EDITOR" and "$SUDO_EDITOR" variable gets used extensibely in the following code!
+            #set +u                                                                 # temporarily disable strict mode for environment variables. "$EDITOR" and "$SUDO_EDITOR" variable gets used extensibly in the following code!
 
             if [[ "$( echo "$file" | cut -c -6 )" == "/home/" ]]                    # check, if "file"'s first characters is "/home/"
             then
@@ -1894,7 +1894,7 @@ function func_help
 
 PacUI is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Yay/Pikaur/Aurman/Pakku/Trizen/Pacaur as back ends.
 
-Navigate this help page with your Arrow Keys, PageUp/PageDown Keys, SpaceBar, or your Mouse Wheel. To search this Help Page, enter /<SEARCH TERM> and press ENTER. For example, enter the following (without quotes " ") in order to search for the word "update": "/update". Press N key to continue searching for other occurances of "/update". Search is not case sensitive. To exit this Help Page, press your Q key.
+Navigate this help page with your Arrow Keys, PageUp/PageDown Keys, SpaceBar, or your Mouse Wheel. To search this Help Page, enter /<SEARCH TERM> and press ENTER. For example, enter the following (without quotes " ") in order to search for the word "update": "/update". Press N key to continue searching for other occurrence s of "/update". Search is not case sensitive. To exit this Help Page, press your Q key.
 PacUI uses Fuzzy Finder (fzf) to display selectable lists, which can be easily searched by starting to type. Advanced users can even use regular expressions to search in fzf. Use your TAB key to select multiple items from the list and your ENTER key to choose your selection. Navigate fzf's list the same way you navigate this help page.
 
 
@@ -1919,7 +1919,7 @@ This will quit PacUI and clear your terminal. Scroll up to see all terminal outp
 \e[36m"sudo pacman -Syu"
 \e[36m"yaourt -Syua"
 The first command compares a list of all installed packages with package database on your system repository mirror/server. If an updated package is available from your system repositories, it will get downloaded and installed on your system.
-The second command does the same as the first part, but with one exception: It also downloads, compiles, and installs all packages from the Arch User Repository (AUR), which have an updated PKGBUILD file. The first command is still needed occasionaly, because major Pacman and Yaourt updates require "pacman -Syu" and will fail when started with Yaourt.
+The second command does the same as the first part, but with one exception: It also downloads, compiles, and installs all packages from the Arch User Repository (AUR), which have an updated PKGBUILD file. The first command is still needed occasionally, because major Pacman updates require "pacman -Syu" and will fail when started with an AUR helper.
 If updates from system repositories fail, the user is offered the choice to update packages using \e[36m"sudo pacman -Syu --overwrite A-Z,a-z,0-9,-,.,_"\e[0m.
 \e[1mAttention\e[0m: When a new version of an AUR package is available, sometimes the PKGBUILD file is not updated. If you want to install the latest version of a single AUR package, (re-)install it with INSTALL PACKAGES. If you want to install the latest versions of ALL AUR packages use FORCE UPDATE AUR.
 
@@ -1929,7 +1929,7 @@ If updates from system repositories fail, the user is offered the choice to upda
 This command deletes all PacUI files in /tmp directory. PacUI uses this temporary directory to cache package lists and fzf selections. By deleting the /tmp directory, PacUI behaves exactly as after a reboot: Its first usage probably feels slower but any strange bugs and incompatibilities, e.g. originating from PacUI updates, should be gone.
 
 \e[36m"sudo pacman-mirrors -f 0 && sudo pacman -Syyu" \e[0m(for Manjaro)
-This command generates a new mirrorslist of all available Manjaro repository mirrors/servers and sorts it by ping of up-to-date mirrors/servers. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror and the system is updated. If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -f 0 -c Germany,France". In order to prevent partial updates, the whole system needs to be updated after the change to another repository mirror/server.
+This command generates a new mirrorlist of all available Manjaro repository mirrors/servers and sorts it by ping of up-to-date mirrors/servers. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror and the system is updated. If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -f 0 -c Germany,France". In order to prevent partial updates, the whole system needs to be updated after the change to another repository mirror/server.
 Here a short explanation of partial updates and why a complete system update is needed: Assume you switch to another (updated) repository mirror/server with "sudo pacman-mirrors -f 0". Afterwards, a sync of the local package database and the package database on the server is needed using "sudo pacman -Syy" (and updates are found). It is now possible you install a package using "sudo pacman -S", which also installs a new (and no longer compatible) version of "bash" as a dependency. This means that all other (and not updated) packages, which depend on "bash", are broken.
 
 \e[36m"sudo reflector --verbose --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist && sudo pacman -Syyu" \e[0m(for Arch and other Arch-based distros)
@@ -2020,7 +2020,7 @@ These commands list all files contained in <PACKAGE NAME> including their path. 
 As a result the complete path to the files gets displayed.
 Have you ever installed a program and did not know with which command it can be started/executed? Just look for files (and their names) in your /usr/bin/ directory using LIST PACKAGE FILES.
 By default, the results are filtered for files located in usr/bin/, but you can enter any filter term you want to. Delete the default filter term with BACKSPACE to see a complete list of files of <PACKAGE NAME>. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-l.
-\e[1mAttention\e[0m: On some systems, the file database has not been downloaded which results in an error message instead of search results from your system repositories. You can fix it by running "sudo pacman -Fyy" once and restarting LIST PACKAGE FILES.
+\e[1mAttention\e[0m: On some systems, the file database has not been downloaded which results in an error message instead of search results from your system repositories. You can fix it by running "sudo pacman -Fyy" and restarting LIST PACKAGE FILES.
 
 
 \e[1m8 - SEARCH PACKAGE FILES
@@ -2028,10 +2028,10 @@ By default, the results are filtered for files located in usr/bin/, but you can 
 \e[36m"sudo pacman -Fysx <FILE NAME>" \e[0m(only for packages not installed on your system)
 In some situations, Pacman (e.g. during UPDATE SYSTEM) cannot find a file, for example a shared library. An error message is shown about <FILE NAME>. Use SEARCH PACKAGE FILES to find out, which package has installed <FILE NAME>. In most cases, you can fix the Pacman error by using one of the following options on that package: UPDATE SYSTEM, ROLL BACK SYSTEM, REMOVE PACKAGES, and INSTALL PACKAGES, or FORCE UPDATE AUR.
 SEARCH PACKAGE FILES is in many ways a reverse LIST PACKAGE FILES. You can use it to find out which package you have to install in order to use the <FILE NAME> command in your terminal.
-The first command searches for <FILE NAME> in all your installed packages. <FILE NAME> can be only a part of an actual file name or contain regular expressions.
+The first command searches for <FILE NAME> in all your installed packages. <FILE NAME> can be a part of an actual file name or contain regular expressions.
 The second command syncs the file database with your system repositories and then searches the file database for <FILE NAME>.
 As a result, <REPOSITORY>/<PACKAGE NAME> and the complete path to <FILE NAME> gets displayed using fzf. <PACKAGE NAME> is always printed in a bold font. <REPOSITORY> only gets displayed for packages, which are not installed on your system. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-s.
-\e[1mAttention\e[0m: On some systems, the file database has not been downloaded which results in an error message instead of search results from your system repositories. You can fix it by running "sudo pacman -Fyy" once and restarting SEARCH PACKAGE FILES.
+\e[1mAttention\e[0m: On some systems, the file database has not been downloaded which results in an error message instead of search results from your system repositories. You can fix it by running "sudo pacman -Fyy" and restarting SEARCH PACKAGE FILES.
 
 
 \e[1m9 - ROLL BACK SYSTEM
@@ -2044,9 +2044,8 @@ This command shows you a list of all recent Pacman actions sorted by date (using
 
 
 \e[31;1m10 - FIX PACMAN ERRORS
-Multiple commands attempt to fix the most common issues Manjaro users have with Pacman. This should also work for Arch-based distributions, but to a lesser degree. Force options (e.g. to install packages) are excluded, even though they are essential in fixing some problems.
+Multiple commands attempt to fix the most common issues Manjaro users have with Pacman.
 Please make sure that your root partition is not full. If you have doubts about this, run MAINTAIN SYSTEM before FIX PACMAN ERRORS.
-A working internet connection is required for FIX PACMAN ERRORS!
 
 \e[36m"sudo rm -r /tmp/pacui*"
 This command deletes all PacUI files in /tmp directory. PacUI uses this temporary directory to cache package lists and fzf selections. By deleting the /tmp directory, PacUI behaves exactly as after a reboot: Its first usage probably feels slower but any strange bugs and incompatibilities, e.g. originating from PacUI updates, should be gone.
@@ -2059,8 +2058,8 @@ This command removes Pacmans database lock. The database lock prevents multiple 
 This command generates a new mirrorslist of all available Manjaro repository mirrors/servers and sorts it by ping of up-to-date mirrors/servers. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror. If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -c Germany,France".
 Here, the risk of a (temporarily) partially updated system has to be considered against the effort to fix all systems, including systems on which it is no longer possible to install any packages. The system can be put in a partially updated state during the course of FIX PACMAN ERRORS, but at the end of FIX PACMAN ERRORS the complete system is updated.
 
-\e[36m"sudo reflector --verbose --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist && sudo pacman -Syy" \e[0m(For Arch and other Arch-based distros)
-This command generates a new mirrorslist of secure and fast repository mirrors/servers. Then it resyncs database to match the mirrors.
+\e[36m"sudo reflector --verbose --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist && sudo pacman -Syy" \e[0m(For Arch and other Arch-based distributions)
+This command generates a new mirrorlist of secure and fast repository mirrors/servers. Then it resynchronizes the database to match the mirrors.
 
 \e[36m"sudo dirmngr </dev/null"
 Sometimes during key management the package "dirmngr" outputs error messages, which interrupt key management processes (such as the following commands). This command prevents any output from "dirmngr".
@@ -2083,7 +2082,7 @@ This is the first command of a series of commands, which try to set the system a
 
 \e[36m"sudo pacman -S ntp"
 This command (re-)installs the "ntp" package.
-Because the keyring is not checked, in certain situations your system could be left in a partially updated state. However, if you follow PacUIs instructions, this does not happen.
+Because the keyring is not checked, in certain situations your system could be left in a partially updated state. However, if you follow PacUI's instructions, this does not happen.
 
 \e[36m"sudo ntpd -qg && sleep 10 && sudo hwclock -w"
 The first command starts the just (re-)installed Network Time Protocol daemon (ntpd.service). Next, your system clock is set. Finally, the ntpd.service is quit.
@@ -2094,6 +2093,8 @@ The third command is only run when the first and second command have been succes
 \e[36m"sudo pacman -Syu"
 This command makes abolutely sure all packages get updated. No keyring check is performed here.
 If manual intervention is necessary, the user can do it here. Please follow Pacman and/or PacUI instructions, which appear during this update. It is important that this step completes without any errors in order to continue FIX PACMAN ERRORS.
+
+The following steps are only run, when the previous update attempt was successful. They reinitialize the key database:
 
 \e[36m"sudo rm -r /etc/pacman.d/gnupg"
 This command deletes your key database. It does not output an error in case the package "gnupg" is not installed on your system.
@@ -2106,12 +2107,12 @@ This command (re-)installs the gnupg and keyring packages.
 This command enables the signature check of packages in Pacman again.
 
 \e[36m"sudo pacman-key --init && sudo pacman-key --populate $(pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | sed 's/-keyring//' | paste -sd " " )"
-These two commands create a fresh key for you and import and (re-)install all keyrings. This will solve problems with your local key database and your distro's and Arch's key database. Such problems can occur when new new Arch Linux or your distro packagers get added, for example.
-\e[1mAttention\e[0m: This command might take a long time to complete. If your system appears to stop or hang, it searches for entropy in order to generate a new key for you. In this case, it might help to do file operations with a lot of reads and/or writes per minute (such as searching for files, copying large directories, etc.). Alternatively, you can open a browser and do some heavy surfing (with a lot of mouse movements, mouse klicks, and keyboard key presses): This can help to generate entropy much faster.
+These two commands create a fresh key for you and import and (re-)install all keyrings. This will solve problems with your local key database and your distribution's and Arch's key database. Such problems can occur when new Arch Linux or your distribution packagers get added, for example.
+\e[1mAttention\e[0m: This command might take a long time to complete. If your system appears to stop or hang, it searches for entropy in order to generate a new key for you. In this case, it might help to do file operations with a lot of reads and/or writes per minute (such as searching for files, copying large directories, etc.). Alternatively, you can open a browser and do some heavy surfing (with a lot of mouse movements, mouse clicks, and keyboard key presses): This can help to generate entropy much faster.
 
 \e[36m"echo 'keyring /etc/pacman.d/gnupg/pubring.gpg' >> $HOME/.gnupg/gpg.conf"
 There are 2 different places in Arch Linux and Manjaro to store keys: One place is used by Pacman and the other gets used by GPG.
-This command imports all keys for Pacman into GPG. This essentially means that the user trusts all Arch Linux Trusted Users and your distro's developers. After that, you will be able to install AUR packages from Arch Linux Trusted Users and your distro's developers without the need to import those keys (again) manually.
+This command imports all keys for Pacman into GPG. This essentially means that the user trusts all Arch Linux Trusted Users and your distribution's developers. After that, you will be able to install AUR packages from Arch Linux Trusted Users and your distribution's developers without the need to import those keys (again) manually.
 
 \e[36m"sudo pacman -Fyy"
 This command forces a sync of the file database of your system repository with your used repository mirror server. The file database is separate from the package database. The file database enables SEARCH PACKAGE FILES and LIST PACKAGE FILES of packages, which are not installed on your system but only available on your system repository.
@@ -2135,12 +2136,12 @@ EOF
             cat >> /tmp/pacui-help <<- "EOF"
 \e[1m13 - FORCE UPDATE AUR
 \e[36m"yaourt -Syua && yaourt -Syua --devel --needed --noconfirm"
-The Arch User Repository (AUR) is a repository of (mostly) PKGBUILD files. Everybody can create such a PKGBUILD file and upload it to the AUR. A PKGBUILD file contains simple and human readable instructions like where to download the source code from, what dependencies are needed, where to copy files for installation, etc. Yaourt is a so called AUR Helper: It can interpret PKGBUILD files and download the source code, install dependencies, build files on your system, and copy these files to the right location (a.k.a. installing a program).
+The Arch User Repository (AUR) is a repository of (mostly) PKGBUILD files. Everybody can create such a PKGBUILD file and upload it to the AUR. A PKGBUILD file contains simple and human readable instructions like where to download the source code from, what dependencies are needed, where to copy files for installation, etc. Your AUR helper can interpret PKGBUILD files and download the source code, install dependencies, build files on your system, and copy these files to the right location (a.k.a. installing a program).
 By checking a PKGBUILD file (and .INSTALL file) you can make sure the source code is loaded from an official download server, no harmful dependencies get installed, and the installation instructions do not contain harmful code.
 A lot of PKGBUILD files contain variables (e.g. program version) in download addresses; this makes them download always the latest source code (e.g. from Github) during installation. Some PKGBUILD files contain no variables: These PKGBUILD files need to be changed manually every time a new program version is released.
 The first command of FORCE UPDATE AUR does the same as the second command of UPDATE SYSTEM: Only AUR packages with updated/changed PKGBUILD files will get updated. This gives you the chance to check these updated/changed PKGBUILD files.
 The second command of FORCE UPDATE AUR forces a reinstall of ALL your developmental AUR packages (i.e. all git, svn, and cvs-packages). These kinds of AUR packages are usually never updated/reinstalled with a simple "yaourt -Syua". The "--noconfirm" flag is used in a secure way, because no PKGBUILD files have changed since the first command got executed.
-\e[1mAttention\e[0m: This might take a long time! When using Yaourt, after every 15min this command will pause and ask again for your password.
+\e[1mAttention\e[0m: This might take a long time! With some AUR helpers, after every 15min this command will pause and ask again for your password.
 
 EOF
         fi
@@ -2163,7 +2164,7 @@ This command downgrades <PACKAGE NAME> and offers you a list of old <PACKAGE NAM
 After a successful downgrade, you can add <PACKAGE NAME> to your Ignore List ( "IgnorePkg" option in /etc/pacman.conf ). This will prevent Pacman from showing any available updates for <PACKAGE NAME>. <PACKAGE NAME> needs to be removed manually from your Ignore List in order to receive automatic updates of <PACKAGE NAME> again.
 Alternatively, you can run future updates with the command "sudo pacman -Syu --ignore <PACKAGE NAME>" until a fixed version of <PACKAGE NAME> gets released.
 \e[1mAttention\e[0m: Be careful when using Manjaro and downgrading to <PACKAGE NAME> from online sources, because these are old versions from the Arch Linux repositories only: In the worst case, this can brake your system! Therefore, it is recommended to limit downgrading to (old versions of) local packages, if possible.
-\e[1mAttention\e[0m: Downgrading to a working version of <PACKAGE NAME> can break your system in in rare cases like the following: The latest system update has replaced a dependency of <PACKAGE NAME> with a different package and <PACKAGE NAME> is an important system package. Downgrading <PACKAGE NAME> will NOT reinstall the dependency of <PACKAGE NAME>, because it conflicts with the already installled different package. This can result in a broken system. Please keep these kind of conflicts in mind when using DOWNGRADE PACKAGES.
+\e[1mAttention\e[0m: Downgrading to a working version of <PACKAGE NAME> can break your system in in rare cases like the following: The latest system update has replaced a dependency of <PACKAGE NAME> with a different package and <PACKAGE NAME> is an important system package. Downgrading <PACKAGE NAME> will NOT reinstall the dependency of <PACKAGE NAME>, because it conflicts with the already installed different package. This can result in a broken system. Please keep these kind of conflicts in mind when using DOWNGRADE PACKAGES.
 \e[1mAttention\e[0m: DOWNGRADE PACKAGES will show you a selection of packages you can downgrade. If you are using Pacaur to install AUR packages, you will not be able to downgrade AUR packages using DOWNGRADE PACKAGES! instead, the ROLL BACK SYSTEM option is recommended.
 
 EOF
@@ -2252,7 +2253,7 @@ fi
 
 # bug # :
 # when database of system repositories has not been saved, it is impossible to use pacman (or expac) in any meaningful way.
-# therefore, the existance of the "core" database is tested here. if it does not exist, a repository server is chosen and the repository database synced to the user's system
+# therefore, the existence of the "core" database is tested here. if it does not exist, a repository server is chosen and the repository database synced to the user's system
 
 dbpath="$( awk -F '=' '/^DBPath/ {gsub(" ","",$2); print $2}' '/etc/pacman.conf' )" # extract path of database file from pacman.conf
 if [[ -z "$dbpath" ]]                                                               # if "dbpath" variable is empty (exact: if output of $dbpath is zero)
@@ -2415,7 +2416,7 @@ do
             shift                                                                   # shift over 'flag' argument
             shift                                                                   # shift over argument, which follows 'flag' argument, i.e. the string which got just saved to $argument_flag
             ;;
-        * )                                                                         # do this, if $key varialbe contains anything else not listed above. this is (hopefully) all stuff, which is supposed to be passed on to fzf.
+        * )                                                                         # do this, if $key variable contains anything else not listed above. this is (hopefully) all stuff, which is supposed to be passed on to fzf.
             argument_input+="$key"
             argument_input+=" "                                                     # all 'key' arguments should be space separated. problem: there will be a space at the end of $argument_input variable.
             shift
@@ -2510,13 +2511,13 @@ function pacui_clean
 
 
 
-# Run infinte loop for UI / menu, till the user quits using the "quit" option or CTRL+C.
+# Run infinite loop for UI / menu, till the user quits using the "quit" option or CTRL+C.
 while true
 do
 
     pacui_clean                                                                     # clear the terminal screen
 
-    # draw UI / menu. please note the use of ANSI Escape sequences mentioned at the top. The text/code can be hard to read and should be changed carfully: spaces are important here!
+    # draw UI / menu. please note the use of ANSI Escape sequences mentioned at the top. The text/code can be hard to read and should be changed carefully: spaces are important here!
     echo
     echo -e "                     \e[7m PacUI - Package manager \e[0m                     "
     echo -e " ┌───────────────────────────────────────────────────────────────┐"
@@ -2535,7 +2536,7 @@ do
     echo
     echo -e "  Enter number or marked letter(s)   -   00   \e[1mH\e[0melp   -   0   \e[1mQ\e[0muit "
 
-    # save entered numbers/letters in varialbe "choice"
+    # save entered numbers/letters in variable "choice"
     read -r choice
     # convert "choice" variable to lowercase:
     choice="$(echo "$choice" | tr '[:upper:]' '[:lower:]' )"
