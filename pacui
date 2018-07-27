@@ -1,9 +1,10 @@
-#!/usr/bin/env bash
+#!/usr/bin/bash
+SHELL=/usr/bin/bash                                                                 # set the shell for pacui and its child processes (such as "fzf --preview "). needed for compatibility with e.g. fish shell.
 
 # SC1117: Backslash is literal in "\e". Prefer explicit escaping: "\\e".
 # SC1117: Backslash is literal in "\n". Prefer explicit escaping: "\\n".
 # SC1117: Backslash is literal in "\t". Prefer explicit escaping: "\\t".
-# SC2086: Double quote to prevent globing and word splitting.                      # ${variable}  does not work when double quoted. also, double quote breaks this script in many cases --> there are warning comments containing "ATTENTION" about this.
+# SC2086: Double quote to prevent globing and word splitting.                       # ${variable}  does not work when double quoted. also, double quote breaks this script in many cases --> there are warning comments containing "ATTENTION" about this.
 # shellcheck disable=SC1117,SC2086                                                  # exclude MANY false-positive shellcheck warnings (see above)
 
 #  This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as
