@@ -1048,7 +1048,7 @@ function func_b
             if [[ ! -z "$pkgR" ]]                                                   # this if-condition avoids error message when no package gets removed (and $pkgR is empty)
             then
                 # remove packages with pacman command. use parameter substitution with ${...} (without quotes!!!) for it, because otherwise the pacman command fails!
-                sudo pacman "$argument_flag"-Rdd ${pkgR} --color always             # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkgR variable breaks AUR helper and pacman
+                sudo pacman "$argument_flag"-R ${pkgR} --color always               # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkgR variable breaks AUR helper and pacman
             fi
 
 
@@ -2043,7 +2043,7 @@ As a result, <REPOSITORY>/<PACKAGE NAME> and the complete path to <FILE NAME> ge
 
 
 \e[1m9 - ROLL BACK SYSTEM
-\e[36m"sudo pacman -Rdd <PACKAGE NAME> --noconfirm" \e[0m(only for rolling back package installations)
+\e[36m"sudo pacman -R <PACKAGE NAME> --noconfirm" \e[0m(only for rolling back package installations)
 \e[36m"sudo pacman -U <PACKAGE NAME IN PACMAN/PACAUR CACHE> --noconfirm" \e[0m(only for rolling back package removals, upgrades, or downgrades.)
 Manjaro and Arch Linux use a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. Sometimes, things go wrong during UPDATE SYSTEM and you should roll back the last update. In case the latest version of a single package is broken, rolling back (a.k.a. downgrading) that package can work.
 This command shows you a list of all recent Pacman actions sorted by date (using parts of this command: "tail -8000 /var/log/pacman.log"). Please select all Pacman actions you want to roll back. Installed packages will be removed from your system. Removed packages will be reinstalled as the latest version available in your Pacman/Pacaur cache. Upgraded packages will be downgraded to the previous version (if this version is available in your local Pacman/Pacaur cache). Downgraded packages will be Upgraded to a later version. If you select multiple upgrades/downgrades of the same package, the package gets downgraded/upgraded multiple times (if this version is available in your local Pacman/Pacaur cache).
