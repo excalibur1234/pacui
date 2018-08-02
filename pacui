@@ -416,7 +416,7 @@ function func_m
         then
             echo " cleaning systemd log files ..."
             # limit logs in journalctl to an age of 30 days and a combined size of 50mb
-            sudo journalctl --vacuum-size=250M --vacuum-time=30days
+            sudo journalctl --vacuum-size=100M --vacuum-time=30days
         fi
         echo ""
 
@@ -1974,7 +1974,7 @@ This command compares 2 lists: The first list contains packages, which were not 
 Sometimes, packages from the system repository are no longer maintained. Typically, they get put into the AUR instead of deleting them. Such packages get filtered by this command.
 These packages can cause really long update times and are generally a security risk. Unless important packages depend on them, it is recommended to remove these packages manually. You can check, which packages depend on them by using REVERSE DEPENDENCY TREE.
 
-\e[36m"sudo journalctl --vacuum-size=250M --vacuum-time=30days"
+\e[36m"sudo journalctl --vacuum-size=100M --vacuum-time=30days"
 This command limits all log files in journalctl to a combined size of 250 megabytes and a maximum age of 30 days. This leaves plenty of log files behind to analyze systematic and reoccurring errors while preventing excessive amounts of log files.
 
 \e[36m"paccache -ruvk1"
