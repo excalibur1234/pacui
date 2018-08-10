@@ -48,9 +48,13 @@ In Manjaro, you can simply install the stable version of PacUI:
 ```
 sudo pacman -S pacui
 ```
+There is also a development version available in the Manjaro repositories. Please use the latest development version as a base for all bug reports:
+```
+sudo pacman -S pacui-git
+```
 
 PacUI is [no longer available on the AUR](https://github.com/excalibur1234/pacui/issues/45).
-PKGBUILDs are still availble (look above for the PKGBUILD_AUR and PKGBUILD_AUR-git files) and Pacui can be executed without installation (see below).
+PKGBUILDs are still availble (look above for the `PKGBUILD_AUR` file) and Pacui can be executed without installation (see below).
 
 ### Execute without prior Installation
 For a minimal working version of PacUI, please install its dependencies [expac](https://github.com/falconindy/expac) and [fzf](https://github.com/junegunn/fzf) using Pacman first (if possible). Then, the PacUI file can be downloaded and run without prior installation:
