@@ -1697,7 +1697,7 @@ function func_ua
 {
         if [[ "$AUR_Helper" == "yay" ]]
         then
-            yay "$argument_flag"-Syu && yay -Syu --devel --needed --noconfirm
+            yay "$argument_flag"-Syu --devel --needed
 
         elif [[ "$AUR_Helper" == "pikaur" ]]
         then
@@ -1705,7 +1705,7 @@ function func_ua
 
         elif [[ "$AUR_Helper" == "aurman" ]]
         then
-            aurman "$argument_flag"-Syu && aurman -Syu --devel --needed --noconfirm
+            aurman "$argument_flag"-Syu --devel --needed
 
         elif [[ "$AUR_Helper" == "pakku" ]]
         then
@@ -1713,7 +1713,7 @@ function func_ua
 
         elif [[ "$AUR_Helper" == "trizen" ]]
         then
-            trizen "$argument_flag"-Syu && trizen -Syu --devel --needed --noconfirm
+            trizen "$argument_flag"-Syu --devel --needed
 
         elif [[ "$AUR_Helper" == "pacaur" ]]
         then
