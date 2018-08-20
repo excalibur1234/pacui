@@ -102,7 +102,7 @@ function func_u
         # define local variable, which indicates whether the installation process was successful or not.
         local install_successful
 
-        if [[ "$AUR_Helper" == "yay" ]]                                             # check, if $AUR_Helper variable is set to "aurman". ATTENTION: sometimes, this requires [[ "$AUR_Helper" == "aurman" ]] and sometimes [[ '$AUR_Helper' == "aurman" ]]. i do not know why this is the case.
+        if [[ "$AUR_Helper" == "yay" ]]                                             # check, if $AUR_Helper variable is set to "aurman". ATTENTION: sometimes, this requires   [[ "$AUR_Helper" == "aurman" ]]   and sometimes   test '$AUR_Helper' = "aurman"  . i do not know why this is the case.
         then
 
             # execute "yay -Syu" command:
@@ -555,27 +555,27 @@ function func_i
                         then
                             pacman -Si {1} --color always                           # do this, if no AUR helper is installed
 
-                        elif [[ '$AUR_Helper' == "yay" ]]
+                        elif test '$AUR_Helper' = "yay"
                         then
                             yay -Si {1} | grep -v "::"                              # grep command removes all errors displayed by yay
 
-                        elif [[ '$AUR_Helper' == "pikaur" ]]
+                        elif test '$AUR_Helper' = "pikaur"
                         then
                             pikaur -Si {1}
 
-                        elif [[ '$AUR_Helper' == "aurman" ]]                        # if {1} is neither locally installed nor a group, it is from the AUR. display info with AUR helper
+                        elif test '$AUR_Helper' = "aurman"                          # if {1} is neither locally installed nor a group, it is from the AUR. display info with AUR helper
                         then
                             aurman -Si {1} | grep -v "::"                           # grep command removes all errors displayed by aurman
 
-                        elif [[ '$AUR_Helper' == "pakku" ]]
+                        elif test '$AUR_Helper' = "pakku"
                         then
                             pakku -Si {1}
 
-                        elif [[ '$AUR_Helper' == "trizen" ]]
+                        elif test '$AUR_Helper' = "trizen"
                         then
                             trizen -Si {1}
 
-                        elif [[ '$AUR_Helper' == "pacaur" ]]
+                        elif test '$AUR_Helper' = "pacaur"
                         then
                             pacaur -Si {1} --color always | grep -v "::"            # grep command removes all errors displayed by pacaur
 
