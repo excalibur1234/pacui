@@ -62,7 +62,7 @@ For a minimal working version of PacUI, please install its dependencies [expac](
 wget https://raw.githubusercontent.com/excalibur1234/pacui/master/pacui
 ```
 ```
-bash pacui/pacui
+bash pacui
 ```
 I find this feature of PacUI invaluable for fixing systems. Here are two examples:
 - A large number of updates broke (parts of) the GUI, e.g. xorg, window manager, or desktop environment. In this case, switching to a different tty (with CTRL + ALT + F2), installing PacUI and using "Roll Back System" to roll back all the latest updates can fix the system (temporarily).

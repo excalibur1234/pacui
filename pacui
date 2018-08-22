@@ -317,7 +317,7 @@ function func_m
         echo " sudo pacdiff ..."
         #set +u                                                                     # temporarily disable strict mode for environment variables
 
-        if [[ -n $DIFFPROG ]]                                                       # this if-condition avoids error message when $DIFFPROG is not set/empty
+        if [[ -n "$DIFFPROG" ]]                                                     # this if-condition avoids error message when $DIFFPROG is not set/empty
         then
             sudo pacdiff
         else
@@ -1951,7 +1951,7 @@ This command offers you a choice, whether you want to keep the original file (an
 It is strongly recommended to view and compare both files by choosing "v" before making a decision.
 If you keep the original config file, the new program version could not recognize the old syntax in the original config file anymore. In the worst case, your program could break or stop working. If you remove the original file and use the new file without any changes, all your configuration settings might be reset to the default values. This can result in changed system behavior, including missing passwords or even sudo capability.
 In most cases, the syntax does not change and you can simply remove the .pacnew file. However, if you notice a syntax change, it is highly recommended to solve this conflict in another way (e.g. by manually editing one of those files and deleting the other).
-\e[1mAttention\e[0m: This command requires a default file difference viewer by setting the environment variable DIFFPROG. If this variable is not set, a minimal default is provided by PacUI using "diff".
+\e[1mAttention\e[0m: This command requires a default file difference viewer by setting the environment variable DIFFPROG. If this variable is not set, a minimal default is provided by PacUI based on "diff".
 \e[1mAttention\e[0m: In severe and rare cases, removing your old config file (and using the new .pacnew config file) OR keeping your old config file (and deleting the .pacnew config file) can result in a broken system. PLEASE BE CAUTIOUS WHEN USING THIS COMMAND!
 
 \e[36m"systemctl --failed"
