@@ -1400,10 +1400,8 @@ function func_f
                         if ! ( sudo pacman -Syu --noconfirm)                          # if system was fixed, the update should be successful now
                         then
                             echo
-                            echo -e " \e[41m Update still not successful. \e[0m"
-                            echo -e " \e[1;41m Please read all error messages and remove non-critical packages causing conflicts. \e[0m"
-                            echo -e " \e[1;41m Then, rerun this part of PacUI. \e[0m"
-                            echo -e " \e[1;41m After the system is updated successfully, those packages should be reinstalled. \e[0m"
+                            echo -e " \e[41m Update still not successful. PacUI is unable to fix the system automatically. \e[0m"
+                            echo -e " \e[41m Reading all error messages carefully might help to fix them. \e[0m"
                             echo
 
                         else
@@ -1435,10 +1433,8 @@ function func_f
                         then
 
                             echo
-                            echo -e " \e[41m Update still not successful. \e[0m"
-                            echo -e " \e[1;41m Please read all error messages and remove non-critical packages causing conflicts. \e[0m"
-                            echo -e " \e[1;41m Then, rerun this part of PacUI. \e[0m"
-                            echo -e " \e[1;41m After the system is updated successfully, those packages should be reinstalled. \e[0m"
+                            echo -e " \e[41m Update still not successful. PacUI is unable to fix the system automatically. \e[0m"
+                            echo -e " \e[41m Reading all error messages carefully might help to fix them. \e[0m"
                             echo
 
                             echo " raising pacman securities back ..."
