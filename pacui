@@ -1370,7 +1370,7 @@ function func_f
                         echo ""
 
 
-                        echo " trying to update system without checking keys ..."
+                        echo " trying to update system manually without checking keys ..."
                         # if keyring is broken, updates (without checking keys) can be manually installed now.
                         if ! ( sudo pacman -Syu )                                   # this last update attempt does not use "--noconfirm" and allows user intervention
                         then
@@ -1404,10 +1404,9 @@ function func_f
                                         echo
                                         echo " sudo rm -r /etc/pacman.d/gnupg ..."
                                         sudo rm -r /etc/pacman.d/gnupg &>/dev/null
-                                        echo ""
                                     fi
 
-
+                                    echo
                                     echo " reinstalling gnupg ..."
                                     sudo pacman -Syu gnupg --noconfirm
                                     echo ""
@@ -1509,7 +1508,7 @@ function func_f
                         fi
 
 
-                        echo " trying to update system again ..."
+                        echo " trying to update system manually again ..."
                         if ! ( sudo pacman -Syu )                                   # this last update attempt does not use "--noconfirm" and allows user intervention
                         then
                             echo
