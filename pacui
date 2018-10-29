@@ -1357,10 +1357,124 @@ function func_f
 
                 case ${answer:-n} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "n".
 
-                    * )                                                             # do this, if "answer" is neither "no" nor "yes".
+                    y|Y|yes|YES|Yes )                                               # do this, if "answer" is y or Y or yes or YES or Yes
+
                         echo
-                        echo -e " \e[41m Answer not recognized. Please try again with a valid answer. \e[0m"
-                        echo -e " \e[41m All attempts to fix your system were stopped. \e[0m"
+                        echo -e " Lowering pacman securities (in case keyring is broken) ..."
+                        # first, make a backup of /etc/pacman.conf, which preserves all file permissions and other attributes. "cp -f" overwrites the target file, if it already exists.
+                        # the second command replaces all "SigLevel = ....." strings with "SigLevel = Never" in the /etc/pacman.conf file. This change deactivates all key signature checks in pacman.
+                        # general comment about "sed" usage in scripts: in order to avoid breakage, it is recommended to escape all the following characters /\.*[]^$ with a \ character!
+                        sudo cp --preserve=all -f /etc/pacman.conf /etc/pacman.conf.backup && sudo sed -i 's/SigLevel[ ]*=[A-Za-z ]*/SigLevel = Never/' '/etc/pacman.conf'
+                        # if something goes wrong in the following code, the SigLevel is never raised back and we would mess on a user's system. THIS HAS TO BE PREVENTED! solution: use trap, which reverses our changes in /etc/pacman.conf file whenever pacui quits unexpectedly:
+                        trap "sudo cp --preserve=all -f /etc/pacman.conf.backup /etc/pacman.conf && sudo rm /etc/pacman.conf.backup" EXIT
+                        echo ""
+
+
+                        echo " trying to update system without checking keys ..."
+                        # if keyring is broken, updates (without checking keys) can be manually installed now.
+                        if ! ( sudo pacman -Syu )                                   # this last update attempt does not use "--noconfirm" and allows user intervention
+                        then
+
+                            echo
+                            echo -e " \e[41m Update still not successful. PacUI is unable to fix the system automatically. \e[0m"
+                            echo -e " \e[41m Read all error messages carefully and try to fix them yourself. \e[0m"
+                            echo
+
+                            echo " raising pacman securities back ..."
+                            # This command will revert the change from above: overwrite (modified) /etc/pacman.conf file with its (unmodified) backup. then, the backup file is deleted.
+                            sudo cp --preserve=all -f /etc/pacman.conf.backup /etc/pacman.conf && sudo rm /etc/pacman.conf.backup
+                            # now, the trap is longer needed. reset trap:
+                            trap − EXIT
+                            echo ""
+
+                        else
+
+                            echo
+                            echo -e " \e[41m It seems the update succeded because of the temporary lack of key checks. \e[0m"
+                            echo -e " \e[1;41m Should PacUI prevent all future key / keyring errors? [y|N] \e[0m"
+                            read -r -n 1 -e answer2                                 # save user input in "answer2" variable (only accept 1 character as input)
+
+                            case ${answer2:-n} in                                   # if ENTER is pressed, the variable "answer2" is empty. if "answer2" is empty, its default value is "n".
+
+                                y|Y|yes|YES|Yes )                                   # do this, if "answer2" is y or Y or yes or YES or Yes
+
+                                    # remove gnupg including all keys
+                                    if [[ -f /etc/pacman.d/gnupg ]]
+                                    then
+                                        echo
+                                        echo " sudo rm -r /etc/pacman.d/gnupg ..."
+                                        sudo rm -r /etc/pacman.d/gnupg &>/dev/null
+                                        echo ""
+                                    fi
+
+
+                                    echo " reinstalling gnupg ..."
+                                    sudo pacman -Syu gnupg --noconfirm
+                                    echo ""
+
+
+                                    echo " installing all necessary keyrings ..."
+                                    # This command will install all keyrings from avialable current repository
+                                    sudo pacman -Syu $( pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | paste -sd " " ) --noconfirm                    # ATTENTION: (i do not know why but) using quotes (" symbols) around $(...) does not work!
+                                    echo ""
+
+
+                                    echo " raising pacman securities back ..."
+                                    # This command will revert the change from above: overwrite (modified) /etc/pacman.conf file with its (unmodified) backup. then, the backup file is deleted.
+                                    sudo cp --preserve=all -f /etc/pacman.conf.backup /etc/pacman.conf && sudo rm /etc/pacman.conf.backup
+                                    # now, the trap is longer needed. reset trap:
+                                    trap − EXIT
+                                    echo ""
+
+
+                                    echo " initializing and populating keyring ..."
+                                    sudo pacman-key --init && echo "" && sudo pacman-key --populate $( pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | sed 's/-keyring//' | paste -sd " " )                      # ATTENTION: (i do not know why but) using quotes (" symbols) around $(...) does not work!
+                                    echo ""
+
+
+                                    echo " updating file database ..."
+                                    sudo pacman -Fyy
+                                    echo ""
+                                ;;
+
+
+                                n|N|no|NO|No )                                      # do this, if "answer2" is n or N or no or NO or No
+
+                                    echo
+                                    echo " do not fix keyring(s) ..."
+                                    echo
+
+
+                                    echo " raising pacman securities back ..."
+                                    # This command will revert the change from above: overwrite (modified) /etc/pacman.conf file with its (unmodified) backup. then, the backup file is deleted.
+                                    sudo cp --preserve=all -f /etc/pacman.conf.backup /etc/pacman.conf && sudo rm /etc/pacman.conf.backup
+                                    # now, the trap is longer needed. reset trap:
+                                    trap − EXIT
+                                    echo ""
+
+
+                                    echo " updating file database ..."
+                                    sudo pacman -Fyy
+                                    echo ""
+                                ;;
+
+
+                                * )                                                 # do this, if "answer2" is neither "no" nor "yes".
+                                    echo
+                                    echo -e " \e[41m Answer not recognized. Please try again with a valid answer. \e[0m"
+                                    echo -e " \e[41m All attempts to fix your system were stopped. \e[0m"
+                                    echo
+
+
+                                    echo " raising pacman securities back ..."
+                                    # This command will revert the change from above: overwrite (modified) /etc/pacman.conf file with its (unmodified) backup. then, the backup file is deleted.
+                                    sudo cp --preserve=all -f /etc/pacman.conf.backup /etc/pacman.conf && sudo rm /etc/pacman.conf.backup
+                                    # now, the trap is longer needed. reset trap:
+                                    trap − EXIT
+                                    echo ""
+                                ;;
+                            esac
+                        fi
                     ;;
 
 
@@ -1413,127 +1527,12 @@ function func_f
                     ;;
 
 
-                    y|Y|yes|YES|Yes )                                               # do this, if "answer" is y or Y or yes or YES or Yes
-
+                    * )                                                             # do this, if "answer" is neither "no" nor "yes".
                         echo
-                        echo -e " Lowering pacman securities (in case keyring is broken) ..."
-                        # first, make a backup of /etc/pacman.conf, which preserves all file permissions and other attributes. "cp -f" overwrites the target file, if it already exists.
-                        # the second command replaces all "SigLevel = ....." strings with "SigLevel = Never" in the /etc/pacman.conf file. This change deactivates all key signature checks in pacman.
-                        # general comment about "sed" usage in scripts: in order to avoid breakage, it is recommended to escape all the following characters /\.*[]^$ with a \ character!
-                        sudo cp --preserve=all -f /etc/pacman.conf /etc/pacman.conf.backup && sudo sed -i 's/SigLevel[ ]*=[A-Za-z ]*/SigLevel = Never/' '/etc/pacman.conf'
-                        # if something goes wrong in the following code, the SigLevel is never raised back and we would mess on a user's system. THIS HAS TO BE PREVENTED! solution: use trap, which reverses our changes in /etc/pacman.conf file whenever pacui quits unexpectedly:
-                        trap "sudo cp --preserve=all -f /etc/pacman.conf.backup /etc/pacman.conf && sudo rm /etc/pacman.conf.backup" EXIT
-                        echo ""
-
-
-                        echo " trying to update system without checking keys ..."
-                        # if keyring is broken, updates (without checking keys) can be manually installed now.
-                        if ! ( sudo pacman -Syu )                                   # this last update attempt does not use "--noconfirm" and allows user intervention
-                        then
-
-                            echo
-                            echo -e " \e[41m Update still not successful. PacUI is unable to fix the system automatically. \e[0m"
-                            echo -e " \e[41m Read all error messages carefully and try to fix them yourself. \e[0m"
-                            echo
-
-                            echo " raising pacman securities back ..."
-                            # This command will revert the change from above: overwrite (modified) /etc/pacman.conf file with its (unmodified) backup. then, the backup file is deleted.
-                            sudo cp --preserve=all -f /etc/pacman.conf.backup /etc/pacman.conf && sudo rm /etc/pacman.conf.backup
-                            # now, the trap is longer needed. reset trap:
-                            trap − EXIT
-                            echo ""
-
-                        else
-
-                            echo
-                            echo -e " \e[41m It seems the update succeded because of the temporary lack of key checks. \e[0m"
-                            echo -e " \e[1;41m Should PacUI prevent all future key / keyring errors? [y|N] \e[0m"
-                            read -r -n 1 -e answer2                                             # save user input in "answer2" variable (only accept 1 character as input)
-
-                            case ${answer2:-n} in                                                # if ENTER is pressed, the variable "answer2" is empty. if "answer2" is empty, its default value is "n".
-
-                                * )                                                             # do this, if "answer2" is neither "no" nor "yes".
-                                    echo
-                                    echo -e " \e[41m Answer not recognized. Please try again with a valid answer. \e[0m"
-                                    echo -e " \e[41m All attempts to fix your system were stopped. \e[0m"
-                                    echo
-
-
-                                    echo " raising pacman securities back ..."
-                                    # This command will revert the change from above: overwrite (modified) /etc/pacman.conf file with its (unmodified) backup. then, the backup file is deleted.
-                                    sudo cp --preserve=all -f /etc/pacman.conf.backup /etc/pacman.conf && sudo rm /etc/pacman.conf.backup
-                                    # now, the trap is longer needed. reset trap:
-                                    trap − EXIT
-                                    echo ""
-                                ;;
-
-
-                                n|N|no|NO|No )                                                  # do this, if "answer2" is n or N or no or NO or No
-
-                                    echo
-                                    echo " do not fix keyring(s) ..."
-                                    echo
-
-
-                                    echo " raising pacman securities back ..."
-                                    # This command will revert the change from above: overwrite (modified) /etc/pacman.conf file with its (unmodified) backup. then, the backup file is deleted.
-                                    sudo cp --preserve=all -f /etc/pacman.conf.backup /etc/pacman.conf && sudo rm /etc/pacman.conf.backup
-                                    # now, the trap is longer needed. reset trap:
-                                    trap − EXIT
-                                    echo ""
-
-
-                                    echo " updating file database ..."
-                                    sudo pacman -Fyy
-                                    echo ""
-                                ;;
-
-
-                                y|Y|yes|YES|Yes )                                               # do this, if "answer2" is y or Y or yes or YES or Yes
-
-                                    # remove gnupg including all keys
-                                    if [[ -f /etc/pacman.d/gnupg ]]
-                                    then
-                                        echo
-                                        echo " sudo rm -r /etc/pacman.d/gnupg ..."
-                                        sudo rm -r /etc/pacman.d/gnupg &>/dev/null
-                                        echo ""
-                                    fi
-
-
-                                    echo " reinstalling gnupg ..."
-                                    sudo pacman -Syu gnupg --noconfirm
-                                    echo ""
-
-
-                                    echo " installing all necessary keyrings ..."
-                                    # This command will install all keyrings from avialable current repository
-                                    sudo pacman -Syu $( pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | paste -sd " " ) --noconfirm                    # ATTENTION: (i do not know why but) using quotes (" symbols) around $(...) does not work!
-                                    echo ""
-
-
-                                    echo " raising pacman securities back ..."
-                                    # This command will revert the change from above: overwrite (modified) /etc/pacman.conf file with its (unmodified) backup. then, the backup file is deleted.
-                                    sudo cp --preserve=all -f /etc/pacman.conf.backup /etc/pacman.conf && sudo rm /etc/pacman.conf.backup
-                                    # now, the trap is longer needed. reset trap:
-                                    trap − EXIT
-                                    echo ""
-
-
-                                    echo " initializing and populating keyring ..."
-                                    sudo pacman-key --init && echo "" && sudo pacman-key --populate $( pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | sed 's/-keyring//' | paste -sd " " )                      # ATTENTION: (i do not know why but) using quotes (" symbols) around $(...) does not work!
-                                    echo ""
-
-
-                                    echo " updating file database ..."
-                                    sudo pacman -Fyy
-                                    echo ""
-                                ;;
-                            esac
-                        fi
+                        echo -e " \e[41m Answer not recognized. Please try again with a valid answer. \e[0m"
+                        echo -e " \e[41m All attempts to fix your system were stopped. \e[0m"
                     ;;
                 esac                                                                # end of "case" loop
-
 
             else
 
