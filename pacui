@@ -187,7 +187,6 @@ function func_u
 
         fi
 
-
         # if one of the above update commands has failed, the following if-statement is true:
         if [[ "$install_successful" == "false" ]]
         then
@@ -210,7 +209,7 @@ function func_u
                     # ask, whether to force update the system and save answer in "answer" variable:
                     echo -e " \e[1m Updates from system repositories have failed probably because of file conflicts. \e[0m"
                     echo -e " \e[41m Do you want to forcefully overwrite all conflicting files? [y|N] \e[0m"
-                    read -rs -n1 answer                                             # this "read" command only accepts 1 letter as answer. this feels faster and is enough in this situation.
+                    read -r -n 1 -e answer                                          # this "read" command only accepts 1 letter as answer. this feels faster and is enough in this situation.
 
                     case ${answer:-n} in                                            # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "n".
                         y|Y|yes|Yes|YES )                                           # do this, if "answer" is y or Y or yes or Yes or YES
@@ -299,7 +298,7 @@ function func_m
                 pacman -Qdt --color always                                          # display orphaned packages
                 # ask, whether to remove the displayed orphaned packages:
                 echo -e " \e[41m Do you want to remove these orphaned packages? [Y|n] \e[0m"
-                read -rs -n1 answer                                                 # save user input in "answer" variable (only accept 1 character as input)
+                read -r -n 1 -e answer                                              # save user input in "answer" variable (only accept 1 character as input)
 
                 case ${answer:-y} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "y".
                     y|Y|yes|YES|Yes )                                               # do this, if "answer" is y or Y or yes or YES or Yes
@@ -692,7 +691,7 @@ function func_r
                 echo -e "\e[1m   ESC  Exit without removing any packages. \e[0m"
                 echo
                 # save answer in "answer" variable:
-                read -rs -n1 answer
+                read -r -n 1 -e answer
 
                 case ${answer:-n} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "n".
 
@@ -1352,16 +1351,16 @@ function func_f
             then
 
                 echo
-                echo -e " \e[41m Conventional update failed. Please read the error messages above. \e[0m"
+                echo -e " \e[41m Conventional update(s) failed. Please read the error message(s) above. \e[0m"
                 echo -e " \e[1;41m Did the update fail because of key or keyring errors? [y|N] \e[0m"
-                read -rs -n1 answer                                                 # save user input in "answer" variable (only accept 1 character as input)
+                read -r -n 1 -e answer                                              # save user input in "answer" variable (only accept 1 character as input)
 
                 case ${answer:-n} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "n".
 
                     * )                                                             # do this, if "answer" is neither "no" nor "yes".
                         echo
                         echo -e " \e[41m Answer not recognized. Please try again with a valid answer. \e[0m"
-                        echo -e " \e[41m All attempts to fix your system are stopped. \e[0m"
+                        echo -e " \e[41m All attempts to fix your system were stopped. \e[0m"
                     ;;
 
 
@@ -1397,11 +1396,11 @@ function func_f
 
 
                         echo " trying to update system again ..."
-                        if ! ( sudo pacman -Syu --noconfirm)                          # if system was fixed, the update should be successful now
+                        if ! ( sudo pacman -Syu )                                   # this last update attempt does not use "--noconfirm" and allows user intervention
                         then
                             echo
                             echo -e " \e[41m Update still not successful. PacUI is unable to fix the system automatically. \e[0m"
-                            echo -e " \e[41m Reading all error messages carefully might help to fix them. \e[0m"
+                            echo -e " \e[41m Read all error messages carefully and try to fix them yourself. \e[0m"
                             echo
 
                         else
@@ -1429,12 +1428,12 @@ function func_f
 
                         echo " trying to update system without checking keys ..."
                         # if keyring is broken, updates (without checking keys) can be manually installed now.
-                        if ! ( sudo pacman -Syu )                                   # this update does not use "--noconfirm" and allows user intervention
+                        if ! ( sudo pacman -Syu )                                   # this last update attempt does not use "--noconfirm" and allows user intervention
                         then
 
                             echo
                             echo -e " \e[41m Update still not successful. PacUI is unable to fix the system automatically. \e[0m"
-                            echo -e " \e[41m Reading all error messages carefully might help to fix them. \e[0m"
+                            echo -e " \e[41m Read all error messages carefully and try to fix them yourself. \e[0m"
                             echo
 
                             echo " raising pacman securities back ..."
@@ -1446,47 +1445,91 @@ function func_f
 
                         else
 
-                            # if the update (without checking keys) was successful, most likely a keyring problem is present. this part prevents any future key problems:
+                            echo
+                            echo -e " \e[41m It seems the update succeded because of the temporary lack of key checks. \e[0m"
+                            echo -e " \e[1;41m Should PacUI prevent all future key / keyring errors? [y|N] \e[0m"
+                            read -r -n 1 -e answer2                                             # save user input in "answer2" variable (only accept 1 character as input)
+
+                            case ${answer2:-n} in                                                # if ENTER is pressed, the variable "answer2" is empty. if "answer2" is empty, its default value is "n".
+
+                                * )                                                             # do this, if "answer2" is neither "no" nor "yes".
+                                    echo
+                                    echo -e " \e[41m Answer not recognized. Please try again with a valid answer. \e[0m"
+                                    echo -e " \e[41m All attempts to fix your system were stopped. \e[0m"
+                                    echo
 
 
-                            # remove gnupg including all keys
-                            if [[ -f /etc/pacman.d/gnupg ]]
-                            then
-                                echo
-                                echo " sudo rm -r /etc/pacman.d/gnupg ..."
-                                sudo rm -r /etc/pacman.d/gnupg &>/dev/null
-                                echo ""
-                            fi
+                                    echo " raising pacman securities back ..."
+                                    # This command will revert the change from above: overwrite (modified) /etc/pacman.conf file with its (unmodified) backup. then, the backup file is deleted.
+                                    sudo cp --preserve=all -f /etc/pacman.conf.backup /etc/pacman.conf && sudo rm /etc/pacman.conf.backup
+                                    # now, the trap is longer needed. reset trap:
+                                    trap − EXIT
+                                    echo ""
+                                ;;
 
 
-                            echo " reinstalling gnupg ..."
-                            sudo pacman -Syu gnupg --noconfirm
-                            echo ""
+                                n|N|no|NO|No )                                                  # do this, if "answer2" is n or N or no or NO or No
+
+                                    echo
+                                    echo " do not fix keyring(s) ..."
+                                    echo
 
 
-                            echo " installing all necessary keyrings ..."
-                            # This command will install all keyrings from avialable current repository
-                            sudo pacman -Syu $( pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | paste -sd " " ) --noconfirm                    # ATTENTION: (i do not know why but) using quotes (" symbols) around $(...) does not work!
-                            echo ""
+                                    echo " raising pacman securities back ..."
+                                    # This command will revert the change from above: overwrite (modified) /etc/pacman.conf file with its (unmodified) backup. then, the backup file is deleted.
+                                    sudo cp --preserve=all -f /etc/pacman.conf.backup /etc/pacman.conf && sudo rm /etc/pacman.conf.backup
+                                    # now, the trap is longer needed. reset trap:
+                                    trap − EXIT
+                                    echo ""
 
 
-                            echo " raising pacman securities back ..."
-                            # This command will revert the change from above: overwrite (modified) /etc/pacman.conf file with its (unmodified) backup. then, the backup file is deleted.
-                            sudo cp --preserve=all -f /etc/pacman.conf.backup /etc/pacman.conf && sudo rm /etc/pacman.conf.backup
-                            # now, the trap is longer needed. reset trap:
-                            trap − EXIT
-                            echo ""
+                                    echo " updating file database ..."
+                                    sudo pacman -Fyy
+                                    echo ""
+                                ;;
 
 
-                            echo " initializing and populating keyring ..."
-                            sudo pacman-key --init && echo "" && sudo pacman-key --populate $( pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | sed 's/-keyring//' | paste -sd " " )                      # ATTENTION: (i do not know why but) using quotes (" symbols) around $(...) does not work!
-                            echo ""
+                                y|Y|yes|YES|Yes )                                               # do this, if "answer2" is y or Y or yes or YES or Yes
+
+                                    # remove gnupg including all keys
+                                    if [[ -f /etc/pacman.d/gnupg ]]
+                                    then
+                                        echo
+                                        echo " sudo rm -r /etc/pacman.d/gnupg ..."
+                                        sudo rm -r /etc/pacman.d/gnupg &>/dev/null
+                                        echo ""
+                                    fi
 
 
-                            echo " updating file database ..."
-                            sudo pacman -Fyy
-                            echo ""
+                                    echo " reinstalling gnupg ..."
+                                    sudo pacman -Syu gnupg --noconfirm
+                                    echo ""
 
+
+                                    echo " installing all necessary keyrings ..."
+                                    # This command will install all keyrings from avialable current repository
+                                    sudo pacman -Syu $( pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | paste -sd " " ) --noconfirm                    # ATTENTION: (i do not know why but) using quotes (" symbols) around $(...) does not work!
+                                    echo ""
+
+
+                                    echo " raising pacman securities back ..."
+                                    # This command will revert the change from above: overwrite (modified) /etc/pacman.conf file with its (unmodified) backup. then, the backup file is deleted.
+                                    sudo cp --preserve=all -f /etc/pacman.conf.backup /etc/pacman.conf && sudo rm /etc/pacman.conf.backup
+                                    # now, the trap is longer needed. reset trap:
+                                    trap − EXIT
+                                    echo ""
+
+
+                                    echo " initializing and populating keyring ..."
+                                    sudo pacman-key --init && echo "" && sudo pacman-key --populate $( pacman -Qsq '(-keyring)' | grep -v -i -E '(gnome|python|debian)' | sed 's/-keyring//' | paste -sd " " )                      # ATTENTION: (i do not know why but) using quotes (" symbols) around $(...) does not work!
+                                    echo ""
+
+
+                                    echo " updating file database ..."
+                                    sudo pacman -Fyy
+                                    echo ""
+                                ;;
+                            esac
                         fi
                     ;;
                 esac                                                                # end of "case" loop
