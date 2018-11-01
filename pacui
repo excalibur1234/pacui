@@ -549,6 +549,7 @@ function func_i
 
                         elif [[ $(comm -12 <(echo {1}) <(sort /tmp/pacui-list-installed)) ]]                  # check, if 1. field of selected line (in fzf) is a locally installed package.
                         then
+                            echo -e "\e[1mInstalled package info: \e[0m"
                             pacman -Qi {1} --color always                           # display local package information in preview window of fzf
                             echo
 
@@ -664,6 +665,7 @@ function func_r
         pkg="$( sort -k1,1 -u /tmp/pacui-packages-group | fzf -i --multi --exact --no-sort --select-1 --query="$argument_input" --cycle --reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --inline-info --preview '
             if ( pacman -Qq {1} &>/dev/null )                                       # check, if selected line is a locally installed package
             then
+                echo -e "\e[1mInstalled package info: \e[0m"
                 pacman -Qi {1} --color always
 
             else
@@ -730,6 +732,7 @@ function func_r
                             pkg="$( echo "$pkg_remove_backup" | fzf -i --multi --exact --no-sort --query="$argument_input" --reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --inline-info --preview '
                                 if ( pacman -Qq {1} &>/dev/null )                   # check, if selected line is a locally installed package
                                 then
+                                    echo -e "\e[1mInstalled package info: \e[0m"
                                     pacman -Qi {1} --color always
 
                                 else
@@ -797,9 +800,11 @@ function func_t
         pkg="$( sort -k1,1 -u /tmp/pacui-packages-local | fzf -i --exact --no-sort --select-1 --query="$argument_input" --cycle --reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --inline-info --preview '
             if ( pacman -Qq {1} &>/dev/null )                                       # check, if 1. element of selected line is a locally installed package
             then
+                echo -e "\e[1mInstalled package info: \e[0m"
                 pacman -Qi {1} --color always
 
             else
+                echo -e "\e[1mRepository package info: \e[0m"
                 pacman -Si {1} --color always                                       # do this, if package is not locally installed
 
             fi
@@ -816,6 +821,7 @@ function func_t
                 # explain the " echo {} | sed 's/^[│├└─ ]*//g' | cut -d ' ' -f 1 " command used below:
                 # first echo selected line in fzf. then, remove all symbols from the beginning of the line, which does not belong to the package name. if there are multiple package names (e.g. with "provides") in 1 line all other (except for the first package name) are cut from the result.
                 pactree -c "$pkg" | fzf -i --multi --exact --no-sort --ansi --reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --inline-info --preview '
+                    echo -e "\e[1mInstalled package info: \e[0m"
                     pacman -Qi "$( echo {} | sed "s/^[│├└─ ]*//g" | cut -d " " -f 1 )" --color always
                     ' "$( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )" --header="Dependency Tree of \"$pkg\" (installed). ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-t
 
@@ -824,9 +830,11 @@ function func_t
                 pactree -c -s "$pkg" | fzf -i --multi --exact --no-sort --ansi --reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --inline-info --preview '
                     if ( pacman -Qq "$( echo {} | sed "s/^[│├└─ ]*//g" | cut -d " " -f 1 )" &>/dev/null )                                                 # check, if selected line contains a locally installed package.
                     then
+                        echo -e "\e[1mInstalled package info: \e[0m"
                         pacman -Qi "$( echo {} | sed "s/^[│├└─ ]*//g" | cut -d " " -f 1 )" --color always                                                 # display local package information in preview window of fzf
 
                     else
+                        echo -e "\e[1mRepository package info: \e[0m"
                         pacman -Si "$( echo {} | sed "s/^[│├└─ ]*//g" | cut -d " " -f 1 )" --color always                                                 # display package info from repository, if package is not locally installed
 
                     fi
@@ -857,9 +865,11 @@ function func_rt
         pkg="$( sort -k1,1 -u /tmp/pacui-packages-local  | fzf -i --exact --no-sort --select-1 --query="$argument_input" --cycle --reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --inline-info --preview '
             if ( pacman -Qq {1} &>/dev/null )                                       # check, if 1. element of selected line is a locally installed package
             then
+                echo -e "\e[1mInstalled package info: \e[0m"
                 pacman -Qi {1} --color always
 
             else
+                echo -e "\e[1mRepository package info: \e[0m"
                 pacman -Si {1} --color always                                       # do this, if package is not locally installed
 
             fi
@@ -876,6 +886,7 @@ function func_rt
                 # explain the " echo {} | sed 's/^[│├└─ ]*//g' | cut -d ' ' -f 1 " command used below:
                 # first echo selected line in fzf. then, remove all symbols from the beginning of the line, which does not belong to the package name. if there are multiple package names (e.g. with "provides") in 1 line all other (except for the first package name) are cut from the result.
                 pactree -c -r "$pkg" | fzf -i --multi --exact --no-sort --ansi --reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --inline-info --preview '
+                    echo -e "\e[1mInstalled package info: \e[0m"
                     pacman -Qi "$( echo {} | sed "s/^[│├└─ ]*//g" | cut -d " " -f 1 )" --color always
                     ' "$( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )" --header="Reverse Dependency Tree of \"$pkg\" (installed). ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-rt
 
@@ -884,9 +895,11 @@ function func_rt
                 pactree -c -s -r "$pkg" | fzf -i --multi --exact --no-sort --ansi --reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --inline-info --preview '
                     if ( pacman -Qq "$( echo {} | sed "s/^[│├└─ ]*//g" | cut -d " " -f 1 )" &>/dev/null )                                                 # check, if selected line contains a locally installed package.
                     then
+                        echo -e "\e[1mInstalled package info: \e[0m"
                         pacman -Qi "$( echo {} | sed "s/^[│├└─ ]*//g" | cut -d " " -f 1 )" --color always                                                 # display local package information in preview window of fzf
 
                     else
+                        echo -e "\e[1mRepository package info: \e[0m"
                         pacman -Si "$( echo {} | sed "s/^[│├└─ ]*//g" | cut -d " " -f 1 )" --color always                                                 # display package info from repository, if package is not locally installed
 
                     fi
@@ -917,9 +930,11 @@ function func_l
         pkg="$( sort -k1,1 -u /tmp/pacui-packages-local | fzf -i --exact --no-sort --select-1 --query="$argument_input" --cycle --reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --inline-info --preview '
             if ( pacman -Qq {1} &>/dev/null )                                       # check, if selected line is a locally installed package
             then
+                echo -e "\e[1mInstalled package info: \e[0m"
                 pacman -Qi {1} --color always                                       # for local packages, local query is sufficient.
 
             else
+                echo -e "\e[1mRepository package info: \e[0m"
                 pacman -Si {1} --color always                                       # do this, if package is not locally installed
 
             fi
@@ -1699,6 +1714,7 @@ function func_c
 
             else
                 echo "{1}: Read permission denied"
+
             fi
             ' "$( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:60%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi )" --header="ENTER to continue. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )"
         # the output of fzf is saved in the $file variable. $file can contain a filename (with its full path) or a directory (with its full path).
@@ -1806,6 +1822,7 @@ function func_ls
         # "sort -n -r"  sorts list by number (with which every element begins).
         # ATTENTION: (i do not know why but) using quotes (" symbols) around $( comm ...) breaks expac
         expac -H M -Q "%12m - \e[1m%n\e[0m %v" $( comm -23 <(pacman -Qq | sort) <(pacman -Qqg base | sort) ) | sort -n -r | fzf -i --multi --exact --no-sort --ansi --reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --inline-info --preview '
+            echo -e "\e[1mInstalled package info: \e[0m"
             pacman -Qi {4} --color always
             ' "$( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:60%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi )" --header="Navigate with PageUp / PageDown. ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-ls
         # alternative command to "expac" and "sort": package-query -Qe --rsort 2 -f "%2 - \e[1m%n \e[0m%v" | numfmt --to=iec
@@ -1868,6 +1885,7 @@ function func_la
         # packages from the AUR and manually installed packages
         # "pacman -Qm --color always"
         pacman -Qqm --color always | fzf -i --multi --exact --no-sort --cycle --ansi --reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --inline-info --preview '
+            echo -e "\e[1mInstalled package info: \e[0m"
             pacman -Qi {} --color always
             ' "$( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:60%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi )" --header="List of manually installed packages. ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-la
 
@@ -1902,9 +1920,11 @@ function func_d
             pkg="$( sort -k1,1 -u /tmp/pacui-packages-local | fzf -i --multi --exact --no-sort --select-1 --bind=right:half-page-down,left:half-page-up --query="$argument_input" --cycle --reverse --margin="4%,1%,1%,2%" --inline-info --preview '
                 if ( pacman -Qq {1} &>/dev/null )                                   # check, if selected line is a locally installed package
                 then
+                    echo -e "\e[1mInstalled package info: \e[0m"
                     pacman -Qi {1} --color always                                   # for local packages, local query is sufficient.
 
                 else
+                    echo -e "\e[1mRepository package info: \e[0m"
                     pacman -Si {1} --color always                                   # do this, if package is not locally installed
 
                 fi
