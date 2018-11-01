@@ -541,43 +541,53 @@ function func_i
                     --margin="4%,1%,1%,2%" \
                     --inline-info \
                     --preview '
-                        if [[ $(comm -12 <(echo {1}) <(sort /tmp/pacui-list-installed)) ]]                    # check, if 1. field of selected line is a locally installed package.
-                        then
-                            pacman -Qi {1} --color always                           # display local package information in preview window of fzf
-
-                        elif [[ $(comm -12 <(echo {1}) <(sort /tmp/pacui-list-install-groups)) ]]             # check, if 1. field of selected line in fzf is part of /tmp/pacui-list-install-groups file
+                        if [[ $(comm -12 <(echo {1}) <(sort /tmp/pacui-list-install-groups)) ]]             # check, if 1. field of selected line (in fzf) is a package group
                         then
                             echo -e "\e[1m{1} group has the following members: \e[0m"
                             pacman -Sgq {1}                                         # display package name of group members in preview window of fzf
+                            echo
 
-                        elif [[ $(comm -12 <(echo {1}) <(sort /tmp/pacui-list-install-repo)) ]]
+                        elif [[ $(comm -12 <(echo {1}) <(sort /tmp/pacui-list-installed)) ]]                  # check, if 1. field of selected line (in fzf) is a locally installed package.
                         then
-                            pacman -Si {1} --color always                           # do this, if no AUR helper is installed
+                            pacman -Qi {1} --color always                           # display local package information in preview window of fzf
+                            echo
 
-                        elif test '$AUR_Helper' = "yay"
+                        fi
+
+                        if [[ $(comm -12 <(echo {1}) <(sort /tmp/pacui-list-install-repo)) ]]               # check, if 1. field of selected line (in fzf) is a package from system repositories
                         then
-                            yay -Si {1} | grep -v "::"                              # grep command removes all errors displayed by yay
+                            echo -e "\e[1mRepository package info: \e[0m"
+                            pacman -Si {1} --color always                           # display repository package information in preview window of fzf
 
-                        elif test '$AUR_Helper' = "pikaur"
+                        elif ( test -n '$AUR_Helper' )                              # check, if any AUR helper is installed. content of $AUR_Helper variable needs to get checked using "test" for preview window of fzf!
                         then
-                            pikaur -Si {1}
+                            echo -e "\e[1mAUR package info: \e[0m"
 
-                        elif test '$AUR_Helper' = "aurman"                          # if {1} is neither locally installed nor a group, it is from the AUR. display info with AUR helper
-                        then
-                            aurman -Si {1} | grep -v "::"                           # grep command removes all errors displayed by aurman
+                            if test '$AUR_Helper' = "yay"
+                            then
+                                yay -Si {1} | grep -v "::"                          # grep command removes all errors displayed by yay
 
-                        elif test '$AUR_Helper' = "pakku"
-                        then
-                            pakku -Si {1}
+                            elif test '$AUR_Helper' = "pikaur"
+                            then
+                                pikaur -Si {1}
 
-                        elif test '$AUR_Helper' = "trizen"
-                        then
-                            trizen -Si {1}
+                            elif test '$AUR_Helper' = "aurman"                      # if {1} is neither locally installed nor a group, it is from the AUR. display info with AUR helper
+                            then
+                                aurman -Si {1} | grep -v "::"                       # grep command removes all errors displayed by aurman
 
-                        elif test '$AUR_Helper' = "pacaur"
-                        then
-                            pacaur -Si {1} --color always | grep -v "::"            # grep command removes all errors displayed by pacaur
+                            elif test '$AUR_Helper' = "pakku"
+                            then
+                                pakku -Si {1}
 
+                            elif test '$AUR_Helper' = "trizen"
+                            then
+                                trizen -Si {1}
+
+                            elif test '$AUR_Helper' = "pacaur"
+                            then
+                                pacaur -Si {1} --color always | grep -v "::"        # grep command removes all errors displayed by pacaur
+
+                            fi
                         fi' \
                     "$(
                         if (( $(tput cols) >= 120 ))
@@ -639,10 +649,10 @@ function func_i
 # this function provides core functionality of "Remove Packages". the help page provides additional explanations.
 function func_r
 {
-        # write package list of local repository to /tmp/pacui-packages-group. then add all installed package groups to the bottom.
+        # write package list of local repository to /tmp/pacui-packages-group.
         #pacman -Qq | tr -d " " > /tmp/pacui-packages-group
         expac -Q "%-33n\t%d" > /tmp/pacui-packages-group
-        # this expac command prints a list of package groups of installed packages
+        # use expac command to print a list of installed package groups (of installed packages. then extract installed package groups from all of them) and add it to the bottom of /tmp/pacui-packages-group
         # awk 'NF != 0'  only displays lines where the number of fields is not zero (i.e. non-empty lines)
         expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-group
 
@@ -655,9 +665,11 @@ function func_r
             if ( pacman -Qq {1} &>/dev/null )                                       # check, if selected line is a locally installed package
             then
                 pacman -Qi {1} --color always
+
             else
                 echo -e "\e[1m{1} group has the following members: \e[0m"
                 pacman -Sgq {1}
+
             fi
             ' "$( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )" --header="TAB key to (un)select. ENTER to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )"
 
@@ -719,9 +731,11 @@ function func_r
                                 if ( pacman -Qq {1} &>/dev/null )                   # check, if selected line is a locally installed package
                                 then
                                     pacman -Qi {1} --color always
+
                                 else
                                     echo -e "\e[1m{1} group has the following members: \e[0m"
                                     pacman -Sgq {1}
+
                                 fi
                                 ' "$( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )" --header="TAB key to (un)select. ENTER to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )"
 
@@ -770,11 +784,11 @@ function func_r
 # this function provides core functionality of "Dependency Tree". the help page provides additional explanations.
 function func_t
 {
-        # write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
-        #pacman -Slq | tr -d " " > /tmp/pacui-packages-local
-        expac -S "%-33n\t%d" > /tmp/pacui-packages-local
-        #pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
-        expac -Q "%-33n\t%d" >> /tmp/pacui-packages-local
+        # write list of all installed packages to file /tmp/pacui-packages-local . then add list of packages in system repositories to the bottom of /tmp/pacui-packages-local.
+        #pacman -Qq | tr -d " " > /tmp/pacui-packages-local
+        expac -Q "%-33n\t%d" > /tmp/pacui-packages-local
+        #pacman -Slq | tr -d " " >> /tmp/pacui-packages-local
+        expac -S "%-33n\t%d" >> /tmp/pacui-packages-local
 
         local pkg
 
@@ -784,8 +798,10 @@ function func_t
             if ( pacman -Qq {1} &>/dev/null )                                       # check, if 1. element of selected line is a locally installed package
             then
                 pacman -Qi {1} --color always
+
             else
                 pacman -Si {1} --color always                                       # do this, if package is not locally installed
+
             fi
             ' "$( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )"  --header="ENTER for dependency tree. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )"
 
@@ -809,8 +825,10 @@ function func_t
                     if ( pacman -Qq "$( echo {} | sed "s/^[│├└─ ]*//g" | cut -d " " -f 1 )" &>/dev/null )                                                 # check, if selected line contains a locally installed package.
                     then
                         pacman -Qi "$( echo {} | sed "s/^[│├└─ ]*//g" | cut -d " " -f 1 )" --color always                                                 # display local package information in preview window of fzf
+
                     else
                         pacman -Si "$( echo {} | sed "s/^[│├└─ ]*//g" | cut -d " " -f 1 )" --color always                                                 # display package info from repository, if package is not locally installed
+
                     fi
                     ' "$( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )" --header="Dependency Tree of \"$pkg\" (not installed). ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-t
 
@@ -855,11 +873,11 @@ function func_rt
 # this function provides core functionality of "List Package Files". the help page provides additional explanations.
 function func_l
 {
-        # write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
-        #pacman -Slq | tr -d " " > /tmp/pacui-packages-local
-        expac -S "%-33n\t%d" > /tmp/pacui-packages-local
-        #pacman -Qq | tr -d " " >> /tmp/pacui-packages-local
-        expac -Q "%-33n\t%d" >> /tmp/pacui-packages-local
+        # write list of all installed packages to file /tmp/pacui-packages-local . then add list of packages in system repositories to the bottom of /tmp/pacui-packages-local.
+        #pacman -Qq | tr -d " " > /tmp/pacui-packages-local
+        expac -Q "%-33n\t%d" > /tmp/pacui-packages-local
+        #pacman -Slq | tr -d " " >> /tmp/pacui-packages-local
+        expac -S "%-33n\t%d" >> /tmp/pacui-packages-local
 
         local pkg
 
@@ -869,8 +887,10 @@ function func_l
             if ( pacman -Qq {1} &>/dev/null )                                       # check, if selected line is a locally installed package
             then
                 pacman -Qi {1} --color always                                       # for local packages, local query is sufficient.
+
             else
                 pacman -Si {1} --color always                                       # do this, if package is not locally installed
+
             fi
             ' "$( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )" --header="ENTER to list files. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )"
 
@@ -1641,9 +1661,11 @@ function func_c
             if ( echo {1} | grep "/$" &>/dev/null )                                 # check, if 1. field ends with a "/"" (= is a directory)
             then
                 ls {1}                                                              # if directory is selected in fzf, display list of files in that directory
+
             elif ( cat {1} &>/dev/null )
             then
                 cat {1}                                                             # display file content, if no directory is selected. an error is displayed, when root privilges are required (because "sudo cat {1}" breaks fzf when password entry is required !!!)
+
             else
                 echo "{1}: Read permission denied"
             fi
@@ -1838,9 +1860,9 @@ function func_d
 
         else
 
-            # write package list of system repositories to /tmp/pacui-packages-local. then add all installed packages to the bottom of /tmp/pacui-packages-local.
-            expac -S "%-33n\t%d" > /tmp/pacui-packages-local
-            expac -Q "%-33n\t%d" >> /tmp/pacui-packages-local
+            # write list of all installed packages to file /tmp/pacui-packages-local . then add list of packages in system repositories to the bottom of /tmp/pacui-packages-local.
+            expac -Q "%-33n\t%d" > /tmp/pacui-packages-local
+            expac -S "%-33n\t%d" >> /tmp/pacui-packages-local
 
             local {pkg,pkg_downgrade}
 
@@ -1850,8 +1872,10 @@ function func_d
                 if ( pacman -Qq {1} &>/dev/null )                                   # check, if selected line is a locally installed package
                 then
                     pacman -Qi {1} --color always                                   # for local packages, local query is sufficient.
+
                 else
                     pacman -Si {1} --color always                                   # do this, if package is not locally installed
+
                 fi
                 ' "$( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )" --header="TAB to (un)select. ENTER to downgrade. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )"
 
