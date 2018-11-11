@@ -545,49 +545,50 @@ function func_i
                         then
                             echo -e "\e[1m{1} group has the following members: \e[0m"
                             pacman -Sgq {1}                                         # display package name of group members in preview window of fzf
-                            echo
 
-                        elif [[ $(comm -12 <(echo {1}) <(sort /tmp/pacui-list-installed)) ]]                  # check, if 1. field of selected line (in fzf) is a locally installed package.
-                        then
-                            echo -e "\e[1mInstalled package info: \e[0m"
-                            pacman -Qi {1} --color always                           # display local package information in preview window of fzf
-                            echo
+                        else
 
-                        fi
-
-                        if [[ $(comm -12 <(echo {1}) <(sort /tmp/pacui-list-install-repo)) ]]               # check, if 1. field of selected line (in fzf) is a package from system repositories
-                        then
-                            echo -e "\e[1mRepository package info: \e[0m"
-                            pacman -Si {1} --color always                           # display repository package information in preview window of fzf
-
-                        elif ( test -n '$AUR_Helper' )                              # check, if any AUR helper is installed. content of $AUR_Helper variable needs to get checked using "test" for preview window of fzf!
-                        then
-                            echo -e "\e[1mAUR package info: \e[0m"
-
-                            if test '$AUR_Helper' = "yay"
+                            if [[ $(comm -12 <(echo {1}) <(sort /tmp/pacui-list-installed)) ]]                  # check, if 1. field of selected line (in fzf) is a locally installed package.
                             then
-                                yay -Si {1} | grep -v "::"                          # grep command removes all errors displayed by yay
+                                echo -e "\e[1mInstalled package info: \e[0m"
+                                pacman -Qi {1} --color always                           # display local package information in preview window of fzf
+                                echo
+                            fi
 
-                            elif test '$AUR_Helper' = "pikaur"
+                            if [[ $(comm -12 <(echo {1}) <(sort /tmp/pacui-list-install-repo)) ]]               # check, if 1. field of selected line (in fzf) is a package from system repositories
                             then
-                                pikaur -Si {1}
+                                echo -e "\e[1mRepository package info: \e[0m"
+                                pacman -Si {1} --color always                           # display repository package information in preview window of fzf
 
-                            elif test '$AUR_Helper' = "aurman"                      # if {1} is neither locally installed nor a group, it is from the AUR. display info with AUR helper
+                            elif ( test -n '$AUR_Helper' )                              # check, if any AUR helper is installed. content of $AUR_Helper variable needs to get checked using "test" for preview window of fzf!
                             then
-                                aurman -Si {1} | grep -v "::"                       # grep command removes all errors displayed by aurman
+                                echo -e "\e[1mAUR package info: \e[0m"
 
-                            elif test '$AUR_Helper' = "pakku"
-                            then
-                                pakku -Si {1}
+                                if test '$AUR_Helper' = "yay"
+                                then
+                                    yay -Si {1} | grep -v "::"                          # grep command removes all errors displayed by yay
 
-                            elif test '$AUR_Helper' = "trizen"
-                            then
-                                trizen -Si {1}
+                                elif test '$AUR_Helper' = "pikaur"
+                                then
+                                    pikaur -Si {1}
 
-                            elif test '$AUR_Helper' = "pacaur"
-                            then
-                                pacaur -Si {1} --color always | grep -v "::"        # grep command removes all errors displayed by pacaur
+                                elif test '$AUR_Helper' = "aurman"                      # if {1} is neither locally installed nor a group, it is from the AUR. display info with AUR helper
+                                then
+                                    aurman -Si {1} | grep -v "::"                       # grep command removes all errors displayed by aurman
 
+                                elif test '$AUR_Helper' = "pakku"
+                                then
+                                    pakku -Si {1}
+
+                                elif test '$AUR_Helper' = "trizen"
+                                then
+                                    trizen -Si {1}
+
+                                elif test '$AUR_Helper' = "pacaur"
+                                then
+                                    pacaur -Si {1} --color always | grep -v "::"        # grep command removes all errors displayed by pacaur
+
+                                fi
                             fi
                         fi' \
                     "$(
