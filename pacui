@@ -333,7 +333,7 @@ function func_m
         if [[ "$( LC_ALL=C systemctl --failed | head -n 1 | awk '{print $1}' )" == "UNIT" ]]
         then
             echo -e " \e[41m The following systemd service(s) have failed. Please fix them manually. \e[0m"
-            echo -e " \e[41m Display detailed information about a systemd service with: systemctl status <SYSTEMD SERVICE NAME> \e[0m"
+            echo -e " \e[1m Display detailed information about a systemd service with: systemctl status <SYSTEMD SERVICE NAME> \e[0m"
             echo
             systemctl --failed
         fi
@@ -1635,6 +1635,7 @@ function func_c
         [[ -f /etc/profile.d/freetype2.sh ]]            && echo -e "/etc/profile.d/freetype2.sh                                                                                                                                                                                                                                      Configure TrueType interpreter (including Infinality mode) in file:" >> ${pacui_config}
         [[ -f /etc/pulse/daemon.conf ]]                 && echo -e "/etc/pulse/daemon.conf                                                                                                                                                                                                                                           Configure global PulseAudio daemon in file:" >> ${pacui_config}
         [[ -f /etc/pulse/default.pa ]]                  && echo -e "/etc/pulse/default.pa                                                                                                                                                                                                                                            Configure PulseAudio modules in file:" >> ${pacui_config}
+        [[ -f /etc/asound.conf ]]                       && echo -e "/etc/asound.conf                                                                                                                                                                                                                                                 Configure ALSA in file:" >> ${pacui_config}
         [[ -f $HOME/.gnupg/gpg.conf ]]                  && echo -e "\e[31m$HOME/.gnupg/gpg.conf                                                                                                                                                                                                                                      Configure GnuPG user settings in file:\e[0m" >> ${pacui_config}
         [[ -f /etc/pacman.conf ]]                       && echo -e "\e[31m/etc/pacman.conf                                                                                                                                                                                                                                           Configure Pacman in file:\e[0m" >> ${pacui_config}
         [[ -f /etc/pacman-mirrors.conf ]]               && echo -e "/etc/pacman-mirrors.conf                                                                                                                                                                                                                                         Configure Manjaro's pacman-mirrors in file:" >> ${pacui_config}
