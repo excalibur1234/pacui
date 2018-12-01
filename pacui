@@ -2053,8 +2053,8 @@ function func_help
 
 PacUI is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Yay/Pikaur/Aurman/Pakku/Trizen/Pacaur as back ends.
 
-Navigate this help page with your Arrow Keys, PageUp/PageDown Keys, SpaceBar, or your Mouse Wheel. To search this Help Page, enter /<SEARCH TERM> and press ENTER. For example, enter the following (without quotes " ") in order to search for the word "update": "/update". Press N key to continue searching for other occurrence s of "/update". Search is not case sensitive. To exit this Help Page, press your Q key.
-PacUI uses Fuzzy Finder (fzf) to display selectable lists, which can be easily searched by starting to type. Advanced users can even use regular expressions to search in fzf. Use your TAB key to select multiple items from the list and your ENTER key to choose your selection. Navigate fzf's list the same way you navigate this help page.
+Navigate this help page with your Arrow Keys, PageUp/PageDown Keys, SpaceBar, or your Mouse Wheel. To search this Help Page, enter /<SEARCH TERM> and press ENTER. For example, enter the following (without quotes " ") in order to search for the word "update": "/update". Press N key to continue searching for other occurrences of "/update". Search is not case sensitive. To exit this Help Page, press your Q key.
+PacUI uses Fuzzy Finder (fzf) to display selectable lists, which can be easily searched by starting to type. Advanced users can even use regular expressions to search in fzf. Navigate fzf's list the same way you navigate this help page.
 
 
 \e[1mHOME SCREEN
@@ -2065,8 +2065,8 @@ The last part offers options exclusive to Arch User Repository (AUR) management.
 
 
 \e[1m00 - HELP
-Display this help page.
-This help page only gets displayed when entered from PacUIs user interface. If "pacui h" or "pacui -h" is executed in a terminal, a very short help page gets displayed. Quit this help page by pressing the Q key.
+Display this help page. A very shot summary of this help page can be displayed in your terminal with "pacui -h" of "pacui h".
+Quit this help page by pressing the Q key.
 
 
 \e[1m0 - QUIT
