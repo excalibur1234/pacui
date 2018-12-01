@@ -30,9 +30,11 @@ SHELL=/usr/bin/bash                                                             
 
 # use unofficial strict mode in order to make bash behave like modern programming languages.
 # this should only be used for development.
-# ATTENTION: in order to complete this script in strict mode, EVERY command, which can fail with an error, should be called like this: "if ( <command> ); then echo ''; fi"
-#set -e                                                                             # exit script immediately, if any command exits with non-zero error code
+# ATTENTION: in order to use strict mode outside of debugging, EVERY command, which can fail with an error, should be called like this: "if ( <command> ); then echo ''; fi" to avoid commands exiting with non-zero values (such as when "fzf" is quit using ESC).
+#set -e                                                                             # exit script immediately, if any command exits with non-zero error code. this is useful for parts of a script, which print an error message when exiting with non-zero value.
+#set -E                                                                             # let traps execute even when "set -e" is used. only use this in conjunction with "set -e" to avoid unexpected behavior
 #set -u                                                                             # only allow previously defined variables
+#set -x                                                                             # print every command (with expanded arguments) before execution. can be useful for debugging content of variables and to see in which line the script has failed.
 #set -o pipefail                                                                    # if one command in a pipe fails, all fail (this is not default behavior!)
 
 # =======================
@@ -261,10 +263,10 @@ function func_diff
 function func_m
 {
         # delete only pacui-related packages in /tmp directory. if other files are deleted, linux starts to act strange!
-        if ( sudo find /tmp/ -iname "pacui*" &>/dev/null )                          # check if "pacui*" file or directory is found in /tmp/ directory. do not output anything to terminal.
+        if ( sudo find /tmp/ -iname 'pacui*' -print -quit | grep pacui -q )         # check if "pacui*" file or directory is found in /tmp/ directory and print its first path. use a quiet "grep" to have a success condition.
         then
             echo " deleting PacUI cache ..."
-            sudo rm -r /tmp/pacui*
+            sudo rm -r /tmp/pacui*                                                  # here the "rm -r" command is needed, because both directories and files have to be removed. "unlink" and "rmdir" do not work here.
             echo ""
         fi
 
