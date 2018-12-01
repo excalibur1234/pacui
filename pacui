@@ -1793,7 +1793,19 @@ function func_c
             elif [[ "$file" == "/etc/mkinitcpio.conf" ]]
             then
                 sudo "${EDITOR:-/usr/bin/nano}" "$file"
-                sudo mkinitcpio -P && sudo grub-mkconfig -o /boot/grub/grub.cfg     # apply changes   # "grub-mkconfig -o /boot/grub/grub.cfg" == "udpate-grub" (in manjaro)
+
+                echo -e " \e[1;41m Do you want to regenerate the initramfs and update grub.cfg? [y|N] \e[0m"
+                read -r -n 1 -e answer                                              # save user input in "answer" variable (only accept 1 character as input)
+
+                case ${answer:-n} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "n".
+                    y|Y|yes|YES|Yes )
+                        sudo mkinitcpio -P && sudo grub-mkconfig -o /boot/grub/grub.cfg     # apply changes   # "grub-mkconfig -o /boot/grub/grub.cfg" == "udpate-grub" (in manjaro)
+                    ;;
+
+                    * )
+                        echo -e " \e[1m If /etc/mkinitcpio.conf has changed, please regenerate the initramfs and update your boot loader configuration manually. \e[0m"
+                    ;;
+                esac
 
             elif [[ "$file" == "/etc/default/grub" ]] || [[ "$file" == "/boot/grub/custom.cfg" ]]
             then
