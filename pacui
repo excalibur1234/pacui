@@ -1803,7 +1803,7 @@ function func_c
                     ;;
 
                     * )
-                        echo -e " \e[1m If /etc/mkinitcpio.conf has changed, please regenerate the initramfs and update your boot loader configuration manually. \e[0m"
+                        echo -e " \e[1m If /etc/mkinitcpio.conf was edited, please regenerate the initramfs and update your boot loader configuration manually. \e[0m"
                     ;;
                 esac
 
