@@ -332,7 +332,7 @@ function func_m
 
         echo " checking systemctl ..."
         # "LC_ALL=C" forces the output to use english language. this is important, if the output is queried.
-        if [[ "$( LC_ALL=C systemctl --failed | head -n 1 | awk '{print $1}' )" == "UNIT" ]]
+        if [[ "$( LC_ALL=C systemctl --failed |  awk 'NR==1 {print $1}' )" == "UNIT" ]]
         then
             echo -e " \e[41m The following systemd service(s) have failed. Please fix them manually. \e[0m"
             echo -e " \e[1m Display detailed information about a systemd service with: systemctl status <SYSTEMD SERVICE NAME> \e[0m"
@@ -1132,22 +1132,24 @@ function func_b
                 then
                     # the while-loop here is needed to read the content of every line of $pacui_cache_install variable and save that line to variable $line.
                     pacui_aur_install="$(
-                    while IFS='' read -r line || [[ -n "$line" ]]
-                    do
-                        ## the problem here is that AUR packages are not named/numbered in a constant and easy sortable way. therefore, we search for all files and output their modification date in an easy searchable format (and then, the file name).
-                        ## then, "grep" is used to get only package files. then, the list is sorted (by the modification date).
-                        ## awk gets rid of the modification date. grep filters for the file name $line. sed only chooses the first/top line.
-                        find "$cachePACAUR" -maxdepth 2 -mindepth 2 -type f -printf "%T+\t%p\n" | grep ".pkg.tar.[gx]z$" | sort -rn | awk '{print $2}' | grep "$line""-" | sed -n '1p'
-                    done < <(echo "${pacui_cache_install}") )"
+                        while IFS='' read -r line || [[ -n "$line" ]]
+                        do
+                            ## the problem here is that AUR packages are not named/numbered in a constant and easy sortable way. therefore, we search for all files and output their modification date in an easy searchable format (and then, the file name).
+                            ## then, "grep" is used to get only package files. then, the list is sorted (by the modification date).
+                            ## awk gets rid of the modification date. grep filters for the file name $line. sed only chooses the first/top line.
+                            find "$cachePACAUR" -maxdepth 2 -mindepth 2 -type f -printf "%T+\t%p\n" | grep ".pkg.tar.[gx]z$" | sort -rn | awk '{print $2}' | grep "$line""-" | sed -n '1p'
+                        done < <(echo "${pacui_cache_install}")
+                    )"
                 fi
 
                 # read line by line from variable $pacui_cache_install in while loop and save that line to variable $line
                 pacui_install="$(
-                while IFS='' read -r line || [[ -n "$line" ]]
-                do
-                    # write name of latest version in cache into variable $pacui_install ("sort" puts latest version on top, which is then selected):
-                    find "$cache" -name "${line}-[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r | sed -n '1p'
-                done < <(echo "${pacui_cache_install}") )"
+                    while IFS='' read -r line || [[ -n "$line" ]]
+                    do
+                        # write name of latest version in cache into variable $pacui_install ("sort" puts latest version on top, which is then selected):
+                        find "$cache" -name "${line}-[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r | sed -n '1p'
+                    done < <(echo "${pacui_cache_install}")
+                )"
 
                 # sort output to suit pacman's syntax. pacman needs a list of package names separated by single spaces.
                 if [[ ! -z "$pacui_aur_install" ]]
