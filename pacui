@@ -2081,7 +2081,7 @@ The last part offers options exclusive to Arch User Repository (AUR) management.
 
 
 \e[1m00 - HELP
-Display this help page. A very shot summary of this help page can be displayed in your terminal with "pacui -h" of "pacui h".
+Display this help page. A very shot summary of this help page can be displayed in your terminal with "pacui -h" or "pacui h".
 Quit this help page by pressing the Q key.
 
 
