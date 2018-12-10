@@ -338,6 +338,7 @@ function func_m
             echo -e " \e[1m Display detailed information about a systemd service with: systemctl status <SYSTEMD SERVICE NAME> \e[0m"
             echo
             systemctl --failed
+            echo
         fi
         echo ""
 

@@ -3,7 +3,7 @@
 
 
 pkgname=pacui
-pkgver=1.11
+pkgver=1.12
 pkgrel=1
 pkgdesc="Bash script providing advanced Pacman and Yay/Pikaur/Aurman/Pakku/Trizen/Pacaur functionality in a simple UI"
 arch=(any)
