@@ -282,7 +282,7 @@ function func_m
 
             elif [[ -f /usr/bin/reflector ]]                                        # checks, whether file "reflector" exists
             then
-                sudo reflector --verbose --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist && sleep 20 && sudo pacman -Syyu          # If it does exists, then the mirror will sort by it
+                sudo reflector --verbose --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist && sleep 10 && sudo pacman -Syyu          # If it does exists, then the mirror will sort by it
 
             fi
             echo ""
