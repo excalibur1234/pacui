@@ -959,9 +959,19 @@ function func_l
 
             else
 
-                # update local package database. this needs a long time when internet connection is slow.
-                # in some cases, the local database has to be initialized with sudo pacman -Fyy
-                sudo pacman -Fy
+                local server
+                # extract mirror/repository server url from /etc/pacman.d/mirrorlist file with command:
+                server="$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" |awk -F '=' '{print $2}' | awk -F '$' '{print $1}' )"
+
+                # check, whether there is a connection to the mirror/repository server. this is needed for package download/update!
+                if ! ( wget --spider $(echo "$server") &>/dev/null )                        # the "wget --spider" command gets executed in any case in order to check its output.
+                then
+
+                    # update local package database. this needs a long time when internet connection is slow.
+                    # in some cases, the local database has to be initialized first with "sudo pacman -Fyy"
+                    sudo pacman -Fy
+
+                fi
 
                 pacui_tty_clean                                                     # clear terminal
 
@@ -1002,7 +1012,7 @@ function func_s
         then
 
             # use as many local variables as possible. unfortunately, it is still necessary to use a couple of temporary files (i have done a lot of tests and this current form of 'pacui s' seems to be the fastest):
-            local {pacui_search_temp_local,pacui_search_temp_repo2,pacui_search_temp_only_in_repo2}
+            local {pacui_search_temp_local,pacui_search_temp_repo2,pacui_search_temp_only_in_repo2,server}
 
 
             echo -e "\n\e[1mLocal package files: \e[0m" > /tmp/pacui-search
@@ -1012,10 +1022,15 @@ function func_s
             # write a list of package names (which install files containing "$file" string) to variable $pacui_search_temp_local
             pacui_search_temp_local="$( pacman -Ql | awk -v VAR="$file" -F '/' '$NF ~ VAR' | awk -F '/' '{print $1}' | sort -u | tr -d ' ' )"
 
-            # update local package database. this needs a long time when internet connection is slow.
-            # in some cases, the local database has to be initialized with "sudo pacman -Fyy" first
-            sudo pacman -Fy
-
+            # extract mirror/repository server url from /etc/pacman.d/mirrorlist file with command:
+            server="$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" |awk -F '=' '{print $2}' | awk -F '$' '{print $1}' )"
+            # check, whether there is a connection to the mirror/repository server. this is needed for package download/update!
+            if ! ( wget --spider $(echo "$server") &>/dev/null )                        # the "wget --spider" command gets executed in any case in order to check its output.
+            then
+                # update local package database. this needs a long time when internet connection is slow.
+                # in some cases, the local database has to be initialized first with "sudo pacman -Fyy"
+                sudo pacman -Fy
+            fi
 
             echo -e "\n\e[1mPackage files in system repositories: \e[0m" >> /tmp/pacui-search
             # search in system repositories with "pacman -Fsx" --> machine readable version of output is easier to read for awk!
@@ -2426,7 +2441,7 @@ fi
 #set -u
 
 
-# bug # :
+# bug #4 :
 # when database of system repositories has not been saved, it is impossible to use pacman (or expac) in any meaningful way.
 # therefore, the existence of the "core" database is tested here. if it does not exist, a repository server is chosen and the repository database synced to the user's system
 
