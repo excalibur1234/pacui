@@ -961,16 +961,14 @@ function func_l
 
                 local server
                 # extract mirror/repository server url from /etc/pacman.d/mirrorlist file with command:
-                server="$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" |awk -F '=' '{print $2}' | awk -F '$' '{print $1}' )"
+                server="$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" | awk -F '=' '{print $2}' | awk -F '$' '{print $1}' )"
 
                 # check, whether there is a connection to the mirror/repository server. this is needed for package download/update!
-                if ! ( wget --spider $(echo "$server") &>/dev/null )                        # the "wget --spider" command gets executed in any case in order to check its output.
+                if ( wget --spider $(echo "$server") &>/dev/null )                        # the "wget --spider" command gets executed in any case in order to check its output.
                 then
-
                     # update local package database. this needs a long time when internet connection is slow.
                     # in some cases, the local database has to be initialized first with "sudo pacman -Fyy"
                     sudo pacman -Fy
-
                 fi
 
                 pacui_tty_clean                                                     # clear terminal
@@ -1023,9 +1021,9 @@ function func_s
             pacui_search_temp_local="$( pacman -Ql | awk -v VAR="$file" -F '/' '$NF ~ VAR' | awk -F '/' '{print $1}' | sort -u | tr -d ' ' )"
 
             # extract mirror/repository server url from /etc/pacman.d/mirrorlist file with command:
-            server="$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" |awk -F '=' '{print $2}' | awk -F '$' '{print $1}' )"
+            server="$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" | awk -F '=' '{print $2}' | awk -F '$' '{print $1}' )"
             # check, whether there is a connection to the mirror/repository server. this is needed for package download/update!
-            if ! ( wget --spider $(echo "$server") &>/dev/null )                        # the "wget --spider" command gets executed in any case in order to check its output.
+            if ( wget --spider $(echo "$server") &>/dev/null )                        # the "wget --spider" command gets executed in any case in order to check its output.
             then
                 # update local package database. this needs a long time when internet connection is slow.
                 # in some cases, the local database has to be initialized first with "sudo pacman -Fyy"
