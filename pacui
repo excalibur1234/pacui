@@ -2093,7 +2093,7 @@ The second part includes options for fixing and configuring your system. Options
 The last part offers options exclusive to Arch User Repository (AUR) management.
 
 
-\e[1m00 - HELP
+\e[1m99 - HELP
 Display this help page. A very shot summary of this help page can be displayed in your terminal with "pacui -h" or "pacui h".
 Quit this help page by pressing the Q key.
 
@@ -2409,7 +2409,7 @@ function func_h
         [[ -n "$AUR_Helper" ]]      && echo -e "      pacui  a    - Search and Install from \e[1mA\e[0mUR"
         echo
         echo -e "      pacui  h    - This short \e[1mH\e[0melp."
-        echo -e "  00  pacui  help - Full \e[1mHelp\e[0m page. 'q' key quits."
+        echo -e "  99  pacui  help - Full \e[1mHelp\e[0m page. 'q' key quits."
 }
 
 
@@ -2515,7 +2515,7 @@ do
     # test, whether 'key' fits any of the following strings listed inside this 'case' command:
     case "$key" in
 
-        1|u|update|update-system)                                                   # the following commands will get executed if $choice is "1" or "u" or "update" until a code line containing only ";;" is encountered
+        1|u|update|update-system)                                                   # the following commands will get executed if $key is "1" or "u" or "update" until a code line containing only ";;" is encountered
             function_call="u"
             shift                                                                   # shift to next argument (which is currently known as '$2'), and make it first argument ( referred to as '$1'). this command throws away the current argument, because we have done everything with it we wanted to do and it is no longer needed.
             ;;
@@ -2583,7 +2583,7 @@ do
             function_call="h"                                                       # call short help
             shift
             ;;
-        00|help|man )
+        99|help|man )
             function_call="help"                                                    # call full help page
             shift
             ;;
@@ -2722,16 +2722,29 @@ do
     [[ -z "$AUR_Helper" ]] && echo -e " │                               14   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR    │"
     echo -e " └───────────────────────────────────────────────────────────────┘"
     echo
-    echo -e "  Enter number or marked letter(s)   -   00   \e[1mH\e[0melp   -   0   \e[1mQ\e[0muit "
+    echo -e "  Enter number or marked letter(s)   -   99   \e[1mH\e[0melp   -   0   \e[1mQ\e[0muit "
 
-    # save entered numbers/letters in variable "choice"
-    read -r choice
+
+    read -r -n 1 char                                                               # read a single character (numbers/letters) from user input and save it in $char variable
+
+    if [[ "$char" == "0" ]] || [[ "$char" == "q" ]]
+    then
+        # if the user enters "0" or "q", PacUI should quit immediately. all other input has to be ended with ENTER/RETURN key
+
+        pacui_clean && exit                                                         # clear terminal screen first (alternatively, "reset" works as well, but then the terminal history is lost). the "exit" command quits pacui.
+    else
+        read -r chars                                                               # save all further entered numbers/letters in variable "choice"
+
+    fi
+
+    choice="$( echo "$char""$chars" )"                                              # add both $char and $chars to variable "$choice"
+
     # convert "choice" variable to lowercase:
-    choice="$(echo "$choice" | tr '[:upper:]' '[:lower:]' )"
+    choice="$( echo "$choice" | tr '[:upper:]' '[:lower:]' )"
     echo
 
 
-    # test, whether "choice" fits any of the following numbers, letters, or words
+    # test, whether "$choice" fits any of the following numbers, letters, or words
     case "$choice" in
 
         1|u|update|update-system )                                                  # the following commands will get executed if $choice is "1" or "u" or "update" until a code line containing only ";;" is encountered
@@ -2827,11 +2840,11 @@ do
             ;;
 
 
-        00|h|help )
+        99|h|help )
             func_help                                                               # call full help page
             echo
             ;;
-        0|q|quit|$'\e'|$'\e'$'\e' )
+        0|q|$'\e'|$'\e'$'\e' )
             pacui_clean && exit                                                     # clear terminal screen first (alternatively, "reset" works as well, but then the terminal history is lost). the "exit" command quits pacui.
             ;;
 
