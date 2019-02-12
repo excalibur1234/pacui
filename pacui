@@ -505,6 +505,8 @@ function func_i
             #if  [[ ! -f /tmp/pacui-aur/packages.gz ]]
             if  [[ ! -f /tmp/pacui-aur/packages ]]
             then
+                echo " downloading list of AUR packages (which can take a while) ..."
+
                 #wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null
                 wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && gunzip -f "/tmp/pacui-aur/packages.gz"
             fi
@@ -1708,6 +1710,7 @@ function func_c
         [[ -f /etc/default/grub ]]                      && echo -e "\e[31m/etc/default/grub                                                                                                                                                                                                                                          Configure GRUB boot loader in file:\e[0m" >> ${pacui_config}
         [[ -f /boot/grub/custom.cfg ]]                  && echo -e "/boot/grub/custom.cfg                                                                                                                                                                                                                                            Configure custom GRUB entries in file:" >> ${pacui_config}
         [[ -f /boot/loader/loader.conf ]]               && echo -e "\e[31m/boot/loader/loader.conf                                                                                                                                                                                                                                   Configure systemd-boot boot loader in file:\e[0m" >> ${pacui_config}
+        [[ -f /etc/sdboot-manage.conf ]]                && echo -e "\e[31m/etc/sdboot-manage.conf                                                                                                                                                                                                                                    Configure systemd-boot-manager in file:\e[0m" >> ${pacui_config}
         [[ -f /boot/loader/entries ]]                   && echo -e "\e[31m/boot/loader/entries/                                                                                                                                                                                                                                      Configure systemd-boot boot loader entries:\e[0m" >> ${pacui_config}
         [[ -f /boot/refind_linux.conf ]]                && echo -e "\e[31m/boot/refind_linux.conf                                                                                                                                                                                                                                    Configure rEFInd boot loader in file:\e[0m" >> ${pacui_config}
         [[ -f /boot/EFI/refind/refind.conf ]]           && echo -e "\e[31m/boot/EFI/refind/refind.conf                                                                                                                                                                                                                               Configure rEFInd boot loader in file:\e[0m" >> ${pacui_config}
