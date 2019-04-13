@@ -2728,26 +2728,15 @@ do
     echo -e "  Enter number or marked letter(s)   -   99   \e[1mH\e[0melp   -   0   \e[1mQ\e[0muit "
 
 
-    read -r -n 1 char                                                               # read a single character (numbers/letters) from user input and save it in $char variable
-
-    if [[ "$char" == "0" ]] || [[ "$char" == "q" ]]
-    then
-        # if the user enters "0" or "q", PacUI should quit immediately. all other input has to be ended with ENTER/RETURN key
-
-        pacui_clean && exit                                                         # clear terminal screen first (alternatively, "reset" works as well, but then the terminal history is lost). the "exit" command quits pacui.
-    else
-        read -r chars                                                               # save all further entered numbers/letters in variable "choice"
-
-    fi
-
-    choice="$( echo "$char""$chars" )"                                              # add both $char and $chars to variable "$choice"
+    # save entered numbers/letters in variable "choice"
+    read -r choice
 
     # convert "choice" variable to lowercase:
     choice="$( echo "$choice" | tr '[:upper:]' '[:lower:]' )"
     echo
 
 
-    # test, whether "$choice" fits any of the following numbers, letters, or words
+    # test, whether "choice" fits any of the following numbers, letters, or words
     case "$choice" in
 
         1|u|update|update-system )                                                  # the following commands will get executed if $choice is "1" or "u" or "update" until a code line containing only ";;" is encountered
