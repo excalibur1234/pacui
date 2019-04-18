@@ -829,21 +829,21 @@ function func_t
                 # first echo selected line in fzf. then, remove all symbols from the beginning of the line, which does not belong to the package name. if there are multiple package names (e.g. with "provides") in 1 line all other (except for the first package name) are cut from the result.
                 pactree --color --ascii "$pkg" | fzf -i --multi --exact --no-sort --ansi --reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --inline-info --no-unicode --preview '
                     echo -e "\e[1mInstalled package info: \e[0m"
-                    pacman -Qi "$( echo {} | sed "s/^[|`- ]*//g" | cut -d " " -f 1 )" --color always
+                    pacman -Qi "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" --color always
                     ' "$( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )" --header="Local Dependency Tree of \"$pkg\". ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-t
 
             else
 
                 # if $pkg is not a locally installed package, "pactree --sync" shows reverse dependency tree of repository packages:
                 pactree --color --ascii --sync "$pkg" | fzf -i --multi --exact --no-sort --ansi --reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --inline-info --no-unicode --preview '
-                    if ( pacman -Qq "$( echo {} | sed "s/^[|`- ]*//g" | cut -d " " -f 1 )" &>/dev/null )                                                 # check, if selected line contains a locally installed package.
+                    if ( pacman -Qq "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" &>/dev/null )                                                 # check, if selected line contains a locally installed package.
                     then
                         echo -e "\e[1mInstalled package info: \e[0m"
-                        pacman -Qi "$( echo {} | sed "s/^[|`- ]*//g" | cut -d " " -f 1 )" --color always                                                 # display local package information in preview window of fzf
+                        pacman -Qi "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" --color always                                                 # display local package information in preview window of fzf
 
                     else
                         echo -e "\e[1mRepository package info: \e[0m"
-                        pacman -Si "$( echo {} | sed "s/^[|`- ]*//g" | cut -d " " -f 1 )" --color always                                                 # display package info from repository, if package is not locally installed
+                        pacman -Si "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" --color always                                                 # display package info from repository, if package is not locally installed
 
                     fi
                     ' "$( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )" --header="Repository Dependency Tree of \"$pkg\". ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-t
@@ -895,21 +895,21 @@ function func_rt
                 # first echo selected line in fzf. then, remove all symbols from the beginning of the line, which does not belong to the package name. if there are multiple package names (e.g. with "provides") in 1 line all other (except for the first package name) are cut from the result.
                 pactree --color --ascii --reverse "$pkg" | fzf -i --multi --exact --no-sort --ansi --reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --inline-info --no-unicode --preview '
                     echo -e "\e[1mInstalled package info: \e[0m"
-                    pacman -Qi "$( echo {} | sed "s/^[|`- ]*//g" | cut -d " " -f 1 )" --color always
+                    pacman -Qi "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" --color always
                     ' "$( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )" --header="Local Reverse Dependency Tree of \"$pkg\". ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-rt
 
             else
 
                 # if $pkg is not a locally installed package, "pactree --sync" shows reverse dependency tree of repository packages:
                 pactree --color --ascii --sync --reverse "$pkg" | fzf -i --multi --exact --no-sort --ansi --reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --inline-info --no-unicode --preview '
-                    if ( pacman -Qq "$( echo {} | sed "s/^[|`- ]*//g" | cut -d " " -f 1 )" &>/dev/null )                                                 # check, if selected line contains a locally installed package.
+                    if ( pacman -Qq "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" &>/dev/null )                                                 # check, if selected line contains a locally installed package.
                     then
                         echo -e "\e[1mInstalled package info: \e[0m"
-                        pacman -Qi "$( echo {} | sed "s/^[|`- ]*//g" | cut -d " " -f 1 )" --color always                                                 # display local package information in preview window of fzf
+                        pacman -Qi "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" --color always                                                 # display local package information in preview window of fzf
 
                     else
                         echo -e "\e[1mRepository package info: \e[0m"
-                        pacman -Si "$( echo {} | sed "s/^[|`- ]*//g" | cut -d " " -f 1 )" --color always                                                 # display package info from repository, if package is not locally installed
+                        pacman -Si "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" --color always                                                 # display package info from repository, if package is not locally installed
 
                     fi
                     ' "$( if (( $(tput cols) >= 120 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )" --header="Repository Reverse Dependency Tree of \"$pkg\". ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-rt
