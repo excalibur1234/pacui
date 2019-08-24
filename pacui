@@ -567,7 +567,7 @@ function func_i
                                 echo -e "\e[1mRepository package info: \e[0m"
                                 pacman -Si {1} --color always                       # display repository package information in preview window of fzf
 
-                            elif ( test -n '$AUR_Helper' )                          # check, if any AUR helper is installed. content of $AUR_Helper variable needs to get checked using "test" for preview window of fzf!
+                            elif ( test -n '$AUR_Helper' )                          # preview window of fzf requires checking with "test": check whether internet connection is up.
                             then
                                 echo -e "\e[1mAUR package info: \e[0m"
 
@@ -1860,7 +1860,7 @@ function func_c
 
                 case ${answer:-n} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "n".
                     y|Y|yes|YES|Yes )
-                        sudo mkinitcpio -P && sudo grub-mkconfig -o /boot/grub/grub.cfg     # apply changes   # "grub-mkconfig -o /boot/grub/grub.cfg" == "udpate-grub" (in manjaro)
+                        sudo mkinitcpio -P && sudo grub-mkconfig -o /boot/grub/grub.cfg               # apply changes   # "grub-mkconfig -o /boot/grub/grub.cfg" == "udpate-grub" (in manjaro)
                     ;;
 
                     * )
@@ -1964,6 +1964,14 @@ function func_la
         #set +e
         #set +E
 
+        # check, whether there is a connection to AUR server. this is needed for AUR package information. If there is no connection to AUR server, no AUR package info get displayed.
+        if ( wget --spider "https://aur.archlinux.org" &>/dev/null )                # the "wget --spider" command gets executed in any case in order to check its output.
+        then
+            AurSserverIsUp="true"
+        else
+            AurSserverIsUp="false"
+        fi
+
         # this command shows all packages from external, i.e. not in system repositories, sources:
         # packages from the AUR and manually installed packages
         # "pacman -Qm --color always"
@@ -1972,7 +1980,7 @@ function func_la
             pacman -Qi {} --color always
             echo
 
-            if ( test -n '$AUR_Helper' )                                            # check, if any AUR helper is installed. content of $AUR_Helper variable needs to get checked using "test" for preview window of fzf!
+            if ( $(test '$AurSserverIsUp' = true) ) && ( $(test -n '$AUR_Helper') )               # preview window of fzf requires checking with "test": first, check whether internet connection is up. second, check if any AUR helper is installed.
             then
                 echo -e "\e[1mAUR package info: \e[0m"
 
