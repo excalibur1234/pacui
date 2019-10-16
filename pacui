@@ -2930,7 +2930,7 @@ do
             func_help                                                               # call full help page
             echo
             ;;
-        0|q|$'\e'|$'\e'$'\e' )
+        0|q|quit|exit|$'\e'|$'\e'$'\e' )
             pacui_clean && exit                                                     # clear terminal screen first (alternatively, "reset" works as well, but then the terminal history is lost). the "exit" command quits pacui.
             ;;
 
