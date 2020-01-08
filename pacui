@@ -2097,7 +2097,7 @@ function func_a
 
             elif [[ "$AUR_Helper" == "pikaur" ]]
             then
-                pikaur -Ss "$argument_input"
+                pikaur "$argument_input"
 
             elif [[ "$AUR_Helper" == "aurman" ]]
             then
@@ -2138,7 +2138,7 @@ function func_a
 
             elif [[ "$AUR_Helper" == "pikaur" ]]
             then
-                pikaur -Ss "$pkg"
+                pikaur "$pkg"
 
             elif [[ "$AUR_Helper" == "aurman" ]]
             then
