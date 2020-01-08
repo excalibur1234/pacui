@@ -1073,7 +1073,7 @@ function func_s
             # the awk command is used to format output: "-F '\0'" set "\0" as separator. this makes it possible to easily use $1,$2,$3,$4 as syntax later.
 
             # store raw output of "pacman -Fsx" in file /tmp/pacui-search-temp-repo, because this process is quite slow
-            pacman -Fsx --machinereadable "$file" > "/tmp/pacui-search-temp-repo"
+            pacman -Fx --machinereadable "$file" > "/tmp/pacui-search-temp-repo"
 
             # create new variable $pacui_search_temp_repo2 ,which only contains package names
             pacui_search_temp_repo2="$( awk -F '\0' '{print $2}' "/tmp/pacui-search-temp-repo" | sort -u | tr -d ' ' )"
@@ -2317,7 +2317,7 @@ By default, the results are filtered for files located in usr/bin/, but you can 
 
 \e[1m8 - SEARCH PACKAGE FILES
 \e[36m"pacman -Ql | grep <FILE NAME>"
-\e[36m"sudo pacman -Fysx <FILE NAME>" \e[0m(only for packages not installed on your system)
+\e[36m"sudo pacman -Fyx <FILE NAME>" \e[0m(only for packages not installed on your system)
 In some situations, Pacman (e.g. during UPDATE SYSTEM) cannot find a file, for example a shared library. An error message is shown about <FILE NAME>. Use SEARCH PACKAGE FILES to find out, which package has installed <FILE NAME>. In most cases, you can fix the Pacman error by using one of the following options on that package: UPDATE SYSTEM, ROLL BACK SYSTEM, REMOVE PACKAGES, and INSTALL PACKAGES, or FORCE UPDATE AUR.
 SEARCH PACKAGE FILES is in many ways a reverse LIST PACKAGE FILES. You can use it to find out which package you have to install in order to use the <FILE NAME> command in your terminal.
 The first command searches for <FILE NAME> in all your installed packages. <FILE NAME> can be a part of an actual file name or contain regular expressions.
