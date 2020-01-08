@@ -7,6 +7,7 @@ SHELL=/usr/bin/bash                                                             
 # SC2086: Double quote to prevent globing and word splitting.                       # ${variable}  does not work when double quoted. also, double quote breaks this script in many cases --> there are warning comments containing "ATTENTION" about this.
 # shellcheck disable=SC1117,SC2086                                                  # exclude MANY false-positive shellcheck warnings (see above)
 
+
 #  This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as
 #  published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
 #
