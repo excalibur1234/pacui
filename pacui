@@ -432,33 +432,39 @@ function func_m
         # general comment: "pacaur" is currently the only aur helper, which creates its own download directory for aur packages. the content of this download folder can be cleaned with "pacaur -Sc". But "pacaur -Sc" removes too many files and is therefore not used here.
 
 
-        echo " checking installed kernels ..."
-        local {installed_kernels,available_kernels,eol_kernels}                     # declare local variables
+        local installed_kernels                                                     # declare local variable
         # filter installed kernels from boot sector and determine, which package owns that file. this yields the package name of all installed kernels (including kernels from the AUR):
         installed_kernels="$(
-            for p in $( command ls -1 /boot | grep -E '^vmlinuz' )                  # ATTENTION: (i do not know why but) using quotes (" symbols) around $(...) breaks for-loop
+            for p in $( command ls -1 /boot | grep -E '^vmlinuz' )                  # ATTENTION: using quotes (" symbols) around $(...) breaks for-loop
             do
-                pacman -Qqo /boot/"$p"
+                echo linux$( echo $p | cut -d"-" -f2 | tr -d ".")                   # do not print error messages
             done | sort -u )"
-        # Check if installed kernels are available in repositories and forward it/them to available_kernels variable:
-        available_kernels="$(
-            for p in $( echo "$installed_kernels" )                                 # ATTENTION: (i do not know why but) using quotes (" symbols) around $(...) breaks for-loop
-            do
-                pacman -Ssq "^$p$"
-            done | sort -u )"
-        # filter kernels to $eol_kernels variable, which are installed but no longer available:
-        eol_kernels="$( comm -13 <(echo "$available_kernels") <(echo "$installed_kernels") )"
-        # print warning message, if end-of-life kernel(s) are found:
-        if [[ -n "$eol_kernels" ]]
+        # check, whether any installed kernels have been found  (in ARCH linux, no kernels are found, but this is ok, because kernels are not EOLd as in Manjaro)
+        if [[ -n "$installed_kernels" ]]
         then
-            echo
-            echo -e " \e[41m The following Linux kernel(s) are no longer available in your repositories. \e[0m"
-            echo -e " \e[1m Do not expect any security or stability fixes for the(se) kernel(s) anymore. \e[0m"
-            echo -e " \e[1m Kernel modules are likely to break. It is recommended to remove the kernel(s).\e[0m"
-            echo -e " \e[1m If one or more of the following kernel(s) are taken from AUR, you may safely ignore this warning. \e[0m"
-            echo "$eol_kernels"
+            echo " checking installed kernel(s) ..."
+
+            local {available_kernels,eol_kernels}                                   # declare local variables
+            # Check if installed kernels are available in repositories and forward it/them to available_kernels variable:
+            available_kernels="$(
+                for p in $( echo "$installed_kernels" )                             # ATTENTION: using quotes (" symbols) around $(...) breaks for-loop
+                do
+                    pacman -Ssq "^$p$"
+                done | sort -u )"
+            # filter kernels to $eol_kernels variable, which are installed but no longer available:
+            eol_kernels="$( comm -13 <(echo "$available_kernels") <(echo "$installed_kernels") )"
+            # print warning message, if end-of-life kernel(s) are found:
+            if [[ -n "$eol_kernels" ]]
+            then
+                echo
+                echo -e " \e[41m The following Linux kernel(s) are no longer available in your system repositories. \e[0m"
+                echo -e " \e[1m Do not expect any security or stability fixes for the(se) kernel(s) anymore. \e[0m"
+                echo -e " \e[1m Kernel modules are likely to break. It is recommended to remove the kernel(s).\e[0m"
+                echo -e " \e[1m If the(se) kernel(s) are taken from the AUR, you may safely ignore this warning. \e[0m"
+                echo "$eol_kernels"
+            fi
+            echo ""
         fi
-        echo ""
 }
 
 
@@ -2260,7 +2266,7 @@ By default Pacman uses this cache directory for downloading packages: /var/cache
 The first command removes all old packages from cache, which are not installed (anymore) on your system (except the latest version of that package).
 The second command removes all old packages from cache except the 3 latest versions: The version you have currently installed on your system and 2 previous versions. Old package versions are kept to enable you to use ROLL BACK SYSTEM (or to manually downgrade packages) even without a working internet connection.
 
-\e[36m"comm -13 <(echo "$available_kernels") <(echo "$installed_kernels")"
+\e[36m"comm -13 <(echo "$available_kernels") <(echo "$installed_kernels")"\e[0m(for Manjaro)
 This long "comm" command compares the output of 2 lists: The first list of <KERNEL NAME> contains (still) available kernels in your repository (which are also installed on your system) and the second list of <KERNEL NAME> contains installed kernels.
 By comparing both lists, it is possible to extract <KERNEL NAME> of so called end-of-live kernels. These installed kernels are no longer supported and do not receive updates anymore. Kernel modules are likely to break. It is highly recommended to remove these kernels.
 Kernels from the AUR are also listed by the "comm" command and trigger a warning. Please decide for yourself, whether you want to keep them or not.
