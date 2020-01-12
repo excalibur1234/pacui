@@ -270,6 +270,15 @@ function func_m
             echo ""
         fi
 
+        # Check if a Database Lock File is present and remove it
+        echo " checking for database lock file ... "
+        if [[ -f /var/lib/pacman/db.lck ]]                                          # checks, whether file "db.lck" exists
+        then
+            echo " removing database lock file ... "
+            sudo rm /var/lib/pacman/db.lck                                          # removes "db.lck"
+
+        fi
+
 
         # check for "pacman-mirrors" or "reflector" packages. one of those is needed!
         if [[ -f /usr/bin/pacman-mirrors ]] || [[ -f /usr/bin/reflector ]]
@@ -278,6 +287,7 @@ function func_m
             echo " choosing fastest mirror (which can take a while) and updating system ..."
             if [[ -f /usr/bin/pacman-mirrors ]]                                     # checks, whether file "pacman-mirrors" exists
             then
+	            sudo find /var/cache/pacman/pkg/ -iname "*.part" -exec rm {} \;     # remove partially downloaded packages
                 sudo pacman-mirrors -f 0 && sudo pacman -Syyu                       # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
 
             elif [[ -f /usr/bin/reflector ]]                                        # checks, whether file "reflector" exists
@@ -2955,4 +2965,3 @@ do
 # now, the infinite while-loop will start again from its top by clearing the terminal screen and redrawing the UI
 
 done                                                                                # close while-loop
-
