@@ -7,6 +7,7 @@ SHELL=/usr/bin/bash                                                             
 # SC2086: Double quote to prevent globing and word splitting.                       # ${variable}  does not work when double quoted. also, double quote breaks this script in many cases --> there are warning comments containing "ATTENTION" about this.
 # shellcheck disable=SC1117,SC2086                                                  # exclude MANY false-positive shellcheck warnings (see above)
 
+
 #  This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as
 #  published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
 #
@@ -432,33 +433,39 @@ function func_m
         # general comment: "pacaur" is currently the only aur helper, which creates its own download directory for aur packages. the content of this download folder can be cleaned with "pacaur -Sc". But "pacaur -Sc" removes too many files and is therefore not used here.
 
 
-        echo " checking installed kernels ..."
-        local {installed_kernels,available_kernels,eol_kernels}                     # declare local variables
+        local installed_kernels                                                     # declare local variable
         # filter installed kernels from boot sector and determine, which package owns that file. this yields the package name of all installed kernels (including kernels from the AUR):
         installed_kernels="$(
-            for p in $( command ls -1 /boot | grep -E '^vmlinuz' )                  # ATTENTION: (i do not know why but) using quotes (" symbols) around $(...) breaks for-loop
+            for p in $( command ls -1 /boot | grep -E '^vmlinuz' )                  # ATTENTION: using quotes (" symbols) around $(...) breaks for-loop
             do
-                pacman -Qqo /boot/"$p"
+                echo linux$( echo $p | cut -d"-" -f2 | tr -d ".")                   # do not print error messages
             done | sort -u )"
-        # Check if installed kernels are available in repositories and forward it/them to available_kernels variable:
-        available_kernels="$(
-            for p in $( echo "$installed_kernels" )                                 # ATTENTION: (i do not know why but) using quotes (" symbols) around $(...) breaks for-loop
-            do
-                pacman -Ssq "^$p$"
-            done | sort -u )"
-        # filter kernels to $eol_kernels variable, which are installed but no longer available:
-        eol_kernels="$( comm -13 <(echo "$available_kernels") <(echo "$installed_kernels") )"
-        # print warning message, if end-of-life kernel(s) are found:
-        if [[ -n "$eol_kernels" ]]
+        # check, whether any installed kernels have been found  (in ARCH linux, no kernels are found, but this is ok, because kernels are not EOLd as in Manjaro)
+        if [[ -n "$installed_kernels" ]]
         then
-            echo
-            echo -e " \e[41m The following Linux kernel(s) are no longer available in your repositories. \e[0m"
-            echo -e " \e[1m Do not expect any security or stability fixes for the(se) kernel(s) anymore. \e[0m"
-            echo -e " \e[1m Kernel modules are likely to break. It is recommended to remove the kernel(s).\e[0m"
-            echo -e " \e[1m If one or more of the following kernel(s) are taken from AUR, you may safely ignore this warning. \e[0m"
-            echo "$eol_kernels"
+            echo " checking installed kernel(s) ..."
+
+            local {available_kernels,eol_kernels}                                   # declare local variables
+            # Check if installed kernels are available in repositories and forward it/them to available_kernels variable:
+            available_kernels="$(
+                for p in $( echo "$installed_kernels" )                             # ATTENTION: using quotes (" symbols) around $(...) breaks for-loop
+                do
+                    pacman -Ssq "^$p$"
+                done | sort -u )"
+            # filter kernels to $eol_kernels variable, which are installed but no longer available:
+            eol_kernels="$( comm -13 <(echo "$available_kernels") <(echo "$installed_kernels") )"
+            # print warning message, if end-of-life kernel(s) are found:
+            if [[ -n "$eol_kernels" ]]
+            then
+                echo
+                echo -e " \e[41m The following Linux kernel(s) are no longer available in your system repositories. \e[0m"
+                echo -e " \e[1m Do not expect any security or stability fixes for the(se) kernel(s) anymore. \e[0m"
+                echo -e " \e[1m Kernel modules are likely to break. It is recommended to remove the kernel(s).\e[0m"
+                echo -e " \e[1m If the(se) kernel(s) are taken from the AUR, you may safely ignore this warning. \e[0m"
+                echo "$eol_kernels"
+            fi
+            echo ""
         fi
-        echo ""
 }
 
 
@@ -1067,7 +1074,7 @@ function func_s
             # the awk command is used to format output: "-F '\0'" set "\0" as separator. this makes it possible to easily use $1,$2,$3,$4 as syntax later.
 
             # store raw output of "pacman -Fsx" in file /tmp/pacui-search-temp-repo, because this process is quite slow
-            pacman -Fsx --machinereadable "$file" > "/tmp/pacui-search-temp-repo"
+            pacman -Fx --machinereadable "$file" > "/tmp/pacui-search-temp-repo"
 
             # create new variable $pacui_search_temp_repo2 ,which only contains package names
             pacui_search_temp_repo2="$( awk -F '\0' '{print $2}' "/tmp/pacui-search-temp-repo" | sort -u | tr -d ' ' )"
@@ -1151,8 +1158,9 @@ function func_b
         # 1. get list of last installs/upgrades/removals/downgrades from pacman log and display result in fzf.
         # when fzf quits, only selected package names (including the words " installed/upgraded/removed/downgraded") are saved to variable $pacui_cache_packages
         #  the space in front of "installed" prevents reinstallations being displayed (otherwise, they would be removed)! the ] in "] installed" prevents config file changes being displayed, e.g. "warning: /etc/sddm.conf installed as /etc/sddm.conf.pacnew"
-        # awk '{ $3="" ; $5="\033[1m" $5 "\033[0m" ; print }': this simply prints everything, but hides the third column and marks the 5th column as bold text.
-        pacui_cache_packages="$( tail -8000 "$logpath" | grep "] installed\|removed\|upgraded\|downgraded" | awk '{ $2="" ; $4="\t\033[1m" $4 " \033[0m" ; print }' | fzf -i --multi --exact --no-sort --select-1 --ansi --query="$argument_input" --cycle --tac --reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --info=inline --header="Press TAB key to (un)select. ENTER to roll back. ESC to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{print $3 " " $4}' )"
+        # awk -F '[\\[\\]]' '{ print $2 " " $5 }': this uses 2 field separators [ and ]. using these field separators, the second and fifth field are printed.
+        # awk '{ $1=$1 ":"  ; $2="  " $2 ; $3="\t\033[1m" $3 " \033[0m" ; print }': this uses the output of the above awk command. the first field gets a colon added, the second field gets a coupld of spaces in front, the third field gets printed in bold case.
+        pacui_cache_packages="$( tail -8000 "$logpath" | grep "] installed\|removed\|upgraded\|downgraded" | awk -F '[\\[\\]]' '{ print $2 " " $5 }' | awk '{ $1=$1 ":"  ; $2="  " $2 ; $3="\t\033[1m" $3 " \033[0m" ; print }' | fzf -i --multi --exact --no-sort --select-1 --ansi --query="$argument_input" --cycle --tac --reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --info=inline --header="Press TAB key to (un)select. ENTER to roll back. ESC to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{ print $(NF-1) " " $NF }' )"
 
         #set -e
         #set -E
@@ -1712,6 +1720,7 @@ function func_c
         [[ -f /etc/hosts ]]                             && echo -e "/etc/hosts                                                                                                                                                                                                                                                       Configure local DNS in file:" >> ${pacui_config}
         [[ -f /etc/environment ]]                       && echo -e "/etc/environment                                                                                                                                                                                                                                                 Configure system-wide environment variables in file:" >> ${pacui_config}
         [[ -f /etc/locale.conf ]]                       && echo -e "/etc/locale.conf                                                                                                                                                                                                                                                 Configure regional standards in file:" >> ${pacui_config}
+        [[ -f /etc/vconsole.conf ]]                     && echo -e "/etc/vconsole.conf                                                                                                                                                                                                                                               Configure virtual console in file:" >> ${pacui_config}
         [[ -f /etc/slim.conf ]]                         && echo -e "/etc/slim.conf                                                                                                                                                                                                                                                   Configure slim display manager in file:" >> ${pacui_config}
         [[ -f /etc/lightdm.conf ]]                      && echo -e "/etc/lightdm.conf                                                                                                                                                                                                                                                Configure lightdm display manager in file:" >> ${pacui_config}
         [[ -f /etc/sddm.conf ]]                         && echo -e "/etc/sddm.conf                                                                                                                                                                                                                                                   Configure sddm display manager in file:" >> ${pacui_config}
@@ -2089,7 +2098,7 @@ function func_a
 
             elif [[ "$AUR_Helper" == "pikaur" ]]
             then
-                pikaur -Ss "$argument_input"
+                pikaur "$argument_input"
 
             elif [[ "$AUR_Helper" == "aurman" ]]
             then
@@ -2130,7 +2139,7 @@ function func_a
 
             elif [[ "$AUR_Helper" == "pikaur" ]]
             then
-                pikaur -Ss "$pkg"
+                pikaur "$pkg"
 
             elif [[ "$AUR_Helper" == "aurman" ]]
             then
@@ -2260,7 +2269,7 @@ By default Pacman uses this cache directory for downloading packages: /var/cache
 The first command removes all old packages from cache, which are not installed (anymore) on your system (except the latest version of that package).
 The second command removes all old packages from cache except the 3 latest versions: The version you have currently installed on your system and 2 previous versions. Old package versions are kept to enable you to use ROLL BACK SYSTEM (or to manually downgrade packages) even without a working internet connection.
 
-\e[36m"comm -13 <(echo "$available_kernels") <(echo "$installed_kernels")"
+\e[36m"comm -13 <(echo "$available_kernels") <(echo "$installed_kernels")"\e[0m(for Manjaro)
 This long "comm" command compares the output of 2 lists: The first list of <KERNEL NAME> contains (still) available kernels in your repository (which are also installed on your system) and the second list of <KERNEL NAME> contains installed kernels.
 By comparing both lists, it is possible to extract <KERNEL NAME> of so called end-of-live kernels. These installed kernels are no longer supported and do not receive updates anymore. Kernel modules are likely to break. It is highly recommended to remove these kernels.
 Kernels from the AUR are also listed by the "comm" command and trigger a warning. Please decide for yourself, whether you want to keep them or not.
@@ -2311,7 +2320,7 @@ By default, the results are filtered for files located in usr/bin/, but you can 
 
 \e[1m8 - SEARCH PACKAGE FILES
 \e[36m"pacman -Ql | grep <FILE NAME>"
-\e[36m"sudo pacman -Fysx <FILE NAME>" \e[0m(only for packages not installed on your system)
+\e[36m"sudo pacman -Fyx <FILE NAME>" \e[0m(only for packages not installed on your system)
 In some situations, Pacman (e.g. during UPDATE SYSTEM) cannot find a file, for example a shared library. An error message is shown about <FILE NAME>. Use SEARCH PACKAGE FILES to find out, which package has installed <FILE NAME>. In most cases, you can fix the Pacman error by using one of the following options on that package: UPDATE SYSTEM, ROLL BACK SYSTEM, REMOVE PACKAGES, and INSTALL PACKAGES, or FORCE UPDATE AUR.
 SEARCH PACKAGE FILES is in many ways a reverse LIST PACKAGE FILES. You can use it to find out which package you have to install in order to use the <FILE NAME> command in your terminal.
 The first command searches for <FILE NAME> in all your installed packages. <FILE NAME> can be a part of an actual file name or contain regular expressions.
