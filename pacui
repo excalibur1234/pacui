@@ -81,6 +81,83 @@ fi
 
 # =======================
 
+# Snap and Flatpak update
+# This functions are not called by pacui or pacui's UI directly. Instead, they get called in func_m and func_u
+
+# Snap update if "snapd" is installed
+_isInstalled_snapd() {
+    package="snapd";
+    check="$(sudo pacman -Qs --color always "${package}" | grep "local" | grep "${package} ")";
+    if [ -n "${check}" ] ; then
+        echo 0; #'0' means 'true' in Bash
+        return; #true
+    fi;
+    echo 1; #'1' means 'false' in Bash
+    return; #false
+}
+_snapd() {
+    package="snapd";
+
+    # If the package IS installed:
+    if [[ $(_isInstalled_snapd "${package}") == 0 ]]; then
+        echo "";
+        echo -e "\e[1m Updating Snaps ...\e[0m";
+        sudo snap refresh; # Update installed snap packages
+        echo "";
+        return;
+    fi;
+}
+# list installed snap apps
+_snap_list() {
+    package="snapd";
+
+    # If the package IS installed:
+    if [[ $(_isInstalled_snapd "${package}") == 0 ]]; then
+        echo;
+        echo -e "\e[1m Installed Snaps: \e[0m";
+        snap list; # List installed snap packages
+        return;
+    fi;
+}
+
+# Flatpak update if "flatpak" is installed
+_isInstalled_flatpak() {
+    package="flatpak";
+    check="$(sudo pacman -Qs --color always "${package}" | grep "local" | grep "${package} ")";
+    if [ -n "${check}" ] ; then
+        echo 0; #'0' means 'true' in Bash
+        return; #true
+    fi;
+    echo 1; #'1' means 'false' in Bash
+    return; #false
+}
+_flatpak() {
+    package="flatpak";
+
+    # If the package IS installed:
+    if [[ $(_isInstalled_flatpak "${package}") == 0 ]]; then
+        echo -e "\e[1m Updating Flatpaks ...\e[0m";
+        flatpak update -y; # Update installed flatpak packages
+        echo "";
+        echo -e "\e[1m Uninstalling Orphaned Flatpaks ...\e[0m";
+        flatpak uninstall --unused --delete-data -y; # Remove orphaned flatpak packages
+        return;
+    fi;
+}
+# list installed flatpak apps
+_flatpak_list() {
+    package="flatpak";
+
+    # If the package IS installed:
+    if [[ $(_isInstalled_flatpak "${package}") == 0 ]]; then
+        echo -e "\e[1m Installed Flatpaks: \e[0m";
+        flatpak list; # List installed flatpak packages
+        return;
+    fi;
+}
+
+# =======================
+
 # all functions of pacui are defined here in the same order as they appear in pacui's UI (including some additional some helper functions):
 
 
@@ -111,6 +188,8 @@ function func_u
             if ( yay "$argument_flag"-Syu )                                         # execute command "yay -Syu". if this command fails "false" is returned and the result is: "if ( false )"
             then
                 # only set $install_successful=true, if the command "yay -Syu" was executed without errors
+                _snapd                                                              # Snap update if "snapd" is installed
+                _flatpak                                                            # Flatpak update if "flatpak" is installed
                 install_successful=true
             else
                 install_successful=false
@@ -123,6 +202,8 @@ function func_u
             if ( pikaur "$argument_flag"-Syu )
             then
                 # only set $install_successful=true, if the command "pikaur -Syu" was executed without errors
+                _snapd                                                              # Snap update if "snapd" is installed
+                _flatpak                                                            # Flatpak update if "flatpak" is installed
                 install_successful=true
             else
                 install_successful=false
@@ -135,6 +216,8 @@ function func_u
             if ( aurman "$argument_flag"-Syu )
             then
                 # only set $install_successful=true, if the command "aurman -Syu" was executed without errors
+                _snapd                                                              # Snap update if "snapd" is installed
+                _flatpak                                                            # Flatpak update if "flatpak" is installed
                 install_successful=true
             else
                 install_successful=false
@@ -147,6 +230,8 @@ function func_u
             if ( pakku "$argument_flag"-Syu )
             then
                 # only set $install_successful=true, if the command "pakku -Syu" was executed without errors
+                _snapd                                                              # Snap update if "snapd" is installed
+                _flatpak                                                            # Flatpak update if "flatpak" is installed
                 install_successful=true
             else
                 install_successful=false
@@ -159,6 +244,8 @@ function func_u
             if ( trizen "$argument_flag"-Syu )
             then
                 # only set $install_successful=true, if the command "trizen -Syu" was executed without errors
+                _snapd                                                              # Snap update if "snapd" is installed
+                _flatpak                                                            # Flatpak update if "flatpak" is installed
                 install_successful=true
             else
                 install_successful=false
@@ -171,6 +258,8 @@ function func_u
             if ( pacaur "$argument_flag"-Syu --color always )
             then
                 # only set $install_successful=true, if the command "pacaur -Syu --color always" was executed without errors
+                _snapd                                                              # Snap update if "snapd" is installed
+                _flatpak                                                            # Flatpak update if "flatpak" is installed
                 install_successful=true
             else
                 install_successful=false
@@ -182,6 +271,8 @@ function func_u
             if ( sudo pacman "$argument_flag"-Syu --color always )
             then
                 # only set $install_successful=true, if the command "sudo pacman -Syu --color always" was executed without errors
+                _snapd                                                              # Snap update if "snapd" is installed
+                _flatpak                                                            # Flatpak update if "flatpak" is installed
                 install_successful=true
             else
                 install_successful=false
@@ -279,10 +370,14 @@ function func_m
             if [[ -f /usr/bin/pacman-mirrors ]]                                     # checks, whether file "pacman-mirrors" exists
             then
                 sudo pacman-mirrors -f 0 && sudo pacman -Syyu                       # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
+                _snapd                                                              # Snap update if "snapd" is installed
+                _flatpak                                                            # Flatpak update if "flatpak" is installed
 
             elif [[ -f /usr/bin/reflector ]]                                        # checks, whether file "reflector" exists
             then
                 sudo reflector --verbose --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist && sleep 10 && sudo pacman -Syyu          # If it does exists, then the mirror will sort by it
+                _snapd                                                              # Snap update if "snapd" is installed
+                _flatpak                                                            # Flatpak update if "flatpak" is installed
 
             fi
             echo ""
@@ -2955,4 +3050,3 @@ do
 # now, the infinite while-loop will start again from its top by clearing the terminal screen and redrawing the UI
 
 done                                                                                # close while-loop
-
