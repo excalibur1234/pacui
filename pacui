@@ -287,7 +287,7 @@ function func_m
             echo " choosing fastest mirror (which can take a while) and updating system ..."
             if [[ -f /usr/bin/pacman-mirrors ]]                                     # checks, whether file "pacman-mirrors" exists
             then
-	            sudo find /var/cache/pacman/pkg/ -iname "*.part" -exec rm {} \;     # remove partially downloaded packages
+	        sudo find /var/cache/pacman/pkg/ -iname "*.part" -exec rm {} \;     # remove partially downloaded packages
                 sudo pacman-mirrors -f 0 && sudo pacman -Syyu                       # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
 
             elif [[ -f /usr/bin/reflector ]]                                        # checks, whether file "reflector" exists
