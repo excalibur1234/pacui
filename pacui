@@ -87,7 +87,7 @@ fi
 # Snap update if "snapd" is installed
 _isInstalled_snapd() {
     package="snapd";
-    check="$(sudo pacman -Qs --color always "${package}" | grep "local" | grep "${package} ")";
+    check="$(pacman -Qs --color always "${package}" | grep "local" | grep "${package} ")";
     if [ -n "${check}" ] ; then
         echo 0; #'0' means 'true' in Bash
         return; #true
@@ -123,7 +123,7 @@ _snap_list() {
 # Flatpak update if "flatpak" is installed
 _isInstalled_flatpak() {
     package="flatpak";
-    check="$(sudo pacman -Qs --color always "${package}" | grep "local" | grep "${package} ")";
+    check="$(pacman -Qs --color always "${package}" | grep "local" | grep "${package} ")";
     if [ -n "${check}" ] ; then
         echo 0; #'0' means 'true' in Bash
         return; #true
