@@ -3,13 +3,13 @@
 
 
 pkgname=pacui
-pkgver=1.12
+pkgver=1.13
 pkgrel=1
 pkgdesc="Bash script providing advanced Pacman and Yay/Pikaur/Aurman/Pakku/Trizen/Pacaur functionality in a simple UI"
 arch=(any)
 url="https://github.com/excalibur1234/$pkgname"
 license=('GPL3')
-depends=('pacman-contrib' 'expac' 'wget' 'sudo' 'fzf')
+depends=('pacman-contrib' 'expac' 'sudo' 'fzf')
 
 
 conflicts=("$pkgname-git")

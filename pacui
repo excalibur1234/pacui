@@ -7,7 +7,6 @@ SHELL=/usr/bin/bash                                                             
 # SC2086: Double quote to prevent globing and word splitting.                       # ${variable}  does not work when double quoted. also, double quote breaks this script in many cases --> there are warning comments containing "ATTENTION" about this.
 # shellcheck disable=SC1117,SC2086                                                  # exclude MANY false-positive shellcheck warnings (see above)
 
-
 #  This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as
 #  published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
 #
@@ -199,7 +198,7 @@ function func_u
 
             # if one of the above update commands has failed, there are multiple points of failure. the first one is the internet/repository/mirror connection of the user:
             # check, whether there is a connection to the mirror/repository server. this is needed for package download/update!
-            if ( wget --spider $(echo "$server") &>/dev/null )                      # the "wget --spider" command gets executed in any case in order to check its output.
+            if ( curl --silent --fail  $(echo "$server") &>/dev/null )                      # the "curl --silent --fail" command gets executed in any case in order to check its output.
             then
 
                 # next, we can force the update, but only for packages from the system repositories and not packages from the AUR. this means, we make sure package updates from system repositories fail:
@@ -322,7 +321,7 @@ function func_m
         then
             sudo pacdiff
         else
-            # use pacdiff to search for .pacnew and .pacsave files. display both the original and the used config file using "pacui_diff" function defined above.
+            # use pacdiff to search for .pacnew and .pacsave files. display both the original and the used config file using "func_diff" function defined above.
             sudo DIFFPROG="pacui --diff" pacdiff
         fi
 
@@ -368,7 +367,8 @@ function func_m
             # download AUR package list to /tmp/pacui-aur/packages.
 
             #wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null
-            wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && gunzip -f "/tmp/pacui-aur/packages.gz"
+            #wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && gunzip -f "/tmp/pacui-aur/packages.gz"
+            curl --url 'https://aur.archlinux.org/packages.gz' --create-dirs --output "/tmp/pacui-aur/packages.gz" &>/dev/null && gunzip -f "/tmp/pacui-aur/packages.gz"
             # now, file /tmp/pacui-aur/packages contains an unsorted list of all packages from the AUR with the download date on top (in a commented line).
 
             # check, if /tmp/pacui-aur/packages exists. /tmp/pacui-aur/packages does not exist, if there is no internet connection or something went wrong during the download of the list of AUR packages.
@@ -438,7 +438,7 @@ function func_m
         installed_kernels="$(
             for p in $( command ls -1 /boot | grep -E '^vmlinuz' )                  # ATTENTION: using quotes (" symbols) around $(...) breaks for-loop
             do
-                echo linux$( echo $p | cut -d"-" -f2 | tr -d ".")                   # do not print error messages
+                echo linux$( echo $p | cut -d"-" -f2 | tr -d ".")
             done | sort -u )"
         # check, whether any installed kernels have been found  (in ARCH linux, no kernels are found, but this is ok, because kernels are not EOLd as in Manjaro)
         if [[ -n "$installed_kernels" ]]
@@ -503,7 +503,6 @@ function func_i
         fi
 
 
-
         if [[ -n "$AUR_Helper" ]]                                                   # check, if output of "$AUR_Helper" is non-zero
         then
 
@@ -514,7 +513,8 @@ function func_i
                 echo " downloading list of AUR packages (which can take a while) ..."
 
                 #wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null
-                wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && gunzip -f "/tmp/pacui-aur/packages.gz"
+                    #wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && gunzip -f "/tmp/pacui-aur/packages.gz"
+                    curl --url 'https://aur.archlinux.org/packages.gz' --create-dirs --output "/tmp/pacui-aur/packages.gz" &>/dev/null && gunzip -f "/tmp/pacui-aur/packages.gz"
             fi
 
             # check, if /tmp/pacui-aur/packages exists. /tmp/pacui-aur/packages does not exist, if there is no internet connection or something went wrong during the download of the list of AUR packages.
@@ -999,7 +999,7 @@ function func_l
                 server="$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" | awk -F '=' '{print $2}' | awk -F '$' '{print $1}' )"
 
                 # check, whether there is a connection to the mirror/repository server. this is needed for package download/update!
-                if ( wget --spider $(echo "$server") &>/dev/null )                        # the "wget --spider" command gets executed in any case in order to check its output.
+                if ( curl --silent --fail $(echo "$server") &>/dev/null )                        # the "curl --silent --fail" command gets executed in any case in order to check its output.
                 then
                     # update local package database. this needs a long time when internet connection is slow.
                     # in some cases, the local database has to be initialized first with "sudo pacman -Fyy"
@@ -1061,7 +1061,7 @@ function func_s
             # extract mirror/repository server url from /etc/pacman.d/mirrorlist file with command:
             server="$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" | awk -F '=' '{print $2}' | awk -F '$' '{print $1}' )"
             # check, whether there is a connection to the mirror/repository server. this is needed for package download/update!
-            if ( wget --spider $(echo "$server") &>/dev/null )                        # the "wget --spider" command gets executed in any case in order to check its output.
+            if ( curl --silent --fail $(echo "$server") &>/dev/null )                        # the "curl --silent --fail" command gets executed in any case in order to check its output.
             then
                 # update local package database. this needs a long time when internet connection is slow.
                 # in some cases, the local database has to be initialized first with "sudo pacman -Fyy"
@@ -1428,7 +1428,7 @@ function func_f
         server="$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" |awk -F '=' '{print $2}' | awk -F '$' '{print $1}' )"
 
         # check, whether there is a connection to the mirror/repository server. this is needed for package download/update!
-        if ! ( wget --spider $(echo "$server") &>/dev/null )                        # the "wget --spider" command gets executed in any case in order to check its output.
+        if ! ( curl --silent --fail $(echo "$server") &>/dev/null )                        # the "curl --silent --fail" command gets executed in any case in order to check its output.
         then
 
             # print error message, if there is no connection to a mirror/repository server and quit
@@ -1906,6 +1906,7 @@ function func_ls
         #set +E
 
         # list all packages on local system sorted by their installed size using "expac" and "sort".
+        # expac -H M -Q "%12m - \e[1m%n\e[0m %v"  displays size, name, and version number
         # $( comm -23 <(pacman -Qq | sort) <(pacman -Qqg base | sort) )  only shows packages, which are not part of "base" group.
         # "sort -n -r"  sorts list by number (with which every element begins).
         # ATTENTION: (i do not know why but) using quotes (" symbols) around $( comm ...) breaks expac
@@ -1974,7 +1975,7 @@ function func_la
         #set +E
 
         # check, whether there is a connection to AUR server. this is needed for AUR package information. If there is no connection to AUR server, no AUR package info get displayed.
-        if ( wget --spider "https://aur.archlinux.org" &>/dev/null )                # the "wget --spider" command gets executed in any case in order to check its output.
+        if ( curl --silent --fail "https://aur.archlinux.org" &>/dev/null )                # the "curl --silent --fail" command gets executed in any case in order to check its output.
         then
             AurSserverIsUp="true"
         else
@@ -2187,7 +2188,7 @@ function func_help
 
 PacUI is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Yay/Pikaur/Aurman/Pakku/Trizen/Pacaur as back ends.
 
-Navigate this help page with your Arrow Keys, PageUp/PageDown Keys, SpaceBar, or your Mouse Wheel. To search this Help Page, enter /<SEARCH TERM> and press ENTER. For example, enter the following (without quotes " ") in order to search for the word "update": "/update". Press N key to continue searching for other occurrences of "/update". Search is not case sensitive. To exit this Help Page, press your Q key.
+Navigate this help page with your Arrow Keys, PageUp/PageDown Keys, SpaceBar, or your Mouse Wheel. To search this Help Page, enter /<SEARCH TERM> and press ENTER. For example, enter the following (without quotes " ") in order to search for the word "update": "/update". Press N key to continue searching for other occurrences of "update". Search is not case sensitive. To exit this Help Page, press your Q key.
 PacUI uses Fuzzy Finder (fzf) to display selectable lists, which can be easily searched by starting to type. Advanced users can even use regular expressions to search in fzf. Navigate fzf's list the same way you navigate this help page.
 
 
@@ -2269,7 +2270,7 @@ By default Pacman uses this cache directory for downloading packages: /var/cache
 The first command removes all old packages from cache, which are not installed (anymore) on your system (except the latest version of that package).
 The second command removes all old packages from cache except the 3 latest versions: The version you have currently installed on your system and 2 previous versions. Old package versions are kept to enable you to use ROLL BACK SYSTEM (or to manually downgrade packages) even without a working internet connection.
 
-\e[36m"comm -13 <(echo "$available_kernels") <(echo "$installed_kernels")"\e[0m(for Manjaro)
+\e[36m"comm -13 <(echo "$available_kernels") <(echo "$installed_kernels")" \e[0m(for Manjaro)
 This long "comm" command compares the output of 2 lists: The first list of <KERNEL NAME> contains (still) available kernels in your repository (which are also installed on your system) and the second list of <KERNEL NAME> contains installed kernels.
 By comparing both lists, it is possible to extract <KERNEL NAME> of so called end-of-live kernels. These installed kernels are no longer supported and do not receive updates anymore. Kernel modules are likely to break. It is highly recommended to remove these kernels.
 Kernels from the AUR are also listed by the "comm" command and trigger a warning. Please decide for yourself, whether you want to keep them or not.
@@ -2331,7 +2332,7 @@ As a result, <REPOSITORY>/<PACKAGE NAME> and the complete path to <FILE NAME> ge
 
 \e[1m9 - ROLL BACK SYSTEM
 \e[36m"sudo pacman -R <PACKAGE NAME> --noconfirm" \e[0m(only for rolling back package installations)
-\e[36m"sudo pacman -U <PACKAGE NAME IN PACMAN/PACAUR CACHE> --noconfirm" \e[0m(only for rolling back package removals, upgrades, or downgrades.)
+\e[36m"sudo pacman -U <PACKAGE NAME IN PACKAGE CACHE> --noconfirm" \e[0m(only for rolling back package removals, upgrades, or downgrades.)
 Manjaro and Arch Linux use a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. Sometimes, things go wrong during UPDATE SYSTEM and you should roll back the last update. In case the latest version of a single package is broken, rolling back (a.k.a. downgrading) that package can work.
 This command shows you a list of all recent Pacman actions sorted by date (using parts of this command: "tail -8000 /var/log/pacman.log"). Please select all Pacman actions you want to roll back. Installed packages will be removed from your system. Removed packages will be reinstalled as the latest version available in your Pacman/Pacaur cache. Upgraded packages will be downgraded to the previous version (if this version is available in your local Pacman/Pacaur cache). Downgraded packages will be Upgraded to a later version. If you select multiple upgrades/downgrades of the same package, the package gets downgraded/upgraded multiple times (if this version is available in your local Pacman/Pacaur cache).
 \e[1mAttention\e[0m: It is strongly recommended to always roll back <PACKAGE NAME> including ALL its dependencies. Otherwise, your system could be left in a broken state. If you are in doubt about that, rolling back all changes made on your system in a short time intervall should be sufficient.
@@ -2347,7 +2348,7 @@ This command deletes all PacUI files in /tmp directory. PacUI uses this temporar
 
 \e[36m"sudo unlink /var/lib/pacman/db.lck"
 This command removes Pacmans database lock. The database lock prevents multiple Pacman instances from running at the same time and interfering with each other.
-\e[1mAttention\e[0m: Only run this command when no other Pacman instance (e.g. Pacman, Yaourt, Pamac, Octopi, PacmanXG4, ...) is running.
+\e[1mAttention\e[0m: Only run this command when no other Pacman instance (e.g. Pacman, Pamac, Octopi, PacmanXG4, Yay, Pikaur, Aurman, Pakku, Trizen, Pacaur, ...) is running.
 
 \e[36m"sudo pacman-mirrors -f 0 && sudo pacman -Syy" \e[0m(for Manjaro)
 This command generates a new mirrorslist of all available Manjaro repository mirrors/servers and sorts it by ping of up-to-date mirrors/servers. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror. If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -c Germany,France".
