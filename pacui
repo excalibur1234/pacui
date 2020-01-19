@@ -2211,9 +2211,9 @@ This will quit PacUI and clear your terminal. Scroll up to see all terminal outp
 
 \e[1m1 - UPDATE SYSTEM
 \e[36m"sudo pacman -Syu"
-\e[36m"yaourt -Syua"
+\e[36m"yay -Syua"
 The first command compares a list of all installed packages with package database on your system repository mirror/server. If an updated package is available from your system repositories, it will get downloaded and installed on your system.
-The second command does the same as the first part, but with one exception: It also downloads, compiles, and installs all packages from the Arch User Repository (AUR), which have an updated PKGBUILD file. The first command is still needed occasionally, because major Pacman updates require "pacman -Syu" and will fail when started with an AUR helper.
+The second command does the same as the first part, but with one exception: It also downloads, compiles, and installs all packages from the Arch User Repository (AUR), which have an updated PKGBUILD file. The first command is still needed occasionally, because major Pacman updates require "pacman -Syu" first and will fail when started with some AUR helpers.
 If updates from system repositories fail, the user is offered the choice to update packages using \e[36m"sudo pacman -Syu --overwrite A-Z,a-z,0-9,-,.,_"\e[0m.
 \e[1mAttention\e[0m: When a new version of an AUR package is available, sometimes the PKGBUILD file is not updated. If you want to install the latest version of a single AUR package, (re-)install it with INSTALL PACKAGES. If you want to install the latest versions of ALL AUR packages use FORCE UPDATE AUR.
 
@@ -2277,9 +2277,9 @@ Kernels from the AUR are also listed by the "comm" command and trigger a warning
 
 
 \e[1m3 - INSTALL PACKAGES
-\e[36m"yaourt -Sy <PACKAGE NAME>"
-This option first updates your system and then downloads and installs <PACKAGE NAME> on your system. The list of packages shows packages from your system repository with their description while package groups or packages from the AUR are only shown with their name.
-\e[1mAttention\e[0m: Experienced users can install packages from the AUR without the need to answer questions all the time by using the command "yaourt -S <PACKAGE NAME> --noconfirm". The "--noconfirm" flag is great for quick and dirty installations of AUR packages on non-secure systems. Please keep always in mind that the AUR can contain any sort of packages - including malicious and destructive (parts of) packages. Therefore, it is recommended to always check the PKGBUILD and .INSTALL file manually before installing a package from the AUR.
+\e[36m"yay -S <PACKAGE NAME>"
+This option downloads and installs <PACKAGE NAME> on your system. The list of packages shows packages from your system repository with their description while package groups or packages from the AUR are only shown with their name.
+\e[1mAttention\e[0m: Experienced users can install packages from the AUR without the need to answer questions all the time by using the command "yay -S <PACKAGE NAME> --noconfirm". The "--noconfirm" flag is great for quick and dirty installations of AUR packages on non-secure systems. Please keep always in mind that the AUR can contain any sort of packages - including malicious and destructive (parts of) packages. Therefore, it is recommended to always check the PKGBUILD and .INSTALL file manually before installing a package from the AUR.
 
 
 \e[1m4 - REMOVE PACKAGES AND DEPS
@@ -2431,11 +2431,11 @@ EOF
         then
             cat >> /tmp/pacui-help <<- "EOF"
 \e[1m13 - FORCE UPDATE AUR
-\e[36m"yaourt -Syua --devel --needed"
+\e[36m"yay -Syu --devel --needed"
 The Arch User Repository (AUR) is a repository of (mostly) PKGBUILD files. Everybody can create such a PKGBUILD file and upload it to the AUR. A PKGBUILD file contains simple and human readable instructions like where to download the source code from, what dependencies are needed, where to copy files for installation, etc. Your AUR helper can interpret PKGBUILD files and download the source code, install dependencies, build files on your system, and copy these files to the right location (a.k.a. installing a program).
 By checking a PKGBUILD file (and .INSTALL file) you can make sure the source code is loaded from an official download server, no harmful dependencies get installed, and the installation instructions do not contain harmful code.
 A lot of PKGBUILD files contain variables (e.g. program version) in download addresses; this makes them download always the latest source code (e.g. from Github) during installation. Some PKGBUILD files contain no variables: These PKGBUILD files need to be changed manually every time a new program version is released.
-This command updates both regular and AUR packages. Some AUR helpers need the "--devel" flag in order to update development versions (i.e. all git, svn, and cvs-packages) from the AUR as well.
+This command updates both packages from your system repositor and AUR packages. Because of the "--devel" flag, development versions (i.e. all git, svn, and cvs-packages) from the AUR are updated as well.
 \e[1mAttention\e[0m: This might take a long time! Some AUR helpers pause by default after every 15min and ask again for your password.
 
 EOF
@@ -2469,9 +2469,9 @@ EOF
         if [[ -n "$AUR_Helper" ]]
         then
             cat >> /tmp/pacui-help <<- "EOF"
-\e[1mSEARCH AND INSTALL FROM AUR
-\e[36m"yaourt <PACKAGE NAME>"
-This command searches for <PACKAGE NAME> in all system repositories and the Arch User Repository (AUR). It searches for package names and package descriptions.
+\e[1mSEARCH (AND INSTALL) FROM AUR
+\e[36m"yay <PACKAGE NAME>"
+This command searches for <PACKAGE NAME> in all system repositories and the Arch User Repository (AUR). It searches for package names and package descriptions. Some AUR helpers offer an easy way to select and install a subset of these search results, too.
 Example: You can search for "web browser" and you will find Firefox and other web browsers. One or multiple search results can be installed on your system.
 If you want to exit this mode without installing any packages, simply press CTRL+C or ENTER.
 
@@ -2513,7 +2513,7 @@ function func_h
         echo -e "  14  pacui  la   - \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
         [[ -n "$AUR_Helper" ]]      && echo
         [[ -f /usr/bin/downgrade ]] && echo -e "      pacui  d    - \e[1mD\e[0mowngrade Packages"
-        [[ -n "$AUR_Helper" ]]      && echo -e "      pacui  a    - Search and Install from \e[1mA\e[0mUR"
+        [[ -n "$AUR_Helper" ]]      && echo -e "      pacui  a    - Search (and Install) from \e[1mA\e[0mUR"
         echo
         echo -e "      pacui  h    - This short \e[1mH\e[0melp."
         echo -e "  99  pacui  help - Full \e[1mHelp\e[0m page. 'q' key quits."
@@ -2931,7 +2931,7 @@ do
         a|aur|search-and-install-from-aur )
             func_a
             echo
-            echo -e " \e[41m Installation from AUR finished. To return to PacUI press ENTER \e[0m"
+            echo -e " \e[41m Search (and installation) from AUR finished. To return to PacUI press ENTER \e[0m"
             read -r
             ;;
 
