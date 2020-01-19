@@ -1985,7 +1985,7 @@ function func_la
         # this command shows all packages from external, i.e. not in system repositories, sources:
         # packages from the AUR and manually installed packages
         # "pacman -Qm --color always"
-        pacman -Qqm --color always | fzf -i --multi --exact --no-sort --ansi --reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --info=inline --no-unicode --preview '
+        pacman -Qqm | fzf -i --multi --exact --no-sort --reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --info=inline --no-unicode --preview '
             echo -e "\e[1mInstalled package info: \e[0m"
             pacman -Qi {} --color always
             echo
