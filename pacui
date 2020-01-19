@@ -1907,10 +1907,9 @@ function func_ls
 
         # list all packages on local system sorted by their installed size using "expac" and "sort".
         # expac -H M -Q "%12m - \e[1m%n\e[0m %v"  displays size, name, and version number
-        # $( comm -23 <(pacman -Qq | sort) <(pacman -Qqg base | sort) )  only shows packages, which are not part of "base" group.
         # "sort -n -r"  sorts list by number (with which every element begins).
         # ATTENTION: (i do not know why but) using quotes (" symbols) around $( comm ...) breaks expac
-        expac -H M -Q "%12m - \e[1m%n\e[0m" $( comm -23 <(pacman -Qq | sort) <(pacman -Qqg base | sort) ) | sort -n -r | fzf -i --multi --exact --no-sort --ansi --reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --info=inline --no-unicode --preview '
+        expac -H M -Q "%12m - \e[1m%n\e[0m" $( pacman -Qq | sort) | sort -n -r | fzf -i --multi --exact --no-sort --ansi --reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --info=inline --no-unicode --preview '
             echo -e "\e[1mInstalled package info: \e[0m"
             pacman -Qi {4} --color always
             ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:70%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi )" --header="Navigate with PageUp / PageDown. ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-ls
@@ -2423,7 +2422,7 @@ By default the text editor Nano gets used, except custom $EDITOR and $SUDO_EDITO
 
 \e[1m12 - LIST PACKAGES BY SIZE
 \e[36m"expac -Q '%m - %n %v' | sort -n -r "
-This command lists packages on your system sorted by their installation size. Both explicitly installed packages and dependencies are displayed. Important system packages part of the "base" group are not displayed. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-ls.
+This command lists packages on your system sorted by their installation size. Both explicitly installed packages and dependencies are displayed. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-ls.
 
 EOF
         # only write the following paragraph to file, if an AUR helper is installed
