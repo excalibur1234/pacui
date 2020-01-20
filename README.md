@@ -1,11 +1,11 @@
 
 # PacUI
 
-PacUI provides useful and advanced Pacman and Pacaur/Yaourt commands in a convenient and easy to use text interface. 
+PacUI provides useful and advanced Pacman and Yay/Pikaur/Aurman/Pakku/Trizen/Pacaur commands in a convenient and easy to use text interface.
 
-PacUI is aimed at experienced/intermediate/advanced users of Arch Linux (and Arch-based distributions, including Manjaro), who have at least basic knowledge of their Linux system, Pacman and Pacaur/Yaourt. Absolute beginners are probably overwhelmed by the amount of choices PacUI offers.
+PacUI is aimed at experienced/intermediate/advanced users of Arch Linux (and Arch-based distributions, including Manjaro), who have at least basic knowledge of their Linux system, Pacman and [Yay](https://github.com/Jguer/yay)/[Pikaur](https://github.com/actionless/pikaur)/[Aurman](https://github.com/polygamma/aurman)/[Pakku](https://github.com/kitsunyan/pakku)/[Trizen](https://github.com/trizen/trizen)/[Pacaur](https://github.com/rmarquis/pacaur). Absolute beginners are probably overwhelmed by the choices PacUI offers.
 
-This fork of an [older version of pacli](https://github.com/Manjaro-Pek/pacli/tree/f98e9226eb75ea00217481f436399328fe73d3ae) called PacUI follows the KISS principle: The whole script is contained within one file, which consists of easy to read bash code with many helpful comments. PacUI provides more functionality than pacli (except for a settings file and translations). PacUI does not require the use of the UI but can be used by terminal commands directly.
+This fork of an [older version of pacli](https://github.com/Manjaro-Pek/pacli/tree/f98e9226eb75ea00217481f436399328fe73d3ae) called PacUI follows the KISS principle: The whole script is contained within one file, which consists of easy to read bash code with many helpful comments. PacUI offers many more features over pacli in order to enhance comfort and speed of CLI based package management.
 
 
 Table of Contents
@@ -18,9 +18,10 @@ Table of Contents
       * [Start PacUI with UI](#start-pacui-with-ui)
       * [Start PacUI without UI: Using Options](#start-pacui-without-ui-using-options)
       * [Start PacUI without UI: Using Options and Package Names](#start-pacui-without-ui-using-options-and-package-names)
+      * [Start PacUI without UI: Passing Arguments to AUR helper or Pacman](#start-pacui-without-ui-passing-arguments-to-aur-helper-or-pacman)
+      * [Multiple installed AUR helpers](#multiple-installed-aur-helpers)
    * [Useful Tips and Recommended Settings](#useful-tips-and-recommended-settings)
       * [Fancy List View](#fancy-list-view)
-      * [Limit Mirrors Check to Countries Near You](#limit-mirrors-check-to-countries-near-you)
       * [Alias](#alias)
       * [Search syntax](#search-syntax)
    * [Help](#help)
@@ -33,12 +34,12 @@ Table of Contents
 
 UI of PacUI:
 
-![Screenshot 01](https://s1.postimg.org/62lqgikhm7/image.png)
+![Screenshot 01](https://s31.postimg.cc/afwlfh1wr/2018.1.16.png)
 
 
-Installing the package "cantata" from system repositories:
+Installing the package "cantata" from system repositories by entering its name:
 
-![Screenshot 02](https://s1.postimg.org/17htzpbovz/pacui.gif)
+![Screenshot 02](https://s31.postimg.cc/7ltg222bf/2018.1.16.gif)
 
 
 ## Installation
@@ -47,24 +48,25 @@ In Manjaro, you can simply install the stable version of PacUI:
 ```
 sudo pacman -S pacui
 ```
-
-Both the stable version and the latest git version of PacUI are available on the AUR:
+There is also a development version available in the Manjaro repositories. Please use the latest development version as a base for all bug reports:
 ```
-yaourt -S pacui-git
+sudo pacman -S pacui-git
 ```
 
-This will install PacUI including the latest commits on Github. If you ever encounter any bugs, please reinstall (and thereby update) PacUI with the this command and check whether the bug is still there before reporting it.
-
-Please note that PacUI requires also Pacaur or Yaourt to work properly. Both AUR helpers are only listed as optional dependencies, but you should install at least one of them. If Pacaur is installed, it gets used by default over Yaourt.
+PacUI is [no longer available on the AUR](https://github.com/excalibur1234/pacui/issues/45).
+PKGBUILDs are still availble (look above for the `PKGBUILD_AUR` file) and Pacui can be executed without installation (see below).
 
 ### Execute without prior Installation
-Because PacUI is contained within one file, it is easy to download and start it without prior installation:
+For a minimal working version of PacUI, please install its dependencies [expac](https://github.com/falconindy/expac) and [fzf](https://github.com/junegunn/fzf) using Pacman first (if possible). Then, the PacUI file can be downloaded and run without prior installation:
 ```
 wget https://raw.githubusercontent.com/excalibur1234/pacui/master/pacui
 ```
 ```
 bash pacui
 ```
+I find this feature of PacUI invaluable for fixing systems. Here are two examples:
+- A large number of updates broke (parts of) the GUI, e.g. xorg, window manager, or desktop environment. In this case, switching to a different tty (with CTRL + ALT + F2), installing PacUI and using "Roll Back System" to roll back all the latest updates can fix the system (temporarily).
+- A broken keyring makes it impossible to apply updates or install any packages. Executing PacUI without prior installation and using "Fix Pacman Errors" (which does not require "expac" or "fzf") to fix the keyring and all related problems is the easiest and fastest solution I know of.
 
 
 ## Usage
@@ -79,7 +81,7 @@ pacui
 Using PacUI without its UI requires less keystrokes and can therefore be much quicker. An overview of all PacUI options is displayed with `pacui h`.
 
 For example, you want to display the **R**everse dependency **T**ree of a package. Please note the marked letters "R" and "T" in PacUI's corresponding UI option.
-PacUI does not care, whether you use upper or lower case letters as options or whether you use no, one or two dashes in front. Therefore, the following four commands are equivalent: 
+PacUI does not care, whether you use upper or lower case letters as options or whether you use no, one or two dashes in front. Therefore, the following four commands are equivalent:
 - `pacui RT`
 - `pacui rt`
 - `pacui -rt`
@@ -94,19 +96,40 @@ This principle can be used with all of PacUI's options. Here is another random e
 - `pacui --ls`
 
 ### Start PacUI without UI: Using Options and Package Names
-
 You can also use package names in addition to options. For example, you want to install the package "cantata". Then, you can use a command like
 ```
 pacui i cantata
 ```
 Instead of a list of all available packages, a much shorter already filtered list is displayed. Simply select the "cantata" package you want to install and press ENTER in order to install it.
 
-If the last argument contains special characters, it has to be quoted. For example when using regular expressions in order to search package file names starting with "zsh":
+If an argument contains special characters, it has to be quoted. For example when using regular expressions in order to search package file names starting with "zsh":
 ```
 pacui s "^zsh"
 ```
 
+### Start PacUI without UI: Passing Arguments to AUR helper or Pacman
+For advanced use (e.g. in scripting or an alias), PacUI can have a "flag" argument, which gets passed directly to an AUR helper and/or Pacman.
+Examples:
+- ` pacui -r 0ad --flag="--noconfirm"`
+- ` pacui u flag --noconfirm`
+- ` pacui --FLAG --asdeps --i --bash`
+- ` pacui b --flag=--noconfirm`
+
+
+### Multiple installed AUR helpers
+Please note that PacUI optionally requires at least one of these AUR helpers to enable use of the AUR.: [Yay](https://github.com/Jguer/yay), [Pikaur](https://github.com/actionless/pikaur), [Aurman](https://github.com/polygamma/aurman), [Pakku](https://github.com/kitsunyan/pakku), [Trizen](https://github.com/trizen/trizen), or [Pacaur](https://github.com/rmarquis/pacaur).
+
+If more than one AUR helper is installed, they are automatically used in the same order as listed above (i.e. Aurman is used with priority while Pacaur is only used as a last resort). A specific AUR helper can be set with the `PACUI_AUR_HELPER` environment variable.
+
+Alternatively, replacing `$PACUI_AUR_HELPER` with the name of your preferred AUR helper in the following variable (within `/usr/bin/pacui` file) works as well. Note that `$PACUI_AUR_HELPER` needs to be replaced (again) after each PacUI update:
+```
+# here, the preferred AUR helper can be set manually by the user. for example, AUR_Helper="trizen" uses Trizen despite any other installed AUR helpers.
+AUR_Helper="$PACUI_AUR_HELPER"
+```
+
+
 ## Useful Tips and Recommended Settings
+
 It is highly recommended to use an utility, which notifies the user about available updates alongside of PacUI. Such a lightweight utility is for example [update-notifier](https://github.com/Chrysostomus/update-notifier).
 
 Along with PacUI the following settings are recommended by the author:
@@ -121,7 +144,6 @@ A very easy way to edit this file by using PacUI is:
 pacui c pacman.conf
 ```
 
-
 ### Alias
 If you use PacUI without the UI it is recommended to use an alias for PacUI to reduce the amount of necessary typing. Do this by adding the following line to your ~/.bashrc file (if you use bash):
 ```
@@ -133,31 +155,20 @@ p u
 ```
 
 ### Search syntax
-PacUI uses [fuzzy finder (fzf)](https://github.com/junegunn/fzf) to display lists of items (such as packages, package groups, logs, patchs, etc.) and by starting to type, you can easily search/filter those lists. Regular expressions can be used to improve the search results. fzf accepts multiple search terms (with regular expressions) delimited by spaces. e.g. `^music git$ sbtrkt !fire`
+PacUI uses [fuzzy finder (fzf)](https://github.com/junegunn/fzf) to display lists of items (such as packages, package groups, logs, patchs, etc.) and by starting to type, you can easily search/filter those lists. Regular expressions can be used to improve the search results, e.g.:
 
 | Search Term | Description                       |
 | ----------- | --------------------------------- |
-|  `sbtrkt`   | Items that match `sbtrkt`         |
-|  `^music`   | Items that start with `music`     |
-|  `git$`     | Items that end with `git`         |
-|  `'wild`    | Items that include `wild`         |
-|  `!fire`    | Items that do not include `fire`  |
-|  `!-git$`   | Items that do not end with `-git` |
+|  `"sbtrkt"`   | Items that match `sbtrkt`         |
+|  `"^music"`   | Items that start with `music`     |
+|  `"git$"`     | Items that end with `git`         |
+|  `"'wild"`    | Items that include `wild`         |
+|  `"!fire"`    | Items that do not include `fire`  |
+|  `"!-git$"`   | Items that do not end with `-git` |
 
-A single bar character term acts as an OR operator. For example, the following query matches entries that start with `core` and end with either `go`, `rb`, or `py`.
+A single bar character term acts as an OR operator. For example, the following query matches entries that start with `core` or end with `go`, `rb`, or `py`.
 ```
-^core go$ | rb$ | py$
-```
-
-### Limit Mirrors Check to Countries Near You
-In Manjaro, pacman-mirrors is used by PacUI. For example, in the "Maintain System" option, your ping is checked to all Manjaro servers/mirrors. By limiting this check to mirrors near you, you can dramatically speed up this process.
-You can achieve this by uncommenting and editing the following line in your /etc/pacman-mirrors.conf file:
-```
-#OnlyCountry =
-```
-A very easy way to edit this file using PacUI is:
-```
-pacui -c
+"^core|go$|rb$|py$"
 ```
 
 
@@ -170,8 +181,9 @@ For short help, e.g. when using PacUI without UI, use one of the following comma
 
 ### Detailed PacUI Help
 Choose the "Help" option within PacUI's UI by entering "00" or "H" or "h" or "help" and pressing "ENTER".
+`pacui --help` from the terminal will call PacUI's detailed help page, too.
 
-This help page explains some general stuff such as how to navigate PacUI. It also explains every PacUI option in detail. If you want to look up which commands PacUI uses under the hood and understand them, this is the right place for you!
+This help page explains some general stuff such as how to navigate PacUI. It also explains every PacUI option in detail. If you want to look up which commands PacUI uses under the hood and understand them in order to use PacUI correctly, this is the right place for you!
 
 ### Manjaro Forum Threads
  - [New Forum](https://forum.manjaro.org/t/pacui-a-simple-bash-frontend-for-pacman-and-yaourt-pacaur/677)
