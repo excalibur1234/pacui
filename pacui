@@ -7,7 +7,6 @@ SHELL=/usr/bin/bash                                                             
 # SC2086: Double quote to prevent globing and word splitting.                       # ${variable}  does not work when double quoted. also, double quote breaks this script in many cases --> there are warning comments containing "ATTENTION" about this.
 # shellcheck disable=SC1117,SC2086                                                  # exclude MANY false-positive shellcheck warnings (see above)
 
-
 #  This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as
 #  published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
 #
@@ -290,7 +289,7 @@ function func_u
 
             # if one of the above update commands has failed, there are multiple points of failure. the first one is the internet/repository/mirror connection of the user:
             # check, whether there is a connection to the mirror/repository server. this is needed for package download/update!
-            if ( wget --spider $(echo "$server") &>/dev/null )                      # the "wget --spider" command gets executed in any case in order to check its output.
+            if ( curl --silent --fail  $(echo "$server") &>/dev/null )                      # the "curl --silent --fail" command gets executed in any case in order to check its output.
             then
 
                 # next, we can force the update, but only for packages from the system repositories and not packages from the AUR. this means, we make sure package updates from system repositories fail:
@@ -417,7 +416,7 @@ function func_m
         then
             sudo pacdiff
         else
-            # use pacdiff to search for .pacnew and .pacsave files. display both the original and the used config file using "pacui_diff" function defined above.
+            # use pacdiff to search for .pacnew and .pacsave files. display both the original and the used config file using "func_diff" function defined above.
             sudo DIFFPROG="pacui --diff" pacdiff
         fi
 
@@ -463,7 +462,8 @@ function func_m
             # download AUR package list to /tmp/pacui-aur/packages.
 
             #wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null
-            wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && gunzip -f "/tmp/pacui-aur/packages.gz"
+            #wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && gunzip -f "/tmp/pacui-aur/packages.gz"
+            curl --url 'https://aur.archlinux.org/packages.gz' --create-dirs --output "/tmp/pacui-aur/packages.gz" &>/dev/null && gunzip -f "/tmp/pacui-aur/packages.gz"
             # now, file /tmp/pacui-aur/packages contains an unsorted list of all packages from the AUR with the download date on top (in a commented line).
 
             # check, if /tmp/pacui-aur/packages exists. /tmp/pacui-aur/packages does not exist, if there is no internet connection or something went wrong during the download of the list of AUR packages.
@@ -533,7 +533,7 @@ function func_m
         installed_kernels="$(
             for p in $( command ls -1 /boot | grep -E '^vmlinuz' )                  # ATTENTION: using quotes (" symbols) around $(...) breaks for-loop
             do
-                echo linux$( echo $p | cut -d"-" -f2 | tr -d ".")                   # do not print error messages
+                echo linux$( echo $p | cut -d"-" -f2 | tr -d ".")
             done | sort -u )"
         # check, whether any installed kernels have been found  (in ARCH linux, no kernels are found, but this is ok, because kernels are not EOLd as in Manjaro)
         if [[ -n "$installed_kernels" ]]
@@ -598,7 +598,6 @@ function func_i
         fi
 
 
-
         if [[ -n "$AUR_Helper" ]]                                                   # check, if output of "$AUR_Helper" is non-zero
         then
 
@@ -609,7 +608,8 @@ function func_i
                 echo " downloading list of AUR packages (which can take a while) ..."
 
                 #wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null
-                wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && gunzip -f "/tmp/pacui-aur/packages.gz"
+                    #wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && gunzip -f "/tmp/pacui-aur/packages.gz"
+                    curl --url 'https://aur.archlinux.org/packages.gz' --create-dirs --output "/tmp/pacui-aur/packages.gz" &>/dev/null && gunzip -f "/tmp/pacui-aur/packages.gz"
             fi
 
             # check, if /tmp/pacui-aur/packages exists. /tmp/pacui-aur/packages does not exist, if there is no internet connection or something went wrong during the download of the list of AUR packages.
@@ -706,7 +706,7 @@ function func_i
                         then
                             echo "--preview-window=right:55%:wrap"                  # depending on the terminal width (determined by "tput cols"), the preview window is either shown on the right or the bottom
                         else
-                            echo "--preview-window=bottom:55%:wrap"
+                            echo "--preview-window=bottom:60%:wrap"
                         fi
                     )" \
                     --header="TAB key to (un)select. ENTER to install. ESC to quit." \
@@ -788,7 +788,7 @@ function func_r
                 pacman -Sgq {1}
 
             fi
-            ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )" --header="TAB key to (un)select. ENTER to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )"
+            ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi )" --header="TAB key to (un)select. ENTER to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )"
 
         #set -e
         #set -E
@@ -859,7 +859,7 @@ function func_r
                                     pacman -Sgq {1}
 
                                 fi
-                                ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )" --header="TAB key to (un)select. ENTER to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )"
+                                ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi )" --header="TAB key to (un)select. ENTER to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )"
 
                             #set -e
                             #set -E
@@ -931,7 +931,7 @@ function func_t
                 pacman -Si {1} --color always                                       # do this, if package is not locally installed
 
             fi
-            ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )"  --header="ENTER for dependency tree. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )"
+            ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi )"  --header="ENTER for dependency tree. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )"
 
         pacui_tty_clean                                                             # clear terminal
 
@@ -946,7 +946,7 @@ function func_t
                 pactree --color --ascii "$pkg" | fzf -i --multi --exact --no-sort --ansi --reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --info=inline --no-unicode --preview '
                     echo -e "\e[1mInstalled package info: \e[0m"
                     pacman -Qi "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" --color always
-                    ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )" --header="Local Dependency Tree of \"$pkg\". ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-t
+                    ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi )" --header="Local Dependency Tree of \"$pkg\". ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-t
 
             else
 
@@ -962,7 +962,7 @@ function func_t
                         pacman -Si "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" --color always                                                 # display package info from repository, if package is not locally installed
 
                     fi
-                    ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )" --header="Repository Dependency Tree of \"$pkg\". ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-t
+                    ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi )" --header="Repository Dependency Tree of \"$pkg\". ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-t
 
             fi
 
@@ -1002,7 +1002,7 @@ function func_rt
                 pacman -Si {1} --color always                                       # do this, if package is not locally installed
 
             fi
-            ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )"  --header="ENTER for reverse dependency tree. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )"
+            ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi )"  --header="ENTER for reverse dependency tree. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )"
 
         pacui_tty_clean                                                             # clear terminal
 
@@ -1017,7 +1017,7 @@ function func_rt
                 pactree --color --ascii --reverse "$pkg" | fzf -i --multi --exact --no-sort --ansi --reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --info=inline --no-unicode --preview '
                     echo -e "\e[1mInstalled package info: \e[0m"
                     pacman -Qi "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" --color always
-                    ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )" --header="Local Reverse Dependency Tree of \"$pkg\". ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-rt
+                    ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi )" --header="Local Reverse Dependency Tree of \"$pkg\". ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-rt
 
             else
 
@@ -1033,7 +1033,7 @@ function func_rt
                         pacman -Si "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" --color always                                                 # display package info from repository, if package is not locally installed
 
                     fi
-                    ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )" --header="Repository Reverse Dependency Tree of \"$pkg\". ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-rt
+                    ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi )" --header="Repository Reverse Dependency Tree of \"$pkg\". ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-rt
 
             fi
 
@@ -1073,7 +1073,7 @@ function func_l
                 pacman -Si {1} --color always                                       # do this, if package is not locally installed
 
             fi
-            ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )" --header="ENTER to list files. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )"
+            ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi )" --header="ENTER to list files. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )"
 
         pacui_tty_clean                                                             # clear terminal
 
@@ -1094,7 +1094,7 @@ function func_l
                 server="$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" | awk -F '=' '{print $2}' | awk -F '$' '{print $1}' )"
 
                 # check, whether there is a connection to the mirror/repository server. this is needed for package download/update!
-                if ( wget --spider $(echo "$server") &>/dev/null )                        # the "wget --spider" command gets executed in any case in order to check its output.
+                if ( curl --silent --fail $(echo "$server") &>/dev/null )                        # the "curl --silent --fail" command gets executed in any case in order to check its output.
                 then
                     # update local package database. this needs a long time when internet connection is slow.
                     # in some cases, the local database has to be initialized first with "sudo pacman -Fyy"
@@ -1156,7 +1156,7 @@ function func_s
             # extract mirror/repository server url from /etc/pacman.d/mirrorlist file with command:
             server="$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" | awk -F '=' '{print $2}' | awk -F '$' '{print $1}' )"
             # check, whether there is a connection to the mirror/repository server. this is needed for package download/update!
-            if ( wget --spider $(echo "$server") &>/dev/null )                        # the "wget --spider" command gets executed in any case in order to check its output.
+            if ( curl --silent --fail $(echo "$server") &>/dev/null )                        # the "curl --silent --fail" command gets executed in any case in order to check its output.
             then
                 # update local package database. this needs a long time when internet connection is slow.
                 # in some cases, the local database has to be initialized first with "sudo pacman -Fyy"
@@ -1523,7 +1523,7 @@ function func_f
         server="$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" |awk -F '=' '{print $2}' | awk -F '$' '{print $1}' )"
 
         # check, whether there is a connection to the mirror/repository server. this is needed for package download/update!
-        if ! ( wget --spider $(echo "$server") &>/dev/null )                        # the "wget --spider" command gets executed in any case in order to check its output.
+        if ! ( curl --silent --fail $(echo "$server") &>/dev/null )                        # the "curl --silent --fail" command gets executed in any case in order to check its output.
         then
 
             # print error message, if there is no connection to a mirror/repository server and quit
@@ -1906,7 +1906,7 @@ function func_c
                 file="$( find "$file" -maxdepth 1 -xtype f | sort -u | fzf -i --exact --no-sort --select-1 --reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --info=inline --no-unicode --preview '
                     echo -e "\e[1mFile preview: \e[0m"
                     cat {1}                                                         # {1} is the first field of the marked line in fzf. the file given by {1} is shown in the preview window.
-                    ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )" --header="ENTER to edit file in text editor. ESC to quit." --prompt='Enter string to filter list > ' )"
+                    ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi )" --header="ENTER to edit file in text editor. ESC to quit." --prompt='Enter string to filter list > ' )"
 
                 pacui_tty_clean                                                     # clear terminal
 
@@ -2001,13 +2001,13 @@ function func_ls
         #set +E
 
         # list all packages on local system sorted by their installed size using "expac" and "sort".
-        # $( comm -23 <(pacman -Qq | sort) <(pacman -Qqg base | sort) )  only shows packages, which are not part of "base" group.
+        # expac -H M -Q "%12m - \e[1m%n\e[0m %v"  displays size, name, and version number
         # "sort -n -r"  sorts list by number (with which every element begins).
         # ATTENTION: (i do not know why but) using quotes (" symbols) around $( comm ...) breaks expac
-        expac -H M -Q "%12m - \e[1m%n\e[0m %v" $( comm -23 <(pacman -Qq | sort) <(pacman -Qqg base | sort) ) | sort -n -r | fzf -i --multi --exact --no-sort --ansi --reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --info=inline --no-unicode --preview '
+        expac -H M -Q "%12m - \e[1m%n\e[0m" $( pacman -Qq | sort) | sort -n -r | fzf -i --multi --exact --no-sort --ansi --reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --info=inline --no-unicode --preview '
             echo -e "\e[1mInstalled package info: \e[0m"
             pacman -Qi {4} --color always
-            ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:60%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi )" --header="Navigate with PageUp / PageDown. ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-ls
+            ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:70%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi )" --header="Navigate with PageUp / PageDown. ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-ls
         # alternative command to "expac" and "sort": package-query -Qe --rsort 2 -f "%2 - \e[1m%n \e[0m%v" | numfmt --to=iec
 
         #set -e
@@ -2069,7 +2069,7 @@ function func_la
         #set +E
 
         # check, whether there is a connection to AUR server. this is needed for AUR package information. If there is no connection to AUR server, no AUR package info get displayed.
-        if ( wget --spider "https://aur.archlinux.org" &>/dev/null )                # the "wget --spider" command gets executed in any case in order to check its output.
+        if ( curl --silent --fail "https://aur.archlinux.org" &>/dev/null )                # the "curl --silent --fail" command gets executed in any case in order to check its output.
         then
             AurSserverIsUp="true"
         else
@@ -2079,7 +2079,7 @@ function func_la
         # this command shows all packages from external, i.e. not in system repositories, sources:
         # packages from the AUR and manually installed packages
         # "pacman -Qm --color always"
-        pacman -Qqm --color always | fzf -i --multi --exact --no-sort --ansi --reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --info=inline --no-unicode --preview '
+        pacman -Qqm | fzf -i --multi --exact --no-sort --reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --info=inline --no-unicode --preview '
             echo -e "\e[1mInstalled package info: \e[0m"
             pacman -Qi {} --color always
             echo
@@ -2159,7 +2159,7 @@ function func_d
                     pacman -Si {1} --color always                                   # do this, if package is not locally installed
 
                 fi
-                ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:55%:wrap"; fi )" --header="TAB to (un)select. ENTER to downgrade. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )"
+                ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi )" --header="TAB to (un)select. ENTER to downgrade. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )"
 
             #set -e
             #set -E
@@ -2282,7 +2282,7 @@ function func_help
 
 PacUI is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Yay/Pikaur/Aurman/Pakku/Trizen/Pacaur as back ends.
 
-Navigate this help page with your Arrow Keys, PageUp/PageDown Keys, SpaceBar, or your Mouse Wheel. To search this Help Page, enter /<SEARCH TERM> and press ENTER. For example, enter the following (without quotes " ") in order to search for the word "update": "/update". Press N key to continue searching for other occurrences of "/update". Search is not case sensitive. To exit this Help Page, press your Q key.
+Navigate this help page with your Arrow Keys, PageUp/PageDown Keys, SpaceBar, or your Mouse Wheel. To search this Help Page, enter /<SEARCH TERM> and press ENTER. For example, enter the following (without quotes " ") in order to search for the word "update": "/update". Press N key to continue searching for other occurrences of "update". Search is not case sensitive. To exit this Help Page, press your Q key.
 PacUI uses Fuzzy Finder (fzf) to display selectable lists, which can be easily searched by starting to type. Advanced users can even use regular expressions to search in fzf. Navigate fzf's list the same way you navigate this help page.
 
 
@@ -2305,9 +2305,9 @@ This will quit PacUI and clear your terminal. Scroll up to see all terminal outp
 
 \e[1m1 - UPDATE SYSTEM
 \e[36m"sudo pacman -Syu"
-\e[36m"yaourt -Syua"
+\e[36m"yay -Syua"
 The first command compares a list of all installed packages with package database on your system repository mirror/server. If an updated package is available from your system repositories, it will get downloaded and installed on your system.
-The second command does the same as the first part, but with one exception: It also downloads, compiles, and installs all packages from the Arch User Repository (AUR), which have an updated PKGBUILD file. The first command is still needed occasionally, because major Pacman updates require "pacman -Syu" and will fail when started with an AUR helper.
+The second command does the same as the first part, but with one exception: It also downloads, compiles, and installs all packages from the Arch User Repository (AUR), which have an updated PKGBUILD file. The first command is still needed occasionally, because major Pacman updates require "pacman -Syu" first and will fail when started with some AUR helpers.
 If updates from system repositories fail, the user is offered the choice to update packages using \e[36m"sudo pacman -Syu --overwrite A-Z,a-z,0-9,-,.,_"\e[0m.
 \e[1mAttention\e[0m: When a new version of an AUR package is available, sometimes the PKGBUILD file is not updated. If you want to install the latest version of a single AUR package, (re-)install it with INSTALL PACKAGES. If you want to install the latest versions of ALL AUR packages use FORCE UPDATE AUR.
 
@@ -2364,16 +2364,16 @@ By default Pacman uses this cache directory for downloading packages: /var/cache
 The first command removes all old packages from cache, which are not installed (anymore) on your system (except the latest version of that package).
 The second command removes all old packages from cache except the 3 latest versions: The version you have currently installed on your system and 2 previous versions. Old package versions are kept to enable you to use ROLL BACK SYSTEM (or to manually downgrade packages) even without a working internet connection.
 
-\e[36m"comm -13 <(echo "$available_kernels") <(echo "$installed_kernels")"\e[0m(for Manjaro)
+\e[36m"comm -13 <(echo "$available_kernels") <(echo "$installed_kernels")" \e[0m(for Manjaro)
 This long "comm" command compares the output of 2 lists: The first list of <KERNEL NAME> contains (still) available kernels in your repository (which are also installed on your system) and the second list of <KERNEL NAME> contains installed kernels.
 By comparing both lists, it is possible to extract <KERNEL NAME> of so called end-of-live kernels. These installed kernels are no longer supported and do not receive updates anymore. Kernel modules are likely to break. It is highly recommended to remove these kernels.
 Kernels from the AUR are also listed by the "comm" command and trigger a warning. Please decide for yourself, whether you want to keep them or not.
 
 
 \e[1m3 - INSTALL PACKAGES
-\e[36m"yaourt -Sy <PACKAGE NAME>"
-This option first updates your system and then downloads and installs <PACKAGE NAME> on your system. The list of packages shows packages from your system repository with their description while package groups or packages from the AUR are only shown with their name.
-\e[1mAttention\e[0m: Experienced users can install packages from the AUR without the need to answer questions all the time by using the command "yaourt -S <PACKAGE NAME> --noconfirm". The "--noconfirm" flag is great for quick and dirty installations of AUR packages on non-secure systems. Please keep always in mind that the AUR can contain any sort of packages - including malicious and destructive (parts of) packages. Therefore, it is recommended to always check the PKGBUILD and .INSTALL file manually before installing a package from the AUR.
+\e[36m"yay -S <PACKAGE NAME>"
+This option downloads and installs <PACKAGE NAME> on your system. The list of packages shows packages from your system repository with their description while package groups or packages from the AUR are only shown with their name.
+\e[1mAttention\e[0m: Experienced users can install packages from the AUR without the need to answer questions all the time by using the command "yay -S <PACKAGE NAME> --noconfirm". The "--noconfirm" flag is great for quick and dirty installations of AUR packages on non-secure systems. Please keep always in mind that the AUR can contain any sort of packages - including malicious and destructive (parts of) packages. Therefore, it is recommended to always check the PKGBUILD and .INSTALL file manually before installing a package from the AUR.
 
 
 \e[1m4 - REMOVE PACKAGES AND DEPS
@@ -2426,7 +2426,7 @@ As a result, <REPOSITORY>/<PACKAGE NAME> and the complete path to <FILE NAME> ge
 
 \e[1m9 - ROLL BACK SYSTEM
 \e[36m"sudo pacman -R <PACKAGE NAME> --noconfirm" \e[0m(only for rolling back package installations)
-\e[36m"sudo pacman -U <PACKAGE NAME IN PACMAN/PACAUR CACHE> --noconfirm" \e[0m(only for rolling back package removals, upgrades, or downgrades.)
+\e[36m"sudo pacman -U <PACKAGE NAME IN PACKAGE CACHE> --noconfirm" \e[0m(only for rolling back package removals, upgrades, or downgrades.)
 Manjaro and Arch Linux use a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. Sometimes, things go wrong during UPDATE SYSTEM and you should roll back the last update. In case the latest version of a single package is broken, rolling back (a.k.a. downgrading) that package can work.
 This command shows you a list of all recent Pacman actions sorted by date (using parts of this command: "tail -8000 /var/log/pacman.log"). Please select all Pacman actions you want to roll back. Installed packages will be removed from your system. Removed packages will be reinstalled as the latest version available in your Pacman/Pacaur cache. Upgraded packages will be downgraded to the previous version (if this version is available in your local Pacman/Pacaur cache). Downgraded packages will be Upgraded to a later version. If you select multiple upgrades/downgrades of the same package, the package gets downgraded/upgraded multiple times (if this version is available in your local Pacman/Pacaur cache).
 \e[1mAttention\e[0m: It is strongly recommended to always roll back <PACKAGE NAME> including ALL its dependencies. Otherwise, your system could be left in a broken state. If you are in doubt about that, rolling back all changes made on your system in a short time intervall should be sufficient.
@@ -2442,7 +2442,7 @@ This command deletes all PacUI files in /tmp directory. PacUI uses this temporar
 
 \e[36m"sudo unlink /var/lib/pacman/db.lck"
 This command removes Pacmans database lock. The database lock prevents multiple Pacman instances from running at the same time and interfering with each other.
-\e[1mAttention\e[0m: Only run this command when no other Pacman instance (e.g. Pacman, Yaourt, Pamac, Octopi, PacmanXG4, ...) is running.
+\e[1mAttention\e[0m: Only run this command when no other Pacman instance (e.g. Pacman, Pamac, Octopi, PacmanXG4, Yay, Pikaur, Aurman, Pakku, Trizen, Pacaur, ...) is running.
 
 \e[36m"sudo pacman-mirrors -f 0 && sudo pacman -Syy" \e[0m(for Manjaro)
 This command generates a new mirrorslist of all available Manjaro repository mirrors/servers and sorts it by ping of up-to-date mirrors/servers. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror. If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -c Germany,France".
@@ -2517,7 +2517,7 @@ By default the text editor Nano gets used, except custom $EDITOR and $SUDO_EDITO
 
 \e[1m12 - LIST PACKAGES BY SIZE
 \e[36m"expac -Q '%m - %n %v' | sort -n -r "
-This command lists packages on your system sorted by their installation size. Both explicitly installed packages and dependencies are displayed. Important system packages part of the "base" group are not displayed. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-ls.
+This command lists packages on your system sorted by their installation size. Both explicitly installed packages and dependencies are displayed. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-ls.
 
 EOF
         # only write the following paragraph to file, if an AUR helper is installed
@@ -2525,11 +2525,11 @@ EOF
         then
             cat >> /tmp/pacui-help <<- "EOF"
 \e[1m13 - FORCE UPDATE AUR
-\e[36m"yaourt -Syua --devel --needed"
+\e[36m"yay -Syu --devel --needed"
 The Arch User Repository (AUR) is a repository of (mostly) PKGBUILD files. Everybody can create such a PKGBUILD file and upload it to the AUR. A PKGBUILD file contains simple and human readable instructions like where to download the source code from, what dependencies are needed, where to copy files for installation, etc. Your AUR helper can interpret PKGBUILD files and download the source code, install dependencies, build files on your system, and copy these files to the right location (a.k.a. installing a program).
 By checking a PKGBUILD file (and .INSTALL file) you can make sure the source code is loaded from an official download server, no harmful dependencies get installed, and the installation instructions do not contain harmful code.
 A lot of PKGBUILD files contain variables (e.g. program version) in download addresses; this makes them download always the latest source code (e.g. from Github) during installation. Some PKGBUILD files contain no variables: These PKGBUILD files need to be changed manually every time a new program version is released.
-This command updates both regular and AUR packages. Some AUR helpers need the "--devel" flag in order to update development versions (i.e. all git, svn, and cvs-packages) from the AUR as well.
+This command updates both packages from your system repositor and AUR packages. Because of the "--devel" flag, development versions (i.e. all git, svn, and cvs-packages) from the AUR are updated as well.
 \e[1mAttention\e[0m: This might take a long time! Some AUR helpers pause by default after every 15min and ask again for your password.
 
 EOF
@@ -2563,9 +2563,9 @@ EOF
         if [[ -n "$AUR_Helper" ]]
         then
             cat >> /tmp/pacui-help <<- "EOF"
-\e[1mSEARCH AND INSTALL FROM AUR
-\e[36m"yaourt <PACKAGE NAME>"
-This command searches for <PACKAGE NAME> in all system repositories and the Arch User Repository (AUR). It searches for package names and package descriptions.
+\e[1mSEARCH (AND INSTALL) FROM AUR
+\e[36m"yay <PACKAGE NAME>"
+This command searches for <PACKAGE NAME> in all system repositories and the Arch User Repository (AUR). It searches for package names and package descriptions. Some AUR helpers offer an easy way to select and install a subset of these search results, too.
 Example: You can search for "web browser" and you will find Firefox and other web browsers. One or multiple search results can be installed on your system.
 If you want to exit this mode without installing any packages, simply press CTRL+C or ENTER.
 
@@ -2607,7 +2607,7 @@ function func_h
         echo -e "  14  pacui  la   - \e[1mL\e[0mist Installed from \e[1mA\e[0mUR"
         [[ -n "$AUR_Helper" ]]      && echo
         [[ -f /usr/bin/downgrade ]] && echo -e "      pacui  d    - \e[1mD\e[0mowngrade Packages"
-        [[ -n "$AUR_Helper" ]]      && echo -e "      pacui  a    - Search and Install from \e[1mA\e[0mUR"
+        [[ -n "$AUR_Helper" ]]      && echo -e "      pacui  a    - Search (and Install) from \e[1mA\e[0mUR"
         echo
         echo -e "      pacui  h    - This short \e[1mH\e[0melp."
         echo -e "  99  pacui  help - Full \e[1mHelp\e[0m page. 'q' key quits."
@@ -3025,7 +3025,7 @@ do
         a|aur|search-and-install-from-aur )
             func_a
             echo
-            echo -e " \e[41m Installation from AUR finished. To return to PacUI press ENTER \e[0m"
+            echo -e " \e[41m Search (and installation) from AUR finished. To return to PacUI press ENTER \e[0m"
             read -r
             ;;
 
@@ -3034,7 +3034,7 @@ do
             func_help                                                               # call full help page
             echo
             ;;
-        0|q|$'\e'|$'\e'$'\e' )
+        0|q|quit|exit|$'\e'|$'\e'$'\e' )
             pacui_clean && exit                                                     # clear terminal screen first (alternatively, "reset" works as well, but then the terminal history is lost). the "exit" command quits pacui.
             ;;
 
