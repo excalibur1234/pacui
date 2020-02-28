@@ -270,6 +270,22 @@ function func_m
         fi
 
 
+        # get cache directory from file /etc/pacman.conf (without any white spaces) and write results to variable $cache:
+        cache="$( awk -F '=' '/^CacheDir/ {gsub(" ","",$2); print $2}' '/etc/pacman.conf' )"
+        # set variable $cache to default directory, if  variable $cache is empty:
+        if [[ -z "$cache" ]]                                                        # if "cache" variable is empty (exact: if output of $cache is zero)
+        then
+            cache="/var/cache/pacman/pkg/"
+        fi
+        # removing partially downloaded files from pacman cache. this can prevent pacman updates
+        if ( sudo find "$cache" -iname "*.part" &>/dev/null )
+        then
+            echo " deleting partially downloaded packages from cache ..."
+            sudo find "$cache" -iname "*.part" -delete
+            echo ""
+        fi
+
+
         # check for "pacman-mirrors" or "reflector" packages. one of those is needed!
         if [[ -f /usr/bin/pacman-mirrors ]] || [[ -f /usr/bin/reflector ]]
         then
@@ -1441,7 +1457,7 @@ function func_f
 
         local server
         # extract mirror/repository server url from /etc/pacman.d/mirrorlist file with command:
-        server="$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" |awk -F '=' '{print $2}' | awk -F '$' '{print $1}' )"
+        server="$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" | awk -F '=' '{print $2}' | awk -F '$' '{print $1}' )"
 
         # check, whether there is a connection to the mirror/repository server. this is needed for package download/update!
         if ! ( curl --silent --fail $(echo "$server") &>/dev/null )                        # the "curl --silent --fail" command gets executed in any case in order to check its output.
@@ -2236,6 +2252,9 @@ If updates from system repositories fail, the user is offered the choice to upda
 \e[1m2 - MAINTAIN SYSTEM
 \e[36m"sudo rm -r /tmp/pacui*"
 This command deletes all PacUI files in /tmp directory. PacUI uses this temporary directory to cache package lists and fzf selections. By deleting the /tmp directory, PacUI behaves exactly as after a reboot: Its first usage probably feels slower but any strange bugs and incompatibilities, e.g. originating from PacUI updates, should be gone.
+
+\e[36m"sudo find /var/cache/pacman/pkg/ -iname "*.part" -delete"
+This command deletes all partially downloaded packages from Pacman cache directory. Such packages can potentially prevent package updates.
 
 \e[36m"sudo pacman-mirrors -f 0 && sudo pacman -Syyu" \e[0m(for Manjaro)
 This command generates a new mirrorlist of all available Manjaro repository mirrors/servers and sorts it by ping of up-to-date mirrors/servers. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror and the system is updated. If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -f 0 -c Germany,France". In order to prevent partial updates, the whole system needs to be updated after the change to another repository mirror/server.
