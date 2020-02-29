@@ -571,42 +571,28 @@ function func_i
                     --info=inline \
                     --no-unicode \
                     --preview '
+                        if [[ $(comm -12 <(echo {1}) <(sort /tmp/pacui-list-installed)) ]]                  # check, if 1. field of selected line (in fzf) is a locally installed package.
+                        then
+                            echo -e "\e[1mInstalled package info: \e[0m"
+                            pacman -Qi {1} --color always                       # display local package information in preview window of fzf
+                            echo
+                        fi
+
+                        if [[ $(comm -12 <(echo {1}) <(sort /tmp/pacui-list-install-repo)) ]]               # check, if 1. field of selected line (in fzf) is a package from system repositories
+                        then
+                            echo -e "\e[1mRepository package info: \e[0m"
+                            pacman -Si {1} --color always                       # display repository package information in preview window of fzf
+                            echo
+                        fi
+
                         if [[ $(comm -12 <(echo {1}) <(sort /tmp/pacui-list-install-groups)) ]]                 # check, if 1. field of selected line (in fzf) is a package group
                         then
-
-                            if [[ $(comm -12 <(echo {1}) <(sort /tmp/pacui-list-installed)) ]]                  # check, if 1. field of selected line (in fzf) is a locally installed package.
-                            then
-                                echo -e "\e[1mInstalled package info: \e[0m"
-                                pacman -Qi {1} --color always                       # display local package information in preview window of fzf
-                                echo
-                            fi
-
-                            if [[ $(comm -12 <(echo {1}) <(sort /tmp/pacui-list-install-repo)) ]]               # check, if 1. field of selected line (in fzf) is a package from system repositories
-                            then
-                                echo -e "\e[1mRepository package info: \e[0m"
-                                pacman -Si {1} --color always                       # display repository package information in preview window of fzf
-                                echo
-                            fi
-
                             echo -e "\e[1m{1} group has the following members: \e[0m"
                             pacman -Sgq {1}                                         # display package name of group members in preview window of fzf
 
-
                         else
 
-                            if [[ $(comm -12 <(echo {1}) <(sort /tmp/pacui-list-installed)) ]]                  # check, if 1. field of selected line (in fzf) is a locally installed package.
-                            then
-                                echo -e "\e[1mInstalled package info: \e[0m"
-                                pacman -Qi {1} --color always                       # display local package information in preview window of fzf
-                                echo
-                            fi
-
-                            if [[ $(comm -12 <(echo {1}) <(sort /tmp/pacui-list-install-repo)) ]]               # check, if 1. field of selected line (in fzf) is a package from system repositories
-                            then
-                                echo -e "\e[1mRepository package info: \e[0m"
-                                pacman -Si {1} --color always                       # display repository package information in preview window of fzf
-
-                            elif ( test -n '$AUR_Helper' )                          # preview window of fzf requires checking with "test": check whether internet connection is up.
+                            if [[ ! $(comm -12 <(echo {1}) <(sort /tmp/pacui-list-install-repo)) ]] && ( test -n '$AUR_Helper' )                   # preview window of fzf requires checking with "test": check whether internet connection is up.
                             then
                                 echo -e "\e[1mAUR package info: \e[0m"
 
