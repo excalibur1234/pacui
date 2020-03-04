@@ -526,6 +526,7 @@ function func_i
             #if  [[ ! -f /tmp/pacui-aur/packages.gz ]]
             if  [[ ! -f /tmp/pacui-aur/packages ]]
             then
+                echo
                 echo " downloading list of AUR packages (which can take a while) ..."
                 echo
 
@@ -1069,8 +1070,6 @@ function func_s
             # use as many local variables as possible. unfortunately, it is still necessary to use a couple of temporary files (i have done a lot of tests and this current form of 'pacui s' seems to be the fastest):
             local {pacui_search_temp_local,pacui_search_temp_repo2,pacui_search_temp_only_in_repo2,server}
 
-            echo " searching local and online repositories (which can take a while) ..."
-            echo
 
             echo -e "\n\e[1mLocal package files: \e[0m" > /tmp/pacui-search
             # list all files of all installed local packages using "pacman -Ql --color always"
@@ -1088,6 +1087,9 @@ function func_s
                 # in some cases, the local database has to be initialized first with "sudo pacman -Fyy"
                 sudo pacman -Fy
             fi
+
+            echo " searching online repositories (which can take a while) ..."
+            echo
 
             echo -e "\n\e[1mPackage files in system repositories: \e[0m" >> /tmp/pacui-search
             # search in system repositories with "pacman -Fsx" --> machine readable version of output is easier to read for awk!
@@ -1119,7 +1121,7 @@ function func_s
             #set +E
 
             # display results from file /tmp/pacui-search in fzf.
-            cat /tmp/pacui-search | fzf -i --multi --exact --no-sort --ansi --reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --info=inline --header="Package file names and paths containing \"$file\". Press ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-s
+            cat /tmp/pacui-search | fzf -i --multi --exact --no-sort --ansi --reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --info=inline --header="Package file names (bold) and paths containing \"$file\". Press ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-s
 
             #set -e
             #set -E
