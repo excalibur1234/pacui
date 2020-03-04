@@ -527,6 +527,7 @@ function func_i
             if  [[ ! -f /tmp/pacui-aur/packages ]]
             then
                 echo " downloading list of AUR packages (which can take a while) ..."
+                echo
 
                 #wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null
                     #wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && gunzip -f "/tmp/pacui-aur/packages.gz"
@@ -1068,6 +1069,8 @@ function func_s
             # use as many local variables as possible. unfortunately, it is still necessary to use a couple of temporary files (i have done a lot of tests and this current form of 'pacui s' seems to be the fastest):
             local {pacui_search_temp_local,pacui_search_temp_repo2,pacui_search_temp_only_in_repo2,server}
 
+            echo " searching local and online repositories (which can take a while) ..."
+            echo
 
             echo -e "\n\e[1mLocal package files: \e[0m" > /tmp/pacui-search
             # list all files of all installed local packages using "pacman -Ql --color always"
