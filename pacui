@@ -1088,6 +1088,7 @@ function func_s
                 sudo pacman -Fy
             fi
 
+            echo
             echo " searching online repositories (which can take a while) ..."
             echo
 
