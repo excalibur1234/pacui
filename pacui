@@ -50,7 +50,7 @@ AUR_Helper="$PACUI_AUR_HELPER"                                                  
 if [[ -z "$AUR_Helper" ]]                                                           # check, if AUR_Helper variable is empty. more precise: check, if output of "$AUR_Helper" is zero
 then
 
-    if [[ -f /usr/bin/yay ]]
+    if [[ -f /usr/bin/yay ]]                                                        # check, if /usr/bin/yay file exists (i.e. yay is installed)
     then
         AUR_Helper="yay"
 
@@ -58,7 +58,7 @@ then
     then
         AUR_Helper="pikaur"
 
-    elif [[ -f /usr/bin/aurman ]]                                                   # check, if /usr/bin/aurman file exists
+    elif [[ -f /usr/bin/aurman ]]
     then
         AUR_Helper="aurman"
 
@@ -262,10 +262,10 @@ function func_diff
 function func_m
 {
         # delete only pacui-related packages in /tmp directory. if other files are deleted, linux starts to act strange!
-        if ( sudo find /tmp/pacui* &>/dev/null )                                    # check if "pacui*" file or directory is found in /tmp/ directory
+        if [[ -n "$( sudo find /tmp -name 'pacui*' 2>/dev/null )" ]]                # check if "pacui-*" file or directory is found in /tmp/ directory
         then
             echo " deleting PacUI cache ..."
-            sudo rm --recursive --dir /tmp/pacui*                                   # here the "rm -r" command is needed, because both directories and files have to be removed. "unlink" and "rmdir" do not work here.
+            sudo rm --recursive --dir /tmp/pacui*                                   # here the "rm --recursive" command is needed, because both directories and files have to be removed. "unlink" and "rmdir" do not work here.
             echo ""
         fi
 
@@ -278,7 +278,7 @@ function func_m
             cache="/var/cache/pacman/pkg/"
         fi
         # removing partially downloaded files from pacman cache. this can prevent pacman updates
-        if ( sudo find "$cache" -iname "*.part" &>/dev/null )
+        if [[ -n "$( sudo find "$cache" -iname "*.part" -type f )" ]]               # check, whether outupt of sudo find "$cache" -type f -iname "*.part" is non-zero (i.e. not empty). "sudo find "$cache" -type f -iname "*.part"" searches partially downloaded files (file name ends with ".part") in pacman cache.
         then
             echo " deleting partially downloaded packages from cache ..."
             sudo find "$cache" -iname "*.part" -delete
@@ -573,17 +573,17 @@ function func_i
                     --info=inline \
                     --no-unicode \
                     --preview '
-                        if [[ $(comm -12 <(echo {1}) <(sort /tmp/pacui-list-installed)) ]]                  # check, if 1. field of selected line (in fzf) is a locally installed package.
+                        if [[ $(comm -12 <(echo {1}) <(sort /tmp/pacui-list-installed)) ]]                      # check, if 1. field of selected line (in fzf) is a locally installed package.
                         then
                             echo -e "\e[1mInstalled package info: \e[0m"
-                            pacman -Qi {1} --color always                       # display local package information in preview window of fzf
+                            pacman -Qi {1} --color always                           # display local package information in preview window of fzf
                             echo
                         fi
 
-                        if [[ $(comm -12 <(echo {1}) <(sort /tmp/pacui-list-install-repo)) ]]               # check, if 1. field of selected line (in fzf) is a package from system repositories
+                        if [[ $(comm -12 <(echo {1}) <(sort /tmp/pacui-list-install-repo)) ]]                   # check, if 1. field of selected line (in fzf) is a package from system repositories
                         then
                             echo -e "\e[1mRepository package info: \e[0m"
-                            pacman -Si {1} --color always                       # display repository package information in preview window of fzf
+                            pacman -Si {1} --color always                           # display repository package information in preview window of fzf
                             echo
                         fi
 
