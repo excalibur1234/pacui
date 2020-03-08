@@ -1032,7 +1032,7 @@ function func_l
                 # grep -a is used, because "pacman -Fl --machinereadable" returns a file starting with non-text data. the "-a" option ignores that.
                 # the awk command is used to format output: "-F '\0'" set "\0" as separator. this makes it possible to easily use $1,$2,$3,$4 as syntax later.
                 # "{print $1 "/" $2 "  " $4}" prints output nicely formatted.
-                pacman -Fl --machinereadable "$pkg" | grep -a -v "/$" | awk -F '\0' '{print $4}' | fzf -i --multi --exact --no-sort --query="usr/bin/" --reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --info=inline --header="List of files of remote package \"$pkg\". Press ESC to quit." --prompt='Manipulate string to filter list > ' > /tmp/pacui-l
+                pacman -Fl --machinereadable "$pkg" | grep -a -v "/$" | awk -F '\0' '{print $4}' | fzf -i --multi --exact --no-sort --query="usr/bin/" --reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --info=inline --header="List of files of repository package \"$pkg\". Press ESC to quit." --prompt='Manipulate string to filter list > ' > /tmp/pacui-l
 
             fi
 
