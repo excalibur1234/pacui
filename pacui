@@ -2751,7 +2751,7 @@ do
     then
 
         echo -e " \e[41m Only one PacUI option can be called at the same time. Please try again. \e[0m"
-        exit
+        exit 1
 
     fi
     # save $function_call in $function_call_previous variable, because $function_call can get overwritten when the loop runs the next time.
@@ -2967,7 +2967,7 @@ do
             echo
             ;;
         0|q|quit|exit|$'\e'|$'\e'$'\e' )
-            pacui_clean && exit                                                     # clear terminal screen first (alternatively, "reset" works as well, but then the terminal history is lost). the "exit" command quits pacui.
+            pacui_clean && exit 0                                                   # clear terminal screen first (alternatively, "reset" works as well, but then the terminal history is lost). the "exit" command quits pacui.
             ;;
 
 
