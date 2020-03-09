@@ -1936,7 +1936,7 @@ function func_ls
         expac -H M -Q "%12m - \e[1m%n\e[0m" $( pacman -Qq | sort) | sort -n -r | fzf -i --multi --exact --no-sort --ansi --reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --info=inline --no-unicode --preview '
             echo -e "\e[1mInstalled package info: \e[0m"
             pacman -Qi {4} --color always
-            ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:70%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi )" --header="Navigate with PageUp / PageDown. ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-ls
+            ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:60%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi )" --header="Navigate with PageUp / PageDown. ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-ls
         # alternative command to "expac" and "sort": package-query -Qe --rsort 2 -f "%2 - \e[1m%n \e[0m%v" | numfmt --to=iec
 
         #set -e
