@@ -709,8 +709,8 @@ function func_r
                 pacman -Qi {1} --color always
 
             else
-                echo -e "\e[1m{1} group has the following members: \e[0m"
-                pacman -Sgq {1}
+                echo -e "\e[1m{1} group has the following installed packages: \e[0m"
+                pacman -Qgq {1}
 
             fi
             ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi )" --header="TAB key to (un)select. ENTER to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )"
@@ -780,8 +780,8 @@ function func_r
                                     pacman -Qi {1} --color always
 
                                 else
-                                    echo -e "\e[1m{1} group has the following members: \e[0m"
-                                    pacman -Sgq {1}
+                                    echo -e "\e[1m{1} group has the following installed packages: \e[0m"
+                                    pacman -Qgq {1}
 
                                 fi
                                 ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi )" --header="TAB key to (un)select. ENTER to remove. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )"
