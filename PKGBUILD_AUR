@@ -23,7 +23,7 @@ optdepends=('yay: One AUR helper is needed for AUR support.'
             'reflector: Needed for Arch Linux mirror support'
             'downgrade: Needed for hidden "downgrade" option.')
 source=("$url/archive/$pkgver.tar.gz")
-md5sums=('3b7c8a6950ae8b4e637c270771d077f4')
+md5sums=('b501552b397b8e6356e0d3fc7e57afad')
 
 # how to update md5sum:
 #  1. do "updpkgsums" inside the folder with PKGBUILD file
