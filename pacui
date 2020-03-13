@@ -2840,22 +2840,22 @@ do
 
     # draw UI / menu. please note the use of ANSI Escape sequences mentioned at the top. The text/code can be hard to read and should be changed carefully: spaces are important here!
     echo
-    echo -e "                      \e[7m PacUI - Package manager \e[0m                      "
+    echo -e "                         \e[7m \e[1mPac\e[0m\e[7mkage manager \e[1mUI \e[0m                      "
     echo -e " \e[1m+------------------------------------------------------------------+\e[0m"
-    echo -e " \e[1m|\e[0m     1   \e[1mU\e[0mpdate System            2   \e[1mM\e[0maintain System             \e[1m|\e[0m"
-    echo -e " \e[1m|\e[0m     3   \e[1mI\e[0mnstall Packages         4   \e[1mR\e[0memove Packages and Deps    \e[1m|\e[0m"
+    echo -e " \e[1m|    \e[7m 1  \e[0m \e[1mU\e[0mpdate System           \e[7m 2  \e[0m \e[1mM\e[0maintain System             \e[1m|\e[0m"
+    echo -e " \e[1m|\e[0m    \e[7m 3  \e[0m \e[1mI\e[0mnstall Packages        \e[7m 4  \e[0m \e[1mR\e[0memove Packages and Deps    \e[1m|\e[0m"
     echo -e " \e[1m|\e[0m------------------------------------------------------------------\e[1m|\e[0m"
-    echo -e " \e[1m|\e[0m     5   Dependency \e[1mT\e[0mree          6   \e[1mR\e[0meverse Dependency \e[1mT\e[0mree     \e[1m|\e[0m"
-    echo -e " \e[1m|\e[0m     7   \e[1mL\e[0mist Package Files       8   \e[1mS\e[0mearch Package Files        \e[1m|\e[0m"
+    echo -e " \e[1m|\e[0m    \e[7m 5  \e[0m Dependency \e[1mT\e[0mree         \e[7m 6  \e[0m \e[1mR\e[0meverse Dependency \e[1mT\e[0mree     \e[1m|\e[0m"
+    echo -e " \e[1m|\e[0m    \e[7m 7  \e[0m \e[1mL\e[0mist Package Files      \e[7m 8  \e[0m \e[1mS\e[0mearch Package Files        \e[1m|\e[0m"
     echo -e " \e[1m+------------------------------------------------------------------+\e[0m"
-    echo -e "       9   Roll \e[1mB\e[0mack System       \e[31m 10   \e[1mF\e[0;31mix Pacman Errors\e[0m "
-    echo -e "      11   Edit \e[1mC\e[0monfig Files       12   \e[1mL\e[0mist Packages by \e[1mS\e[0mize "
+    echo -e "      \e[7m 9  \e[0m Roll \e[1mB\e[0mack System        \e[31m\e[7m 10 \e[0m \e[31m\e[1mF\e[0;31mix Pacman Errors\e[0m "
+    echo -e "      \e[7m 11 \e[0m Edit \e[1mC\e[0monfig Files       \e[7m 12 \e[0m \e[1mL\e[0mist Packages by \e[1mS\e[0mize "
     echo -e " \e[1m+------------------------------------------------------------------+\e[0m"
-    [[ -n "$AUR_Helper" ]] && echo -e " \e[1m|\e[0m    13   Force \e[1mU\e[0mpdate \e[1mA\e[0mUR        14   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR     \e[1m|\e[0m"
-    [[ -z "$AUR_Helper" ]] && echo -e " \e[1m|\e[0m                                 14   \e[1mL\e[0mist Installed from \e[1mA\e[0mUR     \e[1m|\e[0m"
+    [[ -n "$AUR_Helper" ]] && echo -e " \e[1m|\e[0m    \e[7m 13 \e[0m Force \e[1mU\e[0mpdate \e[1mA\e[0mUR        \e[7m 14 \e[0m \e[1mL\e[0mist Installed from \e[1mA\e[0mUR     \e[1m|\e[0m"
+    [[ -z "$AUR_Helper" ]] && echo -e " \e[1m|\e[0m                                 \e[7m 14 \e[0m \e[1mL\e[0mist Installed from \e[1mA\e[0mUR     \e[1m|\e[0m"
     echo -e " \e[1m+------------------------------------------------------------------+\e[0m"
     echo
-    echo -e "  Enter number or marked letter(s)      -   99   \e[1mH\e[0melp   -   0   \e[1mQ\e[0muit "
+    echo -e "  Enter number or marked letter(s)      -   \e[7m 99 \e[0m \e[1mH\e[0melp   -  \e[7m 0  \e[0m \e[1mQ\e[0muit "
 
 
     # save entered numbers/letters in variable "choice"
