@@ -52,6 +52,7 @@ There is also a development version available in the Manjaro repositories. Pleas
 ```
 sudo pacman -S pacui-git
 ```
+Pacui is now in [chaotic-aur](https://lonewolf.pedrohlc.com/chaotic-aur/), providing both pacui and pacui-git.  Users can add the repo to install pacui on their system (same commands as Manjaro).
 
 PacUI is [no longer available on the AUR](https://github.com/excalibur1234/pacui/issues/45).
 PKGBUILDs are still availble (look above for the `PKGBUILD_AUR` file) and Pacui can be executed without installation (see below).
