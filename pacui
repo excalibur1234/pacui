@@ -567,7 +567,7 @@ function func_i
                     --select-1 \
                     --query="$argument_input" \
                     --cycle \
-                    --reverse \
+                    --layout=reverse \
                     --bind=right:half-page-down,left:half-page-up \
                     --margin="4%,1%,1%,2%" \
                     --info=inline \
@@ -702,7 +702,7 @@ function func_r
         #set +E
 
         # take a sorted package (and group) list from /tmp/pacui-packages-group, then make the resulting list available to fzf. see above for a "fzf" command with good readability and many comments
-        pkg="$( sort -k1,1 -u /tmp/pacui-packages-group | fzf -i --multi --exact --no-sort --select-1 --query="$argument_input" --cycle --reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --info=inline --no-unicode --preview '
+        pkg="$( sort -k1,1 -u /tmp/pacui-packages-group | fzf -i --multi --exact --no-sort --select-1 --query="$argument_input" --cycle --layout=reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --info=inline --no-unicode --preview '
             if ( pacman -Qq {1} &>/dev/null )                                       # check, if selected line is a locally installed package
             then
                 echo -e "\e[1mInstalled package info: \e[0m"
@@ -773,7 +773,7 @@ function func_r
                             #set +E
 
                             # fzf lets you search and select the given list in a fast way. see above for a "fzf" command with good readability and many comments
-                            pkg="$( echo "$pkg_remove_backup" | fzf -i --multi --exact --no-sort --query="$argument_input" --reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --info=inline --no-unicode --preview '
+                            pkg="$( echo "$pkg_remove_backup" | fzf -i --multi --exact --no-sort --query="$argument_input" --layout=reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --info=inline --no-unicode --preview '
                                 if ( pacman -Qq {1} &>/dev/null )                   # check, if selected line is a locally installed package
                                 then
                                     echo -e "\e[1mInstalled package info: \e[0m"
@@ -845,7 +845,7 @@ function func_t
         #set +e
         #set +E
 
-        pkg="$( sort -k1,1 -u /tmp/pacui-packages-local | fzf -i --exact --no-sort --select-1 --query="$argument_input" --cycle --reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --info=inline --no-unicode --preview '
+        pkg="$( sort -k1,1 -u /tmp/pacui-packages-local | fzf -i --exact --no-sort --select-1 --query="$argument_input" --cycle --layout=reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --info=inline --no-unicode --preview '
             if ( pacman -Qq {1} &>/dev/null )                                       # check, if 1. element of selected line is a locally installed package
             then
                 echo -e "\e[1mInstalled package info: \e[0m"
@@ -868,7 +868,7 @@ function func_t
 
                 # explain the " echo {} | sed 's/^[|`- ]*//g' | cut -d ' ' -f 1 " command used below:
                 # first echo selected line in fzf. then, remove all symbols from the beginning of the line, which does not belong to the package name. if there are multiple package names (e.g. with "provides") in 1 line all other (except for the first package name) are cut from the result.
-                pactree --color --ascii "$pkg" | fzf -i --multi --exact --no-sort --ansi --reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --info=inline --no-unicode --preview '
+                pactree --color --ascii "$pkg" | fzf -i --multi --exact --no-sort --ansi --layout=reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --info=inline --no-unicode --preview '
                     echo -e "\e[1mInstalled package info: \e[0m"
                     pacman -Qi "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" --color always
                     ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi )" --header="Local Dependency Tree of \"$pkg\". ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-t
@@ -876,7 +876,7 @@ function func_t
             else
 
                 # if $pkg is not a locally installed package, "pactree --sync" shows reverse dependency tree of repository packages:
-                pactree --color --ascii --sync "$pkg" | fzf -i --multi --exact --no-sort --ansi --reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --info=inline --no-unicode --preview '
+                pactree --color --ascii --sync "$pkg" | fzf -i --multi --exact --no-sort --ansi --layout=reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --info=inline --no-unicode --preview '
                     if ( pacman -Qq "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" &>/dev/null )                                                 # check, if selected line contains a locally installed package.
                     then
                         echo -e "\e[1mInstalled package info: \e[0m"
@@ -916,7 +916,7 @@ function func_rt
         #set +e
         #set +E
 
-        pkg="$( sort -k1,1 -u /tmp/pacui-packages-local  | fzf -i --exact --no-sort --select-1 --query="$argument_input" --cycle --reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --info=inline --no-unicode --preview '
+        pkg="$( sort -k1,1 -u /tmp/pacui-packages-local  | fzf -i --exact --no-sort --select-1 --query="$argument_input" --cycle --layout=reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --info=inline --no-unicode --preview '
             if ( pacman -Qq {1} &>/dev/null )                                       # check, if 1. element of selected line is a locally installed package
             then
                 echo -e "\e[1mInstalled package info: \e[0m"
@@ -939,7 +939,7 @@ function func_rt
 
                 # explain the " echo {} | sed 's/^[|`- ]*//g' | cut -d ' ' -f 1 " command used below:
                 # first echo selected line in fzf. then, remove all symbols from the beginning of the line, which does not belong to the package name. if there are multiple package names (e.g. with "provides") in 1 line all other (except for the first package name) are cut from the result.
-                pactree --color --ascii --reverse "$pkg" | fzf -i --multi --exact --no-sort --ansi --reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --info=inline --no-unicode --preview '
+                pactree --color --ascii --reverse "$pkg" | fzf -i --multi --exact --no-sort --ansi --layout=reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --info=inline --no-unicode --preview '
                     echo -e "\e[1mInstalled package info: \e[0m"
                     pacman -Qi "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" --color always
                     ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi )" --header="Local Reverse Dependency Tree of \"$pkg\". ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-rt
@@ -947,7 +947,7 @@ function func_rt
             else
 
                 # if $pkg is not a locally installed package, "pactree --sync" shows reverse dependency tree of repository packages:
-                pactree --color --ascii --sync --reverse "$pkg" | fzf -i --multi --exact --no-sort --ansi --reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --info=inline --no-unicode --preview '
+                pactree --color --ascii --sync --reverse "$pkg" | fzf -i --multi --exact --no-sort --ansi --layout=reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --info=inline --no-unicode --preview '
                     if ( pacman -Qq "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" &>/dev/null )                                                 # check, if selected line contains a locally installed package.
                     then
                         echo -e "\e[1mInstalled package info: \e[0m"
@@ -987,7 +987,7 @@ function func_l
         #set +e
         #set +E
 
-        pkg="$( sort -k1,1 -u /tmp/pacui-packages-local | fzf -i --exact --no-sort --select-1 --query="$argument_input" --cycle --reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --info=inline --no-unicode --preview '
+        pkg="$( sort -k1,1 -u /tmp/pacui-packages-local | fzf -i --exact --no-sort --select-1 --query="$argument_input" --cycle --layout=reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --info=inline --no-unicode --preview '
             if ( pacman -Qq {1} &>/dev/null )                                       # check, if selected line is a locally installed package
             then
                 echo -e "\e[1mInstalled package info: \e[0m"
@@ -1010,7 +1010,7 @@ function func_l
 
                 # "pacman -Ql" shows sometimes more files than "pacman -Fl". therefore, both commands have to be used!
                 # take the output of command "pacman -Qlq $pkg" and make it searchable with fzf. for all used fzf flags see "man fzf". store all marked lines in file /tmp/pacui-list.
-                pacman -Ql "$pkg" --color always 2>/dev/null | grep -a -v "/$" | awk '{print $NF}' | fzf -i --multi --exact --no-sort --query="usr/bin/" --reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --info=inline --header="List of files of local package \"$pkg\". Press ESC to quit." --prompt='Manipulate string to filter list > ' > /tmp/pacui-l
+                pacman -Ql "$pkg" --color always 2>/dev/null | grep -a -v "/$" | awk '{print $NF}' | fzf -i --multi --exact --no-sort --query="usr/bin/" --layout=reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --info=inline --header="List of files of local package \"$pkg\". Press ESC to quit." --prompt='Manipulate string to filter list > ' > /tmp/pacui-l
 
             else
 
@@ -1032,7 +1032,7 @@ function func_l
                 # grep -a is used, because "pacman -Fl --machinereadable" returns a file starting with non-text data. the "-a" option ignores that.
                 # the awk command is used to format output: "-F '\0'" set "\0" as separator. this makes it possible to easily use $1,$2,$3,$4 as syntax later.
                 # "{print $1 "/" $2 "  " $4}" prints output nicely formatted.
-                pacman -Fl --machinereadable "$pkg" | grep -a -v "/$" | awk -F '\0' '{print $4}' | fzf -i --multi --exact --no-sort --query="usr/bin/" --reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --info=inline --header="List of files of repository package \"$pkg\". Press ESC to quit." --prompt='Manipulate string to filter list > ' > /tmp/pacui-l
+                pacman -Fl --machinereadable "$pkg" | grep -a -v "/$" | awk -F '\0' '{print $4}' | fzf -i --multi --exact --no-sort --query="usr/bin/" --layout=reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --info=inline --header="List of files of repository package \"$pkg\". Press ESC to quit." --prompt='Manipulate string to filter list > ' > /tmp/pacui-l
 
             fi
 
@@ -1122,7 +1122,7 @@ function func_s
             #set +E
 
             # display results from file /tmp/pacui-search in fzf.
-            cat /tmp/pacui-search | fzf -i --multi --exact --no-sort --ansi --reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --info=inline --header="Package file names (bold) and paths containing \"$file\". Press ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-s
+            cat /tmp/pacui-search | fzf -i --multi --exact --no-sort --ansi --layout=reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --info=inline --header="Package file names (bold) and paths containing \"$file\". Press ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-s
 
             #set -e
             #set -E
@@ -1184,7 +1184,7 @@ function func_b
         #  the space in front of "installed" prevents reinstallations being displayed (otherwise, they would be removed)! the ] in "] installed" prevents config file changes being displayed, e.g. "warning: /etc/sddm.conf installed as /etc/sddm.conf.pacnew"
         # awk -F '[\\[\\]]' '{ print $2 " " $5 }': this uses 2 field separators [ and ]. using these field separators, the second and fifth field are printed.
         # awk '{ $1=$1 ":"  ; $2="  " $2 ; $3="\t\033[1m" $3 " \033[0m" ; print }': this uses the output of the above awk command. the first field gets a colon added, the second field gets a coupld of spaces in front, the third field gets printed in bold case.
-        pacui_cache_packages="$( tail -8000 "$logpath" | grep "] installed\|removed\|upgraded\|downgraded" | awk -F '[\\[\\]]' '{ print $2 " " $5 }' | awk '{ $1=$1 ":"  ; $2="  " $2 ; $3="\t\033[1m" $3 " \033[0m" ; print }' | fzf -i --multi --exact --no-sort --select-1 --ansi --query="$argument_input" --cycle --tac --reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --info=inline --header="Press TAB key to (un)select. ENTER to roll back. ESC to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{ print $(NF-1) " " $NF }' )"
+        pacui_cache_packages="$( tail -8000 "$logpath" | grep "] installed\|removed\|upgraded\|downgraded" | awk -F '[\\[\\]]' '{ print $2 " " $5 }' | awk '{ $1=$1 ":"  ; $2="  " $2 ; $3="\t\033[1m" $3 " \033[0m" ; print }' | fzf -i --multi --exact --no-sort --select-1 --ansi --query="$argument_input" --cycle --tac --layout=reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --info=inline --header="Press TAB key to (un)select. ENTER to roll back. ESC to quit." --prompt='Enter string to filter displayed list of recent Pacman changes > ' | sed 's/ ([^)]*)//g' | awk '{ print $(NF-1) " " $NF }' )"
 
         #set -e
         #set -E
@@ -1797,7 +1797,7 @@ function func_c
         #set +E
 
         # echo -e "$( cat ${pacui_config} )"  -- this command interprets the ANSI escape sequences contained in ${pacui_config}.
-        file="$( echo -e "$( cat ${pacui_config} )" | fzf -i --exact --no-sort --select-1 --ansi --cycle --query="$argument_input" --reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --info=inline --no-unicode --preview '
+        file="$( echo -e "$( cat ${pacui_config} )" | fzf -i --exact --no-sort --select-1 --ansi --cycle --query="$argument_input" --layout=reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --info=inline --no-unicode --preview '
             echo -e "\e[1m$(echo {2..}) $(echo {1})\e[0m"                           # display file/folder description ( {2..} = second to last field in selected line)
             echo
             if ( echo {1} | grep "/$" &>/dev/null )                                 # check, if 1. field ends with a "/"" (= is a directory)
@@ -1832,7 +1832,7 @@ function func_c
 
                 # attention: currently $file contains directory path and NOT the file name!
                 # find $file -maxdepth 1 -xtype f  --  this command displays a list of files (including their full path) and symlinks to files (including their full path) in a directory given by $file.
-                file="$( find "$file" -maxdepth 1 -xtype f | sort -u | fzf -i --exact --no-sort --select-1 --reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --info=inline --no-unicode --preview '
+                file="$( find "$file" -maxdepth 1 -xtype f | sort -u | fzf -i --exact --no-sort --select-1 --layout=reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --info=inline --no-unicode --preview '
                     echo -e "\e[1mFile preview: \e[0m"
                     cat {1}                                                         # {1} is the first field of the marked line in fzf. the file given by {1} is shown in the preview window.
                     ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:55%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi )" --header="ENTER to edit file in text editor. ESC to quit." --prompt='Enter string to filter list > ' )"
@@ -1933,7 +1933,7 @@ function func_ls
         # expac -H M -Q "%12m - \e[1m%n\e[0m %v"  displays size, name, and version number
         # "sort -n -r"  sorts list by number (with which every element begins).
         # ATTENTION: (i do not know why but) using quotes (" symbols) around $( comm ...) breaks expac
-        expac -H M -Q "%12m - \e[1m%n\e[0m" $( pacman -Qq | sort) | sort -n -r | fzf -i --multi --exact --no-sort --ansi --reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --info=inline --no-unicode --preview '
+        expac -H M -Q "%12m - \e[1m%n\e[0m" $( pacman -Qq | sort) | sort -n -r | fzf -i --multi --exact --no-sort --ansi --layout=reverse --bind=right:half-page-down,left:half-page-up --margin=4%,1%,1%,1% --info=inline --no-unicode --preview '
             echo -e "\e[1mInstalled package info: \e[0m"
             pacman -Qi {4} --color always
             ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:60%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi )" --header="Navigate with PageUp / PageDown. ESC to quit." --prompt='Enter string to filter list > ' > /tmp/pacui-ls
@@ -2008,7 +2008,7 @@ function func_la
         # this command shows all packages from external, i.e. not in system repositories, sources:
         # packages from the AUR and manually installed packages
         # "pacman -Qm --color always"
-        pacman -Qqm | fzf -i --multi --exact --no-sort --reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --info=inline --no-unicode --preview '
+        pacman -Qqm | fzf -i --multi --exact --no-sort --layout=reverse --bind=right:half-page-down,left:half-page-up --margin="4%,1%,1%,2%" --info=inline --no-unicode --preview '
             echo -e "\e[1mInstalled package info: \e[0m"
             pacman -Qi {} --color always
             echo
@@ -2077,7 +2077,7 @@ function func_d
             #set +e
             #set +E
 
-            pkg="$( sort -k1,1 -u /tmp/pacui-packages-local | fzf -i --multi --exact --no-sort --select-1 --bind=right:half-page-down,left:half-page-up --query="$argument_input" --cycle --reverse --margin="4%,1%,1%,2%" --info=inline --no-unicode --preview '
+            pkg="$( sort -k1,1 -u /tmp/pacui-packages-local | fzf -i --multi --exact --no-sort --select-1 --bind=right:half-page-down,left:half-page-up --query="$argument_input" --cycle --layout=reverse --margin="4%,1%,1%,2%" --info=inline --no-unicode --preview '
                 if ( pacman -Qq {1} &>/dev/null )                                   # check, if selected line is a locally installed package
                 then
                     echo -e "\e[1mInstalled package info: \e[0m"
