@@ -485,65 +485,293 @@ function func_m
 }
 
 
+# "pacui --livesearchaur" helper function
+# this function is not called by pacui or pacui's UI directly. instead, it gets called in func_i (using "pacui --livesearchaur") in order to update the list of all packages with search results from AUR (which include package descriptions!) in /tmp/pacui-list-install-all
+function func_livesearchaur
+{
+        # use AUR interface to get package description of search query and insert it into file /tmp/pacui-list-install-all before fzf input (i.e. the mentioned file) is updated and searched
+
+        if [[ -f /usr/bin/jq ]]                                                     # only do the following, if "jq" is installed on the user's system
+        then
+
+            # gets search query from argument of this function
+            local query
+            query="$( echo "$argument_input" | tr -dc '[a-z0-9.-_ ]')"              # delete all characters from $argument_input  except these: a-z0-9.-_    (necessary, because the user can enter regex in the search query)
+
+
+            if [[ ${#query} -ge 3 ]]                                                # check, if length of "query" string is at least 3 characters (the interfact supports searches starting with 2 characters, but the result is too large)
+            then
+
+                # it is impossible to search the AUR by more than 1 search term. if there are multiple serach term separated by a space, only the last search term is used for search in AUR.
+                query="$( echo "$query" | awk '{print $NF}' )"                      # print only last field of content of $query variable using awk
+
+                # make sure that file  /tmp/pacui-list-livesearchaur-query  exists
+                if [[ ! -f /tmp/pacui-list-livesearchaur-query ]]
+                then
+                    touch /tmp/pacui-list-livesearchaur-query
+                fi
+
+                # performance optimization: do live serach in aur, if it has not been serached for the same query before. all searches are saved in file  /tmp/pacui-list-livesearchaur-query
+                if [[ ! $(comm -12 <(echo "$query") <(sort /tmp/pacui-list-livesearchaur-query)) ]]
+                then
+
+                    local {aur_name_desc_list,aur_name,file_name,pacui_list_install_all_temp}
+
+                    # write query to file /tmp/pacui-list-livesearchaur-query
+                    echo "$query" >> /tmp/pacui-list-livesearchaur-query
+
+                    # get results of search in AUR:
+                    # curl --silent --fail --fail-early 'https://aur.archlinux.org/rpc/?v=5&type=search&arg='"$query"   get AUR search result of search query. the result is a string of JSON formatted objects.
+                    # AUR JSON interface documentation: https://wiki.archlinux.org/index.php/Aurweb_RPC_interface
+                    # jq -jr '.aur_name_desc_list[] | .Name, "|", .Description, "\n"'   use jq to extract a list of package names and descriptions from JSON (which is returned by AUR interface).
+                    # { printf "%-33s%s\n" , $1 , "\t" $2 }   reserve a width of 33 characters for the first field (i.e. package name)(%-33s) and print second field (which contains package description) with a starting tab.
+
+                    #aur_name_desc_list="$( curl --silent --fail --fail-early 'https://aur.archlinux.org/rpc/?v=5&type=search&arg='"$query" | jq -jr '.results[] | .Name, "|", .Description, "\n"' | awk -F '|' '{ printf "%-33s%s\n" , $1 , "\t" $2 }' | sort --key=1,1 --unique )"        # Attention: using same 'sort --key=1,1 --unique' as in the AUR package list. otherwise, packages are sorted differently!
+
+## USE FOR DEBUGGING INSTEAD OF ABOVE LINE:
+#echo "test start"> ~/test
+curl --silent --fail --fail-early 'https://aur.archlinux.org/rpc/?v=5&type=search&arg=tes'     | jq -jr '.results[] | .Name, "|", .Description, "\n"' | awk -F '|' '{ printf "%-33s%s\n" , $1 , "\t" $2 }' | sort --key=1,1 --unique > /home/ex/aur_name_desc_list
+aur_name_desc_list="$( cat /home/ex/aur_name_desc_list )"
+#echo "$aur_name_desc_list" >> ~/test
+
+
+
+
+
+
+
+
+
+
+
+
+                    ## replace line, which contains only package name,  in  file  /tmp/pacui-list-install-all   with  line, which contains both package name and package description.
+                    #while IFS='' read -r line                                           # "line" contains a line from "results" variable
+                    #do
+
+                    #    # make $line safe for usage with sed:
+                    #    sed_safe_line="$(echo "$line" | sed 's:[]\[\^\$\*\/]:\\\\&:g')"                                             # replace unsafe characters with an escaped version of themselves. this prevents any problems in the next sed command.
+
+                    #    aur_name="$( echo "$line" | awk '{ print $1 }' )"
+
+                    #    # 0,/^'"$aur_name"'$/{...}  start search in /tmp/pacui-list-install-all  file in line 0. search exactly for  $aur_name  using  ^'"$aur_name"'$  . then, execute the sed  replacement command inside {...} parenthesis  and quit immediately.
+                    #    # s=^'"$aur_name"'$='"$sed_safe_line"'=   replace $aur_name with $sed_safe_line
+                    #    sed --in-place '0,/^'"$aur_name"'$/{s=^'"$aur_name"'$='"$sed_safe_line"'=}' /tmp/pacui-list-install-all     # sed command manipulates /tmp/pacui-list-install-all file directly
+                    #    #sed --in-place ' /^'"$aur_name"'$/ c\'"$sed_safe_line"' ' "/tmp/pacui-list-install-all"     # replace a complete line -- this is 10% to 20% slower
+                    #    #sed '0,/^'"$aur_name"'$/{s=^'"$aur_name"'$='"$sed_safe_line"'=}' /tmp/pacui-list-install-all > /home/ex/test  && mv /home/ex/test /tmp/pacui-list-install-all    # using a temp file "test" is much slower, too.
+                    #    #tmep="$( echo "$temp" | sed '0,/^'"$aur_name"'$/{s=^'"$aur_name"'$='"$sed_safe_line"'=}'  )"  # VERY slow!
+
+                    #    # try to do the same in awk and test, whether it is faster
+
+                    #done < <( echo "$aur_name_desc-list" )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    ## get aur package name of first list entry ( aur_name_desc-list file )
+                    #for i in {1}
+                    #do
+                    #    IFS='' read -r aur_name_desc                                # "aur_name_desc" contains first line from "aur_name_desc-list" variable
+                    #    aur_name="$( echo "$aur_name_desc" | awk '{ print $1 }' )"  # extract name of aur package from list
+                    #done < <(echo "${aur_name_desc_list}")
+#local replaced
+#replaced=0
+                    #while IFS='' read -r file_line                                  # set "internal field separator" variable to nothing and use $IFS (for the duration of the 'read' command) to read a single long string from STDIN. 'read' uses IFS to separate the result.
+                    #do
+                    #    if [[ "$file_line" == "$aur_name" ]]
+                    #    then
+                    #        # add description to AUR package name
+                    #        pacui_list_install_all_temp+="$aur_name_desc"
+                    #        # replace line, which contains only package name,  in  file  /tmp/pacui-list-install-all   with  line, which contains both package name and package description.
+                    #        while IFS='' read -r aur_name_desc                     # "aur_name_desc" contains a line from "aur_name_desc-list" variable
+                    #        do
+                    #            aur_name="$( echo "$aur_name_desc" | awk '{ print $1 }' )"
+                    #            replaced++
+                    #        done < <(echo "${aur_name_desc_list}")
+                    #    else
+                    #        # keep line from  /tmp/pacui-list-install-all  file as is
+                    #        pacui_list_install_all_temp+="$file_line"
+                    #    fi
+                    #done < /tmp/pacui-list-install-all
+
+
+
+
+
+
+
+
+                    exec 6<&-                                                       # close file descriptors before using them
+                    exec 7<&-
+                    exec 6<'/tmp/pacui-list-install-all'                            # use file descriptors. this is needed for reading from 2 files simultaneously
+                    exec 7< <(echo "${aur_name_desc_list}")
+                    IFS_backup="$IFS"
+                    IFS=''                                                          # for 'read' function to read an entire line, an empty 'internal field separator' has to be used
+
+                    # get aur package name of first list entry ( aur_name_desc-list file )
+                    read -r aur_name_desc <&7                                       # "aur_name_desc" contains first line from "aur_name_desc-list" variable
+                    aur_name="$( echo "$aur_name_desc" | awk '{ print $1 }' )"      # extract name of aur package from list
+
+                    # start a while loop with 2 files as input (see end of loop). they are linked to file descriptor 6 and 7.
+                    while true
+                    do
+
+                        # read a single line from file linked to file descriptor 6. if read command fails, jump out of while loop
+                        read -r file_line <&6 || break
+                        file_name="$( echo "$file_line" | awk '{ print $1 }' )"      # extract name of aur package from list
+
+
+#echo "file_line ""$file_line">> ~/test
+#echo "aur_name ""$aur_name">> ~/test
+
+                        if [[ "$file_name" == "$aur_name" ]]
+                        then
+
+                            if [[ "$file_line" == "$aur_name" ]]
+                            then
+
+                                # add description from AUR to package name
+                                pacui_list_install_all_temp+="$aur_name_desc"
+#replaced++
+
+                            else
+
+                                # here, repository and AUR package have the same name. the package description from repo is used, though!
+                                # keep line from  /tmp/pacui-list-install-all  file as is
+                                pacui_list_install_all_temp+="$file_line"
+
+                            fi
+
+echo "$aur_name_desc">> ~/test
+#echo "replaced">> ~/test
+                            read -r aur_name_desc <&7  ||  echo "error">> ~/test         ### REMOVE AGAIN                   # a 'break' here would prevent the end of  /tmp/pacui-list-install-all  from being copied
+
+#echo "new aur_name_desc ""$aur_name_desc">> ~/test
+
+                            aur_name="$( echo "$aur_name_desc" | awk '{ print $1 }' )"
+
+#echo "new aur_name ""$aur_name">> ~/test
+
+                        else
+
+#echo "not replaced">> ~/test
+
+                            # keep line from  /tmp/pacui-list-install-all  file as is
+                            pacui_list_install_all_temp+="$file_line"
+
+                        fi
+
+                    done
+
+                    IFS="$IFS_backup"                                               # restore 'internal field separator' to original value again
+                    exec 6<&-                                                       # close used file descriptors 6 and 7 properly
+                    exec 7<&-
+
+
+
+
+
+#echo "replaced: ""$replaced">> ~/test
+
+
+
+                    # write temp variable to file
+                    echo "$pacui_list_install_all_temp" > /tmp/pacui-list-install-all
+
+                fi
+            fi
+        fi
+}
+
+
 # Install Packages
 # this function provides core functionality of "Install Packages". the help page provides additional explanations.
 function func_i
 {
-        local {pacui_list_install,pkg}                                              # declare local variables
+        local pkg
 
-        # write package list of system repositories (package name and description) to $pacui_list_install. %-33n uses printf support in expac to format output nicely (reserve a 33 character wide field for package name %n).
-        pacui_list_install="$(  expac -S "%-33n\t%d" )"                             # here the parenthesis in "$(...)" are essential to write multiple lines to a variable! without parenthesis the variable will contain only a single line (space separated)!
-
-
-        # for performance reasons, there are multiple files of package lists created in the following code. a comparison to local files is much faster than checking, whether a selected package is part of an online repository.
-        # the use of variables instead of files can give more performance (and security) gains, but variables cannot be called from within fzf's preview, because it needs to be used with ' symbols (e.g. --preview '...')
-        # these files do not need a trap (for security reasons), because they are only used for comparison. if tampered with, the comparison (which is done in "comm" without root privileges) simply fails and no package info is shown.
         expac -Q "%n" > /tmp/pacui-list-installed                                   # get locally installed packages (equivalent to "pacman -Qq", but faster).
 
-        if [[ ! -f /tmp/pacui-list-install-repo ]]                                  # check, if file does not exist.
-        then
-            echo "$pacui_list_install" | cut -d " " -f 1 > /tmp/pacui-list-install-repo                     # get the content of $pacui_list_install variable and save (only a list of package names) to /tmp/pacui-list-install-repo file.
-        fi
 
-        # add a list of package groups in the system repositories to $pacui_list_install variable
-        pacui_list_install+="\n"                                                    # by default, the "+=" operator adds all stuff directly to the end of a variable (but without a newline!). therefore, an additional "\n" (newline) is needed before adding stuff to a list.
-
-        if [[ ! -f /tmp/pacui-list-install-groups ]]
-        then
-            # "pacman -Sgq" is equivalent to "expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0'", but much faster
-            # split output of "pacman -Sgq" using "tee" to $pacui_list_install variable and /tmp/pacui-list-install-groups file. this saves a little time.
-            pacui_list_install+="$( pacman -Sgq | tee /tmp/pacui-list-install-groups )"
-        else
-            pacui_list_install+="$( cat /tmp/pacui-list-install-groups )"           # if /tmp/pacui-list-install-groups file already exists, its content is added to $pacui_list_install variable. this is insecure, but because the same is done below (which i do not know how to do differently) with a list of AUR packages, i think it is an acceptable performance optimization.
-            #pacui_list_install+="$( pacman -Sgq )"                                 # secure solution needs a bit of extra time.
-        fi
-
-
-        if [[ -n "$AUR_Helper" ]]                                                   # check, if output of "$AUR_Helper" is non-zero
+        # do not recreate the  /tmp/pacui-list-install-all  file (if it already exists), which might already contain additional AUR package descriptions from the last search done by the user. after a reboot, the  /tmp/pacui-list-install-all  file is gone and needs to be recreated in here again.
+        if [[ ! -f /tmp/pacui-list-install-all ]]                                   # check, if file does not exist.
         then
 
-            # download AUR package list (only when not already downloaded) and add it to $pacui_list_install
-            #if  [[ ! -f /tmp/pacui-aur/packages.gz ]]
-            if  [[ ! -f /tmp/pacui-aur/packages ]]
+            local pacui_list_install
+
+            # for performance reasons, there are multiple files of package lists created in the following code. a comparison to local files is much faster than checking, whether a selected package is part of an online repository.
+            # the use of variables instead of files can give more performance (and security) gains, but variables cannot be called from within fzf's preview, because it needs to be used with ' symbols (e.g. --preview '...')
+            # these files do not need a trap (for security reasons), because they are only used for comparison. if tampered with, the comparison (which is done in "comm" without root privileges) simply fails and no package info is shown.
+
+            # write package list of system repositories (package name and description) to $pacui_list_install.
+            if [[ ! -f /tmp/pacui-list-install-repo ]]                              # check, if file does not exist.
             then
+                # %-33n uses printf support in expac to format output nicely (reserve a 33 character wide field for package name %n).
+                pacui_list_install="$(  expac -S "%-33n\t%d" )"                     # here the parenthesis in "$(...)" are essential to write multiple lines to a variable! without parenthesis the variable will contain only a single line (space separated)!
+                echo "$pacui_list_install" | cut -d " " -f 1 > /tmp/pacui-list-install-repo                     # get the content of $pacui_list_install variable and save (only a list of package names) to /tmp/pacui-list-install-repo file.
+            else
+                pacui_list_install="$( cat /tmp/pacui-list-install-repo )"
+            fi
+
+            # add a list of package groups in the system repositories to $pacui_list_install variable
+            pacui_list_install+="\n"                                                # by default, the "+=" operator adds all stuff directly to the end of a variable (but without a newline!). therefore, an additional "\n" (newline) is needed before adding stuff to a list.
+
+            if [[ ! -f /tmp/pacui-list-install-groups ]]
+            then
+                # "pacman -Sgq" is equivalent to "expac -Sg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0'", but much faster
+                # split output of "pacman -Sgq" using "tee" to $pacui_list_install variable and /tmp/pacui-list-install-groups file. this saves a little time.
+                pacui_list_install+="$( pacman -Sgq | tee /tmp/pacui-list-install-groups )"
+            else
+                pacui_list_install+="$( cat /tmp/pacui-list-install-groups )"       # if /tmp/pacui-list-install-groups file already exists, its content is added to $pacui_list_install variable. this is insecure, but because the same is done below (which i do not know how to do differently) with a list of AUR packages, i think it is an acceptable performance optimization.
+                #pacui_list_install+="$( pacman -Sgq )"                             # secure solution needs a bit of extra time.
+            fi
+
+
+            if [[ -n "$AUR_Helper" ]]                                               # check, if output of "$AUR_Helper" is non-zero
+            then
+
+                # download AUR package list (only when not already downloaded) and add it to $pacui_list_install
+                #if  [[ ! -f /tmp/pacui-aur/packages.gz ]]
+                if  [[ ! -f /tmp/pacui-aur/packages ]]
+                then
                 echo
-                echo " downloading list of AUR packages (which can take a while) ..."
+                    echo " downloading list of AUR packages (which can take a while) ..."
                 echo
 
-                #wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null
+                    #wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null
                     #wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && gunzip -f "/tmp/pacui-aur/packages.gz"
                     curl --url 'https://aur.archlinux.org/packages.gz' --create-dirs --output "/tmp/pacui-aur/packages.gz" &>/dev/null && gunzip -f "/tmp/pacui-aur/packages.gz"
+                fi
+
+                # check, if /tmp/pacui-aur/packages exists. /tmp/pacui-aur/packages does not exist, if there is no internet connection or something went wrong during the download of the list of AUR packages.
+                #if [[ -f /tmp/pacui-aur/packages.gz ]]
+                if [[ -f /tmp/pacui-aur/packages ]]
+                then
+                    pacui_list_install+="\n"
+                    # remove line with download date from list of AUR packages with "grep" and add content of /tmp/pacui-aur/packages file to $pacui_list_install variable. this is insecure, but i do not know how to download the list of AUR packages directly into a variable. doing this with temporary files and traps would be a (quite slow!) secure solution, which i am not willing to implement yet.
+                    #pacui_list_install+="$( grep -v '#' '/tmp/pacui-aur/packages.gz' | tr -d ' ' )"            # delete all trailing spaces with "tr". command equivalent to "awk '{print $1}'"
+                    pacui_list_install+="$( grep -v '#' '/tmp/pacui-aur/packages' )"
+                fi
+
             fi
 
-            # check, if /tmp/pacui-aur/packages exists. /tmp/pacui-aur/packages does not exist, if there is no internet connection or something went wrong during the download of the list of AUR packages.
-            #if [[ -f /tmp/pacui-aur/packages.gz ]]
-            if [[ -f /tmp/pacui-aur/packages ]]
-            then
-                pacui_list_install+="\n"
-                # remove line with download date from list of AUR packages with "grep" and add content of /tmp/pacui-aur/packages file to $pacui_list_install variable. this is insecure, but i do not know how to download the list of AUR packages directly into a variable. doing this with temporary files and traps would be a (quite slow!) secure solution, which i am not willing to implement yet.
-                #pacui_list_install+="$( grep -v '#' '/tmp/pacui-aur/packages.gz' | tr -d ' ' )"            # delete all trailing spaces with "tr". command equivalent to "awk '{print $1}'"
-                pacui_list_install+="$( grep -v '#' '/tmp/pacui-aur/packages' )"
-            fi
+            # load list of package names from $pacui_list_install_all variable using "echo": "-e" interprets the added newlines.
+            # sort list using "sort": only first column gets used for sorting. allow only unique list entries.
+            # store result in file /tmp/pacui-list-install-all. this file can be manipulated by other functions and the "--bind=change:reload['cat /tmp/pacui-list-install-all']" argument in fzf makes sure that always the latest list of packages gets displayed in fzf.
+            echo -e "$pacui_list_install" | sort --key=1,1 --unique > /tmp/pacui-list-install-all
 
         fi
 
@@ -553,12 +781,12 @@ function func_i
         #set +E
 
         # fzf lets you search and select a given list. "man fzf" lists all its arguments beautifully. "fzf" commands in this script are typically in a convoluted form. here, a long "fzf" command is listed in maximum readable form.
-        # the package list in $pacui_list_install gets sorted and displayed by fzf. then it is filtered by awk and saved in pkg variable.
+        # the package list in /tmp/pacui-list-install-all gets displayed by fzf. then it is filtered by awk and saved in pkg variable.
         pkg="$(
-                echo -e "$pacui_list_install" |                                     # load list of package names from $pacui_list_install_all variable. "-e" interprets the added newlines.
-                sort -k1,1 -u |                                                     # sort list: only first column gets used for sorting
+                cat /tmp/pacui-list-install-all |                                   # get list of package names from file /tmp/pacui-list-install-all. the content of this file is displayed in fzf as a selectable list.
                 # the "--multi" flag makes it possible to select multiple list items
                 # $argument_input variable gets defined after function definitions --> search for "argument_input="
+                # the "change:execute-silent[pacui --livesearchaur {q} &]+reload[cat /tmp/pacui-list-install-all]" binding causes 2 things whenever a key in entered by the user:   1. "pacui --livesearchaur <current search query>" is executed silently in the background, which means that fzf does not hang.   2. afterwards "cat /tmp/pacui-list-install-all" is executed. the result of this command is used to reload/update the list of displayed packages. because the freshly loaded list can be different, the previous selection - done with TAB key - is discarded.  Attention: this line cannot be made optional - only use it when JQ is installe on the system - by using IF THEN ... FI. i have tried that and failed.
                 # the "--preview" flag displays information about the currently selected line in fzf's preview window
                 fzf -i \
                     --multi \
@@ -568,9 +796,17 @@ function func_i
                     --query="$argument_input" \
                     --cycle \
                     --layout=reverse \
-                    --bind=right:half-page-down,left:half-page-up \
                     --margin="4%,1%,1%,2%" \
                     --info=inline \
+                    --bind 'change:execute-silent[pacui --livesearchaur {q} &]+reload[cat /tmp/pacui-list-install-all]' \
+                    "$(
+                        if (( $(tput cols) >= 125 ))
+                        then
+                            echo "--preview-window=right:55%:wrap"                  # depending on the terminal width (determined by "tput cols"), the preview window is either shown on the right or the bottom
+                        else
+                            echo "--preview-window=bottom:60%:wrap"
+                        fi
+                    )" \
                     --no-unicode \
                     --preview '
                         if [[ $(comm -12 <(echo {1}) <(sort /tmp/pacui-list-installed)) ]]                      # check, if 1. field of selected line (in fzf) is a locally installed package.
@@ -594,7 +830,7 @@ function func_i
 
                         else
 
-                            if [[ ! $(comm -12 <(echo {1}) <(sort /tmp/pacui-list-install-repo)) ]] && ( test -n '$AUR_Helper' )                   # preview window of fzf requires checking with "test": check whether internet connection is up.
+                            if [[ ! $(comm -12 <(echo {1}) <(sort /tmp/pacui-list-install-repo)) ]] && ( test -n '$AUR_Helper' )                    # preview window of fzf requires checking with "test": check whether internet connection is up.
                             then
                                 echo -e "\e[1mAUR package info: \e[0m"
 
@@ -626,14 +862,6 @@ function func_i
                             fi
 
                         fi' \
-                    "$(
-                        if (( $(tput cols) >= 125 ))
-                        then
-                            echo "--preview-window=right:55%:wrap"                  # depending on the terminal width (determined by "tput cols"), the preview window is either shown on the right or the bottom
-                        else
-                            echo "--preview-window=bottom:60%:wrap"
-                        fi
-                    )" \
                     --header="TAB key to (un)select. ENTER to install. ESC to quit." \
                     --prompt="Enter string to filter list > " |
                 awk '{print $1}'                                                    # use "awk" to filter output of "fzf" and only get the first field (which contains the package name). "fzf" should output a separated (by newline characters) list of all chosen packages!
@@ -2725,6 +2953,10 @@ do
 
         diff )
             function_call="diff"                                                    # call "diff" helper function
+            shift
+            ;;
+        livesearchaur )
+            function_call="livesearchaur"                                           # call "livesearchaur" helper function
             shift
             ;;
         flag=* )                                                                    # this means 'flag=' string and every following string (no matter how long it is or what characters (except for " ") it contains)

@@ -3,7 +3,7 @@
 
 
 pkgname=pacui
-pkgver=1.13
+pkgver=1.14
 pkgrel=1
 pkgdesc="Bash script providing advanced Pacman and Yay/Pikaur/Aurman/Pakku/Trizen/Pacaur functionality in a simple UI"
 arch=(any)
@@ -19,9 +19,10 @@ optdepends=('yay: One AUR helper is needed for AUR support.'
             'pakku: One AUR helper is needed for AUR support.'
             'trizen: One AUR helper is needed for AUR support.'
             'pacaur: One AUR helper is needed for AUR support.'
-            'pacman-mirrors: Needed for Manjaro mirror support'
-            'reflector: Needed for Arch Linux mirror support'
-            'downgrade: Needed for hidden "downgrade" option.')
+            'pacman-mirrors: Enable Manjaro mirror support'
+            'reflector: Enable Arch Linux mirror support'
+            'downgrade: Enable hidden "downgrade" option.'
+            'jq: Enable better AUR search results with performance penalty.')
 source=("$url/archive/$pkgver.tar.gz")
 md5sums=('b501552b397b8e6356e0d3fc7e57afad')
 
