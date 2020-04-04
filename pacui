@@ -2872,100 +2872,95 @@ do
     # save entered numbers/letters in variable "choice"
     read -r -n 1 -e choice                                          # this "read" command only accepts 1 letter as answer. this feels faster and is enough in this situation.
 
-    # convert "choice" variable to lowercase:
-    choice="$( echo "$choice" | tr '[:upper:]' '[:lower:]' )"
-    echo
-
-
     # test, whether "choice" fits any of the following numbers, letters, or words
     case "$choice" in
 
-        1|u )                                                                       # the following commands will get executed if $choice is "1" or "u" or "update" until a code line containing only ";;" is encountered
+        1|u|U )                                                                       # the following commands will get executed if $choice is "1" or "u" or "update" until a code line containing only ";;" is encountered
             func_u                                                                  # call function "func_u"
             echo
             echo -e " \e[41m System updated. To return to PacUI press ENTER \e[0m"
             # wait for input, e.g. by pressing ENTER:
             read -r
             ;;
-        2|m )
+        2|m|M )
             func_m
             echo
             echo -e " \e[41m System maintenance finished. To return to PacUI press ENTER \e[0m"
             read -r
             ;;
-        3|i )
+        3|i|I )
             func_i
             echo
             echo -e " \e[41m Package installation finished. To return to PacUI press ENTER \e[0m"
             read -r
             ;;
-        4|r )
+        4|r|R )
             func_r
             echo
             echo -e " \e[41m Package(s) including all unneeded dependencies removed. To return to PacUI press ENTER \e[0m"
             read -r
             ;;
-        5|t )
+        5|t|T )
             func_t
             echo
             ;;
-        6|n )
+        6|n|N )
             func_rt
             echo
             ;;
-        7|l )
+        7|l|L )
             func_l
             echo
             ;;
-        8|s )
+        8|s|S )
             func_s
             echo
             ;;
 
 
-        9|b )
+        9|b|B )
             func_b
             echo
             echo -e " \e[41m System roll back finished. To return to PacUI press ENTER \e[0m"
             read -r
             ;;
-        z|f )
+        z|Z|f|F )
             func_f
             echo
             echo -e " \e[41m Operation finished. To return to PacUI press ENTER \e[0m"
             read -r
             ;;
-        y|c )
+        y|Y|c|C )
             func_c
             echo
             echo -e " \e[41m Configuration files edited. To return to PacUI press ENTER \e[0m"
             read -r
             ;;
-        x|p )
+        x|X|p|P )
             func_ls
             echo
             ;;
 
 
-        w|o )
+        w|W|o|O )
             func_ua
             echo
             echo -e " \e[41m All AUR packages updated and reinstalled. To return to PacUI press ENTER \e[0m"
             read -r
             ;;
-        v|e )
+        v|V|e|E )
             func_la
             echo
             ;;
 
 
-        d )
+        d|D )
             func_d
             echo
             echo -e " \e[41m Downgrade finished. To return to PacUI press ENTER \e[0m"
             read -r
             ;;
-        a )
+        a|A )
             func_a
             echo
             echo -e " \e[41m Search (and installation) from AUR finished. To return to PacUI press ENTER \e[0m"
@@ -2973,11 +2968,11 @@ do
             ;;
 
 
-        h )
+        h|H )
             func_help                                                               # call full help page
             echo
             ;;
-        0|q|$'\e' )
+        0|q|Q )
             pacui_clean && exit 0                                                   # clear terminal screen first (alternatively, "reset" works as well, but then the terminal history is lost). the "exit" command quits pacui.
             ;;
 
