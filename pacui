@@ -733,15 +733,16 @@ function func_r
                 # now, "sudo pacman -Rsn $pkg_remove --color always" has failed. this means that a dependency was selected. Print error message below the error output of pacman.
                 echo
                 echo -e " \e[1m Package removal has failed. Most likely you have tried to remove a dependency.\e[0m"
-                echo
-                echo -e " \e[41m  Do you want to forcefully remove all selected packages anyway? [y|N] \e[0m"
                 echo -e " \e[1m Choose one of the following options: \e[0m"
                 echo
-                echo -e "\e[1;31m   y    Forcefully remove package(s) without checking their dependencies first. \e[0m"
+                echo -e "\e[1m   1    Try again. \e[0m"
+                echo -e "\e[1m        Read the error message(s) above carefully and try not to select dependencies next time. \e[0m"
+                echo
+                echo -e "\e[1;31m   2    Forcefully remove package(s) without checking their dependencies first. \e[0m"
                 echo -e "\e[1;31m        Attention: This command can break packages on your system or even your entire system. \e[0m"
                 echo
-                echo -e "\e[1m   N    Try again. \e[0m"
-                echo -e "\e[1m        Read the error message(s) above carefully and try not to select dependencies next time. \e[0m"
+                echo -e "\e[1;31m   3    Remove package(s) and all additional packages, which depend on them. \e[0m"
+                echo -e "\e[1;31m        Attention: This is a recursive option and can remove many potentially needed packages. \e[0m"
                 echo
                 echo -e "\e[1m   ESC  Exit without removing any packages. \e[0m"
                 echo
@@ -750,13 +751,7 @@ function func_r
 
                 case ${answer:-n} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "n".
 
-                    y|Y|yes|YES|Yes )                                               # do this, if "answer" is y or Y or yes or YES or Yes
-
-                        sudo pacman -Rdd $pkg_remove --color always                 # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg_remove variable breaks AUR helper and pacman
-                        ;;
-
-                    n|N|no|NO|No )                                                  # do this, if "answer" is n or N or no or NO or No
-
+                    1 )                                                             # do this, if "answer" is 1
                         # continue here only if "sudo pacman -Rns" has failed:
                         # 1. save list of packages to variable
                         pkg_remove_backup="$( echo "$pkg_remove" | tr " " "\n" )"   # tr " " "\n" is needed to convert the list of package names (in 1 line) back to multiple lines. otherwise, fzf cannot work with it.
@@ -816,6 +811,17 @@ function func_r
 
                         done
                         ;;
+
+
+                    2 )                                                             # do this, if "answer" is 2
+                        sudo pacman -Rdd $pkg_remove --color always                 # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg_remove variable breaks AUR helper and pacman
+                        ;;
+
+
+                    3 )                                                             # do this, if "answer" is 3
+                        sudo pacman -Rsnc $pkg_remove --color always                 # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg_remove variable breaks AUR helper and pacman
+                        ;;
+
 
                     * )                                                             # do this in all other cases
                         echo -e " \e[1m No input recognized. Removal of packages has been cancelled. \e[0m"
@@ -2320,8 +2326,9 @@ Please note that folders in your home (~) directory and created by the program <
 ~/.config/
 ~/.local/share/
 \e[1mAttention\e[0m: If you want to display a list of all your installed packages (including their version number and description) use this PacUI option. Simply do not select <PACKAGE NAME> to be removed, but quit the list view with ESC or CTRL+C.
-If package removal fails, the user is offered the choice to either try again or remove packages using \e[36m"pacman -Rdd <PACKAGE NAME>"\e[0m.
+If package removal fails, the user is offered the choice to try again, remove packages using \e[36m"pacman -Rdd <PACKAGE NAME>"\e[0m, or remove packages using \e[36m"pacman -Rsnc <PACKAGE NAME>"\e[0m.
 \e[1mAttention\e[0m: \e[36m"pacman -Rdd <PACKAGE NAME>"\e[0m does not check for dependencies before removing packages. In severe cases, this can leave your system without essential packages and thus unbootable!
+\e[1mAttention\e[0m: \e[36m"pacman -Rsnc <PACKAGE NAME>"\e[0m removes additional packages, which depend on <PACKAGE NAME>. Please check the list of packages, to be removed again before proceeding.
 
 
 \e[1m5 - DEPENDENCY TREE
