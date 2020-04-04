@@ -79,9 +79,6 @@ PKGBUILDs are still availble (see `PKGBUILD_AUR` file) and Pacui can be executed
 ### chaotic-aur
 Both the stable and -git version of PacUI are in [chaotic-aur](https://lonewolf.pedrohlc.com/chaotic-aur/).  After adding chaotic-aur to your list of repositories, PacUI can be installed using the same commands as within Manjaro (see above).
 
-### Reborn OS
-An outdated version of PacUI is available in the system repositories.
-
 
 ## Usage
 
