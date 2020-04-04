@@ -2866,7 +2866,7 @@ do
     [[ -z "$AUR_Helper" ]] && echo -e " \e[1m|\e[0m                                 \e[7m v \e[0m List Install\e[1me\e[0md from AUR     \e[1m|\e[0m"
     echo -e " \e[1m+----------------------------------------------------------------+\e[0m"
     echo
-    echo -e "  Enter number or marked letter         -   \e[7m h \e[0m \e[1mH\e[0melp   -  \e[7m 0 \e[0m \e[1mQ\e[0muit "
+    echo -e "  Enter number or marked letter            \e[7m h \e[0m \e[1mH\e[0melp       \e[7m 0 \e[0m \e[1mQ\e[0muit "
 
 
     # save entered numbers/letters in variable "choice"
