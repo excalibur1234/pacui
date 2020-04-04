@@ -44,21 +44,8 @@ Installing the package "cantata" from system repositories by entering its name:
 
 ## Installation
 
-In Manjaro, you can simply install the stable version of PacUI:
-```
-sudo pacman -S pacui
-```
-There is also a development version available in the Manjaro repositories. Please use the latest development version as a base for all bug reports:
-```
-sudo pacman -S pacui-git
-```
-Pacui is now in [chaotic-aur](https://lonewolf.pedrohlc.com/chaotic-aur/), providing both pacui and pacui-git.  Users can add the repo to install pacui on their system (same commands as Manjaro).
-
-PacUI is [no longer available on the AUR](https://github.com/excalibur1234/pacui/issues/45).
-PKGBUILDs are still availble (look above for the `PKGBUILD_AUR` file) and Pacui can be executed without installation (see below).
-
 ### Execute without prior Installation
-For a minimal working version of PacUI, please install its dependencies [expac](https://github.com/falconindy/expac) and [fzf](https://github.com/junegunn/fzf) using Pacman first (if possible). Then, the PacUI file can be downloaded and run without prior installation:
+For a minimal working version of PacUI, please install its dependencies [expac](https://github.com/falconindy/expac) and [fzf](https://github.com/junegunn/fzf) (and pacman-contrib on Arch Linux) using Pacman first (if possible). Then, the PacUI file can be downloaded and run without prior installation:
 ```
 wget https://raw.githubusercontent.com/excalibur1234/pacui/master/pacui
 ```
@@ -66,8 +53,30 @@ wget https://raw.githubusercontent.com/excalibur1234/pacui/master/pacui
 bash pacui
 ```
 I find this feature of PacUI invaluable for fixing systems. Here are two examples:
+
 - A large number of updates broke (parts of) the GUI, e.g. xorg, window manager, or desktop environment. In this case, switching to a different tty (with CTRL + ALT + F2), installing PacUI and using "Roll Back System" to roll back all the latest updates can fix the system (temporarily).
+
 - A broken keyring makes it impossible to apply updates or install any packages. Executing PacUI without prior installation and using "Fix Pacman Errors" (which does not require "expac" or "fzf") to fix the keyring and all related problems is the easiest and fastest solution I know of.
+
+### Manjaro
+In Manjaro, you can simply install the stable version of PacUI from the Manjaro repositories:
+```
+sudo pacman -S pacui
+```
+There is also an (often outdated) development version available:
+```
+sudo pacman -S pacui-git
+```
+
+### Arch Linux
+PacUI is [no longer available on the AUR](https://github.com/excalibur1234/pacui/issues/45).
+PKGBUILDs are still availble (see `PKGBUILD_AUR` file) and Pacui can be executed without installation (see above).
+
+### chaotic-aur
+Both the stable and -git version of PacUI is in [chaotic-aur](https://lonewolf.pedrohlc.com/chaotic-aur/).  After adding chaotic-aur to your list of repositories, PacUI can be installed using the same commands as within Manjaro (see above).
+
+### Reborn OS
+An outdated version of PacUI is available in the system repositories.
 
 
 ## Usage
