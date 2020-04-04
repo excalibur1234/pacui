@@ -528,7 +528,6 @@ function func_i
             then
                 echo
                 echo " downloading list of AUR packages (which can take a while) ..."
-                echo
 
                 #wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null
                     #wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && gunzip -f "/tmp/pacui-aur/packages.gz"
@@ -1018,6 +1017,9 @@ function func_l
                 # extract mirror/repository server url from /etc/pacman.d/mirrorlist file with command:
                 server="$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" | awk -F '=' '{print $2}' | awk -F '$' '{print $1}' )"
 
+                echo
+                echo " searching online repositories (which can take a while) ..."
+
                 # check, whether there is a connection to the mirror/repository server. this is needed for package download/update!
                 if ( curl --silent --fail $(echo "$server") &>/dev/null )                        # the "curl --silent --fail" command gets executed in any case in order to check its output.
                 then
@@ -1072,6 +1074,10 @@ function func_s
 
 
             echo -e "\n\e[1mLocal package files: \e[0m" > /tmp/pacui-search
+
+            echo
+            echo " searching local repositories (which can take a while) ..."
+
             # list all files of all installed local packages using "pacman -Ql --color always"
             # awk -v VAR="$file" '$NF ~ VAR' searches for $file (using regex) in the last field/column only. write resulting list to /tmp/pacui-search
             pacman -Ql --color always | awk -v VAR="$file" -F '/' '$NF ~ VAR' >> /tmp/pacui-search
@@ -1088,14 +1094,12 @@ function func_s
                 sudo pacman -Fy
             fi
 
-            echo
-            echo " searching online repositories (which can take a while) ..."
-            echo
-
             echo -e "\n\e[1mPackage files in system repositories: \e[0m" >> /tmp/pacui-search
             # search in system repositories with "pacman -Fsx" --> machine readable version of output is easier to read for awk!
             # comment: possible improvement: use "pv -ptb" to show progress bar (useful for large searches)
             # the awk command is used to format output: "-F '\0'" set "\0" as separator. this makes it possible to easily use $1,$2,$3,$4 as syntax later.
+
+            echo " searching online repositories (which can take a while) ..."
 
             # store raw output of "pacman -Fsx" in file /tmp/pacui-search-temp-repo, because this process is quite slow
             pacman -Fx --machinereadable "$file" > "/tmp/pacui-search-temp-repo"
@@ -2859,7 +2863,7 @@ do
 
 
     # save entered numbers/letters in variable "choice"
-    read -r choice
+    read -r -n 1 -e choice                                          # this "read" command only accepts 1 letter as answer. this feels faster and is enough in this situation.
 
     # convert "choice" variable to lowercase:
     choice="$( echo "$choice" | tr '[:upper:]' '[:lower:]' )"
