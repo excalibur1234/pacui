@@ -14,6 +14,10 @@ Table of Contents
    * [Screenshots](#screenshots)
    * [Installation](#installation)
       * [Execute without prior Installation](#execute-without-prior-installation)
+      * [Manjaro](#manjaro)
+      * [Arch Linux](#arch-linux)
+      * [chaotic-aur](#chaotic-aur)
+      * [Reborn OS](#reborn-os)
    * [Usage](#usage)
       * [Start PacUI with UI](#start-pacui-with-ui)
       * [Start PacUI without UI: Using Options](#start-pacui-without-ui-using-options)
@@ -45,7 +49,7 @@ Installing the package "cantata" from system repositories by entering its name:
 ## Installation
 
 ### Execute without prior Installation
-For a minimal working version of PacUI, please install its dependencies [expac](https://github.com/falconindy/expac) and [fzf](https://github.com/junegunn/fzf) (and pacman-contrib on Arch Linux) using Pacman first (if possible). Then, the PacUI file can be downloaded and run without prior installation:
+For a minimal working version of PacUI, please install its dependencies [expac](https://github.com/falconindy/expac) and [fzf](https://github.com/junegunn/fzf) (and [pacman-contrib](https://www.archlinux.org/packages/community/x86_64/pacman-contrib/) on Arch Linux) using Pacman first (if possible). Then, the PacUI file can be downloaded and run without prior installation:
 ```
 wget https://raw.githubusercontent.com/excalibur1234/pacui/master/pacui
 ```
