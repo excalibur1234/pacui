@@ -101,9 +101,11 @@ function pacui_tty_clean
 function func_u
 {
         # define local variable, which indicates whether the installation process was successful or not.
-        local install_successful
+        local {install_successful,connection_error}
+        install_successful=false
+        connection_error=false
 
-        if [[ "$AUR_Helper" == "yay" ]]                                             # check, if $AUR_Helper variable is set to "aurman". ATTENTION: sometimes, this requires   [[ "$AUR_Helper" == "aurman" ]]   and sometimes   test '$AUR_Helper' = "aurman"  . i do not know why this is the case.
+        if [[ "$AUR_Helper" == "yay" ]]                                             # check, if $AUR_Helper variable is set to "yay". ATTENTION: sometimes, this requires   [[ "$AUR_Helper" == "yay" ]]   and sometimes   test '$AUR_Helper' = "yay"  . i do not know why this is the case.
         then
 
             # execute "yay -Syu" command:
@@ -118,10 +120,8 @@ function func_u
         elif [[ "$AUR_Helper" == "pikaur" ]]
         then
 
-            # execute "pikaur -Syu" command:
             if ( pikaur "$argument_flag"-Syu )
             then
-                # only set $install_successful=true, if the command "pikaur -Syu" was executed without errors
                 install_successful=true
             else
                 install_successful=false
@@ -130,10 +130,8 @@ function func_u
         elif [[ "$AUR_Helper" == "aurman" ]]
         then
 
-            # execute "aurman -Syu" command:
             if ( aurman "$argument_flag"-Syu )
             then
-                # only set $install_successful=true, if the command "aurman -Syu" was executed without errors
                 install_successful=true
             else
                 install_successful=false
@@ -142,10 +140,8 @@ function func_u
         elif [[ "$AUR_Helper" == "pakku" ]]
         then
 
-            # execute "pakku -Syu" command:
             if ( pakku "$argument_flag"-Syu )
             then
-                # only set $install_successful=true, if the command "pakku -Syu" was executed without errors
                 install_successful=true
             else
                 install_successful=false
@@ -154,10 +150,8 @@ function func_u
         elif [[ "$AUR_Helper" == "trizen" ]]
         then
 
-            # execute "trizen -Syu" command:
             if ( trizen "$argument_flag"-Syu )
             then
-                # only set $install_successful=true, if the command "trizen -Syu" was executed without errors
                 install_successful=true
             else
                 install_successful=false
@@ -166,10 +160,8 @@ function func_u
         elif [[ "$AUR_Helper" == "pacaur" ]]
         then
 
-            # execute "pacaur -Syu --color always" command:
             if ( pacaur "$argument_flag"-Syu --color always )
             then
-                # only set $install_successful=true, if the command "pacaur -Syu --color always" was executed without errors
                 install_successful=true
             else
                 install_successful=false
@@ -177,10 +169,8 @@ function func_u
 
         else
 
-            # execute "sudo pacman -Syu --color always" command:
             if ( sudo pacman "$argument_flag"-Syu --color always )
             then
-                # only set $install_successful=true, if the command "sudo pacman -Syu --color always" was executed without errors
                 install_successful=true
             else
                 install_successful=false
@@ -231,8 +221,28 @@ function func_u
                 echo -e " \e[1;41m Please make sure both are ok and rerun this part of PacUI! \e[0m"
                 echo
 
+                connection_error=true
+
             fi
 
+        fi
+
+
+        # do updates of installed snap packages
+        if [[ "$connection_error" == "false" ]] && [[ -f /usr/bin/snap ]]
+        then
+            echo " updating snap packages ..."
+            sudo snap refresh
+            echo ""
+        fi
+
+
+        # do updates of installed flatpak packages
+        if [[ "$connection_error" == "false" ]] && [[ -f /usr/bin/flatpak ]]
+        then
+            echo " updating flatpak packages ..."
+            flatpak update -y
+            echo ""
         fi
 }
 
@@ -287,19 +297,37 @@ function func_m
 
 
         # check for "pacman-mirrors" or "reflector" packages. one of those is needed!
+        local connection_error
+        connection_error=true
         if [[ -f /usr/bin/pacman-mirrors ]] || [[ -f /usr/bin/reflector ]]
         then
 
             echo " choosing fastest mirror (which can take a while) and updating system ..."
             if [[ -f /usr/bin/pacman-mirrors ]]                                     # checks, whether file "pacman-mirrors" exists
             then
-                sudo pacman-mirrors -f 0 && sudo pacman -Syyu                       # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
+                if ( sudo pacman-mirrors -f 0 )                                     # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
+                then
+                    sudo pacman -Syyu
+                    connection_error=false
+                fi
 
             elif [[ -f /usr/bin/reflector ]]                                        # checks, whether file "reflector" exists
             then
-                sudo reflector --verbose --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist && sleep 10 && sudo pacman -Syyu          # If it does exists, then the mirror will sort by it
 
+                if ( sudo reflector --verbose --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist )            # If it does exists, then the mirror will sort by it
+                then
+                    sleep 10 && sudo pacman -Syyu
+                    connection_error=false
+                fi
             fi
+            echo ""
+        fi
+
+
+        if [[ "$connection_error" == "false" ]] && [[ -f /usr/bin/flatpak ]]
+        then
+            echo " cleaning up flatpak packages ..."
+            flatpak uninstall --unused --delete-data -y
             echo ""
         fi
 
@@ -2243,10 +2271,11 @@ This will quit PacUI and clear your terminal. Scroll up to see all terminal outp
 
 
 \e[1m1 - UPDATE SYSTEM
-\e[36m"sudo pacman -Syu"
 \e[36m"yay -Syua"
+\e[36m"sudo snap refresh" \e[0m(only if snapd is installed)
+\e[36m"flatpak update -y" \e[0m(only if flatpak is installed)
 The first command compares a list of all installed packages with package database on your system repository mirror/server. If an updated package is available from your system repositories, it will get downloaded and installed on your system.
-The second command does the same as the first part, but with one exception: It also downloads, compiles, and installs all packages from the Arch User Repository (AUR), which have an updated PKGBUILD file. The first command is still needed occasionally, because major Pacman updates require "pacman -Syu" first and will fail when started with some AUR helpers.
+Afterwards, all packages from the Arch User Repository (AUR), which have an updated PKGBUILD file, are downloaded, compiled, and installed.
 If updates from system repositories fail, the user is offered the choice to update packages using \e[36m"sudo pacman -Syu --overwrite A-Z,a-z,0-9,-,.,_"\e[0m.
 \e[1mAttention\e[0m: When a new version of an AUR package is available, sometimes the PKGBUILD file is not updated. If you want to install the latest version of a single AUR package, (re-)install it with INSTALL PACKAGES. If you want to install the latest versions of ALL AUR packages use FORCE UPDATE AUR.
 
@@ -2264,6 +2293,9 @@ Here a short explanation of partial updates and why a complete system update is 
 
 \e[36m"sudo reflector --verbose --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist && sudo pacman -Syyu" \e[0m(for Arch and other Arch-based distros)
 This command generates a new mirrorslist of secure and fast repository mirrors/servers. Then it resyncs database to match the mirrors and updates the system.
+
+\e[36m"flatpak uninstall --unused --delete-data -y" \e[0m(only if flatpak is installed)
+This command cleans up unused flatpak packages, which are typically left over after flatpak updates.
 
 \e[36m"sudo pacman -Rsn $(pacman -Qqdt)"
 This option lists all orphaned packages on your system. Orphaned packages are old and no longer needed dependencies (packages not explicitly installed by you), which were never removed from your system.
