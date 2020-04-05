@@ -307,7 +307,7 @@ function func_m
             then
                 if ( sudo pacman-mirrors -f 0 )                                     # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
                 then
-                    sudo pacman -Syyu
+                    sudo pacman -Syyuu
                     connection_error=false
                 fi
 
@@ -316,7 +316,7 @@ function func_m
 
                 if ( sudo reflector --verbose --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist )            # If it does exists, then the mirror will sort by it
                 then
-                    sleep 10 && sudo pacman -Syyu
+                    sleep 10 && sudo pacman -Syyuu
                     connection_error=false
                 fi
             fi
@@ -1542,7 +1542,7 @@ function func_f
 
 
             echo " trying to update system conventionally ..."
-            if ! ( sudo pacman -Syu --noconfirm)
+            if ! ( sudo pacman -Syuu --noconfirm)
             then
 
                 echo
@@ -1704,7 +1704,7 @@ function func_f
 
 
                         echo " trying to update system manually again ..."
-                        if ! ( sudo pacman -Syu )                                   # this last update attempt does not use "--noconfirm" and allows user intervention
+                        if ! ( sudo pacman -Syuu )                                   # this last update attempt does not use "--noconfirm" and allows user intervention
                         then
                             echo
                             echo -e " \e[41m Update still not successful. PacUI is unable to fix the system automatically. \e[0m"
@@ -2287,11 +2287,10 @@ This command deletes all PacUI files in /tmp directory. PacUI uses this temporar
 \e[36m"sudo find /var/cache/pacman/pkg/ -iname "*.part" -delete"
 This command deletes all partially downloaded packages from Pacman cache directory. Such packages can potentially prevent package updates.
 
-\e[36m"sudo pacman-mirrors -f 0 && sudo pacman -Syyu" \e[0m(for Manjaro)
-This command generates a new mirrorlist of all available Manjaro repository mirrors/servers and sorts it by ping of up-to-date mirrors/servers. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror and the system is updated. If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -f 0 -c Germany,France". In order to prevent partial updates, the whole system needs to be updated after the change to another repository mirror/server.
-Here a short explanation of partial updates and why a complete system update is needed: Assume you switch to another (updated) repository mirror/server with "sudo pacman-mirrors -f 0". Afterwards, a sync of the local package database and the package database on the server is needed using "sudo pacman -Syy" (and updates are found). It is now possible you install a package using "sudo pacman -S", which also installs a new (and no longer compatible) version of "bash" as a dependency. This means that all other (and not updated) packages, which depend on "bash", are broken.
+\e[36m"sudo pacman-mirrors -f 0 && sudo pacman -Syyuu" \e[0m(for Manjaro)
+This command generates a new mirrorlist of all available Manjaro repository mirrors/servers and sorts it by ping of up-to-date mirrors/servers. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror and the system is updated. If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -f 0 -c Germany,France". In order to prevent a partially updated system after the change to another repository mirror/server, all packagaes are updated/downgraded to the repository version using "sudo pacman -Suu".
 
-\e[36m"sudo reflector --verbose --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist && sudo pacman -Syyu" \e[0m(for Arch and other Arch-based distros)
+\e[36m"sudo reflector --verbose --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist && sudo pacman -Syyuu" \e[0m(for Arch and other Arch-based distros)
 This command generates a new mirrorslist of secure and fast repository mirrors/servers. Then it resyncs database to match the mirrors and updates the system.
 
 \e[36m"flatpak uninstall --unused --delete-data -y" \e[0m(only if flatpak is installed)
@@ -2438,8 +2437,8 @@ This command removes all packages from your Pacman cache, which are not installe
 There are 2 different places in Arch Linux and Manjaro to store keys: One place is used by Pacman and the other gets used by GPG.
 This command imports all keys for Pacman into GPG. This essentially means that the user trusts all Arch Linux Trusted Users and your distribution's developers. After that, you will be able to install AUR packages from Arch Linux Trusted Users and your distribution's developers without the need to import those keys (again) manually.
 
-\e[36m"sudo pacman -Syu --noconfirm"
-This command forces a redownload of the latest package database from the best repository mirror. Then, all your installed packages are checked against this latest package database. If an updated package is available from your system repositories, it will get downloaded and installed on your system. If an installed package is newer than the same package in your system repositories, it will not be installed. This behavior ensures your packages are always in sync with (or newer than) your system repositories.
+\e[36m"sudo pacman -Syuu --noconfirm"
+This command forces a redownload of the latest package database from the best repository mirror. Then, all your installed packages are checked against this latest package database. If a different package is available from your system repositories, it will get downloaded and installed on your system. This behavior ensures your packages are always in sync with your system repositories.
 
 \e[36m"sudo cp --preserve=all -f /etc/pacman.conf /etc/pacman.conf.backup && sudo sed -i 's/SigLevel[ ]*=[A-Za-z ]*/SigLevel = Never/' '/etc/pacman.conf' "
 The following commands delete and reinstall some essential packages. If your keyring is broken, no packages could be installed because of a key mismatch. Therefore, it is important to disable Pacman's key check before continuing.
@@ -2449,7 +2448,7 @@ This command disables the signature key check of packages in Pacman.
 This command stops (temporarily) the Network Time Protocol daemon service NTPD (if it is installed and running). In case NTPD is not installed, the output is ignored.
 This is the first command of a series of commands, which try to set the system and hardware clock on your computer (ignoring time zone and daylight saving time). An (almost) correct system time is needed for checking and importing keys or fingerprints later on in the fixing process!
 
-\e[36m"sudo pacman -S ntp"
+\e[36m"sudo pacman -Syu ntp"
 This command (re-)installs the "ntp" package.
 Because the keyring is not checked, in certain situations your system could be left in a partially updated state. However, if you follow PacUI's instructions, this does not happen.
 
