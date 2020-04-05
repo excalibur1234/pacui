@@ -17,7 +17,6 @@ Table of Contents
       * [Manjaro](#manjaro)
       * [Arch Linux](#arch-linux)
       * [chaotic-aur](#chaotic-aur)
-      * [Reborn OS](#reborn-os)
    * [Usage](#usage)
       * [Start PacUI with UI](#start-pacui-with-ui)
       * [Start PacUI without UI: Using Options](#start-pacui-without-ui-using-options)
