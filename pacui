@@ -105,7 +105,19 @@ function func_u
         install_successful=false
         connection_error=false
 
-        if [[ "$AUR_Helper" == "yay" ]]                                             # check, if $AUR_Helper variable is set to "yay". ATTENTION: sometimes, this requires   [[ "$AUR_Helper" == "yay" ]]   and sometimes   test '$AUR_Helper' = "yay"  . i do not know why this is the case.
+        if [[ "$AUR_Helper" == "pamac" ]]                                             # check, if $AUR_Helper variable is set to "pamac".
+        then
+
+            # execute "update -a" command:
+            if ( pamac "$argument_flag"update -a )                                         # execute command "update -a". if this command fails "false" is returned and the result is: "if ( false )"
+            then
+                # only set $install_successful=true, if the command "update -a" was executed without errors
+                install_successful=true
+            else
+                install_successful=false
+            fi
+
+        elif [[ "$AUR_Helper" == "yay" ]]                                             # check, if $AUR_Helper variable is set to "yay". ATTENTION: sometimes, this requires   [[ "$AUR_Helper" == "yay" ]]   and sometimes   test '$AUR_Helper' = "yay"  . i do not know why this is the case.
         then
 
             # execute "yay -Syu" command:
@@ -320,6 +332,24 @@ function func_m
                     connection_error=false
                 fi
             fi
+            echo ""
+        fi
+
+
+        # do updates of installed snap packages
+        if [[ "$connection_error" == "false" ]] && [[ -f /usr/bin/snap ]]
+        then
+            echo " updating snap packages ..."
+            sudo snap refresh
+            echo ""
+        fi
+
+
+        # do updates of installed flatpak packages
+        if [[ "$connection_error" == "false" ]] && [[ -f /usr/bin/flatpak ]]
+        then
+            echo " updating flatpak packages ..."
+            flatpak update -y
             echo ""
         fi
 
@@ -3019,4 +3049,3 @@ do
 # now, the infinite while-loop will start again from its top by clearing the terminal screen and redrawing the UI
 
 done                                                                                # close while-loop
-
