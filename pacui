@@ -50,7 +50,11 @@ AUR_Helper="$PACUI_AUR_HELPER"                                                  
 if [[ -z "$AUR_Helper" ]]                                                           # check, if AUR_Helper variable is empty. more precise: check, if output of "$AUR_Helper" is zero
 then
 
-    if [[ -f /usr/bin/yay ]]                                                        # check, if /usr/bin/yay file exists (i.e. yay is installed)
+    if [[ -f /usr/bin/pamac ]]
+    then
+        AUR_Helper="pamac"
+
+    elif [[ -f /usr/bin/yay ]]                                                        # check, if /usr/bin/yay file exists (i.e. yay is installed)
     then
         AUR_Helper="yay"
 
