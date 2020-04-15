@@ -1871,6 +1871,7 @@ function func_c
         [[ -f /boot/EFI/refind/refind.conf ]]           && echo -e "\e[31m/boot/EFI/refind/refind.conf                                                                                                                                                                                                                               Configure rEFInd boot loader in file:\e[0m" >> ${pacui_config}
         [[ -f /boot/EFI/CLOVER/config.plist ]]          && echo -e "\e[31m/boot/EFI/CLOVER/config.plist                                                                                                                                                                                                                              Configure Clover boot loader in file:\e[0m" >> ${pacui_config}
         [[ -f /boot/syslinux/syslinux.cfg ]]            && echo -e "\e[31m/boot/syslinux/syslinux.cfg                                                                                                                                                                                                                                Configure syslinux boot loaders in file:\e[0m" >> ${pacui_config}
+        [[ -f /etc/pamac.conf ]]                        && echo -e "/etc/pamac.conf                                                                                                                                                                                                                                 Configure Pamac in file:" >> ${pacui_config}
 
         #set -u
 
@@ -1963,6 +1964,11 @@ function func_c
             then
                 sudo "${EDITOR:-/usr/bin/nano}" "$file"
                 sudo pacman-mirrors -f 0 && sudo pacman "$argument_flag"-Syyu
+
+            elif [[ "$file" == "/etc/pamac.conf" ]]
+            then
+                sudo "${EDITOR:-/usr/bin/nano}" "$file"
+                pamac "$argument_flag"update --force-refresh
 
             elif [[ "$file" == "/etc/fstab" ]] || [[ "$file" == "/etc/crypttab" ]]
             then
