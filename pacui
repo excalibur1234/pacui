@@ -2108,7 +2108,7 @@ function func_la
 
                 if test '$AUR_Helper' = "pamac"
                 then
-                    pamac info {1}
+                    pamac info -a {1}
 
                 elif test '$AUR_Helper' = "yay"
                 then
