@@ -2106,7 +2106,11 @@ function func_la
             then
                 echo -e "\e[1mAUR package info: \e[0m"
 
-                if test '$AUR_Helper' = "yay"
+                if test '$AUR_Helper' = "pamac"
+                then
+                    pamac info {1}
+
+                elif test '$AUR_Helper' = "yay"
                 then
                     yay -Si {1} | grep -v "::"                                      # grep command removes all errors displayed by yay
 
