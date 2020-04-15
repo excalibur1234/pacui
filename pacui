@@ -367,7 +367,11 @@ function func_m
 
 
         echo " searching orphans ..."
-        if [[ "$AUR_Helper" == "yay" ]]
+        if [[ "$AUR_Helper" == "pamac" ]]
+        then
+            pamac remove -o                                                                 # do orphan cleaning with pamac
+
+        elif [[ "$AUR_Helper" == "yay" ]]
         then
             yay -Yc                                                                 # do orphan cleaning and yay cleaning
 
@@ -659,7 +663,11 @@ function func_i
                             then
                                 echo -e "\e[1mAUR package info: \e[0m"
 
-                                if test '$AUR_Helper' = "yay"
+                                if test '$AUR_Helper' = "pamac"
+                                then
+                                    pamac info {1}
+
+                                elif test '$AUR_Helper' = "yay"
                                 then
                                     yay -Si {1} | grep -v "::"                      # grep command removes all errors displayed by yay
 
@@ -712,7 +720,11 @@ function func_i
         if [[ -n "$pkg" ]]
         then
 
-            if [[ "$AUR_Helper" == "yay" ]]
+            if [[ "$AUR_Helper" == "pamac" ]]
+            then
+                pamac "$argument_flag"build $pkg
+
+            elif [[ "$AUR_Helper" == "yay" ]]
             then
                 yay "$argument_flag"-S $pkg                                         # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
 
