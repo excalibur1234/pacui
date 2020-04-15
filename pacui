@@ -2205,6 +2205,68 @@ function func_d
         fi
 }
 
+# This function does not get called directly, instead it gets called in func_a
+# Pamac search and install function similar to "yay web browser"
+function func_psi() {
+pamac search -a "$pkg" | cut -d " " -f1 | sed '/^[[:space:]]*$/d' | tee pamac-search.txt
+
+pkg="$(
+pacui_tty_clean                                                             # clear terminal
+
+# check, whether there is a connection to AUR server. this is needed for AUR package information. If there is no connection to AUR server, no AUR package info get displayed.
+if ( curl --silent --fail "https://aur.archlinux.org" &>/dev/null )                # the "curl --silent --fail" command gets executed in any case in order to check its output.
+then
+    AurSserverIsUp="true"
+else
+    AurSserverIsUp="false"
+fi
+
+        cat pamac-search.txt |
+        sort -k1,1 -u |                                                     # sort list: only first column gets used for sorting
+        # the "--multi" flag makes it possible to select multiple list items
+        # $argument_input variable gets defined after function definitions --> search for "argument_input="
+        # the "--preview" flag displays information about the currently selected line in fzf's preview window
+        fzf -i \
+            --multi \
+            --exact \
+            --no-sort \
+            --select-1 \
+            --query="" \
+            --cycle \
+            --layout=reverse \
+            --bind=pgdn:half-page-down,pgup:half-page-up \
+            --margin="4%,1%,1%,2%" \
+            --info=inline \
+            --no-unicode \
+            --preview '
+                pamac info -a {1}
+                ' \
+            "$(
+                if (( $(tput cols) >= 125 ))
+                then
+                    echo "--preview-window=right:55%:wrap"                  # depending on the terminal width (determined by "tput cols"), the preview window is either shown on the right or the bottom
+                else
+                    echo "--preview-window=bottom:60%:wrap"
+                fi
+            )" \
+            --header="TAB key to (un)select. ENTER to install. ESC to quit." \
+            --prompt="Enter string to filter list > " |
+        awk '{print $1}'                                                    # use "awk" to filter output of "fzf" and only get the first field (which contains the package name). "fzf" should output a separated (by newline characters) list of all chosen packages!
+)"
+
+pacui_tty_clean                                                             # clear terminal
+
+# $pkg contains package names below each other (=separated by \n), but we need a list in 1 line (which is space separated):
+pkg="$( echo "$pkg" | paste -sd " " )"
+
+
+# only run the command inside the if-statement, if variable $pkg is not empty (this happens when fzf is quit with ESC or CTRL+C)
+if [[ -n "$pkg" ]]
+then
+        pamac "$argument_flag"install $pkg
+fi
+rm -rf pamac-search.txt
+}
 
 # Search + Install from AUR
 # this function provides core functionality of "Search + Install from AUR". the help page provides additional explanations.
@@ -2240,6 +2302,11 @@ function func_a
             then
                 pacaur -Ss "$argument_input" --color always | grep -v "::"          # grep command removes errors being displayed in pacaur
 
+            elif [[ "$AUR_Helper" == "pamac" ]]
+            then
+                pkg="$argument_input"
+                func_psi
+
             else
                 echo -e " \e[41m No AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
                 echo -e " \e[1m  yay \e[0m"
@@ -2248,6 +2315,7 @@ function func_a
                 echo -e " \e[1m  pakku \e[0m"
                 echo -e " \e[1m  trizen \e[0m"
                 echo -e " \e[1m  pacaur \e[0m"
+                echo -e " \e[1m  pamac \e[0m"
 
             fi
 
@@ -2281,6 +2349,10 @@ function func_a
             then
                 pacaur -Ss "$pkg" --color always | grep -v "::"                     # grep command removes errors being displayed in pacaur
 
+            elif [[ "$AUR_Helper" == "pamac" ]]
+            then
+                func_psi "$pkg"
+
             else
                 echo -e " \e[41m No AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
                 echo -e " \e[1m  yay \e[0m"
@@ -2289,6 +2361,7 @@ function func_a
                 echo -e " \e[1m  pakku \e[0m"
                 echo -e " \e[1m  trizen \e[0m"
                 echo -e " \e[1m  pacaur \e[0m"
+                echo -e " \e[1m  pamac \e[0m"
 
             fi
 
