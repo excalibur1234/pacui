@@ -2036,7 +2036,11 @@ function func_ls
 # this function provides core functionality of "Force Update AUR". the help page provides additional explanations.
 function func_ua
 {
-        if [[ "$AUR_Helper" == "yay" ]]
+        if [[ "$AUR_Helper" == "pamac" ]]
+        then
+            pamac "$argument_flag"update -a --devel
+
+        elif [[ "$AUR_Helper" == "yay" ]]
         then
             yay "$argument_flag"-Syu --devel --needed
 
@@ -2062,6 +2066,7 @@ function func_ua
 
         else
             echo -e " \e[41m No AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
+            echo -e " \e[1m  pamac \e[0m"
             echo -e " \e[1m  yay \e[0m"
             echo -e " \e[1m  pikaur \e[0m"
             echo -e " \e[1m  aurman \e[0m"
@@ -2549,7 +2554,7 @@ EOF
 The Arch User Repository (AUR) is a repository of (mostly) PKGBUILD files. Everybody can create such a PKGBUILD file and upload it to the AUR. A PKGBUILD file contains simple and human readable instructions like where to download the source code from, what dependencies are needed, where to copy files for installation, etc. Your AUR helper can interpret PKGBUILD files and download the source code, install dependencies, build files on your system, and copy these files to the right location (a.k.a. installing a program).
 By checking a PKGBUILD file (and .INSTALL file) you can make sure the source code is loaded from an official download server, no harmful dependencies get installed, and the installation instructions do not contain harmful code.
 A lot of PKGBUILD files contain variables (e.g. program version) in download addresses; this makes them download always the latest source code (e.g. from Github) during installation. Some PKGBUILD files contain no variables: These PKGBUILD files need to be changed manually every time a new program version is released.
-This command updates both packages from your system repositor and AUR packages. Because of the "--devel" flag, development versions (i.e. all git, svn, and cvs-packages) from the AUR are updated as well.
+This command updates both packages from your system repository and AUR packages. Because of the "--devel" flag, development versions (i.e. all git, svn, and cvs-packages) from the AUR are updated as well.
 \e[1mAttention\e[0m: This might take a long time! Some AUR helpers pause by default after every 15min and ask again for your password.
 
 EOF
