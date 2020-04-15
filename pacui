@@ -50,11 +50,7 @@ AUR_Helper="$PACUI_AUR_HELPER"                                                  
 if [[ -z "$AUR_Helper" ]]                                                           # check, if AUR_Helper variable is empty. more precise: check, if output of "$AUR_Helper" is zero
 then
 
-    if [[ -f /usr/bin/pamac ]]
-    then
-        AUR_Helper="pamac"
-
-    elif [[ -f /usr/bin/yay ]]                                                        # check, if /usr/bin/yay file exists (i.e. yay is installed)
+    if [[ -f /usr/bin/yay ]]                                                        # check, if /usr/bin/yay file exists (i.e. yay is installed)
     then
         AUR_Helper="yay"
 
@@ -77,6 +73,10 @@ then
     elif [[ -f /usr/bin/pacaur ]]
     then
         AUR_Helper="pacaur"
+
+    elif [[ -f /usr/bin/pamac ]]
+    then
+        AUR_Helper="pamac"
 
     fi
 fi
@@ -109,19 +109,7 @@ function func_u
         install_successful=false
         connection_error=false
 
-        if [[ "$AUR_Helper" == "pamac" ]]                                             # check, if $AUR_Helper variable is set to "pamac".
-        then
-
-            # execute "update -a" command:
-            if ( pamac "$argument_flag"update -a )                                         # execute command "update -a". if this command fails "false" is returned and the result is: "if ( false )"
-            then
-                # only set $install_successful=true, if the command "update -a" was executed without errors
-                install_successful=true
-            else
-                install_successful=false
-            fi
-
-        elif [[ "$AUR_Helper" == "yay" ]]                                             # check, if $AUR_Helper variable is set to "yay". ATTENTION: sometimes, this requires   [[ "$AUR_Helper" == "yay" ]]   and sometimes   test '$AUR_Helper' = "yay"  . i do not know why this is the case.
+        if [[ "$AUR_Helper" == "yay" ]]                                             # check, if $AUR_Helper variable is set to "yay". ATTENTION: sometimes, this requires   [[ "$AUR_Helper" == "yay" ]]   and sometimes   test '$AUR_Helper' = "yay"  . i do not know why this is the case.
         then
 
             # execute "yay -Syu" command:
@@ -178,6 +166,18 @@ function func_u
 
             if ( pacaur "$argument_flag"-Syu --color always )
             then
+                install_successful=true
+            else
+                install_successful=false
+            fi
+
+        elif [[ "$AUR_Helper" == "pamac" ]]                                             # check, if $AUR_Helper variable is set to "pamac".
+        then
+
+            # execute "update -a" command:
+            if ( pamac "$argument_flag"update -a )                                         # execute command "update -a". if this command fails "false" is returned and the result is: "if ( false )"
+            then
+                # only set $install_successful=true, if the command "update -a" was executed without errors
                 install_successful=true
             else
                 install_successful=false
@@ -367,13 +367,14 @@ function func_m
 
 
         echo " searching orphans ..."
-        if [[ "$AUR_Helper" == "pamac" ]]
-        then
-            pamac remove -o                                                                 # do orphan cleaning with pamac
 
-        elif [[ "$AUR_Helper" == "yay" ]]
+        if [[ "$AUR_Helper" == "yay" ]]
         then
             yay -Yc                                                                 # do orphan cleaning and yay cleaning
+
+        elif [[ "$AUR_Helper" == "pamac" ]]
+        then
+            pamac remove -o                                                         # do orphan cleaning with pamac
 
         else                                                                        # do this for all other AUR helpers:
             if [[ -n "$(pacman -Qdt)" ]]                                            # only run the following commands, if output of "pacman -Qdt" is not empty.
@@ -663,11 +664,7 @@ function func_i
                             then
                                 echo -e "\e[1mAUR package info: \e[0m"
 
-                                if test '$AUR_Helper' = "pamac"
-                                then
-                                    pamac info -a {1}
-
-                                elif test '$AUR_Helper' = "yay"
+                                if test '$AUR_Helper' = "yay"
                                 then
                                     yay -Si {1} | grep -v "::"                      # grep command removes all errors displayed by yay
 
@@ -690,6 +687,10 @@ function func_i
                                 elif test '$AUR_Helper' = "pacaur"
                                 then
                                     pacaur -Si {1} --color always | grep -v "::"    # grep command removes all errors displayed by pacaur
+
+                                elif test '$AUR_Helper' = "pamac"
+                                then
+                                    pamac info -a {1}
 
                                 fi
                             fi
@@ -720,11 +721,7 @@ function func_i
         if [[ -n "$pkg" ]]
         then
 
-            if [[ "$AUR_Helper" == "pamac" ]]
-            then
-                pamac "$argument_flag"build $pkg
-
-            elif [[ "$AUR_Helper" == "yay" ]]
+            if [[ "$AUR_Helper" == "yay" ]]
             then
                 yay "$argument_flag"-S $pkg                                         # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
 
@@ -747,6 +744,10 @@ function func_i
             elif [[ "$AUR_Helper" == "pacaur" ]]
             then
                 pacaur "$argument_flag"--color always -S $pkg                       # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
+
+            elif [[ "$AUR_Helper" == "pamac" ]]
+            then
+                pamac "$argument_flag"build $pkg
 
             else
                 sudo pacman "$argument_flag"--color always -Syu $pkg                # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
@@ -2036,11 +2037,7 @@ function func_ls
 # this function provides core functionality of "Force Update AUR". the help page provides additional explanations.
 function func_ua
 {
-        if [[ "$AUR_Helper" == "pamac" ]]
-        then
-            pamac "$argument_flag"update -a --devel
-
-        elif [[ "$AUR_Helper" == "yay" ]]
+        if [[ "$AUR_Helper" == "yay" ]]
         then
             yay "$argument_flag"-Syu --devel --needed
 
@@ -2064,15 +2061,19 @@ function func_ua
         then
             pacaur "$argument_flag"-Syua --devel --needed --color always
 
+        elif [[ "$AUR_Helper" == "pamac" ]]
+        then
+            pamac "$argument_flag"update -a --devel
+
         else
             echo -e " \e[41m No AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
-            echo -e " \e[1m  pamac \e[0m"
             echo -e " \e[1m  yay \e[0m"
             echo -e " \e[1m  pikaur \e[0m"
             echo -e " \e[1m  aurman \e[0m"
             echo -e " \e[1m  pakku \e[0m"
             echo -e " \e[1m  trizen \e[0m"
             echo -e " \e[1m  pacaur \e[0m"
+            echo -e " \e[1m  pamac \e[0m"
 
         fi
 }
@@ -2106,10 +2107,6 @@ function func_la
             then
                 echo -e "\e[1mAUR package info: \e[0m"
 
-                if test '$AUR_Helper' = "pamac"
-                then
-                    pamac info -a {1}
-
                 elif test '$AUR_Helper' = "yay"
                 then
                     yay -Si {1} | grep -v "::"                                      # grep command removes all errors displayed by yay
@@ -2133,6 +2130,10 @@ function func_la
                 elif test '$AUR_Helper' = "pacaur"
                 then
                     pacaur -Si {1} --color always | grep -v "::"                    # grep command removes all errors displayed by pacaur
+
+                elif test '$AUR_Helper' = "pamac"
+                then
+                    pamac info -a {1}
 
                 fi
             fi
@@ -2348,6 +2349,8 @@ This command generates a new mirrorlist of all available Manjaro repository mirr
 \e[36m"sudo reflector --verbose --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist && sudo pacman -Syyuu" \e[0m(for Arch and other Arch-based distros)
 This command generates a new mirrorslist of secure and fast repository mirrors/servers. Then it resyncs database to match the mirrors and updates the system.
 
+\e[36m"sudo snap refresh" \e[0m(only if snapd is installed)
+\e[36m"flatpak update -y" \e[0m(only if flatpak is installed)
 \e[36m"flatpak uninstall --unused --delete-data -y" \e[0m(only if flatpak is installed)
 This command cleans up unused flatpak packages, which are typically left over after flatpak updates.
 
