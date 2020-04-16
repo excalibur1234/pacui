@@ -2208,7 +2208,7 @@ function func_d
 # This function does not get called directly, instead it gets called in func_a
 # Pamac search and install function similar to "yay web browser"
 function func_psi() {
-pamac search -a "$pkg" | cut -d " " -f1 | sed '/^[[:space:]]*$/d' | tee pamac-search.txt
+pamac search -a "$pkg" | cut -d " " -f1 | sed '/^[[:space:]]*$/d' | tee pamac-search.txt &>/dev/null
 
 pkg="$(
 pacui_tty_clean                                                             # clear terminal
