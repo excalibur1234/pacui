@@ -747,7 +747,7 @@ function func_i
 
             elif [[ "$AUR_Helper" == "pamac" ]]
             then
-                pamac "$argument_flag"build $pkg
+                pamac "$argument_flag"install $pkg
 
             else
                 sudo pacman "$argument_flag"--color always -Syu $pkg                # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
