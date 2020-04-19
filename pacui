@@ -171,7 +171,7 @@ function func_u
                 install_successful=false
             fi
 
-        elif [[ "$AUR_Helper" == "pamac" ]]                                             # check, if $AUR_Helper variable is set to "pamac".
+        elif [[ "$AUR_Helper" == "pamac" ]]
         then
 
             # execute "update -a" command:
@@ -340,24 +340,6 @@ function func_m
         fi
 
 
-        # do updates of installed snap packages
-        if [[ "$connection_error" == "false" ]] && [[ -f /usr/bin/snap ]]
-        then
-            echo " updating snap packages ..."
-            sudo snap refresh
-            echo ""
-        fi
-
-
-        # do updates of installed flatpak packages
-        if [[ "$connection_error" == "false" ]] && [[ -f /usr/bin/flatpak ]]
-        then
-            echo " updating flatpak packages ..."
-            flatpak update -y
-            echo ""
-        fi
-
-
         if [[ "$connection_error" == "false" ]] && [[ -f /usr/bin/flatpak ]]
         then
             echo " cleaning up flatpak packages ..."
@@ -367,15 +349,12 @@ function func_m
 
 
         echo " searching orphans ..."
-
         if [[ "$AUR_Helper" == "yay" ]]
         then
-            yay -Yc                                                                 # do orphan cleaning and yay cleaning
-
+            yay -Yc                                                                 # do orphan cleaning with yay
         elif [[ "$AUR_Helper" == "pamac" ]]
         then
             pamac remove -o                                                         # do orphan cleaning with pamac
-
         else                                                                        # do this for all other AUR helpers:
             if [[ -n "$(pacman -Qdt)" ]]                                            # only run the following commands, if output of "pacman -Qdt" is not empty.
             then
@@ -399,7 +378,6 @@ function func_m
 
         echo " sudo pacdiff ..."
         #set +u                                                                     # temporarily disable strict mode for environment variables
-
         if [[ -n "$DIFFPROG" ]]                                                     # this if-condition avoids error message when $DIFFPROG is not set/empty
         then
             sudo pacdiff
@@ -407,7 +385,6 @@ function func_m
             # use pacdiff to search for .pacnew and .pacsave files. display both the original and the used config file using "func_diff" function defined above.
             sudo DIFFPROG="pacui --diff" pacdiff
         fi
-
         #set -u
         echo ""
 
@@ -747,7 +724,7 @@ function func_i
 
             elif [[ "$AUR_Helper" == "pamac" ]]
             then
-                pamac "$argument_flag"install $pkg
+                pamac "$argument_flag"install $pkg                                  # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
 
             else
                 sudo pacman "$argument_flag"--color always -Syu $pkg                # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
@@ -1822,6 +1799,7 @@ function func_c
         [[ -f /etc/pakku.conf ]]                        && echo -e "/etc/pakku.conf                                                                                                                                                                                                                                                  Configure Pakku in file:" >> ${pacui_config}
         [[ -f $XDG_CONFIG_HOME/aurman/aurman_config ]]  && echo -e "$XDG_CONFIG_HOME/aurman/aurman_config                                                                                                                                                                                                                            Configure Aurman in file:" >> ${pacui_config}
         [[ -f $HOME/.config/aurman/aurman_config ]]     && echo -e "$HOME/.config/aurman/aurman_config                                                                                                                                                                                                                               Configure Aurman in fallback file:" >> ${pacui_config}
+        [[ -f /etc/pamac.conf ]]                        && echo -e "/etc/pamac.conf                                                                                                                                                                                                                                                  Configure Pamac in file:" >> ${pacui_config}
         [[ -f /etc/makepkg.conf ]]                      && echo -e "/etc/makepkg.conf                                                                                                                                                                                                                                                Configure package compilation in file:" >> ${pacui_config}
         [[ -d /usr/lib/NetworkManager/conf.d ]]         && echo -e "/usr/lib/NetworkManager/conf.d/                                                                                                                                                                                                                                  Configure NetworkManager in files:" >> ${pacui_config}
         [[ -f /etc/resolv.conf ]]                       && echo -e "/etc/resolv.conf                                                                                                                                                                                                                                                 Configure DNS servers in file:" >> ${pacui_config}
@@ -1871,7 +1849,6 @@ function func_c
         [[ -f /boot/EFI/refind/refind.conf ]]           && echo -e "\e[31m/boot/EFI/refind/refind.conf                                                                                                                                                                                                                               Configure rEFInd boot loader in file:\e[0m" >> ${pacui_config}
         [[ -f /boot/EFI/CLOVER/config.plist ]]          && echo -e "\e[31m/boot/EFI/CLOVER/config.plist                                                                                                                                                                                                                              Configure Clover boot loader in file:\e[0m" >> ${pacui_config}
         [[ -f /boot/syslinux/syslinux.cfg ]]            && echo -e "\e[31m/boot/syslinux/syslinux.cfg                                                                                                                                                                                                                                Configure syslinux boot loaders in file:\e[0m" >> ${pacui_config}
-        [[ -f /etc/pamac.conf ]]                        && echo -e "/etc/pamac.conf                                                                                                                                                                                                                                 Configure Pamac in file:" >> ${pacui_config}
 
         #set -u
 
@@ -2205,68 +2182,6 @@ function func_d
         fi
 }
 
-# This function does not get called directly, instead it gets called in func_a
-# Pamac search and install function similar to "yay web browser"
-function func_psi() {
-pamac search -a "$pkg" | cut -d " " -f1 | sed '/^[[:space:]]*$/d' | tee pamac-search.txt &>/dev/null
-
-pkg="$(
-pacui_tty_clean                                                             # clear terminal
-
-# check, whether there is a connection to AUR server. this is needed for AUR package information. If there is no connection to AUR server, no AUR package info get displayed.
-if ( curl --silent --fail "https://aur.archlinux.org" &>/dev/null )                # the "curl --silent --fail" command gets executed in any case in order to check its output.
-then
-    AurSserverIsUp="true"
-else
-    AurSserverIsUp="false"
-fi
-
-        cat pamac-search.txt |
-        sort -k1,1 -u |                                                     # sort list: only first column gets used for sorting
-        # the "--multi" flag makes it possible to select multiple list items
-        # $argument_input variable gets defined after function definitions --> search for "argument_input="
-        # the "--preview" flag displays information about the currently selected line in fzf's preview window
-        fzf -i \
-            --multi \
-            --exact \
-            --no-sort \
-            --select-1 \
-            --query="" \
-            --cycle \
-            --layout=reverse \
-            --bind=pgdn:half-page-down,pgup:half-page-up \
-            --margin="4%,1%,1%,2%" \
-            --info=inline \
-            --no-unicode \
-            --preview '
-                pamac info -a {1}
-                ' \
-            "$(
-                if (( $(tput cols) >= 125 ))
-                then
-                    echo "--preview-window=right:55%:wrap"                  # depending on the terminal width (determined by "tput cols"), the preview window is either shown on the right or the bottom
-                else
-                    echo "--preview-window=bottom:60%:wrap"
-                fi
-            )" \
-            --header="TAB key to (un)select. ENTER to install. ESC to quit." \
-            --prompt="Enter string to filter list > " |
-        awk '{print $1}'                                                    # use "awk" to filter output of "fzf" and only get the first field (which contains the package name). "fzf" should output a separated (by newline characters) list of all chosen packages!
-)"
-
-pacui_tty_clean                                                             # clear terminal
-
-# $pkg contains package names below each other (=separated by \n), but we need a list in 1 line (which is space separated):
-pkg="$( echo "$pkg" | paste -sd " " )"
-
-
-# only run the command inside the if-statement, if variable $pkg is not empty (this happens when fzf is quit with ESC or CTRL+C)
-if [[ -n "$pkg" ]]
-then
-        pamac "$argument_flag"install $pkg
-fi
-rm -rf pamac-search.txt
-}
 
 # Search + Install from AUR
 # this function provides core functionality of "Search + Install from AUR". the help page provides additional explanations.
@@ -2304,8 +2219,7 @@ function func_a
 
             elif [[ "$AUR_Helper" == "pamac" ]]
             then
-                pkg="$argument_input"
-                func_psi
+                pamac search -a "$argument_input"
 
             else
                 echo -e " \e[41m No AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
@@ -2351,7 +2265,7 @@ function func_a
 
             elif [[ "$AUR_Helper" == "pamac" ]]
             then
-                func_psi "$pkg"
+                pamac search -a "$pkg"
 
             else
                 echo -e " \e[41m No AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
@@ -2428,8 +2342,6 @@ This command generates a new mirrorlist of all available Manjaro repository mirr
 \e[36m"sudo reflector --verbose --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist && sudo pacman -Syyuu" \e[0m(for Arch and other Arch-based distros)
 This command generates a new mirrorslist of secure and fast repository mirrors/servers. Then it resyncs database to match the mirrors and updates the system.
 
-\e[36m"sudo snap refresh" \e[0m(only if snapd is installed)
-\e[36m"flatpak update -y" \e[0m(only if flatpak is installed)
 \e[36m"flatpak uninstall --unused --delete-data -y" \e[0m(only if flatpak is installed)
 This command cleans up unused flatpak packages, which are typically left over after flatpak updates.
 

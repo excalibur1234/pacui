@@ -19,6 +19,7 @@ optdepends=('yay: One AUR helper is needed for AUR support.'
             'pakku: One AUR helper is needed for AUR support.'
             'trizen: One AUR helper is needed for AUR support.'
             'pacaur: One AUR helper is needed for AUR support.'
+            'pamac-cli: One AUR helper is needed for AUR support.'
             'pacman-mirrors: Needed for Manjaro mirror support'
             'reflector: Needed for Arch Linux mirror support'
             'downgrade: Needed for hidden "downgrade" option.')
