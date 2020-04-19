@@ -74,6 +74,10 @@ then
     then
         AUR_Helper="pacaur"
 
+    elif [[ -f /usr/bin/pamac ]]
+    then
+        AUR_Helper="pamac"
+
     fi
 fi
 
@@ -162,6 +166,18 @@ function func_u
 
             if ( pacaur "$argument_flag"-Syu --color always )
             then
+                install_successful=true
+            else
+                install_successful=false
+            fi
+
+        elif [[ "$AUR_Helper" == "pamac" ]]                                             # check, if $AUR_Helper variable is set to "pamac".
+        then
+
+            # execute "update -a" command:
+            if ( pamac "$argument_flag"update -a )                                         # execute command "update -a". if this command fails "false" is returned and the result is: "if ( false )"
+            then
+                # only set $install_successful=true, if the command "update -a" was executed without errors
                 install_successful=true
             else
                 install_successful=false
@@ -324,6 +340,24 @@ function func_m
         fi
 
 
+        # do updates of installed snap packages
+        if [[ "$connection_error" == "false" ]] && [[ -f /usr/bin/snap ]]
+        then
+            echo " updating snap packages ..."
+            sudo snap refresh
+            echo ""
+        fi
+
+
+        # do updates of installed flatpak packages
+        if [[ "$connection_error" == "false" ]] && [[ -f /usr/bin/flatpak ]]
+        then
+            echo " updating flatpak packages ..."
+            flatpak update -y
+            echo ""
+        fi
+
+
         if [[ "$connection_error" == "false" ]] && [[ -f /usr/bin/flatpak ]]
         then
             echo " cleaning up flatpak packages ..."
@@ -333,9 +367,14 @@ function func_m
 
 
         echo " searching orphans ..."
+
         if [[ "$AUR_Helper" == "yay" ]]
         then
             yay -Yc                                                                 # do orphan cleaning and yay cleaning
+
+        elif [[ "$AUR_Helper" == "pamac" ]]
+        then
+            pamac remove -o                                                         # do orphan cleaning with pamac
 
         else                                                                        # do this for all other AUR helpers:
             if [[ -n "$(pacman -Qdt)" ]]                                            # only run the following commands, if output of "pacman -Qdt" is not empty.
@@ -649,6 +688,10 @@ function func_i
                                 then
                                     pacaur -Si {1} --color always | grep -v "::"    # grep command removes all errors displayed by pacaur
 
+                                elif test '$AUR_Helper' = "pamac"
+                                then
+                                    pamac info -a {1}
+
                                 fi
                             fi
 
@@ -701,6 +744,10 @@ function func_i
             elif [[ "$AUR_Helper" == "pacaur" ]]
             then
                 pacaur "$argument_flag"--color always -S $pkg                       # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
+
+            elif [[ "$AUR_Helper" == "pamac" ]]
+            then
+                pamac "$argument_flag"install $pkg
 
             else
                 sudo pacman "$argument_flag"--color always -Syu $pkg                # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
@@ -1824,6 +1871,7 @@ function func_c
         [[ -f /boot/EFI/refind/refind.conf ]]           && echo -e "\e[31m/boot/EFI/refind/refind.conf                                                                                                                                                                                                                               Configure rEFInd boot loader in file:\e[0m" >> ${pacui_config}
         [[ -f /boot/EFI/CLOVER/config.plist ]]          && echo -e "\e[31m/boot/EFI/CLOVER/config.plist                                                                                                                                                                                                                              Configure Clover boot loader in file:\e[0m" >> ${pacui_config}
         [[ -f /boot/syslinux/syslinux.cfg ]]            && echo -e "\e[31m/boot/syslinux/syslinux.cfg                                                                                                                                                                                                                                Configure syslinux boot loaders in file:\e[0m" >> ${pacui_config}
+        [[ -f /etc/pamac.conf ]]                        && echo -e "/etc/pamac.conf                                                                                                                                                                                                                                 Configure Pamac in file:" >> ${pacui_config}
 
         #set -u
 
@@ -1916,6 +1964,11 @@ function func_c
             then
                 sudo "${EDITOR:-/usr/bin/nano}" "$file"
                 sudo pacman-mirrors -f 0 && sudo pacman "$argument_flag"-Syyu
+
+            elif [[ "$file" == "/etc/pamac.conf" ]]
+            then
+                sudo "${EDITOR:-/usr/bin/nano}" "$file"
+                pamac "$argument_flag"update --force-refresh
 
             elif [[ "$file" == "/etc/fstab" ]] || [[ "$file" == "/etc/crypttab" ]]
             then
@@ -2014,6 +2067,10 @@ function func_ua
         then
             pacaur "$argument_flag"-Syua --devel --needed --color always
 
+        elif [[ "$AUR_Helper" == "pamac" ]]
+        then
+            pamac "$argument_flag"update -a --devel
+
         else
             echo -e " \e[41m No AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
             echo -e " \e[1m  yay \e[0m"
@@ -2022,6 +2079,7 @@ function func_ua
             echo -e " \e[1m  pakku \e[0m"
             echo -e " \e[1m  trizen \e[0m"
             echo -e " \e[1m  pacaur \e[0m"
+            echo -e " \e[1m  pamac \e[0m"
 
         fi
 }
@@ -2078,6 +2136,10 @@ function func_la
                 elif test '$AUR_Helper' = "pacaur"
                 then
                     pacaur -Si {1} --color always | grep -v "::"                    # grep command removes all errors displayed by pacaur
+
+                elif test '$AUR_Helper' = "pamac"
+                then
+                    pamac info -a {1}
 
                 fi
             fi
@@ -2143,6 +2205,68 @@ function func_d
         fi
 }
 
+# This function does not get called directly, instead it gets called in func_a
+# Pamac search and install function similar to "yay web browser"
+function func_psi() {
+pamac search -a "$pkg" | cut -d " " -f1 | sed '/^[[:space:]]*$/d' | tee pamac-search.txt &>/dev/null
+
+pkg="$(
+pacui_tty_clean                                                             # clear terminal
+
+# check, whether there is a connection to AUR server. this is needed for AUR package information. If there is no connection to AUR server, no AUR package info get displayed.
+if ( curl --silent --fail "https://aur.archlinux.org" &>/dev/null )                # the "curl --silent --fail" command gets executed in any case in order to check its output.
+then
+    AurSserverIsUp="true"
+else
+    AurSserverIsUp="false"
+fi
+
+        cat pamac-search.txt |
+        sort -k1,1 -u |                                                     # sort list: only first column gets used for sorting
+        # the "--multi" flag makes it possible to select multiple list items
+        # $argument_input variable gets defined after function definitions --> search for "argument_input="
+        # the "--preview" flag displays information about the currently selected line in fzf's preview window
+        fzf -i \
+            --multi \
+            --exact \
+            --no-sort \
+            --select-1 \
+            --query="" \
+            --cycle \
+            --layout=reverse \
+            --bind=pgdn:half-page-down,pgup:half-page-up \
+            --margin="4%,1%,1%,2%" \
+            --info=inline \
+            --no-unicode \
+            --preview '
+                pamac info -a {1}
+                ' \
+            "$(
+                if (( $(tput cols) >= 125 ))
+                then
+                    echo "--preview-window=right:55%:wrap"                  # depending on the terminal width (determined by "tput cols"), the preview window is either shown on the right or the bottom
+                else
+                    echo "--preview-window=bottom:60%:wrap"
+                fi
+            )" \
+            --header="TAB key to (un)select. ENTER to install. ESC to quit." \
+            --prompt="Enter string to filter list > " |
+        awk '{print $1}'                                                    # use "awk" to filter output of "fzf" and only get the first field (which contains the package name). "fzf" should output a separated (by newline characters) list of all chosen packages!
+)"
+
+pacui_tty_clean                                                             # clear terminal
+
+# $pkg contains package names below each other (=separated by \n), but we need a list in 1 line (which is space separated):
+pkg="$( echo "$pkg" | paste -sd " " )"
+
+
+# only run the command inside the if-statement, if variable $pkg is not empty (this happens when fzf is quit with ESC or CTRL+C)
+if [[ -n "$pkg" ]]
+then
+        pamac "$argument_flag"install $pkg
+fi
+rm -rf pamac-search.txt
+}
 
 # Search + Install from AUR
 # this function provides core functionality of "Search + Install from AUR". the help page provides additional explanations.
@@ -2178,6 +2302,11 @@ function func_a
             then
                 pacaur -Ss "$argument_input" --color always | grep -v "::"          # grep command removes errors being displayed in pacaur
 
+            elif [[ "$AUR_Helper" == "pamac" ]]
+            then
+                pkg="$argument_input"
+                func_psi
+
             else
                 echo -e " \e[41m No AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
                 echo -e " \e[1m  yay \e[0m"
@@ -2186,6 +2315,7 @@ function func_a
                 echo -e " \e[1m  pakku \e[0m"
                 echo -e " \e[1m  trizen \e[0m"
                 echo -e " \e[1m  pacaur \e[0m"
+                echo -e " \e[1m  pamac \e[0m"
 
             fi
 
@@ -2219,6 +2349,10 @@ function func_a
             then
                 pacaur -Ss "$pkg" --color always | grep -v "::"                     # grep command removes errors being displayed in pacaur
 
+            elif [[ "$AUR_Helper" == "pamac" ]]
+            then
+                func_psi "$pkg"
+
             else
                 echo -e " \e[41m No AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
                 echo -e " \e[1m  yay \e[0m"
@@ -2227,6 +2361,7 @@ function func_a
                 echo -e " \e[1m  pakku \e[0m"
                 echo -e " \e[1m  trizen \e[0m"
                 echo -e " \e[1m  pacaur \e[0m"
+                echo -e " \e[1m  pamac \e[0m"
 
             fi
 
@@ -2293,6 +2428,8 @@ This command generates a new mirrorlist of all available Manjaro repository mirr
 \e[36m"sudo reflector --verbose --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist && sudo pacman -Syyuu" \e[0m(for Arch and other Arch-based distros)
 This command generates a new mirrorslist of secure and fast repository mirrors/servers. Then it resyncs database to match the mirrors and updates the system.
 
+\e[36m"sudo snap refresh" \e[0m(only if snapd is installed)
+\e[36m"flatpak update -y" \e[0m(only if flatpak is installed)
 \e[36m"flatpak uninstall --unused --delete-data -y" \e[0m(only if flatpak is installed)
 This command cleans up unused flatpak packages, which are typically left over after flatpak updates.
 
@@ -2503,7 +2640,7 @@ EOF
 The Arch User Repository (AUR) is a repository of (mostly) PKGBUILD files. Everybody can create such a PKGBUILD file and upload it to the AUR. A PKGBUILD file contains simple and human readable instructions like where to download the source code from, what dependencies are needed, where to copy files for installation, etc. Your AUR helper can interpret PKGBUILD files and download the source code, install dependencies, build files on your system, and copy these files to the right location (a.k.a. installing a program).
 By checking a PKGBUILD file (and .INSTALL file) you can make sure the source code is loaded from an official download server, no harmful dependencies get installed, and the installation instructions do not contain harmful code.
 A lot of PKGBUILD files contain variables (e.g. program version) in download addresses; this makes them download always the latest source code (e.g. from Github) during installation. Some PKGBUILD files contain no variables: These PKGBUILD files need to be changed manually every time a new program version is released.
-This command updates both packages from your system repositor and AUR packages. Because of the "--devel" flag, development versions (i.e. all git, svn, and cvs-packages) from the AUR are updated as well.
+This command updates both packages from your system repository and AUR packages. Because of the "--devel" flag, development versions (i.e. all git, svn, and cvs-packages) from the AUR are updated as well.
 \e[1mAttention\e[0m: This might take a long time! Some AUR helpers pause by default after every 15min and ask again for your password.
 
 EOF
@@ -3019,4 +3156,3 @@ do
 # now, the infinite while-loop will start again from its top by clearing the terminal screen and redrawing the UI
 
 done                                                                                # close while-loop
-
