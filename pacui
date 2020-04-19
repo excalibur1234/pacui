@@ -2788,7 +2788,7 @@ do
     esac
 
 
-    # print error message when more than 1 argument is recognized as a argument calling a pacui function
+    # print error message when more than 1 argument is recognized as an argument calling a pacui function
     if [[ -n "$function_call_previous" && "$function_call_previous" != "$function_call" ]]
     then
 
