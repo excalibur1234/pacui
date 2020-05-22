@@ -2939,14 +2939,14 @@ do
     echo -e " \e[1m|\e[0m    \e[7m 5 \e[0m Dependency \e[1mT\e[0mree         \e[7m 6 \e[0m Reverse Depe\e[1mn\e[0mdency Tree     \e[1m|\e[0m"
     echo -e " \e[1m|\e[0m    \e[7m 7 \e[0m \e[1mL\e[0mist Package Files      \e[7m 8 \e[0m \e[1mS\e[0mearch Package Files        \e[1m|\e[0m"
     echo -e " \e[1m+----------------------------------------------------------------+\e[0m"
-    echo -e "      \e[7m 9 \e[0m Roll \e[1mB\e[0mack System        \e[31m\e[7m z \e[0m \e[31m\e[1mF\e[0;31mix Pacman Errors\e[0m "
-    echo -e "      \e[7m y \e[0m Edit \e[1mC\e[0monfig Files       \e[7m x \e[0m List \e[1mP\e[0mackages by Size "
+    echo -e "      \e[7m 9 \e[0m Roll \e[1mB\e[0mack System        \e[31m\e[7m Z \e[0m \e[31m\e[1mF\e[0;31mix Pacman Errors\e[0m "
+    echo -e "      \e[7m Y \e[0m Edit \e[1mC\e[0monfig Files       \e[7m X \e[0m List \e[1mP\e[0mackages by Size "
     echo -e " \e[1m+----------------------------------------------------------------+\e[0m"
-    [[ -n "$AUR_Helper" ]] && echo -e " \e[1m|\e[0m    \e[7m w \e[0m F\e[1mo\e[0mrce Update AUR        \e[7m v \e[0m List Install\e[1me\e[0md from AUR     \e[1m|\e[0m"
-    [[ -z "$AUR_Helper" ]] && echo -e " \e[1m|\e[0m                                 \e[7m v \e[0m List Install\e[1me\e[0md from AUR     \e[1m|\e[0m"
+    [[ -n "$AUR_Helper" ]] && echo -e " \e[1m|\e[0m    \e[7m W \e[0m F\e[1mo\e[0mrce Update AUR        \e[7m V \e[0m List Install\e[1me\e[0md from AUR     \e[1m|\e[0m"
+    [[ -z "$AUR_Helper" ]] && echo -e " \e[1m|\e[0m                                 \e[7m V \e[0m List Install\e[1me\e[0md from AUR     \e[1m|\e[0m"
     echo -e " \e[1m+----------------------------------------------------------------+\e[0m"
     echo
-    echo -e "  Press number or marked letter            \e[7m h \e[0m \e[1mH\e[0melp       \e[7m 0 \e[0m \e[1mQ\e[0muit "
+    echo -e "  Press number or marked letter            \e[7m H \e[0m \e[1mH\e[0melp       \e[7m 0 \e[0m \e[1mQ\e[0muit "
 
 
     # save entered numbers/letters in variable "choice"
