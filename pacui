@@ -374,7 +374,7 @@ function func_m
 
         echo " checking systemctl ..."
         # "LC_ALL=C" forces the output to use english language. this is important, if the output is queried.
-        if [[ "$( LC_ALL=C systemctl --failed |  awk 'NR==1 {print $1}' )" == "UNIT" ]]
+        if [[ "$( LC_ALL=C systemctl is-system-running )" != "running" ]]
         then
             echo -e " \e[41m The following systemd service(s) have failed. Please fix them manually. \e[0m"
             echo -e " \e[1m Display detailed information about a systemd service with: systemctl status <SYSTEMD SERVICE NAME> \e[0m"
