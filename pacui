@@ -105,9 +105,8 @@ function pacui_tty_clean
 function func_u
 {
         # define local variable, which indicates whether the installation process was successful or not.
-        local {install_successful,connection_error}
+        local install_successful
         install_successful=false
-        connection_error=false
 
         if [[ "$AUR_Helper" == "yay" ]]                                             # check, if $AUR_Helper variable is set to "yay". ATTENTION: sometimes, this requires   [[ "$AUR_Helper" == "yay" ]]   and sometimes   test '$AUR_Helper' = "yay"  . i do not know why this is the case.
         then
@@ -202,42 +201,26 @@ function func_u
             # extract mirror/repository server url from /etc/pacman.d/mirrorlist file with command:
             server="$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" |awk -F '=' '{print $2}' | awk -F '$' '{print $1}' )"
 
-            # if one of the above update commands has failed, there are multiple points of failure. the first one is the internet/repository/mirror connection of the user:
-            # check, whether there is a connection to the mirror/repository server. this is needed for package download/update!
-            if ( curl --silent --fail  $(echo "$server") &>/dev/null )                      # the "curl --silent --fail" command gets executed in any case in order to check its output.
+            # if one of the above update commands has failed, there are multiple points of failure.
+            # first, we can force the update, but only for packages from the system repositories and not packages from the AUR. this means, we make sure package updates from system repositories fail:
+            if ! ( sudo pacman -Syu --color always )                            # the "sudo pacman -Syu --color always" command gets executed in any case in order to check its output.
             then
 
-                # next, we can force the update, but only for packages from the system repositories and not packages from the AUR. this means, we make sure package updates from system repositories fail:
-                if ! ( sudo pacman -Syu --color always )                            # the "sudo pacman -Syu --color always" command gets executed in any case in order to check its output.
-                then
+                # now, we are sure there is an active connection to the server/mirror/repository and package updates from there have failed. in this case, we can offer the user to forcefully install updates:
+                local answer
+                # ask, whether to force update the system and save answer in "answer" variable:
+                echo -e " \e[1m Updates from system repositories have failed probably because of file conflicts. \e[0m"
+                echo -e " \e[41m Do you want to forcefully overwrite all conflicting files? [y|N] \e[0m"
+                read -r -n 1 -e answer                                          # this "read" command only accepts 1 letter as answer. this feels faster and is enough in this situation.
 
-                    # now, we are sure there is an active connection to the server/mirror/repository and package updates from there have failed. in this case, we can offer the user to forcefully install updates:
-                    local answer
-                    # ask, whether to force update the system and save answer in "answer" variable:
-                    echo -e " \e[1m Updates from system repositories have failed probably because of file conflicts. \e[0m"
-                    echo -e " \e[41m Do you want to forcefully overwrite all conflicting files? [y|N] \e[0m"
-                    read -r -n 1 -e answer                                          # this "read" command only accepts 1 letter as answer. this feels faster and is enough in this situation.
-
-                    case ${answer:-n} in                                            # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "n".
-                        y|Y|yes|Yes|YES )                                           # do this, if "answer" is y or Y or yes or Yes or YES
-                            sudo pacman -Syu --color always --overwrite A-Z,a-z,0-9,-,.,_
-                            ;;
-                        * )                                                         # do this in all other cases
-                            echo -e " \e[1m Packages have not been updated.\e[0m"
-                            ;;
-                    esac
-
-                fi
-
-            else
-
-                # print error message, if there is no connection to a mirror/repository server and quit
-                echo
-                echo -e " \e[41m Either there is something wrong with your internet connection or with your mirror/repository server: $server \e[0m"        # writing the $server variables in quotes (" or ') does not work! using ' for echo command does not work either!
-                echo -e " \e[1;41m Please make sure both are ok and rerun this part of PacUI! \e[0m"
-                echo
-
-                connection_error=true
+                case ${answer:-n} in                                            # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "n".
+                    y|Y|yes|Yes|YES )                                           # do this, if "answer" is y or Y or yes or Yes or YES
+                        sudo pacman -Syu --color always --overwrite A-Z,a-z,0-9,-,.,_
+                        ;;
+                    * )                                                         # do this in all other cases
+                        echo -e " \e[1m Packages have not been updated.\e[0m"
+                        ;;
+                esac
 
             fi
 
@@ -245,7 +228,7 @@ function func_u
 
 
         # do updates of installed snap packages
-        if [[ "$connection_error" == "false" ]] && [[ -f /usr/bin/snap ]]
+        if [[ -f /usr/bin/snap ]]
         then
             echo " updating snap packages ..."
             sudo snap refresh
@@ -254,7 +237,7 @@ function func_u
 
 
         # do updates of installed flatpak packages
-        if [[ "$connection_error" == "false" ]] && [[ -f /usr/bin/flatpak ]]
+        if [[ -f /usr/bin/flatpak ]]
         then
             echo " updating flatpak packages ..."
             flatpak update -y
@@ -1071,20 +1054,9 @@ function func_l
 
             else
 
-                local server
-                # extract mirror/repository server url from /etc/pacman.d/mirrorlist file with command:
-                server="$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" | awk -F '=' '{print $2}' | awk -F '$' '{print $1}' )"
-
-                echo
-                echo " searching online repositories (which can take a while) ..."
-
-                # check, whether there is a connection to the mirror/repository server. this is needed for package download/update!
-                if ( curl --silent --fail $(echo "$server") &>/dev/null )                        # the "curl --silent --fail" command gets executed in any case in order to check its output.
-                then
-                    # update local package database. this needs a long time when internet connection is slow.
-                    # in some cases, the local database has to be initialized first with "sudo pacman -Fyy"
-                    sudo pacman -Fy
-                fi
+                # update local package database. this needs a long time when internet connection is slow.
+                # in some cases, the local database has to be initialized with "sudo pacman -Fyy" before "sudo pacman -Fy" actually works
+                sudo pacman -Fy
 
                 pacui_tty_clean                                                     # clear terminal
 
@@ -1128,13 +1100,13 @@ function func_s
         then
 
             # use as many local variables as possible. unfortunately, it is still necessary to use a couple of temporary files (i have done a lot of tests and this current form of 'pacui s' seems to be the fastest):
-            local {pacui_search_temp_local,pacui_search_temp_repo2,pacui_search_temp_only_in_repo2,server}
+            local {pacui_search_temp_local,pacui_search_temp_repo2,pacui_search_temp_only_in_repo2}
 
 
             echo -e "\n\e[1mLocal package files: \e[0m" > /tmp/pacui-search
 
             echo
-            echo " searching local repositories (which can take a while) ..."
+            echo " searching local repositories ..."
 
             # list all files of all installed local packages using "pacman -Ql --color always"
             # awk -v VAR="$file" '$NF ~ VAR' searches for $file (using regex) in the last field/column only. write resulting list to /tmp/pacui-search
@@ -1142,15 +1114,9 @@ function func_s
             # write a list of package names (which install files containing "$file" string) to variable $pacui_search_temp_local
             pacui_search_temp_local="$( pacman -Ql | awk -v VAR="$file" -F '/' '$NF ~ VAR' | awk -F '/' '{print $1}' | sort -u | tr -d ' ' )"
 
-            # extract mirror/repository server url from /etc/pacman.d/mirrorlist file with command:
-            server="$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" | awk -F '=' '{print $2}' | awk -F '$' '{print $1}' )"
-            # check, whether there is a connection to the mirror/repository server. this is needed for package download/update!
-            if ( curl --silent --fail $(echo "$server") &>/dev/null )                        # the "curl --silent --fail" command gets executed in any case in order to check its output.
-            then
-                # update local package database. this needs a long time when internet connection is slow.
-                # in some cases, the local database has to be initialized first with "sudo pacman -Fyy"
-                sudo pacman -Fy
-            fi
+            # update local package database. this needs a long time when internet connection is slow.
+            # in some cases, the local database has to be initialized with "sudo pacman -Fyy" before "sudo pacman -Fy" actually works
+            sudo pacman -Fy
 
             echo -e "\n\e[1mPackage files in system repositories: \e[0m" >> /tmp/pacui-search
             # search in system repositories with "pacman -Fsx" --> machine readable version of output is easier to read for awk!
