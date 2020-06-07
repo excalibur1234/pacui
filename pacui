@@ -2583,7 +2583,7 @@ function func_h
         echo -e "  pacui 3    - \e[1mI\e[0mnstall Packages"
         echo -e "  pacui 4    - \e[1mR\e[0memove Packages and Deps"
         echo -e "  pacui 5    - Dependency \e[1mT\e[0mree"
-        echo -e "  pacui 6    - Reverse Depe\e[1mn\e[0mdency Tree"
+        echo -e "  pacui 6    - R\e[1me\e[0mverse Dependency Tree"
         echo -e "  pacui 7    - \e[1mL\e[0mist Package Files"
         echo -e "  pacui 8    - \e[1mS\e[0mearch Package Files"
         echo
@@ -2593,7 +2593,7 @@ function func_h
         echo -e "  pacui x    - List \e[1mP\e[0mackages by Size"
         echo
         [[ -n "$AUR_Helper" ]]      && echo -e "  pacui w    - F\e[1mo\e[0mrce Update AUR"
-        echo -e "  pacui v    - List Install\e[1me\e[0md from AUR"
+        echo -e "  pacui v    - List I\e[1mn\e[0mstalled from AUR"
         [[ -n "$AUR_Helper" ]]      && echo
         [[ -f /usr/bin/downgrade ]] && echo -e "  pacui d    - \e[1mD\e[0mowngrade Packages"
         [[ -n "$AUR_Helper" ]]      && echo -e "  pacui a    - Search (and Install) from \e[1mA\e[0mUR"
@@ -2725,7 +2725,7 @@ do
             function_call="t"
             shift
             ;;
-        6|n|rt|reversetree|reverse-dependency-tree )
+        6|e|rt|reversetree|reverse-dependency-tree )
             function_call="rt"
             shift
             ;;
@@ -2757,7 +2757,7 @@ do
             function_call="ua"
             shift
             ;;
-        14|v|e|la|listaur|list-installed-from-aur )
+        14|v|n|la|listaur|list-installed-from-aur )
             function_call="la"
             shift
             ;;
@@ -2902,14 +2902,14 @@ do
     echo -e " \e[1m|\e[0m    \e[7m 1 \e[0m \e[1mU\e[0mpdate System           \e[7m 2 \e[0m \e[1mM\e[0maintain System             \e[1m|\e[0m"
     echo -e " \e[1m|\e[0m    \e[7m 3 \e[0m \e[1mI\e[0mnstall Packages        \e[7m 4 \e[0m \e[1mR\e[0memove Packages and Deps    \e[1m|\e[0m"
     echo -e " \e[1m|\e[0m----------------------------------------------------------------\e[1m|\e[0m"
-    echo -e " \e[1m|\e[0m    \e[7m 5 \e[0m Dependency \e[1mT\e[0mree         \e[7m 6 \e[0m Reverse Depe\e[1mn\e[0mdency Tree     \e[1m|\e[0m"
+    echo -e " \e[1m|\e[0m    \e[7m 5 \e[0m Dependency \e[1mT\e[0mree         \e[7m 6 \e[0m R\e[1me\e[0mverse Dependency Tree     \e[1m|\e[0m"
     echo -e " \e[1m|\e[0m    \e[7m 7 \e[0m \e[1mL\e[0mist Package Files      \e[7m 8 \e[0m \e[1mS\e[0mearch Package Files        \e[1m|\e[0m"
     echo -e " \e[1m+----------------------------------------------------------------+\e[0m"
     echo -e "      \e[7m 9 \e[0m Roll \e[1mB\e[0mack System        \e[31m\e[7m Z \e[0m \e[31m\e[1mF\e[0;31mix Pacman Errors\e[0m "
     echo -e "      \e[7m Y \e[0m Edit \e[1mC\e[0monfig Files       \e[7m X \e[0m List \e[1mP\e[0mackages by Size "
     echo -e " \e[1m+----------------------------------------------------------------+\e[0m"
-    [[ -n "$AUR_Helper" ]] && echo -e " \e[1m|\e[0m    \e[7m W \e[0m F\e[1mo\e[0mrce Update AUR        \e[7m V \e[0m List Install\e[1me\e[0md from AUR     \e[1m|\e[0m"
-    [[ -z "$AUR_Helper" ]] && echo -e " \e[1m|\e[0m                                 \e[7m V \e[0m List Install\e[1me\e[0md from AUR     \e[1m|\e[0m"
+    [[ -n "$AUR_Helper" ]] && echo -e " \e[1m|\e[0m    \e[7m W \e[0m F\e[1mo\e[0mrce Update AUR        \e[7m V \e[0m List I\e[1mn\e[0mstalled from AUR     \e[1m|\e[0m"
+    [[ -z "$AUR_Helper" ]] && echo -e " \e[1m|\e[0m                                 \e[7m V \e[0m List I\e[1mn\e[0mstalled from AUR     \e[1m|\e[0m"
     echo -e " \e[1m+----------------------------------------------------------------+\e[0m"
     echo
     echo -e "  Press number or marked letter            \e[7m H \e[0m \e[1mH\e[0melp       \e[7m 0 \e[0m \e[1mQ\e[0muit "
@@ -2950,7 +2950,7 @@ do
             func_t
             echo
             ;;
-        6|n|N )
+        6|e|E )
             func_rt
             echo
             ;;
@@ -2994,7 +2994,7 @@ do
             echo -e " \e[41m All AUR packages updated and reinstalled. To return to PacUI press ENTER \e[0m"
             read -r
             ;;
-        v|V|e|E )
+        v|V|n|N )
             func_la
             echo
             ;;
