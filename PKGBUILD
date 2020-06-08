@@ -13,16 +13,18 @@ depends=('pacman-contrib' 'expac' 'sudo' 'fzf')
 
 
 conflicts=("$pkgname-git")
-optdepends=('yay: One AUR helper is needed for AUR support.'
-            'pikaur: One AUR helper is needed for AUR support.'
-            'aurman: One AUR helper is needed for AUR support.'
-            'pakku: One AUR helper is needed for AUR support.'
-            'trizen: One AUR helper is needed for AUR support.'
-            'pacaur: One AUR helper is needed for AUR support.'
-            'pamac-cli: One AUR helper is needed for AUR support.'
+optdepends=('yay: One AUR helper is needed for AUR support'
+            'pikaur: One AUR helper is needed for AUR support'
+            'aurman: One AUR helper is needed for AUR support'
+            'pakku: One AUR helper is needed for AUR support'
+            'trizen: One AUR helper is needed for AUR support'
+            'pacaur: One AUR helper is needed for AUR support'
+            'pamac-cli: One AUR helper is needed for AUR support'
             'pacman-mirrors: Needed for Manjaro mirror support'
             'reflector: Needed for Arch Linux mirror support'
-            'downgrade: Needed for hidden "downgrade" option.')
+            'flatpak: Needed for Flatpak update support'
+            'snapd: Needed for for Snap update support'
+            'downgrade: Needed for hidden "downgrade" option')
 source=("$url/archive/$pkgver.tar.gz")
 md5sums=('39b177c3ef15601e55b929af10eeaf77')
 
