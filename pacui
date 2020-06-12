@@ -215,7 +215,7 @@ function func_u
 
                 case ${answer:-n} in                                            # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "n".
                     y|Y|yes|Yes|YES )                                           # do this, if "answer" is y or Y or yes or Yes or YES
-                        sudo pacman -Syu --color always --overwrite A-Z,a-z,0-9,-,.,_
+                        sudo pacman -Syu --color always --overwrite='*'
                         ;;
                     * )                                                         # do this in all other cases
                         echo -e " \e[1m Packages have not been updated.\e[0m"
@@ -2291,7 +2291,7 @@ This will quit PacUI and clear your terminal. Scroll up to see all terminal outp
 \e[36m"flatpak update -y" \e[0m(only if flatpak is installed)
 The first command compares a list of all installed packages with package database on your system repository mirror/server. If an updated package is available from your system repositories, it will get downloaded and installed on your system.
 Afterwards, all packages from the Arch User Repository (AUR), which have an updated PKGBUILD file, are downloaded, compiled, and installed.
-If updates from system repositories fail, the user is offered the choice to update packages using \e[36m"sudo pacman -Syu --overwrite A-Z,a-z,0-9,-,.,_"\e[0m.
+If updates from system repositories fail, the user is offered the choice to update packages using \e[36m"sudo pacman -Syu --overwrite='*'"\e[0m.
 \e[1mAttention\e[0m: When a new version of an AUR package is available, sometimes the PKGBUILD file is not updated. If you want to install the latest version of a single AUR package, (re-)install it with INSTALL PACKAGES. If you want to install the latest versions of ALL AUR packages use FORCE UPDATE AUR.
 
 
