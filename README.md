@@ -112,9 +112,9 @@ pacui i cantata
 ```
 Instead of a list of all available packages, a much shorter already filtered list is displayed. Simply select the "cantata" package you want to install and press ENTER in order to install it.
 
-If an argument contains special characters, it has to be quoted. For example when using regular expressions in order to search package file names starting with "zsh":
+If an argument contains special characters, it has to be passed on as string. This can be achieved differently depending on the used shell. For example when using regular expressions in zsh in order to search package file names starting with string "archlinux-":
 ```
-pacui s "^zsh"
+pacui s '^archlinux-'
 ```
 
 ### Start PacUI without UI: Passing Arguments to AUR helper or Pacman
