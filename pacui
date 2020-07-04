@@ -553,7 +553,6 @@ function func_i
             #if  [[ ! -f /tmp/pacui-aur/packages.gz ]]
             if  [[ ! -f /tmp/pacui-aur/packages ]]
             then
-                echo
                 echo " downloading list of AUR packages (which can take a while) ..."
 
                 #wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null
@@ -1105,7 +1104,6 @@ function func_s
 
             echo -e "\n\e[1mLocal package files: \e[0m" > /tmp/pacui-search
 
-            echo
             echo " searching local repositories ..."
 
             # list all files of all installed local packages using "pacman -Ql --color always"
