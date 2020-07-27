@@ -1,9 +1,9 @@
 
 # PacUI
 
-PacUI provides useful and advanced Pacman and Yay/Pikaur/Aurman/Pakku/Trizen/Pacaur/Pamac-cli commands in a convenient and easy to use text interface.
+PacUI provides useful and advanced Pacman and bauerbill/Yay/Pikaur/Aurman/Pakku/Trizen/Pacaur/Pamac-cli commands in a convenient and easy to use text interface.
 
-PacUI is aimed at experienced/intermediate/advanced users of Arch Linux (and Arch-based distributions, including Manjaro), who have at least basic knowledge of their Linux system, Pacman and [Yay](https://github.com/Jguer/yay)/[Pikaur](https://github.com/actionless/pikaur)/[Aurman](https://github.com/polygamma/aurman)/[Pakku](https://github.com/kitsunyan/pakku)/[Trizen](https://github.com/trizen/trizen)/[Pacaur](https://github.com/rmarquis/pacaur)/[Pamac-cli](https://aur.archlinux.org/packages/pamac-cli/). Absolute beginners are probably overwhelmed by the choices PacUI offers.
+PacUI is aimed at experienced/intermediate/advanced users of Arch Linux (and Arch-based distributions, including Manjaro), who have at least basic knowledge of their Linux system, Pacman and [bauerbill](https://xyne.archlinux.ca/projects/bauerbill/)/[Yay](https://github.com/Jguer/yay)/[Pikaur](https://github.com/actionless/pikaur)/[Aurman](https://github.com/polygamma/aurman)/[Pakku](https://github.com/kitsunyan/pakku)/[Trizen](https://github.com/trizen/trizen)/[Pacaur](https://github.com/rmarquis/pacaur)/[Pamac-cli](https://aur.archlinux.org/packages/pamac-cli/). Absolute beginners are probably overwhelmed by the choices PacUI offers.
 
 This fork of an [older version of pacli](https://github.com/Manjaro-Pek/pacli/tree/f98e9226eb75ea00217481f436399328fe73d3ae) called PacUI follows the KISS principle: The whole script is contained within one file, which consists of easy to read bash code with many helpful comments. PacUI offers many more features over pacli in order to enhance comfort and speed of CLI based package management.
 
@@ -127,7 +127,7 @@ Examples:
 
 
 ### Multiple installed AUR helpers
-Please note that PacUI optionally requires at least one of these AUR helpers to enable use of the AUR.: [Yay](https://github.com/Jguer/yay), [Pikaur](https://github.com/actionless/pikaur), [Aurman](https://github.com/polygamma/aurman), [Pakku](https://github.com/kitsunyan/pakku), [Trizen](https://github.com/trizen/trizen), [Pacaur](https://github.com/rmarquis/pacaur), or [Pamac-cli](https://aur.archlinux.org/packages/pamac-cli/).
+Please note that PacUI optionally requires at least one of these AUR helpers to enable use of the AUR.: [bauerbill](https://xyne.archlinux.ca/projects/bauerbill/), [Yay](https://github.com/Jguer/yay), [Pikaur](https://github.com/actionless/pikaur), [Aurman](https://github.com/polygamma/aurman), [Pakku](https://github.com/kitsunyan/pakku), [Trizen](https://github.com/trizen/trizen), [Pacaur](https://github.com/rmarquis/pacaur), or [Pamac-cli](https://aur.archlinux.org/packages/pamac-cli/).
 
 If more than one AUR helper is installed, they are automatically used in the same order as listed above (i.e. Aurman is used with priority while Pacaur is only used as a last resort). A specific AUR helper can be set with the `PACUI_AUR_HELPER` environment variable.
 
