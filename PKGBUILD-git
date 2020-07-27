@@ -1,10 +1,11 @@
 # Maintainer: Stefano Capitani <stefanoatmanjarodotorg>
 # Maintainer: excalibur1234 @forum.manjaro.org
+# Contributor: timescam <rex.ky.ng at gmail dot com>
 
 _pkgname=pacui
 pkgname=$_pkgname-git
 pkgver=r1024.90efdc4
-pkgrel=1
+pkgrel=2
 pkgdesc="Bash script providing advanced Pacman and Yay/Pikaur/Aurman/Pakku/Trizen/Pacaur functionality in a simple UI"
 arch=(any)
 url="https://github.com/excalibur1234/$_pkgname"
@@ -13,7 +14,8 @@ depends=('pacman-contrib' 'expac' 'sudo' 'fzf')
 makedepends=('git')
 provides=("$_pkgname")
 conflicts=("$_pkgname")
-optdepends=('yay: One AUR helper is needed for AUR support'
+optdepends=('bauerbill: One AUR helper is needed for AUR support'
+            'yay: One AUR helper is needed for AUR support'
             'pikaur: One AUR helper is needed for AUR support'
             'aurman: One AUR helper is needed for AUR support'
             'pakku: One AUR helper is needed for AUR support'
