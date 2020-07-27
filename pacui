@@ -50,7 +50,11 @@ AUR_Helper="$PACUI_AUR_HELPER"                                                  
 if [[ -z "$AUR_Helper" ]]                                                           # check, if AUR_Helper variable is empty. more precise: check, if output of "$AUR_Helper" is zero
 then
 
-    if [[ -f /usr/bin/yay ]]                                                        # check, if /usr/bin/yay file exists (i.e. yay is installed)
+    if [[ -f /usr/bin/bb-wrapper ]]                                                   # check, if /usr/bin/bb-wrapper file exists (i.e. bauerbill is installed)
+    then
+        AUR_Helper="bauerbill"
+
+    elif [[ -f /usr/bin/yay ]]
     then
         AUR_Helper="yay"
 
@@ -108,7 +112,18 @@ function func_u
         local install_successful
         install_successful=false
 
-        if [[ "$AUR_Helper" == "yay" ]]                                             # check, if $AUR_Helper variable is set to "yay". ATTENTION: sometimes, this requires   [[ "$AUR_Helper" == "yay" ]]   and sometimes   test '$AUR_Helper' = "yay"  . i do not know why this is the case.
+        if [[ "$AUR_Helper" == "bauerbill" ]]                                         # check, if $AUR_Helper variable is set to "bauerbill". ATTENTION: sometimes, this requires   [[ "$AUR_Helper" == "bauerbill" ]]   and sometimes   test '$AUR_Helper' = "bauerbill"  . i do not know why this is the case.
+        then
+
+            # execute "bb-wrapper --aur -Syu" command:
+            if ( bb-wrapper --aur "$argument_flag"-Syu )                            # execute command "bb-wrapper --aur -Syu". if this command fails "false" is returned and the result is: "if ( false )"
+            then
+                # only set $install_successful=true, if the command "bb-wrapper -Syu" was executed without errors
+                install_successful=true
+            else
+                install_successful=false
+            fi
+        elif [[ "$AUR_Helper" == "yay" ]]                                             # check, if $AUR_Helper variable is set to "yay". ATTENTION: sometimes, this requires   [[ "$AUR_Helper" == "yay" ]]   and sometimes   test '$AUR_Helper' = "yay"  . i do not know why this is the case.
         then
 
             # execute "yay -Syu" command:
@@ -623,7 +638,11 @@ function func_i
                             then
                                 echo -e "\e[1mAUR package info: \e[0m"
 
-                                if test '$AUR_Helper' = "yay"
+                                if test '$AUR_Helper' = "bauerbill"
+                                then
+                                    bauerbill -Si {1}
+                                
+                                elif test '$AUR_Helper' = "yay"
                                 then
                                     yay -Si {1} | grep -v "::"                      # grep command removes all errors displayed by yay
 
@@ -680,7 +699,11 @@ function func_i
         if [[ -n "$pkg" ]]
         then
 
-            if [[ "$AUR_Helper" == "yay" ]]
+            if [[ "$AUR_Helper" == "bauerbill" ]]
+            then
+                bb-wrapper --aur "$argument_flag"-S $pkg                            # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
+
+            elif [[ "$AUR_Helper" == "yay" ]]
             then
                 yay "$argument_flag"-S $pkg                                         # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
 
@@ -1984,7 +2007,11 @@ function func_ls
 # this function provides core functionality of "Force Update AUR". the help page provides additional explanations.
 function func_ua
 {
-        if [[ "$AUR_Helper" == "yay" ]]
+        if [[ "$AUR_Helper" == "bauerbill" ]]
+        then
+            bb-wrapper --aur "$argument_flag"-Syu
+
+        elif [[ "$AUR_Helper" == "yay" ]]
         then
             yay "$argument_flag"-Syu --devel --needed
 
@@ -2014,6 +2041,7 @@ function func_ua
 
         else
             echo -e " \e[41m No AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
+            echo -e " \e[1m  bauerbill \e[0m"
             echo -e " \e[1m  yay \e[0m"
             echo -e " \e[1m  pikaur \e[0m"
             echo -e " \e[1m  aurman \e[0m"
@@ -2054,7 +2082,11 @@ function func_la
             then
                 echo -e "\e[1mAUR package info: \e[0m"
 
-                if test '$AUR_Helper' = "yay"
+                if test '$AUR_Helper' = "bauerbill"
+                then
+                    bauerbill -Si {1}
+
+                elif test '$AUR_Helper' = "yay"
                 then
                     yay -Si {1} | grep -v "::"                                      # grep command removes all errors displayed by yay
 
@@ -2157,7 +2189,11 @@ function func_a
         then
             # do this if variable "$argument_input" is not empty:
 
-            if [[ "$AUR_Helper" == "yay" ]]
+            if [[ "$AUR_Helper" == "bauerbill" ]]
+            then
+                bauerbill -Ss "$argument_input"
+
+            elif [[ "$AUR_Helper" == "yay" ]]
             then
                 yay "$argument_input"
 
@@ -2187,6 +2223,7 @@ function func_a
 
             else
                 echo -e " \e[41m No AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
+                echo -e " \e[1m  bauerbill \e[0m"
                 echo -e " \e[1m  yay \e[0m"
                 echo -e " \e[1m  pikaur \e[0m"
                 echo -e " \e[1m  aurman \e[0m"
@@ -2203,7 +2240,11 @@ function func_a
             echo -e " \e[41m Enter (parts of) name and/or description of package to be searched. Then press ENTER. \e[0m"
             read -r pkg
 
-            if [[ "$AUR_Helper" == "yay" ]]
+            if [[ "$AUR_Helper" == "bauerbill" ]]
+            then
+                bauerbill -Ss "$pkg"
+                
+            elif [[ "$AUR_Helper" == "yay" ]]
             then
                 yay "$pkg"
 
@@ -2233,6 +2274,7 @@ function func_a
 
             else
                 echo -e " \e[41m No AUR helper has been found. Please install at least one supported AUR helper manually: \e[0m"
+                echo -e " \e[1m  bauerbill \e[0m"
                 echo -e " \e[1m  yay \e[0m"
                 echo -e " \e[1m  pikaur \e[0m"
                 echo -e " \e[1m  aurman \e[0m"
