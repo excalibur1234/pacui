@@ -2009,7 +2009,7 @@ function func_ua
 {
         if [[ "$AUR_Helper" == "bauerbill" ]]
         then
-            bb-wrapper --aur "$argument_flag"-Syu
+            bb-wrapper --aur "$argument_flag" --build-vcs -Syu
 
         elif [[ "$AUR_Helper" == "yay" ]]
         then
