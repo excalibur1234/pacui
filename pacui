@@ -2705,7 +2705,7 @@ do
 
         1|u|update|update-system)                                                   # the following commands will get executed if $key is "1" or "u" or "update" until a code line containing only ";;" is encountered
             function_call="u"
-            shift                                                                   # shift to next argument (which is currently known as '$2'), and make it first argument ( referred to as '$1'). this command throws away the current argument, because we have done everything with it we wanted to do and it is no longer needed.
+            shift                                                                   # shift to next argument (which is currently known as '$2'), and make it first argument ( i.e. referred to as '$1'). this command throws away the current argument, because we have done everything with it we wanted to do and it is no longer needed.
             ;;
         2|m|maintain|maintain-system )
             function_call="m"
