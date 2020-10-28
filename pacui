@@ -110,9 +110,8 @@ function func_u
 
         if [[ "$AUR_Helper" == "yay" ]]                                             # check, if $AUR_Helper variable is set to "yay". ATTENTION: sometimes, this requires   [[ "$AUR_Helper" == "yay" ]]   and sometimes   test '$AUR_Helper' = "yay"  . i do not know why this is the case.
         then
-
             # execute "yay -Syu" command:
-            if ( yay "$argument_flag"-Syu )                                         # execute command "yay -Syu". if this command fails "false" is returned and the result is: "if ( false )"
+            if ( yay $argument_flag-Syu )                                         # execute command "yay -Syu". if this command fails "false" is returned and the result is: "if ( false )"
             then
                 # only set $install_successful=true, if the command "yay -Syu" was executed without errors
                 install_successful=true
@@ -682,7 +681,7 @@ function func_i
 
             if [[ "$AUR_Helper" == "yay" ]]
             then
-                yay "$argument_flag"-S $pkg                                         # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
+                yay $argument_flag-S $pkg                                         # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
 
             elif [[ "$AUR_Helper" == "pikaur" ]]
             then
@@ -1986,7 +1985,7 @@ function func_ua
 {
         if [[ "$AUR_Helper" == "yay" ]]
         then
-            yay "$argument_flag"-Syu --devel --needed
+            yay $argument_flag-Syu --devel --needed
 
         elif [[ "$AUR_Helper" == "pikaur" ]]
         then
