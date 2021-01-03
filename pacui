@@ -478,11 +478,7 @@ function func_m
 
         local installed_kernels                                                     # declare local variable
         # filter installed kernels from boot sector and determine, which package owns that file. this yields the package name of all installed kernels (including kernels from the AUR):
-        installed_kernels="$(
-            for p in $( command ls -1 /boot | grep -E '^vmlinuz' )                  # ATTENTION: using quotes (" symbols) around $(...) breaks for-loop
-            do
-                echo linux$( echo $p | cut -d"-" -f2 | tr -d ".")
-            done | sort -u )"
+        installed_kernels="$( pacman -Qq | grep -E '^linux$|^linux-lts$|^linux-zen$|^linux-hardened$|^linux[0-9]*$' | sort -u )"    # search for one of the following (hardcoded) package names of the linux kernel within arch linux (linux, linux-lts, linux-zen, or linux-hardened) or manjaro (linuxXY).
         # check, whether any installed kernels have been found  (in ARCH linux, no kernels are found, but this is ok, because kernels are not EOLd as in Manjaro)
         if [[ -n "$installed_kernels" ]]
         then
