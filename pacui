@@ -45,7 +45,6 @@ AUR_Helper="$PACUI_AUR_HELPER"                                                  
 
 #set -u
 
-echo "$AUR_Helper $PACUI_AUR_HELPER"
 
 # if $PACUI_AUR_HELPER environment variable is not set, the installed AUR helpers are detected and one is chosen automatically:
 if [[ -z "$AUR_Helper" ]]                                                           # check, if AUR_Helper variable is empty. more precise: check, if output of "$AUR_Helper" is zero
@@ -232,7 +231,7 @@ function func_u
 
                 case ${answer:-n} in                                            # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "n".
                     y|Y|yes|Yes|YES )                                           # do this, if "answer" is y or Y or yes or Yes or YES
-                        sudo pacman -Syu --color always --overwrite='*' 
+                        sudo pacman -Syu --color always --overwrite='*'
                         ;;
                     * )                                                         # do this in all other cases
                         echo -e " \e[1m Packages have not been updated.\e[0m"
@@ -330,7 +329,7 @@ function func_m
             elif [[ -f /usr/bin/reflector ]]                                        # checks, whether file "reflector" exists
             then
 
-                if ( sudo reflector --verbose --protocol https,ftps --age 5 --sort rate --save /etc/pacman.d/mirrorlist )             # If it does exists, then the mirror will sort by it
+                if ( sudo reflector --verbose --protocol https,ftps --age 5 --sort rate --save /etc/pacman.d/mirrorlist )            # If it does exists, then the mirror will sort by it
                 then
                     sleep 10 && sudo pacman -Syyuu
                     connection_error=false
@@ -498,8 +497,8 @@ function func_m
 
         local installed_kernels                                                     # declare local variable
         # filter installed kernels from boot sector and determine, which package owns that file. this yields the package name of all installed kernels (including kernels from the AUR):
-         installed_kernels="$( pacman -Qq | grep -E '^linux$|^linux-lts$|^linux-zen$|^linux-hardened$|^linux[0-9]*$' | sort -u )"    # search for one of the following (hardcoded) package names of the linux kernel within arch linux (linux, linux-lts, linux-zen, or linux-hardened) or manjaro (linuxXY).
-	# check, whether any installed kernels have been found  (in ARCH linux, no kernels are found, but this is ok, because kernels are not EOLd as in Manjaro)
+        installed_kernels="$( pacman -Qq | grep -E '^linux$|^linux-lts$|^linux-zen$|^linux-hardened$|^linux[0-9]*$' | sort -u )"    # search for one of the following (hardcoded) package names of the linux kernel within arch linux (linux, linux-lts, linux-zen, or linux-hardened) or manjaro (linuxXY).
+        # check, whether any installed kernels have been found  (in ARCH linux, no kernels are found, but this is ok, because kernels are not EOLd as in Manjaro)
         if [[ -n "$installed_kernels" ]]
         then
             echo " checking installed kernel(s) ..."
@@ -2359,7 +2358,7 @@ It is strongly recommended to view and compare both files by choosing "v" before
 If you keep the original config file, the new program version could not recognize the old syntax in the original config file anymore. In the worst case, your program could break or stop working. If you remove the original file and use the new file without any changes, all your configuration settings might be reset to the default values. This can result in changed system behavior, including missing passwords or even sudo capability.
 In most cases, the syntax does not change and you can simply remove the .pacnew file. However, if you notice a syntax change, it is highly recommended to solve this conflict in another way (e.g. by manually editing one of those files and deleting the other).
 \e[1mAttention\e[0m: This command requires a default file difference viewer by setting the environment variable DIFFPROG. for example by adding "DIFFPROG=meld" to your /etc/environment file. If this variable is not set, a minimal default is provided by PacUI based on "diff".
-\e[1mAttention\e[0m: In severe and rare cases, removing your old config file (and using the new .pacnew config file) OR keeping your old config file (and deleting the .pacnew config file) can result in a broken system. PLEASE BE CAUTIOUS WHEN USING THIS COMMAND!
+\e[1mAttention\e[0m: In severe cases, removing your old config file (and using the new .pacnew config file) OR keeping your old config file (and deleting the .pacnew config file) can result in a broken system. PLEASE BE CAUTIOUS WHEN USING THIS COMMAND!
 
 \e[36m"systemctl list-units --state=failed"
 This command checks for systemd units in a failed state. It is possible the systemd service will no longer be failed after a reboot. But if a systemd service still fails after a reboot, you should manually fix the problem. Start by using the command "systemctl status <SYSTEMD UNIT NAME>".
@@ -2746,7 +2745,7 @@ do
         1|u|update|update-system)                                                   # the following commands will get executed if $key is "1" or "u" or "update" until a code line containing only ";;" is encountered
             function_call="u"
             shift                                                                   # shift to next argument (which is currently known as '$2'), and make it first argument ( i.e. referred to as '$1'). this command throws away the current argument, because we have done everything with it we wanted to do and it is no longer needed.
-	    ;;
+            ;;
         2|m|maintain|maintain-system )
             function_call="m"
             shift
