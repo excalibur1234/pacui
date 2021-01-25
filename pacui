@@ -232,7 +232,7 @@ function func_u
 
                 case ${answer:-n} in                                            # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "n".
                     y|Y|yes|Yes|YES )                                           # do this, if "answer" is y or Y or yes or Yes or YES
-                        sudo pacman -Syu --color always --overwrite A-Z,a-z,0-9,-,.,_
+                        sudo pacman -Syu --color always --overwrite='*' 
                         ;;
                     * )                                                         # do this in all other cases
                         echo -e " \e[1m Packages have not been updated.\e[0m"
@@ -330,7 +330,7 @@ function func_m
             elif [[ -f /usr/bin/reflector ]]                                        # checks, whether file "reflector" exists
             then
 
-                if ( sudo reflector --verbose --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist )            # If it does exists, then the mirror will sort by it
+                if ( sudo reflector --verbose --protocol https,ftps --age 5 --sort rate --save /etc/pacman.d/mirrorlist )             # If it does exists, then the mirror will sort by it
                 then
                     sleep 10 && sudo pacman -Syyuu
                     connection_error=false
@@ -498,12 +498,8 @@ function func_m
 
         local installed_kernels                                                     # declare local variable
         # filter installed kernels from boot sector and determine, which package owns that file. this yields the package name of all installed kernels (including kernels from the AUR):
-        installed_kernels="$(
-            for p in $( command ls -1 /boot | grep -E '^vmlinuz' )                  # ATTENTION: using quotes (" symbols) around $(...) breaks for-loop
-            do
-                echo linux$( echo $p | cut -d"-" -f2 | tr -d ".")
-            done | sort -u )"
-        # check, whether any installed kernels have been found  (in ARCH linux, no kernels are found, but this is ok, because kernels are not EOLd as in Manjaro)
+         installed_kernels="$( pacman -Qq | grep -E '^linux$|^linux-lts$|^linux-zen$|^linux-hardened$|^linux[0-9]*$' | sort -u )"    # search for one of the following (hardcoded) package names of the linux kernel within arch linux (linux, linux-lts, linux-zen, or linux-hardened) or manjaro (linuxXY).
+	# check, whether any installed kernels have been found  (in ARCH linux, no kernels are found, but this is ok, because kernels are not EOLd as in Manjaro)
         if [[ -n "$installed_kernels" ]]
         then
             echo " checking installed kernel(s) ..."
@@ -573,7 +569,6 @@ function func_i
             #if  [[ ! -f /tmp/pacui-aur/packages.gz ]]
             if  [[ ! -f /tmp/pacui-aur/packages ]]
             then
-                echo
                 echo " downloading list of AUR packages (which can take a while) ..."
 
                 #wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null
@@ -1132,7 +1127,6 @@ function func_s
 
             echo -e "\n\e[1mLocal package files: \e[0m" > /tmp/pacui-search
 
-            echo
             echo " searching local repositories ..."
 
             # list all files of all installed local packages using "pacman -Ql --color always"
@@ -1496,7 +1490,7 @@ function func_f
             # do this, if system uses reflector (default on Arch Linux or distributions using Arch Linux mirrors/repo servers)
             if [[ -f /usr/bin/reflector ]]
             then
-                sudo reflector --verbose --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist && sleep 10 && sudo pacman -Syy
+                sudo reflector --verbose --protocol https,ftps --age 5 --sort rate --save /etc/pacman.d/mirrorlist && sleep 10 && sudo pacman -Syy
             fi
             echo ""
         fi
@@ -2335,7 +2329,7 @@ This will quit PacUI and clear your terminal. Scroll up to see all terminal outp
 \e[36m"flatpak update -y" \e[0m(only if flatpak is installed)
 The first command compares a list of all installed packages with package database on your system repository mirror/server. If an updated package is available from your system repositories, it will get downloaded and installed on your system.
 Afterwards, all packages from the Arch User Repository (AUR), which have an updated PKGBUILD file, are downloaded, compiled, and installed.
-If updates from system repositories fail, the user is offered the choice to update packages using \e[36m"sudo pacman -Syu --overwrite A-Z,a-z,0-9,-,.,_"\e[0m.
+If updates from system repositories fail, the user is offered the choice to update packages using \e[36m"sudo pacman -Syu --overwrite='*'"\e[0m.
 \e[1mAttention\e[0m: When a new version of an AUR package is available, sometimes the PKGBUILD file is not updated. If you want to install the latest version of a single AUR package, (re-)install it with INSTALL PACKAGES. If you want to install the latest versions of ALL AUR packages use FORCE UPDATE AUR.
 
 
@@ -2349,8 +2343,8 @@ This command deletes all partially downloaded packages from Pacman cache directo
 \e[36m"sudo pacman-mirrors -f 0 && sudo pacman -Syyuu" \e[0m(for Manjaro)
 This command generates a new mirrorlist of all available Manjaro repository mirrors/servers and sorts it by ping of up-to-date mirrors/servers. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror and the system is updated. If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -f 0 -c Germany,France". In order to prevent a partially updated system after the change to another repository mirror/server, all packagaes are updated/downgraded to the repository version using "sudo pacman -Suu".
 
-\e[36m"sudo reflector --verbose --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist && sudo pacman -Syyuu" \e[0m(for Arch and other Arch-based distros)
-This command generates a new mirrorslist of secure and fast repository mirrors/servers. Then it resyncs database to match the mirrors and updates the system.
+\e[36m"sudo reflector --verbose --protocol https,ftps --age 5 --sort rate --save /etc/pacman.d/mirrorlist && sudo pacman -Syyuu" \e[0m(for Arch and other Arch-based distros)
+This command generates a new mirrorslist of secure and fast repository mirrors/servers. Then it resyncs the database to match the mirrors and updates the system.
 
 \e[36m"flatpak uninstall --unused --delete-data -y" \e[0m(only if flatpak is installed)
 This command cleans up unused flatpak packages, which are typically left over after flatpak updates.
@@ -2481,7 +2475,7 @@ This command removes Pacmans database lock. The database lock prevents multiple 
 This command generates a new mirrorslist of all available Manjaro repository mirrors/servers and sorts it by ping of up-to-date mirrors/servers. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror. If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -c Germany,France".
 Here, the risk of a (temporarily) partially updated system has to be considered against the effort to fix all systems, including systems on which it is no longer possible to install any packages. The system can be put in a partially updated state during the course of FIX PACMAN ERRORS, but at the end of FIX PACMAN ERRORS the complete system is updated.
 
-\e[36m"sudo reflector --verbose --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist && sudo pacman -Syy" \e[0m(For Arch and other Arch-based distributions)
+\e[36m"sudo reflector --verbose --protocol https,ftps --age 5 --sort rate --save /etc/pacman.d/mirrorlist && sudo pacman -Syy" \e[0m(For Arch and other Arch-based distributions)
 This command generates a new mirrorlist of secure and fast repository mirrors/servers. Then it resynchronizes the database to match the mirrors.
 
 \e[36m"sudo dirmngr </dev/null"
@@ -2697,7 +2691,7 @@ then
 
         elif [[ -f /usr/bin/reflector ]]                                            # checks, whether file "reflector" exists
         then
-            sudo reflector --verbose --protocol https --age 1 --sort rate --save /etc/pacman.d/mirrorlist && sleep 10 && sudo pacman -Syyu          # If it does exists, then the mirror will sort by it
+            sudo reflector --verbose --protocol https,ftps --age 5 --sort rate --save /etc/pacman.d/mirrorlist && sleep 10 && sudo pacman -Syyu          # If it does exists, then the mirror will sort by it
 
         fi
     fi
@@ -2751,8 +2745,8 @@ do
 
         1|u|update|update-system)                                                   # the following commands will get executed if $key is "1" or "u" or "update" until a code line containing only ";;" is encountered
             function_call="u"
-            shift                                                                   # shift to next argument (which is currently known as '$2'), and make it first argument ( referred to as '$1'). this command throws away the current argument, because we have done everything with it we wanted to do and it is no longer needed.
-            ;;
+            shift                                                                   # shift to next argument (which is currently known as '$2'), and make it first argument ( i.e. referred to as '$1'). this command throws away the current argument, because we have done everything with it we wanted to do and it is no longer needed.
+	    ;;
         2|m|maintain|maintain-system )
             function_call="m"
             shift
