@@ -127,7 +127,7 @@ Examples:
 
 
 ### Multiple installed AUR helpers
-Please note that PacUI optionally requires at least one of these AUR helpers to enable use of the AUR.: [Yay](https://github.com/Jguer/yay), [Pikaur](https://github.com/actionless/pikaur), [Aurman](https://github.com/polygamma/aurman), [Pakku](https://github.com/kitsunyan/pakku), [Trizen](https://github.com/trizen/trizen), [Pacaur](https://github.com/rmarquis/pacaur), or [Pamac-cli](https://aur.archlinux.org/packages/pamac-cli/).
+Please note that PacUI optionally requires at least one of these AUR helpers to enable use of the AUR.: [Yay](https://github.com/Jguer/yay), [Pikaur](https://github.com/actionless/pikaur), [Aurman](https://github.com/polygamma/aurman), [Pakku](https://github.com/kitsunyan/pakku), [Trizen](https://github.com/trizen/trizen), [Pacaur](https://github.com/rmarquis/pacaur) [Pamac-cli](https://aur.archlinux.org/packages/pamac-cli/), or [paru](https://github.com/Morganamilo/paru).
 
 If more than one AUR helper is installed, they are automatically used in the same order as listed above (i.e. Aurman is used with priority while Pacaur is only used as a last resort). A specific AUR helper can be set with the `PACUI_AUR_HELPER` environment variable.
 
