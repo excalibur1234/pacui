@@ -356,7 +356,7 @@ function func_m
             pamac remove -o 							    # do orphan cleaning with pamac
         elif [[ "$AUR_Helper" == "paru"  ]]
 	then
-		paru -C                                                             # do orphan cleaning with paru
+		paru -c                                                             # do orphan cleaning with paru
         else                                                                        # do this for all other AUR helpers:
             if [[ -n "$(pacman -Qdt)" ]]                                            # only run the following commands, if output of "pacman -Qdt" is not empty.
             then
