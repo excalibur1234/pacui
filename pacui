@@ -668,7 +668,7 @@ function func_i
 
 			        elif test '$AUR_Helper' = "paru"
 				then
-					pamac info -a {1}
+					paru -Si {1} | grep -v "\*\*.*\*\*"
 
                                 fi
                             fi
