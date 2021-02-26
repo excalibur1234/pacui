@@ -174,7 +174,7 @@ function func_u
         then
 
             # execute "update -a" command:
-            if ( pamac "$argument_flag"update -a )                                         # execute command "update -a". if this command fails "false" is returned and the result is: "if ( false )"
+            if ( pamac "$argument_flag"update -a )                                  # execute command "update -a". if this command fails "false" is returned and the result is: "if ( false )"
             then
                 # only set $install_successful=true, if the command "update -a" was executed without errors
                 install_successful=true
@@ -203,7 +203,7 @@ function func_u
 
             # if one of the above update commands has failed, there are multiple points of failure.
             # first, we can force the update, but only for packages from the system repositories and not packages from the AUR. this means, we make sure package updates from system repositories fail:
-            if ! ( sudo pacman -Syu --color always )                            # the "sudo pacman -Syu --color always" command gets executed in any case in order to check its output.
+            if ! ( sudo pacman -Syu --color always )                                # the "sudo pacman -Syu --color always" command gets executed in any case in order to check its output.
             then
 
                 # now, we are sure there is an active connection to the server/mirror/repository and package updates from there have failed. in this case, we can offer the user to forcefully install updates:
@@ -211,13 +211,13 @@ function func_u
                 # ask, whether to force update the system and save answer in "answer" variable:
                 echo -e " \e[1m Updates from system repositories have failed probably because of file conflicts. \e[0m"
                 echo -e " \e[41m Do you want to forcefully overwrite all conflicting files? [y|N] \e[0m"
-                read -r -n 1 -e answer                                          # this "read" command only accepts 1 letter as answer. this feels faster and is enough in this situation.
+                read -r -n 1 -e answer                                              # this "read" command only accepts 1 letter as answer. this feels faster and is enough in this situation.
 
-                case ${answer:-n} in                                            # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "n".
-                    y|Y|yes|Yes|YES )                                           # do this, if "answer" is y or Y or yes or Yes or YES
+                case ${answer:-n} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "n".
+                    y|Y|yes|Yes|YES )                                               # do this, if "answer" is y or Y or yes or Yes or YES
                         sudo pacman -Syu --color always --overwrite='*'
                         ;;
-                    * )                                                         # do this in all other cases
+                    * )                                                             # do this in all other cases
                         echo -e " \e[1m Packages have not been updated.\e[0m"
                         ;;
                 esac
@@ -2031,7 +2031,7 @@ function func_la
         #set +E
 
         # check, whether there is a connection to AUR server. this is needed for AUR package information. If there is no connection to AUR server, no AUR package info get displayed.
-        if ( curl --silent --fail "https://aur.archlinux.org" &>/dev/null )                # the "curl --silent --fail" command gets executed in any case in order to check its output.
+        if ( curl --silent --fail "https://aur.archlinux.org" &>/dev/null )         # the "curl --silent --fail" command gets executed in any case in order to check its output.
         then
             AurSserverIsUp="true"
         else
@@ -2046,7 +2046,7 @@ function func_la
             pacman -Qi {} --color always
             echo
 
-            if ( $(test '$AurSserverIsUp' = true) ) && ( $(test -n '$AUR_Helper') )               # preview window of fzf requires checking with "test": first, check whether internet connection is up. second, check if any AUR helper is installed.
+            if ( $(test '$AurSserverIsUp' = true) ) && ( $(test -n '$AUR_Helper') ) # preview window of fzf requires checking with "test": first, check whether internet connection is up. second, check if any AUR helper is installed.
             then
                 echo -e "\e[1mAUR package info: \e[0m"
 
@@ -2910,12 +2910,12 @@ do
 
 
     # save entered numbers/letters in variable "choice"
-    read -r -n 1 -e choice                                          # this "read" command only accepts 1 letter as answer. this feels faster and is enough in this situation.
+    read -r -n 1 -e choice                                                          # this "read" command only accepts 1 letter as answer. this feels faster and is enough in this situation.
 
     # test, whether "choice" fits any of the following numbers, letters, or words
     case "$choice" in
 
-        1|u|U )                                                                       # the following commands will get executed if $choice is "1" or "u" or "update" until a code line containing only ";;" is encountered
+        1|u|U )                                                                     # the following commands will get executed if $choice is "1" or "u" or "update" until a code line containing only ";;" is encountered
             func_u                                                                  # call function "func_u"
             echo
             echo -e " \e[41m System updated. To return to PacUI press ENTER \e[0m"
