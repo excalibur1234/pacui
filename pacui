@@ -1835,7 +1835,7 @@ function func_c
                 echo "{1}: Read permission denied"
 
             fi
-            ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:60%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi )" --header="ENTER to continue. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )"
+            ' "$( if (( $(tput cols) >= 125 )); then echo "--preview-window=right:60%:wrap"; else echo "--preview-window=bottom:60%:wrap"; fi )" --header="ENTER to edit file in text editor or select directory. ESC to quit." --prompt='Enter string to filter list > ' | awk '{print $1}' )"
         # the output of fzf is saved in the $file variable. $file can contain a filename (with its full path) or a directory (with its full path).
 
         pacui_tty_clean                                                             # clear terminal
