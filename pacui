@@ -110,8 +110,7 @@ function func_u
 
         if [[ "$AUR_Helper" == "yay" ]]                                             # check, if $AUR_Helper variable is set to "yay". ATTENTION: sometimes, this requires   [[ "$AUR_Helper" == "yay" ]]   and sometimes   test '$AUR_Helper' = "yay"  . i do not know why this is the case.
         then
-echo "|"$argument_flag"|"
-echo yay $argument_flag-Syu
+
             # execute "yay -Syu" command:
             if ( yay $argument_flag-Syu )                                         # execute command "yay -Syu". if this command fails "false" is returned and the result is: "if ( false )"
             then
