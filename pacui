@@ -515,7 +515,7 @@ function func_i
         local {pacui_list_install,pkg}                                              # declare local variables
 
         # write package list of system repositories (package name and description) to $pacui_list_install. %-33n uses printf support in expac to format output nicely (reserve a 33 character wide field for package name %n).
-        pacui_list_install="$(  expac -S "%-33n\t%d" )"                             # here the parenthesis in "$(...)" are essential to write multiple lines to a variable! without parenthesis the variable will contain only a single line (space separated)!
+        pacui_list_install="$(  expac -S "%-33n    %d" )"                             # here the parenthesis in "$(...)" are essential to write multiple lines to a variable! without parenthesis the variable will contain only a single line (space separated)!
 
 
         # for performance reasons, there are multiple files of package lists created in the following code. a comparison to local files is much faster than checking, whether a selected package is part of an online repository.
@@ -719,7 +719,7 @@ function func_r
 {
         # write package list of local repository to /tmp/pacui-packages-group.
         #pacman -Qq | tr -d " " > /tmp/pacui-packages-group
-        expac -Q "%-33n\t%d" > /tmp/pacui-packages-group
+        expac -Q "%-33n    %d" > /tmp/pacui-packages-group
         # use expac command to print a list of installed package groups (of installed packages. then extract installed package groups from all of them) and add it to the bottom of /tmp/pacui-packages-group
         # awk 'NF != 0'  only displays lines where the number of fields is not zero (i.e. non-empty lines)
         expac -Qg %G | sort -u | sed 's/ /\n/g' | sort -u | awk 'NF != 0' >> /tmp/pacui-packages-group
@@ -870,9 +870,9 @@ function func_t
 {
         # write list of all installed packages to file /tmp/pacui-packages-local . then add list of packages in system repositories to the bottom of /tmp/pacui-packages-local.
         #pacman -Qq | tr -d " " > /tmp/pacui-packages-local
-        expac -Q "%-33n\t%d" > /tmp/pacui-packages-local
+        expac -Q "%-33n    %d" > /tmp/pacui-packages-local
         #pacman -Slq | tr -d " " >> /tmp/pacui-packages-local
-        expac -S "%-33n\t%d" >> /tmp/pacui-packages-local
+        expac -S "%-33n    %d" >> /tmp/pacui-packages-local
 
         local pkg
 
@@ -941,9 +941,9 @@ function func_rt
 {
         # write list of all installed packages to file /tmp/pacui-packages-local . then add list of packages in system repositories to the bottom of /tmp/pacui-packages-local.
         #pacman -Qq | tr -d " " > /tmp/pacui-packages-local
-        expac -Q "%-33n\t%d" > /tmp/pacui-packages-local
+        expac -Q "%-33n    %d" > /tmp/pacui-packages-local
         #pacman -Slq | tr -d " " >> /tmp/pacui-packages-local
-        expac -S "%-33n\t%d" >> /tmp/pacui-packages-local
+        expac -S "%-33n    %d" >> /tmp/pacui-packages-local
 
         local pkg
 
@@ -1012,9 +1012,9 @@ function func_l
 {
         # write list of all installed packages to file /tmp/pacui-packages-local . then add list of packages in system repositories to the bottom of /tmp/pacui-packages-local.
         #pacman -Qq | tr -d " " > /tmp/pacui-packages-local
-        expac -Q "%-33n\t%d" > /tmp/pacui-packages-local
+        expac -Q "%-33n    %d" > /tmp/pacui-packages-local
         #pacman -Slq | tr -d " " >> /tmp/pacui-packages-local
-        expac -S "%-33n\t%d" >> /tmp/pacui-packages-local
+        expac -S "%-33n    %d" >> /tmp/pacui-packages-local
 
         local pkg
 
@@ -2105,8 +2105,8 @@ function func_d
         else
 
             # write list of all installed packages to file /tmp/pacui-packages-local . then add list of packages in system repositories to the bottom of /tmp/pacui-packages-local.
-            expac -Q "%-33n\t%d" > /tmp/pacui-packages-local
-            expac -S "%-33n\t%d" >> /tmp/pacui-packages-local
+            expac -Q "%-33n    %d" > /tmp/pacui-packages-local
+            expac -S "%-33n    %d" >> /tmp/pacui-packages-local
 
             local {pkg,pkg_downgrade}
 
