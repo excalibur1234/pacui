@@ -5,7 +5,8 @@ SHELL=/usr/bin/bash                                                             
 # SC1117: Backslash is literal in "\n". Prefer explicit escaping: "\\n".
 # SC1117: Backslash is literal in "\t". Prefer explicit escaping: "\\t".
 # SC2086: Double quote to prevent globing and word splitting.                       # ${variable}  does not work when double quoted. also, double quote breaks this script in many cases --> there are warning comments containing "ATTENTION" about this.
-# shellcheck disable=SC1117,SC2086                                                  # exclude MANY false-positive shellcheck warnings (see above)
+# SC2116: Useless echo?
+# shellcheck disable=SC1117,SC2086,SC2116                                           # exclude MANY false-positive shellcheck warnings (see above)
 
 #  This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as
 #  published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
@@ -814,7 +815,7 @@ function func_r
                             #set -E
                             pacui_tty_clean                                         # clear terminal
 
-                            if ! [[ -n "$pkg" ]]                                    # check, whether $pkg variable is empty. this happens when fzf is quit with CTRL+C.
+                            if [[ -z "$pkg" ]]                                      # check, whether $pkg variable is empty. this happens when fzf is quit with CTRL+C.
                             then
                                 break                                               # break while-loop, if fzf was quit using CTRL+C
                             fi
@@ -849,7 +850,7 @@ function func_r
 
 
                     3 )                                                             # do this, if "answer" is 3
-                        sudo pacman -Rsnc $pkg_remove --color always                 # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg_remove variable breaks AUR helper and pacman
+                        sudo pacman -Rsnc $pkg_remove --color always                # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg_remove variable breaks AUR helper and pacman
                         ;;
 
 
@@ -1292,7 +1293,7 @@ function func_b
 
                 # add trap command to immediately remove upon ctrl+c (or any other case this function quits in the middle) for security purposes
                 # this is the normal syntax for "trap" command.
-                trap "unlink ${pacui_tmp_downgrade}" EXIT
+                trap 'unlink ${pacui_tmp_downgrade}' EXIT
 
                 # first, count the number of times the package name appears in file ${pacui_cache_downgrade}:
                 pacui_cache_downgrade_counted="$( echo "${pacui_cache_downgrade}" | sort | uniq -c )"
@@ -1361,7 +1362,7 @@ function func_b
 
                 # add trap command to immediately remove upon ctrl+c (or any other case this function quits in the middle) for security purposes
                 # this is the normal syntax for "trap" command.
-                trap "unlink ${pacui_tmp_upgrade}" EXIT
+                trap 'unlink ${pacui_tmp_upgrade}' EXIT
 
                 # first, count the number of times the package name appears in file ${pacui_cache_upgrade}:
                 pacui_cache_upgrade_counted="$( echo "${pacui_cache_upgrade}" | sort | uniq -c )"
@@ -1434,7 +1435,8 @@ function func_f
 
 
         # remove pacman database lock file
-        local dbpath="$( awk -F '=' '/^DBPath/ {gsub(" ","",$2); print $2}' '/etc/pacman.conf' )"               # extract path of database file from pacman.conf
+        local dbpath
+        dbpath="$( awk -F '=' '/^DBPath/ {gsub(" ","",$2); print $2}' '/etc/pacman.conf' )"               # extract path of database file from pacman.conf
         if [[ -z "$dbpath" ]]                                                       # if "dbpath" variable is empty (exact: if output of $dbpath is zero)
         then
             dbpath="/var/lib/pacman/"                                               # default database path
@@ -1474,7 +1476,7 @@ function func_f
         server="$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" | awk -F '=' '{print $2}' | awk -F '$' '{print $1}' )"
 
         # check, whether there is a connection to the mirror/repository server. this is needed for package download/update!
-        if ! ( curl --silent --fail $(echo "$server") &>/dev/null )                        # the "curl --silent --fail" command gets executed in any case in order to check its output.
+        if ! ( curl --silent --fail $(echo "$server") &>/dev/null )                 # ATTENTION: the curl command needs   $(echo "$server")   without quotes!        # the "curl --silent --fail" command gets executed in any case in order to check its output.
         then
 
             # print error message, if there is no connection to a mirror/repository server and quit
@@ -1737,7 +1739,7 @@ function func_c
 
         # add trap command to immediately remove upon ctrl+c (or any other case this function quits in the middle) for security purposes
         # this is the normal syntax for "trap" command:
-        trap "unlink ${pacui_config}" EXIT
+        trap 'unlink ${pacui_config}' EXIT
 
         #set +u
 
@@ -1960,7 +1962,7 @@ function func_ls
         # list all packages on local system sorted by their installed size using "expac" and "sort".
         # expac -H M -Q "%12m - \e[1m%n\e[0m %v"  displays size, name, and version number
         # "sort -n -r"  sorts list by number (with which every element begins).
-        # ATTENTION: (i do not know why but) using quotes (" symbols) around $( comm ...) breaks expac
+        # ATTENTION: (i do not know why but) using quotes (" symbols) around $(...) breaks expac
         expac -H M -Q "%12m - \e[1m%n\e[0m" $( pacman -Qq | sort) | sort -n -r | fzf -i --multi --exact --no-sort --ansi --layout=reverse --bind=pgdn:half-page-down,pgup:half-page-up --margin=1 --info=inline --no-unicode --preview '
             echo -e "\e[1mInstalled package info: \e[0m"
             pacman -Qi {4} --color always
