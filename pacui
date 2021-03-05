@@ -4,9 +4,11 @@ SHELL=/usr/bin/bash                                                             
 # SC1117: Backslash is literal in "\e". Prefer explicit escaping: "\\e".
 # SC1117: Backslash is literal in "\n". Prefer explicit escaping: "\\n".
 # SC1117: Backslash is literal in "\t". Prefer explicit escaping: "\\t".
+# SC2001: See if you can use ${variable//search/replace} instead.
+# SC2016: Expressions don't expand in single quotes, use double quotes for that.
 # SC2086: Double quote to prevent globing and word splitting.                       # ${variable}  does not work when double quoted. also, double quote breaks this script in many cases --> there are warning comments containing "ATTENTION" about this.
 # SC2116: Useless echo?
-# shellcheck disable=SC1117,SC2086,SC2116                                           # exclude MANY false-positive shellcheck warnings (see above)
+# shellcheck disable=SC1117,SC2001,SC2016,SC2086,SC2116                             # exclude MANY false-positive shellcheck warnings (see above)
 
 #  This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as
 #  published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
