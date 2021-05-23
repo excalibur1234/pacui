@@ -73,6 +73,10 @@ then
     then
         AUR_Helper="trizen"
 
+    elif [[ -f /usr/bin/paru ]]
+    then
+	AUR_Helper="paru"
+
     elif [[ -f /usr/bin/pacaur ]]
     then
         AUR_Helper="pacaur"
@@ -158,6 +162,18 @@ function func_u
 
             if ( trizen "$argument_flag"-Syu )
             then
+                install_successful=true
+            else
+                install_successful=false
+            fi
+
+        elif [[ "$AUR_Helper" == "paru" ]]
+        then
+
+            # execute "paru --sudoloop -Syu"
+            if (paru "$argument_flag"--sudoloop -Syu --color always)
+            then
+                # only set $install_successful=true, if the command above was executed without errors
                 install_successful=true
             else
                 install_successful=false
@@ -340,7 +356,10 @@ function func_m
             yay -Yc                                                                 # do orphan cleaning with yay
         elif [[ "$AUR_Helper" == "pamac" ]]
         then
-            pamac remove -o                                                         # do orphan cleaning with pamac
+            pamac remove -o 							                            # do orphan cleaning with pamac
+        elif [[ "$AUR_Helper" == "paru"  ]]
+        then
+            paru -c                                                                 # do orphan cleaning with paru
         else                                                                        # do this for all other AUR helpers:
             if [[ -n "$(pacman -Qdt)" ]]                                            # only run the following commands, if output of "pacman -Qdt" is not empty.
             then
@@ -642,6 +661,10 @@ function func_i
                                 then
                                     trizen -Si {1}
 
+                                elif test '$AUR_Helper' = "paru"
+                                then
+                                    paru -Si {1} --color always | grep -v "\*\*.*\*\*"
+
                                 elif test '$AUR_Helper' = "pacaur"
                                 then
                                     pacaur -Si {1} --color always | grep -v "::"    # grep command removes all errors displayed by pacaur
@@ -698,6 +721,10 @@ function func_i
             elif [[ "$AUR_Helper" == "trizen" ]]
             then
                 trizen "$argument_flag"-S $pkg                                      # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
+
+            elif [[ "$AUR_Helper" == "paru" ]]
+            then
+                paru "$argument_flag"--color always -S $pkg                         # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg variable breaks AUR helper and pacman
 
             elif [[ "$AUR_Helper" == "pacaur" ]]
             then
@@ -1763,6 +1790,8 @@ function func_c
         [[ -f /etc/pakku.conf ]]                        && echo -e "/etc/pakku.conf                                                                                                                                                                                                                                                  Configure Pakku in file:" >> ${pacui_config}
         [[ -f $XDG_CONFIG_HOME/aurman/aurman_config ]]  && echo -e "$XDG_CONFIG_HOME/aurman/aurman_config                                                                                                                                                                                                                            Configure Aurman in file:" >> ${pacui_config}
         [[ -f $HOME/.config/aurman/aurman_config ]]     && echo -e "$HOME/.config/aurman/aurman_config                                                                                                                                                                                                                               Configure Aurman in fallback file:" >> ${pacui_config}
+        [[ -f $XDG_CONFIG_HOME/paru/paru.conf ]]        && echo -e "$XDG_CONFIG_HOME/paru/paru.conf                                                                                                                                                                                                                                  Configure Paru in file:" >> ${pacui_config}
+        [[ -f $HOME/.config/paru/paru.conf ]]           && echo -e "$HOME/.config/paru/paru.conf                                                                                                                                                                                                                                     Configure Paru in file:" >> ${pacui_config}
         [[ -f /etc/pamac.conf ]]                        && echo -e "/etc/pamac.conf                                                                                                                                                                                                                                                  Configure Pamac in file:" >> ${pacui_config}
         [[ -f /etc/makepkg.conf ]]                      && echo -e "/etc/makepkg.conf                                                                                                                                                                                                                                                Configure package compilation in file:" >> ${pacui_config}
         [[ -d /usr/lib/NetworkManager/conf.d ]]         && echo -e "/usr/lib/NetworkManager/conf.d/                                                                                                                                                                                                                                  Configure NetworkManager in files:" >> ${pacui_config}
@@ -2004,6 +2033,10 @@ function func_ua
         then
             trizen "$argument_flag"-Syu --devel --needed
 
+        elif [[ "$AUR_Helper" == "paru" ]]
+        then
+            paru "$argument_flag"-Syu --devel --needed --color always
+
         elif [[ "$AUR_Helper" == "pacaur" ]]
         then
             pacaur "$argument_flag"-Syua --devel --needed --color always
@@ -2019,6 +2052,7 @@ function func_ua
             echo -e " \e[1m  aurman \e[0m"
             echo -e " \e[1m  pakku \e[0m"
             echo -e " \e[1m  trizen \e[0m"
+            echo -e " \e[1m  paru \e[0m"
             echo -e " \e[1m  pacaur \e[0m"
             echo -e " \e[1m  pamac \e[0m"
 
@@ -2073,6 +2107,10 @@ function func_la
                 elif test '$AUR_Helper' = "trizen"
                 then
                     trizen -Si {1}
+
+                elif test '$AUR_Helper' = "paru"
+                then
+                    paru -Si {1} --color always | grep -v "\*\*.*\*\*"
 
                 elif test '$AUR_Helper' = "pacaur"
                 then
@@ -2177,6 +2215,10 @@ function func_a
             then
                 trizen "$argument_input"
 
+            elif [[ "$AUR_Helper" == "paru" ]]
+            then
+                paru "$argument_input" --color always
+
             elif [[ "$AUR_Helper" == "pacaur" ]]
             then
                 pacaur -Ss "$argument_input" --color always | grep -v "::"          # grep command removes errors being displayed in pacaur
@@ -2192,6 +2234,7 @@ function func_a
                 echo -e " \e[1m  aurman \e[0m"
                 echo -e " \e[1m  pakku \e[0m"
                 echo -e " \e[1m  trizen \e[0m"
+                echo -e " \e[1m  paru \e[0m"
                 echo -e " \e[1m  pacaur \e[0m"
                 echo -e " \e[1m  pamac \e[0m"
 
@@ -2223,6 +2266,10 @@ function func_a
             then
                 trizen "$pkg"
 
+            elif [[ "$AUR_Helper" == "paru" ]]
+            then
+                paru "$pkg" --color always
+
             elif [[ "$AUR_Helper" == "pacaur" ]]
             then
                 pacaur -Ss "$pkg" --color always | grep -v "::"                     # grep command removes errors being displayed in pacaur
@@ -2238,6 +2285,7 @@ function func_a
                 echo -e " \e[1m  aurman \e[0m"
                 echo -e " \e[1m  pakku \e[0m"
                 echo -e " \e[1m  trizen \e[0m"
+                echo -e " \e[1m  paru \e[0m"
                 echo -e " \e[1m  pacaur \e[0m"
                 echo -e " \e[1m  pamac \e[0m"
 
@@ -2260,7 +2308,7 @@ function func_help
 
 \e[1mWelcome to PacUIs Help Page
 
-PacUI is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Yay/Pikaur/Aurman/Pakku/Trizen/Pacaur as back ends.
+PacUI is an interactive package manager for your command line terminal. It provides an easy user interface and uses Pacman and Yay/Pikaur/Aurman/Pakku/Trizen/Paru/Pacaur/Pamac-cli as back ends.
 
 Navigate this help page with your Arrow Keys, PageUp/PageDown Keys, SpaceBar, or your Mouse Wheel. To search this Help Page, enter /<SEARCH TERM> and press ENTER. For example, enter the following (without quotes " ") in order to search for the word "update": "/update". Press N key to continue searching for other occurrences of "update". Search is not case sensitive. To exit this Help Page, press your Q key.
 PacUI uses Fuzzy Finder (fzf) to display selectable lists, which can be easily searched by starting to type. Advanced users can even utilize regular expressions for it. Navigate fzf's list the same way you navigate this help page.
@@ -2429,7 +2477,7 @@ This command deletes all PacUI files in /tmp directory. PacUI uses this temporar
 
 \e[36m"sudo unlink /var/lib/pacman/db.lck"
 This command removes Pacmans database lock. The database lock prevents multiple Pacman instances from running at the same time and interfering with each other.
-\e[1mAttention\e[0m: Only run this command when no other Pacman instance (e.g. Pacman, Pamac, Octopi, PacmanXG4, Yay, Pikaur, Aurman, Pakku, Trizen, Pacaur, ...) is running.
+\e[1mAttention\e[0m: Only run this command when no other Pacman instance (e.g. Pacman, Pamac, Octopi, PacmanXG4, Yay, Pikaur, Aurman, Pakku, Trizen, Paru, Pacaur, Pamac-cli ...) is running.
 
 \e[36m"sudo pacman-mirrors -f 0 && sudo pacman -Syy" \e[0m(for Manjaro)
 This command generates a new mirrorslist of all available Manjaro repository mirrors/servers and sorts it by ping of up-to-date mirrors/servers. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror. If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -c Germany,France".

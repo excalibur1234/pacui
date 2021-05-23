@@ -5,7 +5,7 @@
 pkgname=pacui
 pkgver=1.14
 pkgrel=1
-pkgdesc="Bash script providing advanced Pacman and Yay/Pikaur/Aurman/Pakku/Trizen/Pacaur functionality in a simple UI"
+pkgdesc="Bash script providing advanced Pacman and Yay/Pikaur/Aurman/Pakku/Trizen/Paru/Pacaur/Pamac-cli functionality in a simple UI"
 arch=(any)
 url="https://github.com/excalibur1234/$pkgname"
 license=('GPL3')
@@ -18,6 +18,7 @@ optdepends=('yay: One AUR helper is needed for AUR support'
             'aurman: One AUR helper is needed for AUR support'
             'pakku: One AUR helper is needed for AUR support'
             'trizen: One AUR helper is needed for AUR support'
+            'paru: One AUR helper is needed for AUR support'
             'pacaur: One AUR helper is needed for AUR support'
             'pamac-cli: One AUR helper is needed for AUR support'
             'pacman-mirrors: Needed for Manjaro mirror support'
