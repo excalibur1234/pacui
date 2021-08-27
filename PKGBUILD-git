@@ -4,7 +4,7 @@
 _pkgname=pacui
 pkgname=$_pkgname-git
 pkgver=r1024.90efdc4
-pkgrel=1
+pkgrel=2
 pkgdesc="Bash script providing advanced Pacman and Yay/Pikaur/Aurman/Pakku/Trizen/Paru/Pacaur/Pamac-cli functionality in a simple UI"
 arch=(any)
 url="https://github.com/excalibur1234/$_pkgname"
@@ -25,7 +25,8 @@ optdepends=('yay: One AUR helper is needed for AUR support'
             'reflector: Needed for Arch Linux mirror support'
             'flatpak: Needed for Flatpak update support'
             'snapd: Needed for for Snap update support'
-            'downgrade: Needed for hidden "downgrade" option')
+            'downgrade: Needed for hidden "downgrade" option'
+            'paru: One AUR helper is needed for AUR support')
 source=("$_pkgname::git+https://github.com/excalibur1234/$_pkgname.git")
 md5sums=('SKIP')
 
