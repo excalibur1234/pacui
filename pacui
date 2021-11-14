@@ -1546,10 +1546,12 @@ function func_f
                     # sometimes, people get a "missing key" error about keys they have already installed. this can be confusing
                     # automatically trust all keys from arch linux trusted users (and manjaro developers) - both for packages from the repositories and packages from the AUR.
                     # there are 2 different places on system for keys to be stored. include pacman's keys in your private collection of keys, which is used when installing (i.e. veritying) packages from the AUR.
-                    echo "# "                                                   >> "$HOME/.gnupg/gpg.conf"
-                    echo "# Automatically trust all keys in Pacman's keyring: " >> "$HOME/.gnupg/gpg.conf"
-                    echo "keyring /etc/pacman.d/gnupg/pubring.gpg"              >> "$HOME/.gnupg/gpg.conf"
-                    echo
+                    {
+                    echo "# ";                                                   
+                    echo "# Automatically trust all keys in Pacman's keyring: "; 
+                    echo "keyring /etc/pacman.d/gnupg/pubring.gpg";              
+                    echo ""
+                    } >> "$HOME/.gnupg/gpg.conf"
 
                 fi
             fi
