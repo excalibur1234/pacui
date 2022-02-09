@@ -23,10 +23,11 @@ SHELL=/usr/bin/bash                                                             
 #
 #  Design based on IceFox script. Heavily modified by pekman, excalibur1234, Chrysostomus, papajoker, and thefallenrat.
 
-# ANSI Escape sequences used in this script:                                        # ATTENTION: do NOT use \\e[..., because it does not always work!
+# ANSI Escape sequences used in this script:                                        # ATTENTION: do NOT use \\e[  or  tput, because it does not always work!
 #  \e[31m                                                                           # red text
 #  \e[36m                                                                           # cyan text
 #  \e[41m                                                                           # red background
+#  \e[7m                                                                            # inverse/reverse text and background
 #  \e[1m         \033[1m                                                            # bold text  ( \033[1m has to be used in "awk")
 #  \e[0m         \033[0m                                                            # non-colored, non-bold text without background color  ( \033[0m has to be used in "awk")
 
@@ -1547,9 +1548,9 @@ function func_f
                     # automatically trust all keys from arch linux trusted users (and manjaro developers) - both for packages from the repositories and packages from the AUR.
                     # there are 2 different places on system for keys to be stored. include pacman's keys in your private collection of keys, which is used when installing (i.e. veritying) packages from the AUR.
                     {
-                    echo "# ";                                                   
-                    echo "# Automatically trust all keys in Pacman's keyring: "; 
-                    echo "keyring /etc/pacman.d/gnupg/pubring.gpg";              
+                    echo "# ";
+                    echo "# Automatically trust all keys in Pacman's keyring: ";
+                    echo "keyring /etc/pacman.d/gnupg/pubring.gpg";
                     echo ""
                     } >> "$HOME/.gnupg/gpg.conf"
 
