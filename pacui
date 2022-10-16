@@ -865,7 +865,7 @@ function func_r
 
                                 # b) Print error message. the user can read all error messages (of pacman) and decide what to do next.
                                 echo
-                                echo -e " \e[41m  Package removal failed because at least one dependency was selected. \e[0m"
+                                echo -e " \e[41m  Package removal failed  \e[0m"
                                 echo -e " \e[1m Press ENTER to try again or CTRL+C to quit. \e[0m"
                                 read -r
                                 # now, start at the top of the while-loop again...
