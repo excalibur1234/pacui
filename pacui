@@ -2038,8 +2038,8 @@ function func_ls
         # expac -H M -Q "%12m - \e[1m%n\e[0m %v"  displays size, name, and version number
         # "sort -n -r"  sorts list by number (with which every element begins).
         # ATTENTION: (i do not know why but) using quotes (" symbols) around $(...) breaks expac
-        expac -H M -Q "%12m - \e[1m%n\e[0m" $( pacman -Qq | sort) | sort -n -r |
-            fzf -i --multi --exact --no-sort --ansi --layout=reverse --bind=pgdn:half-page-down,pgup:half-page-up --margin=1 --info=inline --no-unicode --preview-window='right,60%,wrap,<68(bottom,60%,wrap)' \
+        expac -H M -Q '%12m - \e[1m%n\e[0m' | sort -n -r |
+            fzf -i --multi --exact --no-sort --ansi --layout=reverse --bind=pgdn:half-page-down,pgup:half-page-up --margin=1 --info=inline --no-unicode --preview-window='right,60%,wrap,<72(bottom,60%,wrap)' \
                 --header="Navigate with PageUp / PageDown. ESC to quit." --prompt='Enter string to filter list > ' \
                 --preview '
                     echo -e "\e[1mInstalled package info: \e[0m"
