@@ -229,8 +229,8 @@ function func_u
                 # now, we are sure there is an active connection to the server/mirror/repository and package updates from there have failed. in this case, we can offer the user to forcefully install updates:
                 local answer
                 # ask, whether to force update the system and save answer in "answer" variable:
-                echo -e " \e[1m Updates from system repositories have failed probably because of file conflicts. \e[0m"
-                echo -e " \e[41m Do you want to forcefully overwrite all conflicting files? [y|N] \e[0m"
+                echo -e " \e[1m Updates from system repositories have failed. \e[0m"
+                echo -e " \e[41m Do you want to try updating forcefully? [y|N] \e[0m"
                 read -r -n 1 -e answer                                              # this "read" command only accepts 1 letter as answer. this feels faster and is enough in this situation.
 
                 case ${answer:-n} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "n".
@@ -374,7 +374,7 @@ function func_m
                         sudo pacman -Rsn $(pacman -Qqdt) --color always --noconfirm                     # ATTENTION: (i do not know why but) using quotes (" symbols) around $(...) breaks pacman command for multiple packages
                         ;;
                     * )                                                             # do this in all other cases
-                        echo -e " \e[1m Packages have not been removed.\e[0m"
+                        echo -e " \e[1m Orphaned packages have not been removed.\e[0m"
                         ;;
                 esac                                                                # end of "case" loop
             fi
@@ -792,19 +792,19 @@ function func_r
 
                 # now, "sudo pacman -Rsn $pkg_remove --color always" has failed. this means that a dependency was selected. Print error message below the error output of pacman.
                 echo
-                echo -e " \e[1m Package removal has failed. Most likely you have tried to remove a dependency.\e[0m"
+                echo -e " \e[1m Package removal has failed. \e[0m"
                 echo -e " \e[1m Choose one of the following options: \e[0m"
                 echo
-                echo -e "\e[1m   1    Try again. \e[0m"
-                echo -e "\e[1m        Read the error message(s) above carefully and try not to select dependencies next time. \e[0m"
+                echo -e "\e[1m    1     Try again. \e[0m"
+                echo -e "\e[1m          Read the error message(s) above carefully and try not to select dependencies next time. \e[0m"
                 echo
-                echo -e "\e[1;31m   2    Forcefully remove package(s) without checking their dependencies first. \e[0m"
-                echo -e "\e[1;31m        Attention: This command can break packages on your system or even your entire system. \e[0m"
+                echo -e "\e[1;31m    2     Forcefully remove package(s) without checking their dependencies first. \e[0m"
+                echo -e "\e[1;31m          Attention: This command can break dependencies. \e[0m"
                 echo
-                echo -e "\e[1;31m   3    Remove package(s) and all additional packages, which depend on them. \e[0m"
-                echo -e "\e[1;31m        Attention: This is a recursive option and can remove many potentially needed packages. \e[0m"
+                echo -e "\e[1;31m    3     Remove package(s) and all additional packages, which depend on them. \e[0m"
+                echo -e "\e[1;31m          Attention: This is a recursive option and can remove many potentially needed packages. \e[0m"
                 echo
-                echo -e "\e[1m   ESC  Exit without removing any packages. \e[0m"
+                echo -e "\e[1m   ENTER  Exit without removing any packages. \e[0m"
                 echo
                 # save answer in "answer" variable:
                 read -r -n 1 -e answer
@@ -865,7 +865,7 @@ function func_r
 
                                 # b) Print error message. the user can read all error messages (of pacman) and decide what to do next.
                                 echo
-                                echo -e " \e[41m  Package removal failed  \e[0m"
+                                echo -e " \e[41m  Package removal has failed again. \e[0m"
                                 echo -e " \e[1m Press ENTER to try again or CTRL+C to quit. \e[0m"
                                 read -r
                                 # now, start at the top of the while-loop again...
@@ -889,7 +889,7 @@ function func_r
 
 
                     * )                                                             # do this in all other cases
-                        echo -e " \e[1m No input recognized. Removal of packages has been cancelled. \e[0m"
+                        echo -e " \e[1m Removal of packages has been cancelled. \e[0m"
                         ;;
 
                 esac
@@ -3042,7 +3042,7 @@ do
         4|r|R )
             func_r
             echo
-            echo -e " \e[41m Package(s) including all unneeded dependencies removed. To return to PacUI press ENTER \e[0m"
+            echo -e " \e[41m Operation finished. To return to PacUI press ENTER \e[0m"
             read -r
             ;;
         5|t|T )
