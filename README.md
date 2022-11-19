@@ -63,7 +63,7 @@ I find this feature of PacUI invaluable for fixing systems. Here are two example
 - A broken keyring makes it impossible to apply updates or install any packages. Executing PacUI without prior installation and using "Fix Pacman Errors" (which does not require "expac" or "fzf") to fix the keyring and all related problems is the easiest and fastest solution I know of.
 
 ### Manual Installation
-PacUI can be manually installed (i.e. executing the same steps as the PKBUILD file) as follows:
+PacUI can be manually installed (i.e. executing the same steps as described in the PKBUILD file) as follows:
 
 1. Download 'pacui' file:
 ```
