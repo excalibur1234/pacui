@@ -2231,7 +2231,7 @@ function func_d
 
             if [[ -n "$pkg" ]]
             then
-                downgrade "$argument_flag"$pkg_downgrade                            # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg_downgrade variable breaks AUR helper and pacman
+                sudo downgrade "$argument_flag"$pkg_downgrade                       # ATTENTION: (i do not know why but) using quotes (" symbols) around $pkg_downgrade variable breaks AUR helper and pacman
             fi
 
         fi
