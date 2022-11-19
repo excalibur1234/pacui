@@ -14,6 +14,7 @@ Table of Contents
    * [Screenshots](#screenshots)
    * [Installation](#installation)
       * [Execute without prior Installation](#execute-without-prior-installation)
+      # [Manual Installation](#manual-installation)
       * [Manjaro](#manjaro)
       * [Arch Linux](#arch-linux)
       * [chaotic-aur](#chaotic-aur)
@@ -61,6 +62,24 @@ I find this feature of PacUI invaluable for fixing systems. Here are two example
 
 - A broken keyring makes it impossible to apply updates or install any packages. Executing PacUI without prior installation and using "Fix Pacman Errors" (which does not require "expac" or "fzf") to fix the keyring and all related problems is the easiest and fastest solution I know of.
 
+### Manual Installation
+PacUI can be manually installed (i.e. executing the same steps as the PKBUILD file) as follows:
+
+1. Download 'pacui' file:
+```
+wget https://raw.githubusercontent.com/excalibur1234/pacui/master/pacui
+```
+
+2. Make 'pacui' file executable:
+```
+chmod +x pacui
+```
+
+3. Install 'pacui' file manually:
+```
+sudo cp pacui /usr/bin/
+```
+
 ### Manjaro
 In Manjaro, you can simply install the stable version of PacUI from the Manjaro repositories:
 ```
@@ -73,7 +92,7 @@ sudo pacman -S pacui-git
 
 ### Arch Linux
 PacUI is [no longer available on the AUR](https://github.com/excalibur1234/pacui/issues/45).
-PKGBUILDs are still availble (see `PKGBUILD_AUR` file) and Pacui can be executed without installation (see above).
+PKGBUILDs are still availble (see `PKGBUILD_AUR` file) and Pacui can be executed without installation or manually installed (see above).
 
 ### chaotic-aur
 Both the stable and -git version of PacUI are in [chaotic-aur](https://lonewolf.pedrohlc.com/chaotic-aur/).  After adding chaotic-aur to your list of repositories, PacUI can be installed using the same commands as within Manjaro (see above).
