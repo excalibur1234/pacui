@@ -164,23 +164,9 @@ It is highly recommended to use an utility, which notifies the user about availa
 Along with PacUI the following settings are recommended by the author:
 
 ### Additional Pacman Settings
-A very easy way to edit the /etc/pacman.conf file by using PacUI is using:
+- An easy way to edit the /etc/pacman.conf file by using PacUI is:
 ```
 pacui c
-```
-
-- A fancy list view for all Pacman updates can be enabled by uncommenting the following line:
-```
-#VerbosePkgLists
-```
-
-- Colorful Pacman output can be enabled by uncommenting the following line:
-```
-#Color
-```
-- Checking of available disk space before installation can be enabled by uncommenting the following line:
-```
-#CheckSpace
 ```
 - A fancy list view for all Pacman updates can be enabled by uncommenting the following line:
 ```
