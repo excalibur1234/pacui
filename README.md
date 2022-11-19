@@ -14,7 +14,7 @@ Table of Contents
    * [Screenshots](#screenshots)
    * [Installation](#installation)
       * [Execute without prior Installation](#execute-without-prior-installation)
-      # [Manual Installation](#manual-installation)
+      * [Manual Installation](#manual-installation)
       * [Manjaro](#manjaro)
       * [Arch Linux](#arch-linux)
       * [chaotic-aur](#chaotic-aur)
