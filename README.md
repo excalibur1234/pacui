@@ -25,7 +25,7 @@ Table of Contents
       * [Start PacUI without UI: Passing Arguments to AUR helper or Pacman](#start-pacui-without-ui-passing-arguments-to-aur-helper-or-pacman)
       * [Multiple installed AUR helpers](#multiple-installed-aur-helpers)
    * [Useful Tips and Recommended Settings](#useful-tips-and-recommended-settings)
-      * [Fancy List View](#fancy-list-view)
+      * [Additional Pacman Settings](#additional-pacman-settings)
       * [Alias](#alias)
       * [Search syntax](#search-syntax)
    * [Help](#help)
@@ -163,14 +163,32 @@ It is highly recommended to use an utility, which notifies the user about availa
 
 Along with PacUI the following settings are recommended by the author:
 
-### Fancy List View
-A fancy list view for all pacman updates can be enabled by uncommenting the following line in your /etc/pacman.conf file:
+### Additional Pacman Settings
+A very easy way to edit the /etc/pacman.conf file by using PacUI is using:
+```
+pacui c
+```
+
+- A fancy list view for all Pacman updates can be enabled by uncommenting the following line:
 ```
 #VerbosePkgLists
 ```
-A very easy way to edit this file by using PacUI is:
+
+- Colorful Pacman output can be enabled by uncommenting the following line:
 ```
-pacui c pacman.conf
+#Color
+```
+- Checking of available disk space before installation can be enabled by uncommenting the following line:
+```
+#CheckSpace
+```
+- A fancy list view for all Pacman updates can be enabled by uncommenting the following line:
+```
+#VerbosePkgLists
+```
+- Parallel Pacman downloads can be enabled by uncommenting the following line:
+```
+#ParallelDownloads = 3
 ```
 
 ### Alias
