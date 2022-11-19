@@ -408,7 +408,7 @@ function func_m
         echo ""
 
 
-        echo " checking symlinks ..."
+        echo " checking symlink(s) ..."
         if [[ -n "$(sudo find -xtype l)" ]]                                         # only run, if output of "sudo find -xtype l -print" is not empty
         then
             echo -e " \e[41m The following symbolic links are broken, please fix them manually: \e[0m"
@@ -429,7 +429,7 @@ function func_m
 
         if [[ -n "$AUR_Helper" ]]                                                   # check, if output of "$AUR_Helper" is non-zero
         then
-            echo " checking AUR packages (which can take a while) ..."
+            echo " checking AUR package(s) (which can take a while) ..."
             # download AUR package list to /tmp/pacui-aur/packages.
 
             #wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null
@@ -463,12 +463,11 @@ function func_m
         echo ""
 
 
-        echo " checking for packages moved to the AUR ..."
+        echo " checking for package(s) moved to the AUR ..."
         local pkg
         # "pacman -Qqm" lists all packages, which are not from the system repositories.  "pacman -Qqem" lists all files, which were explicitly installed, but are not present in the system repositories.
         # comm -23 only outputs unique packages from the 1. list (not present in the 2. list)
         pkg="$(  comm -23 <(pacman -Qqm | sort) <(pacman -Qqem | sort)  )"
-
         # only run the command inside the if-statement, if $pkg variable is not empty
         if [[ -n "$pkg" ]]                                                          # checks, if length of string is non-zero ("-n" conditional bash expression is the opposite of "-z" (check, whether length of string is zero))
         then
@@ -482,7 +481,7 @@ function func_m
 
         if [[ "$(cat /proc/1/comm)" == "systemd" ]]                                 # if init system is systemd
         then
-            echo " cleaning systemd log files ..."
+            echo " cleaning systemd log file(s) ..."
             # limit logs in journalctl to an age of 30 days and a combined size of 50mb
             sudo journalctl --vacuum-size=100M --vacuum-time=30days
         fi
@@ -528,6 +527,45 @@ function func_m
             fi
             echo ""
         fi
+
+
+        if [[ -f /usr/bin/fwupdmgr ]]
+        then
+            echo " checking for firmware update(s) ..."
+            local update_available
+            update_available=false
+
+            fwupdmgr refresh --force &>/dev/null                                        # download the latest metadata from LVFS silently
+            # "LC_ALL=C" forces the output to use english language. this is important, if the output is queried.
+            if ( LC_ALL=C fwupdmgr get-updates | grep 'No updatable devices' ) &>/dev/null                              # fwupd has not found any supported devices
+            then
+                update_available=true
+            elif ( LC_ALL=C fwupdmgr get-updates | grep 'No updates available' ) &>/dev/null                            # fwupd has no available firmware updates
+            then
+                update_available=true
+            elif ( LC_ALL=C fwupdmgr get-updates | grep 'Devices that have been updated successfully' ) &>/dev/null     # fwupd has recently updated a device
+            then
+                update_available=true
+            fi
+
+            if [[ "$update_available" == "true" ]]
+            then
+                echo -e " \e[41m fwupd reports the following: \e[0m"
+                fwupdmgr get-updates
+                echo -e " \e[41m Do you want to execute 'fwupdmgr update'? [y|N] \e[0m"
+                read -r -n 1 -e answer                                                  # save user input in "answer" variable (only accept 1 character as input)
+
+                case ${answer:-n} in                                                    # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "y".
+                    y|Y|yes|YES|Yes )                                                   # do this, if "answer" is y or Y or yes or YES or Yes
+                        fwupdmgr update
+                        ;;
+                    * )                                                                 # do this in all other cases
+                        echo -e " \e[1m 'fwupdmgr update' not executed \e[0m"
+                        ;;
+                esac                                                                    # end of "case" loop
+            fi
+            echo ""
+        fi
 }
 
 
@@ -538,7 +576,7 @@ function func_i
         local {pacui_list_install,pkg}                                              # declare local variables
 
         # write package list of system repositories (package name and description) to $pacui_list_install. %-33n uses printf support in expac to format output nicely (reserve a 33 character wide field for package name %n).
-        pacui_list_install="$(  expac -S "%-33n    %d" )"                             # here the parenthesis in "$(...)" are essential to write multiple lines to a variable! without parenthesis the variable will contain only a single line (space separated)!
+        pacui_list_install="$(  expac -S "%-33n    %d" )"                           # here the parenthesis in "$(...)" are essential to write multiple lines to a variable! without parenthesis the variable will contain only a single line (space separated)!
 
 
         # for performance reasons, there are multiple files of package lists created in the following code. a comparison to local files is much faster than checking, whether a selected package is part of an online repository.
@@ -575,8 +613,8 @@ function func_i
                 echo " downloading list of AUR packages (which can take a while) ..."
 
                 #wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null
-                    #wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && gunzip -f "/tmp/pacui-aur/packages.gz"
-                    curl --url 'https://aur.archlinux.org/packages.gz' --create-dirs --output "/tmp/pacui-aur/packages.gz" &>/dev/null && gunzip -f "/tmp/pacui-aur/packages.gz"
+                #wget -P "/tmp/pacui-aur/" "https://aur.archlinux.org/packages.gz" &>/dev/null && gunzip -f "/tmp/pacui-aur/packages.gz"
+                curl --url 'https://aur.archlinux.org/packages.gz' --create-dirs --output "/tmp/pacui-aur/packages.gz" &>/dev/null && gunzip -f "/tmp/pacui-aur/packages.gz"
             fi
 
             # check, if /tmp/pacui-aur/packages exists. /tmp/pacui-aur/packages does not exist, if there is no internet connection or something went wrong during the download of the list of AUR packages.
@@ -2456,6 +2494,12 @@ The second command removes all old packages from cache except the 3 latest versi
 This long "comm" command compares the output of 2 lists: The first list of <KERNEL NAME> contains (still) available kernels in your repository (which are also installed on your system) and the second list of <KERNEL NAME> contains installed kernels.
 By comparing both lists, it is possible to extract <KERNEL NAME> of so called end-of-live kernels. These installed kernels are no longer supported and do not receive updates anymore. Kernel modules are likely to break. It is highly recommended to remove these kernels.
 Kernels from the AUR are also listed by the "comm" command and trigger a warning. Please decide for yourself, whether you want to keep them or not.
+
+\e[36m"fwupdmgr refresh --force && fwupdmgr get-updates"
+\e[36m"fwupdmgr update"
+fwupd can manage the firmware on (supported) devices in your system. Such devices can be e.g. hard drives, network cards, bluetooth cards, (parts of) UEFI, etc.
+If fwupd is installed, the first command downloads the latest metadata from LVFS and displays any available update(s) for any fwupd-supported devices.
+If any update(s) are available, the second command installs them.
 
 
 \e[1m3 - INSTALL PACKAGES

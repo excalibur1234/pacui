@@ -25,6 +25,7 @@ optdepends=('yay: One AUR helper is needed for AUR support'
             'reflector: Needed for Arch Linux mirror support'
             'flatpak: Needed for Flatpak update support'
             'snapd: Needed for for Snap update support'
+            'fwupd: Needed for firmware update support'
             'downgrade: Needed for hidden "downgrade" option')
 source=("$_pkgname::git+https://github.com/excalibur1234/$_pkgname.git")
 md5sums=('SKIP')

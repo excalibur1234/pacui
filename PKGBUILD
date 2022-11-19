@@ -25,6 +25,7 @@ optdepends=('yay: One AUR helper is needed for AUR support'
             'reflector: Needed for Arch Linux mirror support'
             'flatpak: Needed for Flatpak update support'
             'snapd: Needed for for Snap update support'
+            'fwupd: Needed for firmware update support'
             'downgrade: Needed for hidden "downgrade" option')
 source=("$url/archive/$pkgver.tar.gz")
 md5sums=('39b177c3ef15601e55b929af10eeaf77')
