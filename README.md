@@ -73,7 +73,7 @@ PacUI supports even more features, if these packages are installed:
 - [reflector](https://archlinux.org/packages/community/any/reflector/) (on Arch Linux): PacUI uses "reflector" to update your list of repository mirrors and automatically choose the fastest one for you.
 - [flatpak](https://archlinux.org/packages/extra/x86_64/flatpak/): PacUI uses "flatpak" to update and clean your installed flatpak packages.
 - [snapd](https://aur.archlinux.org/packages/snapd): PacUI uses "snapd" to update and clean your installed snapd packages.
-- [fwupd](https://archlinux.org/packages/community/x86_64/fwupd/): PacUI uses "fwupd" to install available firmware updates for your system.
+- [fwupd](https://archlinux.org/packages/community/x86_64/fwupd/): PacUI uses "fwupd" to install firmware updates for your system.
 - [downgrade](https://aur.archlinux.org/packages/downgrade): PacUI activates a hidden "Downgrade Packages" option, which lets you use "downgrade" from within PacUI.
 
 ### Execute without prior Installation
