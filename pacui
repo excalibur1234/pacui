@@ -535,7 +535,7 @@ function func_m
             local update_available
             update_available=false
 
-            fwupdmgr refresh --force &>/dev/null                                        # download the latest metadata from LVFS silently
+            fwupdmgr refresh --force                                                    # download the latest metadata from LVFS silently
             # "LC_ALL=C" forces the output to use english language. this is important, if the output is queried.
             if ( LC_ALL=C fwupdmgr get-updates | grep 'No updatable devices' ) &>/dev/null                              # fwupd has not found any supported devices
             then
@@ -2497,7 +2497,7 @@ Kernels from the AUR are also listed by the "comm" command and trigger a warning
 
 \e[36m"fwupdmgr refresh --force && fwupdmgr get-updates"
 \e[36m"fwupdmgr update"
-fwupd can manage the firmware on (supported) devices in your system. Such devices can be e.g. hard drives, network cards, bluetooth cards, (parts of) UEFI, etc.
+fwupd can manage the firmware on (supported) devices in your system. Such devices can be e.g. hard drives, SSDs, network cards, bluetooth cards, (parts of) UEFI, etc.
 If fwupd is installed, the first command downloads the latest metadata from LVFS and displays any available update(s) for any fwupd-supported devices.
 If any update(s) are available, the second command installs them.
 

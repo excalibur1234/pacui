@@ -13,6 +13,7 @@ Table of Contents
 
    * [Screenshots](#screenshots)
    * [Installation](#installation)
+      * [Dependencies](#dependencies)
       * [Execute without prior Installation](#execute-without-prior-installation)
       * [Manual Installation](#manual-installation)
       * [Manjaro](#manjaro)
@@ -48,8 +49,36 @@ Installing the package "cantata" from system repositories by entering its name:
 
 ## Installation
 
+### Dependencies
+PacUI has the following hard dependency:
+- sudo
+
+If you want PacUI to fully work, these dependencies are needed as well:
+- [expac](https://github.com/falconindy/expac)
+- [fzf](https://github.com/junegunn/fzf)
+- [pacman-contrib](https://www.archlinux.org/packages/community/x86_64/pacman-contrib/) (on Arch Linux)
+
+By default, Pacman is used for package management. If you want to enable the use of the AUR, PacUI optionally requires at least one of these AUR helpers: 
+- [Yay](https://github.com/Jguer/yay)
+- [Pikaur](https://github.com/actionless/pikaur)
+- [Aurman](https://github.com/polygamma/aurman)
+- [Pakku](https://github.com/kitsunyan/pakku)
+- [Trizen](https://github.com/trizen/trizen)
+- [Paru](https://github.com/Morganamilo/paru)
+- [Pacaur](https://github.com/rmarquis/pacaur)
+- [Pamac-cli](https://aur.archlinux.org/packages/pamac-cli/)
+
+PacUI supports even more features, if these packages are installed:
+- pacman-mirrors (on Manjaro): PacUI uses "pacman-mirrors" to update your list of repository mirrors and automatically choose the fastest one for you.
+- [reflector](https://archlinux.org/packages/community/any/reflector/) (on Arch Linux): PacUI uses "reflector" to update your list of repository mirrors and automatically choose the fastest one for you.
+- [flatpak](https://archlinux.org/packages/extra/x86_64/flatpak/): PacUI uses "flatpak" to update and clean your installed flatpak packages.
+- [snapd](https://aur.archlinux.org/packages/snapd): PacUI uses "snapd" to update and clean your installed snapd packages.
+- [fwupd](https://archlinux.org/packages/community/x86_64/fwupd/): PacUI uses "fwupd" to install available firmware updates for your system.
+- [downgrade](https://aur.archlinux.org/packages/downgrade): PacUI activates a hidden "Downgrade Packages" option, which lets you use "downgrade" from within PacUI.
+
 ### Execute without prior Installation
-For a minimal working version of PacUI, please install its dependencies [expac](https://github.com/falconindy/expac) and [fzf](https://github.com/junegunn/fzf) (and [pacman-contrib](https://www.archlinux.org/packages/community/x86_64/pacman-contrib/) on Arch Linux) using Pacman first (if possible). Then, the PacUI file can be downloaded and run without prior installation:
+If possible, read chapter [Dependencies](#dependencies) first and install any dependencies you need.
+PacUI file can be downloaded and run without prior installation:
 ```
 wget https://raw.githubusercontent.com/excalibur1234/pacui/master/pacui
 ```
@@ -60,21 +89,20 @@ I find this feature of PacUI invaluable for fixing systems. Here are two example
 
 - A large number of updates broke (parts of) the GUI, e.g. xorg, window manager, or desktop environment. In this case, switching to a different tty (with CTRL + ALT + F2), installing PacUI and using "Roll Back System" to roll back all the latest updates can fix the system (temporarily).
 
-- A broken keyring makes it impossible to apply updates or install any packages. Executing PacUI without prior installation and using "Fix Pacman Errors" (which does not require "expac" or "fzf") to fix the keyring and all related problems is the easiest and fastest solution I know of.
+- A broken keyring makes it impossible to apply updates or install any packages. Executing PacUI without prior installation and using "Fix Pacman Errors" (which does not require "expac", "fzf", or "pacman-contrib") to fix the keyring and all related problems is the easiest and fastest solution I know of.
 
 ### Manual Installation
-PacUI can be manually installed (i.e. executing the same steps as described in the PKBUILD file) as follows:
+Please read chapter [Dependencies](#dependencies) first and decide which packages to install to suit your needs.
 
+PacUI can be manually installed (i.e. executing the same steps as described in the PKBUILD file) as follows:
 1. Download 'pacui' file:
 ```
 wget https://raw.githubusercontent.com/excalibur1234/pacui/master/pacui
 ```
-
 2. Make 'pacui' file executable:
 ```
 chmod +x pacui
 ```
-
 3. Install 'pacui' file manually:
 ```
 sudo cp pacui /usr/bin/
@@ -146,14 +174,11 @@ Examples:
 
 
 ### Multiple installed AUR helpers
-Please note that PacUI optionally requires at least one of these AUR helpers to enable use of the AUR.: [Yay](https://github.com/Jguer/yay), [Pikaur](https://github.com/actionless/pikaur), [Aurman](https://github.com/polygamma/aurman), [Pakku](https://github.com/kitsunyan/pakku), [Trizen](https://github.com/trizen/trizen), [Paru](https://github.com/Morganamilo/paru), [Pacaur](https://github.com/rmarquis/pacaur), or [Pamac-cli](https://aur.archlinux.org/packages/pamac-cli/).
+If more than one AUR helper is installed, they are automatically used in the same order as listed [above](#dependencies) (i.e. Yay is used with priority while Pamac-cli is only used as a last resort). A specific AUR helper can be set with the `PACUI_AUR_HELPER` environment variable.
 
-If more than one AUR helper is installed, they are automatically used in the same order as listed above (i.e. Yay is used with priority while Pamac-cli is only used as a last resort). A specific AUR helper can be set with the `PACUI_AUR_HELPER` environment variable.
-
-Alternatively, replacing `$PACUI_AUR_HELPER` with the name of your preferred AUR helper in the following variable (within `/usr/bin/pacui` file) works as well. Note that `$PACUI_AUR_HELPER` needs to be replaced (again) after each PacUI update:
+Environment variables can typically be set by adding them to your /etc/environment file. If this file exists on your system, it can be selected using PacUI's "Edit Config Files" option:
 ```
-# here, the preferred AUR helper can be set manually by the user. for example, AUR_Helper="trizen" uses Trizen despite any other installed AUR helpers.
-AUR_Helper="$PACUI_AUR_HELPER"
+pacui c
 ```
 
 
