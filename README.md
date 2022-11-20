@@ -25,6 +25,7 @@ Table of Contents
       * [Start PacUI without UI: Using Options and Package Names](#start-pacui-without-ui-using-options-and-package-names)
       * [Start PacUI without UI: Passing Arguments to AUR helper or Pacman](#start-pacui-without-ui-passing-arguments-to-aur-helper-or-pacman)
       * [Multiple installed AUR helpers](#multiple-installed-aur-helpers)
+      * [Diff program](#diff-program)
    * [Useful Tips and Recommended Settings](#useful-tips-and-recommended-settings)
       * [Additional Pacman Settings](#additional-pacman-settings)
       * [Alias](#alias)
@@ -181,6 +182,10 @@ Environment variables can typically be set by adding them to your /etc/environme
 pacui c
 ```
 
+### Diff program
+As described in [Detailed PacUI Help](#detailed-pacui-help), PacUI uses [pacdiff](https://wiki.archlinux.org/title/Pacman/Pacnew_and_Pacsave#pacdiff) for comparing .pac* files and a diff program specified by the `DIFFPROG` environment variable.
+
+If the `DIFFPROG` environment variable is not set, PacUI uses its own diff program to (only!) show any differences in old and new .pac* files.
 
 ## Useful Tips and Recommended Settings
 
