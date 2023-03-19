@@ -489,10 +489,10 @@ function func_m
 
         echo " cleaning package cache ..."
         # remove all packages, which are not installed on this system, except the latest versions (this is a back up, in case somebody removes networkmanager)
-        sudo paccache -rvu -k 1
+        sudo paccache --verbose --remove --uninstalled --keep 1
         echo ""
         # remove all package versions, except the latest 3
-        sudo paccache -rv -k 3
+        sudo paccache --verbose --remove --keep 3
         echo ""
         # general comment: "pacaur" is currently the only aur helper, which creates its own download directory for aur packages. the content of this download folder can be cleaned with "pacaur -Sc". But "pacaur -Sc" removes too many files and is therefore not used here.
 
@@ -2488,8 +2488,8 @@ These packages can cause really long update times and are generally a security r
 \e[36m"sudo journalctl --vacuum-size=100M --vacuum-time=30days"
 This command limits all log files in journalctl to a combined size of 250 megabytes and a maximum age of 30 days. This leaves plenty of log files behind to analyze systematic and reoccurring errors while preventing excessive amounts of log files.
 
-\e[36m"paccache -ruvk1"
-\e[36m"paccache -rvk3"
+\e[36m"paccache --verbose --remove --uninstalled --keep 1"
+\e[36m"paccache --verbose --remove --keep 3"
 By default Pacman uses this cache directory for downloading packages: /var/cache/pacman/pkg/ . No cached packages get deleted automatically. The package cache of an old and actively used installation can become quite large. Clean it to regain space on your root partition.
 The first command removes all old packages from cache, which are not installed (anymore) on your system (except the latest version of that package).
 The second command removes all old packages from cache except the 3 latest versions: The version you have currently installed on your system and 2 previous versions. Old package versions are kept to enable you to use ROLL BACK SYSTEM (or to manually downgrade packages) even without a working internet connection.
