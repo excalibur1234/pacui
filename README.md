@@ -70,8 +70,8 @@ By default, Pacman is used for package management. If you want to enable the use
 - [Pamac-cli](https://aur.archlinux.org/packages/pamac-cli/)
 
 PacUI supports even more features, if these packages are installed:
-- pacman-mirrors (on Manjaro): PacUI uses "pacman-mirrors" to update your list of repository mirrors and automatically choose the fastest one for you.
-- [reflector](https://archlinux.org/packages/community/any/reflector/) (on Arch Linux): PacUI uses "reflector" to update your list of repository mirrors and automatically choose the fastest one for you.
+- pacman-mirrors (on Manjaro): PacUI uses "pacman-mirrors" to update your list of repository mirrors and automatically choose the fastest one for you. If this is not installed, "rankmirrors" (which is part of "pacman-contrib") gets used instead.
+- [reflector](https://archlinux.org/packages/community/any/reflector/) (on Arch Linux): PacUI uses "reflector" to update your list of repository mirrors and automatically choose the fastest one for you. If this is not installed, "rankmirrors" (which is part of "pacman-contrib") gets used instead.
 - [flatpak](https://archlinux.org/packages/extra/x86_64/flatpak/): PacUI uses "flatpak" to update and clean your installed flatpak packages.
 - [snapd](https://aur.archlinux.org/packages/snapd): PacUI uses "snapd" to update and clean your installed snapd packages.
 - [fwupd](https://archlinux.org/packages/community/x86_64/fwupd/): PacUI uses "fwupd" to install firmware updates for your system.
