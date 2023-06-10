@@ -315,32 +315,44 @@ function func_m
         fi
 
 
-        # check for "pacman-mirrors" or "reflector" packages. one of those is needed!
         local connection_error
         connection_error=true
-        if [[ -f /usr/bin/pacman-mirrors ]] || [[ -f /usr/bin/reflector ]]
+        echo " choosing fastest mirror (which can take a while) and updating system ..."
+        if [[ -f /usr/bin/pacman-mirrors ]]                                         # checks, whether file "pacman-mirrors" exists
+        then
+            if ( sudo pacman-mirrors -f 0 )                                         # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
+            then
+                sudo pacman -Syyuu
+                connection_error=false
+            fi
+
+        elif [[ -f /usr/bin/reflector ]]                                            # checks, whether file "reflector" exists
         then
 
-            echo " choosing fastest mirror (which can take a while) and updating system ..."
-            if [[ -f /usr/bin/pacman-mirrors ]]                                     # checks, whether file "pacman-mirrors" exists
+            if ( sudo reflector --verbose --protocol https --age 6 --delay 6 --sort rate --connection-timeout 2 --score 30 --fastest 10 --save /etc/pacman.d/mirrorlist )            # sort 30 up-to-date https servers by download rate
             then
-                if ( sudo pacman-mirrors -f 0 )                                     # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
+                sleep 10 && sudo pacman -Syyuu
+                connection_error=false
+            fi
+        else
+            local mirror_server_list
+            mirror_server_list="$( curl --silent 'https://archlinux.org/mirrorlist/?country=all&protocol=https&use_mirror_status=on' )"                 # download list of up-to-date https mirror servers
+
+            if [[ -n  "$mirror_server_list" ]]
+            then
+                mirror_server_list="$( echo "$mirror_server_list" | sed -e 's/^#Server/Server/' -e '/^#/d' )"
+                mirror_server_list="$( echo "$mirror_server_list" | sudo rankmirrors -n 10 --max-time 2 --verbose - )"                                  # sort mirror servers by ping time
+
+                if [[ -n  "$( echo "$mirror_server_list" | awk '/ ... /' )" ]]      # 'rankmirrors' creates a new ouput containing strings " ... "
                 then
+                    echo "$mirror_server_list" | sudo tee /etc/pacman.d/mirrorlist  # overwrite existing file with mirror servers with upated list
                     sudo pacman -Syyuu
                     connection_error=false
                 fi
-
-            elif [[ -f /usr/bin/reflector ]]                                        # checks, whether file "reflector" exists
-            then
-
-                if ( sudo reflector --verbose --protocol https --age 6 --delay 6 --sort rate --connection-timeout 2 --score 30 --fastest 10 --save /etc/pacman.d/mirrorlist )            # If it does exists, then the mirror will sort by it
-                then
-                    sleep 10 && sudo pacman -Syyuu
-                    connection_error=false
-                fi
             fi
-            echo ""
         fi
+        echo ""
+
 
         if [[ "$connection_error" == "false" ]] && [[ -f /usr/bin/flatpak ]]
         then
@@ -1550,24 +1562,34 @@ function func_f
         unset dbpath
 
 
-        # check for "pacman-mirrors" or "reflector" packages. one of those is needed!
-        if [[ -f /usr/bin/pacman-mirrors ]] || [[ -f /usr/bin/reflector ]]
+        echo " fixing mirrors (which can take a while) ..."
+        if [[ -f /usr/bin/pacman-mirrors ]]                                         # do this, if system uses pacman-mirrors (default in Manjaro)
         then
-            echo " fixing mirrors (which can take a while) ..."
-            # do this, if system uses pacman-mirrors (default in Manjaro)
-            if [[ -f /usr/bin/pacman-mirrors ]]
+            sudo pacman-mirrors -f 0 && sudo pacman -Syy                            # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
+            # here, "pacman -Syy" is used to sync to the (potentially new) repository server. this is important!
+            # but "pacman -Syy" (when pacman -S is executed later on) can result in a partially updated system. this cannot be prevented here, because it is possible the user's keys are corrupted and he is no longer able to install/update any packages.
+
+        elif [[ -f /usr/bin/reflector ]]                                            # do this, if system uses reflector (default on Arch Linux or distributions using Arch Linux mirrors/repo servers)
+        then
+            sudo reflector --verbose --protocol https,ftps --age 5 --sort rate --save /etc/pacman.d/mirrorlist && sleep 10 && sudo pacman -Syy
+
+        else
+            local mirror_server_list
+            mirror_server_list="$( curl --silent 'https://archlinux.org/mirrorlist/?country=all&protocol=https&use_mirror_status=on' )"                 # download list of up-to-date https mirror servers
+
+            if [[ -n  "$mirror_server_list" ]]
             then
-                sudo pacman-mirrors -f 0 && sudo pacman -Syy                        # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
-                # here, "pacman -Syy" is used to sync to the (potentially new) repository server. this is important!
-                # but "pacman -Syy" (when pacman -S is executed later on) can result in a partially updated system. this cannot be prevented here, because it is possible the user's keys are corrupted and he is no longer able to install/update any packages.
+                mirror_server_list="$( echo "$mirror_server_list" | sed -e 's/^#Server/Server/' -e '/^#/d' )"
+                mirror_server_list="$( echo "$mirror_server_list" | sudo rankmirrors -n 10 --max-time 2 --verbose - )"                                  # sort mirror servers by ping time
+
+                if [[ -n  "$( echo "$mirror_server_list" | awk '/ ... /' )" ]]      # 'rankmirrors' creates a new ouput containing strings " ... "
+                then
+                    echo "$mirror_server_list" | sudo tee /etc/pacman.d/mirrorlist  # overwrite existing file with mirror servers with upated list
+                    sudo pacman -Syy
+                fi
             fi
-            # do this, if system uses reflector (default on Arch Linux or distributions using Arch Linux mirrors/repo servers)
-            if [[ -f /usr/bin/reflector ]]
-            then
-                sudo reflector --verbose --protocol https,ftps --age 5 --sort rate --save /etc/pacman.d/mirrorlist && sleep 10 && sudo pacman -Syy
-            fi
-            echo ""
         fi
+        echo ""
 
 
         local server
@@ -2790,22 +2812,31 @@ fi
 if ! [[ -f "$dbpath"sync/core.db ]]                                                 # check, whether repository database file "core.db" exists
 then
 
-    # check for "pacman-mirrors" or "reflector" packages. one of those is needed!
-    if [[ -f /usr/bin/pacman-mirrors ]] || [[ -f /usr/bin/reflector ]]
+    echo " choosing fastest mirror (which can take a while) and updating system ..."
+    if [[ -f /usr/bin/pacman-mirrors ]]                                             # checks, whether file "pacman-mirrors" exists
     then
+        sudo pacman-mirrors -f 0 && sudo pacman -Syyu                               # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
 
-        echo " choosing fastest mirror (which can take a while) and updating system ..."
-        if [[ -f /usr/bin/pacman-mirrors ]]                                         # checks, whether file "pacman-mirrors" exists
+    elif [[ -f /usr/bin/reflector ]]                                                # checks, whether file "reflector" exists
+    then
+        sudo reflector --verbose --protocol https,ftps --age 5 --sort rate --save /etc/pacman.d/mirrorlist && sleep 10 && sudo pacman -Syyu          # If it does exists, then the mirror will sort by it
+
+    else
+        local mirror_server_list
+        mirror_server_list="$( curl --silent 'https://archlinux.org/mirrorlist/?country=all&protocol=https&use_mirror_status=on' )"                 # download list of up-to-date https mirror servers
+
+        if [[ -n  "$mirror_server_list" ]]
         then
-            sudo pacman-mirrors -f 0 && sudo pacman -Syyu                           # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
+            mirror_server_list="$( echo "$mirror_server_list" | sed -e 's/^#Server/Server/' -e '/^#/d' )"
+            mirror_server_list="$( echo "$mirror_server_list" | sudo rankmirrors -n 10 --max-time 2 --verbose - )"                                  # sort mirror servers by ping time
 
-        elif [[ -f /usr/bin/reflector ]]                                            # checks, whether file "reflector" exists
-        then
-            sudo reflector --verbose --protocol https,ftps --age 5 --sort rate --save /etc/pacman.d/mirrorlist && sleep 10 && sudo pacman -Syyu          # If it does exists, then the mirror will sort by it
-
+            if [[ -n  "$( echo "$mirror_server_list" | awk '/ ... /' )" ]]          # 'rankmirrors' creates a new ouput containing strings " ... "
+            then
+                echo "$mirror_server_list" | sudo tee /etc/pacman.d/mirrorlist      # overwrite existing file with mirror servers with upated list
+                sudo pacman -Syyu
+            fi
         fi
     fi
-
 fi
 unset dbpath
 
