@@ -2610,6 +2610,10 @@ Here, the risk of a (temporarily) partially updated system has to be considered 
 \e[36m"sudo reflector --verbose --protocol https,ftps --age 5 --sort rate --save /etc/pacman.d/mirrorlist && sudo pacman -Syy" \e[0m(For Arch and other Arch-based distributions)
 This command generates a new mirrorlist of secure and fast repository mirrors/servers. Then it resynchronizes the database to match the mirrors.
 
+\e[36m"sudo rankmirrors -n 10 --max-time 2 --verbose && sudo pacman -Syy" \e[0m(If neither 'pacman-mirrors' nor 'reflector' is installed)
+First, an updated list of secure and up-to-date mirrors/servers is downloaded. Afterward, this list gets ranked by ping using this command.
+Then, the database is resynchronized to match the mirrors.
+
 \e[36m"sudo dirmngr </dev/null"
 Sometimes during key management the package "dirmngr" outputs error messages, which interrupt key management processes (such as the following commands). This command prevents any output from "dirmngr".
 
