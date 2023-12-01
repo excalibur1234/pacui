@@ -358,6 +358,8 @@ function func_m
         then
             echo " cleaning up flatpak packages ..."
             flatpak uninstall --unused --delete-data -y
+            echo " repairing flatpak ..."
+            sudo flatpak repair
             echo ""
         fi
 
@@ -2475,6 +2477,9 @@ This command generates a new mirrorslist of secure and fast repository mirrors/s
 
 \e[36m"flatpak uninstall --unused --delete-data -y" \e[0m(only if flatpak is installed)
 This command cleans up unused flatpak packages, which are typically left over after flatpak updates.
+
+\e[36m"sudo flatpak repair" \e[0m(only if flatpak is installed)
+This command repais anything wrong with flatpak. It can even clean up unneeded files.
 
 \e[36m"sudo pacman -Rsn $(pacman -Qqdt)"
 This option lists all orphaned packages on your system. Orphaned packages are old and no longer needed dependencies (packages not explicitly installed by you), which were never removed from your system.
