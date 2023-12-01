@@ -356,10 +356,10 @@ function func_m
 
         if [[ "$connection_error" == "false" ]] && [[ -f /usr/bin/flatpak ]]
         then
-            echo " cleaning up flatpak packages ..."
-            flatpak uninstall --unused --delete-data -y
-            echo " repairing flatpak ..."
+            echo " repairing flatpak(s) ..."
             sudo flatpak repair
+            echo " cleaning up orphaned flatpak(s) ..."
+            flatpak uninstall --unused --delete-data -y
             echo ""
         fi
 
@@ -2475,11 +2475,11 @@ This command generates a new mirrorlist of all available Manjaro repository mirr
 \e[36m"sudo reflector --verbose --protocol https,ftps --age 5 --sort rate --save /etc/pacman.d/mirrorlist && sudo pacman -Syyuu" \e[0m(for Arch and other Arch-based distros)
 This command generates a new mirrorslist of secure and fast repository mirrors/servers. Then it resyncs the database to match the mirrors and updates the system.
 
+\e[36m"sudo flatpak repair" \e[0m(only if flatpak is installed)
+This command repairs anything wrong with flatpak. It can even clean up unneeded files.
+
 \e[36m"flatpak uninstall --unused --delete-data -y" \e[0m(only if flatpak is installed)
 This command cleans up unused flatpak packages, which are typically left over after flatpak updates.
-
-\e[36m"sudo flatpak repair" \e[0m(only if flatpak is installed)
-This command repais anything wrong with flatpak. It can even clean up unneeded files.
 
 \e[36m"sudo pacman -Rsn $(pacman -Qqdt)"
 This option lists all orphaned packages on your system. Orphaned packages are old and no longer needed dependencies (packages not explicitly installed by you), which were never removed from your system.
