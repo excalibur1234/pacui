@@ -219,7 +219,7 @@ function func_u
 
             local server
             # extract mirror/repository server url from /etc/pacman.d/mirrorlist file with command:
-            server="$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" |awk -F '=' '{print $2}' | awk -F '$' '{print $1}' )"
+            server="$( grep "^Server =" -m 1 "/etc/pacman.d/mirrorlist" | awk -F '=' '{print $2}' | awk -F '$' '{print $1}' )"
 
             # if one of the above update commands has failed, there are multiple points of failure.
             # first, we can force the update, but only for packages from the system repositories and not packages from the AUR. this means, we make sure package updates from system repositories fail:
@@ -1320,7 +1320,7 @@ function func_b
         pacui_aur_install=""                                                        # needed to avoid "unbound variable error"
 
         # get cache directory from file /etc/pacman.conf (without any white spaces) and write results to variable $cache:
-        cache="$( awk -F '=' '/^CacheDir/ {gsub(" ","",$2); print $2}' '/etc/pacman.conf' )"
+        cache="$( awk -F '=' '/CacheDir/ {gsub(" ","",$2); print $2}' '/etc/pacman.conf' )"
         # set variable $cache to default directory, if  variable $cache is empty:
         if [[ -z "$cache" ]]                                                        # if "cache" variable is empty (exact: if output of $cache is zero)
         then
@@ -1398,7 +1398,7 @@ function func_b
                             ## the problem here is that AUR packages are not named/numbered in a constant and easy sortable way. therefore, we search for all files and output their modification date in an easy searchable format (and then, the file name).
                             ## then, "grep" is used to get only package files. then, the list is sorted (by the modification date).
                             ## awk gets rid of the modification date. grep filters for the file name $line. sed only chooses the first/top line.
-                            find "$cachePACAUR" -maxdepth 2 -mindepth 2 -type f -printf "%T+\t%p\n" | grep ".pkg.tar.[gx]z$" | sort -rn | awk '{print $2}' | grep "$line""-" | sed -n '1p'
+                            find "$cachePACAUR" -maxdepth 2 -mindepth 2 -type f -printf "%T+\t%p\n" | grep ".pkg.tar.zst$" | sort -rn | awk '{print $2}' | grep "$line""-" | sed -n '1p'
                         done < <(echo "${pacui_cache_install}")
                     )"
                 fi
@@ -1408,7 +1408,7 @@ function func_b
                     while IFS='' read -r line || [[ -n "$line" ]]
                     do
                         # write name of latest version in cache into variable $pacui_install ("sort" puts latest version on top, which is then selected):
-                        find "$cache" -name "${line}-[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r | sed -n '1p'
+                        find "$cache" -name "${line}-[0-9a-z.-_]*.pkg.tar.zst" | sort -r | sed -n '1p'
                     done < <(echo "${pacui_cache_install}")
                 )"
 
@@ -1464,7 +1464,7 @@ function func_b
                     if [[ -n "$temp2" ]]                                            # checks, if length of string is non-zero ("-n" conditional bash expression is the opposite of "-z" (check, whether length of string is zero))
                     then
                         # write list with all versions of package in cache into file ${pacui_tmp_downgrade} (sorted - newest package version is on top)
-                        find "$cache" -name "${temp2}-[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r > ${pacui_tmp_downgrade}
+                        find "$cache" -name "${temp2}-[0-9a-z.-_]*.pkg.tar.zst" | sort -r > ${pacui_tmp_downgrade}
 
                         if [[ "$AUR_Helper" == "pacaur" ]]                          # checks, whether file "pacaur" exists, i.e. pacaur is installed
                         then
@@ -1472,7 +1472,7 @@ function func_b
                             # the problem here is that AUR packages are not named/numbered in a constant and easy sortable way. therefore, we search for all files and output their modification date in an easy searchable format (and then, the file name).
                             # then, "grep" is used to get only package files. then, the list is sorted (by the modification date).
                             # awk gets rid of the modification date. grep filters for the file name $temp2.
-                            find "$cachePACAUR" -maxdepth 2 -mindepth 2 -type f -printf "%T+\t%p\n" | grep ".pkg.tar.[gx]z$" | sort -rn | awk '{print $2}' | grep "$temp2""-" >> ${pacui_tmp_downgrade}
+                            find "$cachePACAUR" -maxdepth 2 -mindepth 2 -type f -printf "%T+\t%p\n" | grep ".pkg.tar.zst$" | sort -rn | awk '{print $2}' | grep "$temp2""-" >> ${pacui_tmp_downgrade}
                         fi
 
                         # temp3 is supposed to be "2p" when temp1=1 and "3p" when temp1=2 ...  --> needed for "sed" command below
@@ -1533,7 +1533,7 @@ function func_b
                     if [[ -n "$temp2" ]]   # checks, if length of string is non-zero: "-n" conditional bash expression is the opposite of "-z", which checks whether length of string is zero
                     then
                         # write list with all versions of package in cache into file ${pacui_tmp_upgrade} - sorted by newest package version
-                        find "$cache" -name "${temp2}-[0-9a-z.-_]*.pkg.tar.[gx]z" | sort -r > ${pacui_tmp_upgrade}
+                        find "$cache" -name "${temp2}-[0-9a-z.-_]*.pkg.tar.zst" | sort -r > ${pacui_tmp_upgrade}
 
                         if [[ "$AUR_Helper" == "pacaur" ]]                          # checks, whether file "pacaur" exists, i.e. pacaur is installed
                         then
@@ -1541,7 +1541,7 @@ function func_b
                             # the problem here is that AUR packages are not named/numbered in a constant and easy sortable way. therefore, we search for all files and output their modification date in an easy searchable format (and then, the file name).
                             # then, "grep" is used to get only package files. then, the list is sorted (by the modification date).
                             # awk gets rid of the modification date. grep filters for the file name $temp2.
-                            find "$cachePACAUR" -maxdepth 2 -mindepth 2 -type f -printf "%T+\t%p\n" | grep ".pkg.tar.[gx]z$" | sort -rn | awk '{print $2}' | grep "$temp2""-" >> ${pacui_tmp_upgrade}
+                            find "$cachePACAUR" -maxdepth 2 -mindepth 2 -type f -printf "%T+\t%p\n" | grep ".pkg.tar.zst$" | sort -rn | awk '{print $2}' | grep "$temp2""-" >> ${pacui_tmp_upgrade}
                         fi
 
                         # temp3 is supposed to be "2p" when temp1=1 and "3p" when temp1=2 ...  --> needed for "sed" command below
