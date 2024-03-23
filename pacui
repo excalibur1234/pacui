@@ -2486,7 +2486,7 @@ The second part includes options for fixing and configuring your system. Options
 The last part offers options exclusive to Arch User Repository (AUR) management.
 
 
-\e[1m99 - HELP
+\e[1mh - HELP
 Display this help page. A very shot summary of this help page can be displayed in your terminal with "pacui -h" or "pacui h".
 Quit this help page by pressing the Q key.
 
@@ -2644,7 +2644,7 @@ This command shows you a list of all recent Pacman actions sorted by date (using
 \e[1mAttention\e[0m: After downgrading a broken package to a working version, it is recommended to add the package name to your Ignore List ( "IgnorePkg" option in /etc/pacman.conf ). This will prevent Pacman from showing any available updates for this package. The package needs to be removed manually from your Ignore List in order to receive automatic updates again. Alternatively, you can run future updates with the command "sudo pacman -Syu --ignore <PACKAGE NAME>" until a fixed version of that package gets released.
 
 
-\e[31;1m10 - FIX PACMAN ERRORS
+\e[31;1mz - FIX PACMAN ERRORS
 Multiple commands attempt to fix the most common issues Manjaro users have with Pacman.
 Please make sure that your root partition is not full. If you have doubts about this, run MAINTAIN SYSTEM before FIX PACMAN ERRORS.
 
@@ -2723,14 +2723,14 @@ These two commands create a fresh key for you and import and (re-)install all ke
 This command forces a sync of the file database of your system repository with your used repository mirror server. The file database is separate from the package database. The file database enables SEARCH PACKAGE FILES and LIST PACKAGE FILES of packages, which are not installed on your system but only available on your system repository.
 
 
-\e[1m11 - EDIT CONFIG FILES
+\e[1my - EDIT CONFIG FILES
 \e[36m"$EDITOR <FILE NAME>"
 This command opens <FILE NAME> in your default text editor. You can choose between multiple important system configuration files. Files in the root directory are opened with root privileges. The "sudoers" file is edited with \e[36m"sudo visudo"\e[0m (which uses the $SUDO_EDITOR environment variable by default). For some configuration files, additional commands are executed after the text editor is closed in order to avoid system breakage.
 By default the text editor Nano gets used, except custom $EDITOR and $SUDO_EDITOR environment variables have been set. In the text editor Nano, Press CTRL+O to save your changes, ENTER to choose a directory, and CTRL+X to quit Nano.
 \e[1mAttention\e[0m: Changing system configuration files can harm or even destroy your system. In some cases, this can happen with a single mistake. Be extremely careful and always double check your changes before saving and rebooting - especially when editing the files marked in red! It is recommended to search the Arch Wiki for the configuration file you want to edit and read about available and recommended settings.
 
 
-\e[1m12 - LIST PACKAGES BY SIZE
+\e[1mx - LIST PACKAGES BY SIZE
 \e[36m"expac -Q '%m - %n %v' | sort -n -r "
 This command lists packages on your system sorted by their installation size. Both explicitly installed packages and dependencies are displayed. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-ls.
 
@@ -2739,7 +2739,8 @@ EOF
         if [[ -n "$AUR_Helper" ]]
         then
             cat >> /tmp/pacui-help <<- "EOF"
-\e[1m13 - FORCE UPDATE AUR
+
+\e[1mw - FORCE UPDATE AUR
 \e[36m"yay -Syu --devel --needed"
 The Arch User Repository (AUR) is a repository of (mostly) PKGBUILD files. Everybody can create such a PKGBUILD file and upload it to the AUR. A PKGBUILD file contains simple and human readable instructions like where to download the source code from, what dependencies are needed, where to copy files for installation, etc. Your AUR helper can interpret PKGBUILD files and download the source code, install dependencies, build files on your system, and copy these files to the right location (a.k.a. installing a program).
 By checking a PKGBUILD file (and .INSTALL file) you can make sure the source code is loaded from an official download server, no harmful dependencies get installed, and the installation instructions do not contain harmful code.
@@ -2751,7 +2752,8 @@ EOF
         fi
 
         cat >> /tmp/pacui-help <<- "EOF"
-\e[1m14 - LIST INSTALLED FROM AUR
+
+\e[1mv - LIST INSTALLED FROM AUR
 \e[36m"pacman -Qm"
 This command lists all installed packages, which are from the AUR or which were manually installed. Packages, which are installed on your local system, but are no longer available in remote system repositories are listed here, too. They are orphaned and can get removed with MAINTAIN SYSTEM. Please note that all selected lines (toggle selection with your TAB key) will get added to file /tmp/pacui-la.
 If you want a list of all installed packages use REMOVE PACKAGES AND DEPS as described in this Help Page.
@@ -2761,7 +2763,8 @@ EOF
         if [[ -f /usr/bin/downgrade ]]
         then
             cat >> /tmp/pacui-help <<- "EOF"
-\e[1mDOWNGRADE PACKAGES
+
+\e[1md - DOWNGRADE PACKAGES
 \e[36m"downgrade <PACKAGE NAME>"
 Manjaro and Arch Linux use a rolling release development model. This means ALL packages on your system continuously get updated to the latest version. If the latest version of a packages does not work on your system, you can downgrade that package to an earlier, working version.
 This command downgrades <PACKAGE NAME> and offers you a list of old <PACKAGE NAME> versions to choose from. This list includes all old <PACKAGE NAME> versions from your local package cache and online sources (if you have a working internet connection).
@@ -2778,7 +2781,8 @@ EOF
         if [[ -n "$AUR_Helper" ]]
         then
             cat >> /tmp/pacui-help <<- "EOF"
-\e[1mSEARCH (AND INSTALL) FROM AUR
+
+\e[1ma - SEARCH (AND INSTALL) FROM AUR
 \e[36m"yay <PACKAGE NAME>"
 This command searches for <PACKAGE NAME> in all system repositories and the Arch User Repository (AUR). It searches for package names and package descriptions. Some AUR helpers offer an easy way to select and install a subset of these search results, too.
 Example: You can search for "web browser" and you will find Firefox and other web browsers. One or multiple search results can be installed on your system.
