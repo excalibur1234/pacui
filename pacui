@@ -439,16 +439,6 @@ function func_m
             echo -e " \e[1m Display detailed information about a systemd service with: systemctl status <SYSTEMD SERVICE NAME> \e[0m"
             echo
             systemctl list-units --state=failed
-            echo
-        fi
-        echo ""
-
-
-        echo " checking symlink(s) ..."
-        if [[ -n "$(sudo find -xtype l)" ]]                                         # only run, if output of "sudo find -xtype l -print" is not empty
-        then
-            echo -e " \e[41m The following symbolic links are broken, please fix them manually: \e[0m"
-            sudo find -xtype l
         fi
         echo ""
 
@@ -2566,10 +2556,6 @@ In most cases, the syntax does not change and you can simply remove the .pacnew 
 
 \e[36m"systemctl list-units --state=failed"
 This command checks for systemd units in a failed state. It is possible the systemd service will no longer be failed after a reboot. But if a systemd service still fails after a reboot, you should manually fix the problem. Start by using the command "systemctl status <SYSTEMD UNIT NAME>".
-
-\e[36m"sudo find -xtype l" \e[0m(only if there are broken symlinks)
-This command displays a list of broken symbolic links on your system. These links are not deleted by default. You have to decide yourself what to do with them. When you have doubt about deleting them, leave them on your system. They can sometimes cause problems, but they use almost no hard drive space.
-Symbolic links can be removed manually or "sudo find -xtype l -delete" can be used to remove all broken symbolic links.
 
 \e[36m"pacman -Dk"
 This command checks your local package repository for consistency and shows missing packages, dependencies, or other errors. Please refer to "man pacman" for a more detailed explanation.
