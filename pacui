@@ -260,7 +260,7 @@ function func_u
         if [[ -f /usr/bin/flatpak ]]
         then
             echo " updating flatpak packages ..."
-            sudo flatpak update                                                     # both --user and --system in 1 command (as described in documentation)
+            flatpak update                                                          # both --user and --system in 1 command (as described in documentation)
             echo ""
         fi
 }
@@ -358,10 +358,11 @@ function func_m
         then
             echo " repairing flatpak(s) ..."
             sudo flatpak repair --system --verbose                                  # repair system-wide flatpaks
+            echo ""
             flatpak repair --user --verbose                                         # repair per-user flatpaks
             echo ""
             echo " cleaning up orphaned flatpak(s) ..."
-            sudo flatpak uninstall --unused --delete-data --verbose                 # both --user and --system in 1 command (as described in documentation)
+            flatpak uninstall --unused --delete-data --verbose                      # both --user and --system in 1 command (as described in documentation)
             echo ""
         fi
 
