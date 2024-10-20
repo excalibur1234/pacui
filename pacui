@@ -522,36 +522,41 @@ function func_m
         sudo paccache --verbose --remove --keep 3
         echo ""
 
-        if [[ "$AUR_Helper" == "yay" ]]
+        if [[ -d $HOME/.cache/yay/ ]]
         then
             echo " cleaning yay package cache '$HOME/.cache/yay/' ..."
             paccache --verbose --remove --keep 1 --cachedir $HOME/.cache/yay/       # ATTENTION: (i do not know why but) using quotes (" or ' symbols) around cach directory path breaks this command
             echo ""
         fi
-        if [[ "$AUR_Helper" == "pikaur" ]]
+        if [[ -d $HOME/.cache/pikaur/pkg/ ]]
         then
             echo " cleaning pikaur package cache '$HOME/.cache/pikaur/pkg/' ..."
             paccache --verbose --remove --keep 1 --cachedir $HOME/.cache/pikaur/pkg/            # ATTENTION: (i do not know why but) using quotes (" or ' symbols) around cach directory path breaks this command
             echo ""
         fi
-        if [[ "$AUR_Helper" == "aurman" ]]
+        if [[ -d $HOME/.cache/aurman/ ]]
         then
             echo " cleaning aurman package cache '$HOME/.cache/aurman/' ..."
             paccache --verbose --remove --keep 1 --cachedir $HOME/.cache/aurman/    # ATTENTION: (i do not know why but) using quotes (" or ' symbols) around cach directory path breaks this command
             echo ""
         fi
-        if [[ "$AUR_Helper" == "pakku" ]]
+        if [[ -d $HOME/.cache/pakku/ ]]
         then
             echo " cleaning pakku package cache '$HOME/.cache/pakku/' ..."
             paccache --verbose --remove --keep 1 --cachedir $HOME/.cache/pakku/     # ATTENTION: (i do not know why but) using quotes (" or ' symbols) around cach directory path breaks this command
             echo ""
         fi
         # trizen uses package cache directory of pacman
-        if [[ "$AUR_Helper" == "paru" ]]
+        if [[ -d $HOME/.cache/paru/ ]]
         then
             echo " cleaning paru package cache '$HOME/.cache/paru/' ..."
-            paccache --verbose --remove --keep 1 --cachedir $XDG_CACHE_HOME/paru/   # ATTENTION: (i do not know why but) using quotes (" or ' symbols) around cach directory path breaks this command
             paccache --verbose --remove --keep 1 --cachedir $HOME/.cache/paru/      # ATTENTION: (i do not know why but) using quotes (" or ' symbols) around cach directory path breaks this command
+            echo ""
+        fi
+        if [[ -d $XDG_CACHE_HOME/paru/ ]]
+        then
+            echo " cleaning paru package cache '$XDG_CACHE_HOME/paru/' ..."
+            paccache --verbose --remove --keep 1 --cachedir $XDG_CACHE_HOME/paru/   # ATTENTION: (i do not know why but) using quotes (" or ' symbols) around cach directory path breaks this command
             echo ""
         fi
         # pacaur uses package cache directory of pacman
@@ -3286,3 +3291,4 @@ do
 # now, the infinite while-loop will start again from its top by clearing the terminal screen and redrawing the UI
 
 done                                                                                # close while-loop
+
