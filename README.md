@@ -101,13 +101,13 @@ PacUI can be manually installed (i.e. executing the same steps as described in t
 ```
 wget https://raw.githubusercontent.com/excalibur1234/pacui/master/pacui
 ```
-2. Make 'pacui' file executable:
-```
-chmod +x pacui
-```
-3. Install 'pacui' file manually:
+2. Install 'pacui' file manually:
 ```
 sudo cp pacui /usr/bin/
+```
+3. Make 'pacui' file executable:
+```
+sudo chmod +x /usr/bin/pacui
 ```
 
 ### Manjaro
