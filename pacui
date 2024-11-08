@@ -1428,7 +1428,7 @@ function func_b
                     while IFS='' read -r line || [[ -n "$line" ]]
                     do
                         # write name of latest version in cache into variable $pacui_install ("sort" puts latest version on top, which is then selected):
-                        find "$cache" -name "${line}-[0-9a-z.-_]*.pkg.tar.zst" | sort -r | sed -n '1p'
+                        find "$cache" -iname "${line}-[0-9a-z.-_]*.pkg.tar.zst" | sort -r | sed -n '1p'
                     done < <(echo "${pacui_cache_install}")
                 )"
 
@@ -1484,7 +1484,7 @@ function func_b
                     if [[ -n "$temp2" ]]                                            # checks, if length of string is non-zero ("-n" conditional bash expression is the opposite of "-z" (check, whether length of string is zero))
                     then
                         # write list with all versions of package in cache into file ${pacui_tmp_downgrade} (sorted - newest package version is on top)
-                        find "$cache" -name "${temp2}-[0-9a-z.-_]*.pkg.tar.zst" | sort -r > ${pacui_tmp_downgrade}
+                        find "$cache" -iname "${temp2}-[0-9a-z.-_]*.pkg.tar.zst" | sort -r > ${pacui_tmp_downgrade}
 
                         if [[ "$AUR_Helper" == "pacaur" ]]                          # checks, whether file "pacaur" exists, i.e. pacaur is installed
                         then
@@ -1553,7 +1553,7 @@ function func_b
                     if [[ -n "$temp2" ]]   # checks, if length of string is non-zero: "-n" conditional bash expression is the opposite of "-z", which checks whether length of string is zero
                     then
                         # write list with all versions of package in cache into file ${pacui_tmp_upgrade} - sorted by newest package version
-                        find "$cache" -name "${temp2}-[0-9a-z.-_]*.pkg.tar.zst" | sort -r > ${pacui_tmp_upgrade}
+                        find "$cache" -iname "${temp2}-[0-9a-z.-_]*.pkg.tar.zst" | sort -r > ${pacui_tmp_upgrade}
 
                         if [[ "$AUR_Helper" == "pacaur" ]]                          # checks, whether file "pacaur" exists, i.e. pacaur is installed
                         then
