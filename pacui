@@ -725,7 +725,7 @@ function func_i
                     --bind='pgdn:half-page-down,pgup:half-page-up' \
                     --bind='preview-scroll-up:preview-up+preview-up+preview-up,preview-scroll-down:preview-down+preview-down+preview-down' \
                     --margin=1 \
-                    --info=inline-right --no-separator \
+                    --info=inline-right \
                     --no-unicode \
                     --no-separator \
                     --preview-window='right,55%,wrap,<68(bottom,60%,wrap)' \
