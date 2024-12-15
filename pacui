@@ -398,28 +398,6 @@ function func_m
         echo ""
 
 
-        echo " searching potentially unneeded packages ..."
-        # "LC_ALL=C" forces the output to use english language. this is important, if the output is queried.
-        if [[ "$( LC_ALL=C sudo pacman -Rsu --print $(pacman -Qqd) )" != " there is nothing to do" ]]
-        then
-            sudo pacman -Rsu --print $(pacman -Qqd) --color always              # display unneeded packages
-            # ask, whether to remove these packages:
-            echo -e " \e[41m Do you want to remove these potentially unneeded packages? [y|N] \e[0m"
-            echo -e " \e[41m This can cause system breakage! \e[0m"
-            read -r -n 1 -e answer                                              # save user input in "answer" variable (only accept 1 character as input)
-
-            case ${answer:-n} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "n".
-                y|Y|yes|YES|Yes )                                               # do this, if "answer" is y or Y or yes or YES or Yes
-                    sudo pacman -Rsu $(pacman -Qqd) --color always --noconfirm                      # ATTENTION: (i do not know why but) using quotes (" symbols) around $(...) breaks pacman command for multiple packages
-                    ;;
-                * )                                                             # do this in all other cases
-                    echo -e " \e[1m Potentially unneeded packages have not been removed.\e[0m"
-                    ;;
-            esac                                                                # end of "case" loop
-        fi
-        echo ""
-
-
         echo " sudo pacdiff ..."
         #set +u                                                                     # temporarily disable strict mode for environment variables
         if [[ -n "$DIFFPROG" ]]                                                     # this if-condition avoids error message when $DIFFPROG is not set/empty
@@ -516,6 +494,59 @@ function func_m
         echo ""
 
 
+        local installed_kernels                                                     # declare local variable
+        # filter installed kernels from boot sector and determine, which package owns that file. this yields the package name of all installed kernels (including kernels from the AUR):
+        installed_kernels="$( pacman -Qq | grep -E '^linux$|^linux-lts$|^linux-zen$|^linux-hardened$|^linux[0-9]*$' | sort -u )"    # search for one of the following (hardcoded) package names of the linux kernel within arch linux (linux, linux-lts, linux-zen, or linux-hardened) or manjaro (linuxXY).
+        # check, whether any installed kernels have been found  (in ARCH linux, no kernels are found, but this is ok, because kernels are not EOLd as in Manjaro)
+        if [[ -n "$installed_kernels" ]]
+        then
+            echo " checking installed kernel(s) ..."
+
+            local {available_kernels,eol_kernels}                                   # declare local variables
+            # Check if installed kernels are available in repositories and forward it/them to available_kernels variable:
+            available_kernels="$(
+                for p in $( echo "$installed_kernels" )                             # ATTENTION: using quotes (" symbols) around $(...) breaks for-loop
+                do
+                    pacman -Ssq "^$p$"
+                done | sort -u )"
+            # filter kernels to $eol_kernels variable, which are installed but no longer available:
+            eol_kernels="$( comm -13 <(echo "$available_kernels") <(echo "$installed_kernels") )"
+            # print warning message, if end-of-life kernel(s) are found:
+            if [[ -n "$eol_kernels" ]]
+            then
+                echo
+                echo -e " \e[41m The following Linux kernel(s) are no longer available in your system repositories. \e[0m"
+                echo -e " \e[1m Do not expect any security or stability fixes for the(se) kernel(s) anymore. \e[0m"
+                echo -e " \e[1m Kernel modules are likely to break. It is recommended to remove the kernel(s).\e[0m"
+                echo -e " \e[1m If the(se) kernel(s) are taken from the AUR, you may safely ignore this warning. \e[0m"
+                echo "$eol_kernels"
+            fi
+            echo ""
+        fi
+
+
+        echo " searching potentially unneeded packages ..."
+        # "LC_ALL=C" forces the output to use english language. this is important, if the output is queried.
+        if [[ "$( LC_ALL=C sudo pacman -Rsu --print $(pacman -Qqd) )" != " there is nothing to do" ]]
+        then
+            sudo pacman -Rsu --print $(pacman -Qqd) --color always              # display unneeded packages
+            # ask, whether to remove these packages:
+            echo -e " \e[41m Do you want to remove these potentially unneeded packages? [y|N] \e[0m"
+            echo -e " \e[41m This can cause system breakage! \e[0m"
+            read -r -n 1 -e answer                                              # save user input in "answer" variable (only accept 1 character as input)
+
+            case ${answer:-n} in                                                # if ENTER is pressed, the variable "answer" is empty. if "answer" is empty, its default value is "n".
+                y|Y|yes|YES|Yes )                                               # do this, if "answer" is y or Y or yes or YES or Yes
+                    sudo pacman -Rsu $(pacman -Qqd) --color always --noconfirm                      # ATTENTION: (i do not know why but) using quotes (" symbols) around $(...) breaks pacman command for multiple packages
+                    ;;
+                * )                                                             # do this in all other cases
+                    echo -e " \e[1m Potentially unneeded packages have not been removed.\e[0m"
+                    ;;
+            esac                                                                # end of "case" loop
+        fi
+        echo ""
+
+
         echo " cleaning pacman package cache ..."
         # remove all packages, which are not installed on this system, except the latest versions (this is a back up, in case somebody removes networkmanager)
         sudo paccache --verbose --remove --uninstalled --keep 1
@@ -566,37 +597,6 @@ function func_m
         then
             echo " cleaning pamac package cache ..."
             pamac clean --keep 2
-            echo ""
-        fi
-
-
-        local installed_kernels                                                     # declare local variable
-        # filter installed kernels from boot sector and determine, which package owns that file. this yields the package name of all installed kernels (including kernels from the AUR):
-        installed_kernels="$( pacman -Qq | grep -E '^linux$|^linux-lts$|^linux-zen$|^linux-hardened$|^linux[0-9]*$' | sort -u )"    # search for one of the following (hardcoded) package names of the linux kernel within arch linux (linux, linux-lts, linux-zen, or linux-hardened) or manjaro (linuxXY).
-        # check, whether any installed kernels have been found  (in ARCH linux, no kernels are found, but this is ok, because kernels are not EOLd as in Manjaro)
-        if [[ -n "$installed_kernels" ]]
-        then
-            echo " checking installed kernel(s) ..."
-
-            local {available_kernels,eol_kernels}                                   # declare local variables
-            # Check if installed kernels are available in repositories and forward it/them to available_kernels variable:
-            available_kernels="$(
-                for p in $( echo "$installed_kernels" )                             # ATTENTION: using quotes (" symbols) around $(...) breaks for-loop
-                do
-                    pacman -Ssq "^$p$"
-                done | sort -u )"
-            # filter kernels to $eol_kernels variable, which are installed but no longer available:
-            eol_kernels="$( comm -13 <(echo "$available_kernels") <(echo "$installed_kernels") )"
-            # print warning message, if end-of-life kernel(s) are found:
-            if [[ -n "$eol_kernels" ]]
-            then
-                echo
-                echo -e " \e[41m The following Linux kernel(s) are no longer available in your system repositories. \e[0m"
-                echo -e " \e[1m Do not expect any security or stability fixes for the(se) kernel(s) anymore. \e[0m"
-                echo -e " \e[1m Kernel modules are likely to break. It is recommended to remove the kernel(s).\e[0m"
-                echo -e " \e[1m If the(se) kernel(s) are taken from the AUR, you may safely ignore this warning. \e[0m"
-                echo "$eol_kernels"
-            fi
             echo ""
         fi
 
@@ -2549,9 +2549,6 @@ This command cleans up unused flatpak packages, which are typically left over af
 This option lists all orphaned packages on your system. Orphaned packages are old and no longer needed dependencies (packages not explicitly installed by you), which were never removed from your system.
 If you want to keep an orphaned package, use this command: "sudo pacman -D --asexplicit <PACKAGE NAME>"
 
-\e[36m"sudo pacman -Rsu $(pacman -Qqd)"
-This option lists all potentially unneeded packages on your system. Potentially unneeded packages (not detected by "sudo pacman -Rsn $(pacman -Qqdt)" previously) are e.g. dependency cycles (also known as "circular dependencies"), excessive dependencies (fulfilled more than once), some non-explicit optionals etc.
-
 \e[36m"sudo pacdiff"
 A .pacnew file may be created during a package upgrade to avoid overwriting a file (e.g. a config file) which already exists and was previously modified by the user. A .pacsave file may be created during a package removal, or by a package installation (the package must be removed first). These files require manual intervention from the user and it is good practice to handle them regularly - ideally everytime a .pacnew/.pacsave file has been created.
 This command offers you a choice, whether you want to keep the original file (and delete the .pacnew/.pacsave file) or overwrite the original file with the .pacnew/.pacsave file (the original file is backed up automatically with an added dash "-" to the end of its file name).
@@ -2580,6 +2577,14 @@ These packages can cause really long update times and are generally a security r
 \e[36m"sudo journalctl --vacuum-size=100M --vacuum-time=30days"
 This command limits all log files in journalctl to a combined size of 250 megabytes and a maximum age of 30 days. This leaves plenty of log files behind to analyze systematic and reoccurring errors while preventing excessive amounts of log files.
 
+\e[36m"comm -13 <(echo "$available_kernels") <(echo "$installed_kernels")" \e[0m(for Manjaro)
+This long "comm" command compares the output of 2 lists: The first list of <KERNEL NAME> contains (still) available kernels in your repository (which are also installed on your system) and the second list of <KERNEL NAME> contains installed kernels.
+By comparing both lists, it is possible to extract <KERNEL NAME> of so called end-of-live kernels. These installed kernels are no longer supported and do not receive updates anymore. Kernel modules are likely to break. It is highly recommended to remove these kernels.
+Kernels from the AUR are also listed by the "comm" command and trigger a warning. Please decide for yourself, whether you want to keep them or not.
+
+\e[36m"sudo pacman -Rsu $(pacman -Qqd)"
+This option lists all potentially unneeded packages on your system. Potentially unneeded packages (not detected by "sudo pacman -Rsn $(pacman -Qqdt)" previously) are e.g. dependency cycles (also known as "circular dependencies"), excessive dependencies (fulfilled more than once), some non-explicit optionals etc.
+
 \e[36m"sudo paccache --verbose --remove --uninstalled --keep 1"
 \e[36m"sudo paccache --verbose --remove --keep 3"
 \e[36m"paccache --verbose --remove --keep 1 --cachedir $HOME/.cache/yay/"
@@ -2587,11 +2592,6 @@ By default Pacman uses this cache directory for downloading packages: /var/cache
 The first command removes all old packages from cache, which are not installed (anymore) on your system (except the latest version of that package).
 The second command removes all old packages from cache except the 3 latest versions: The version you have currently installed on your system and 2 previous versions. Old package versions are kept to enable you to use ROLL BACK SYSTEM (or to manually downgrade packages) even without a working internet connection.
 The third command removes built AUR packages (except the latest version).
-
-\e[36m"comm -13 <(echo "$available_kernels") <(echo "$installed_kernels")" \e[0m(for Manjaro)
-This long "comm" command compares the output of 2 lists: The first list of <KERNEL NAME> contains (still) available kernels in your repository (which are also installed on your system) and the second list of <KERNEL NAME> contains installed kernels.
-By comparing both lists, it is possible to extract <KERNEL NAME> of so called end-of-live kernels. These installed kernels are no longer supported and do not receive updates anymore. Kernel modules are likely to break. It is highly recommended to remove these kernels.
-Kernels from the AUR are also listed by the "comm" command and trigger a warning. Please decide for yourself, whether you want to keep them or not.
 
 \e[36m"fwupdmgr refresh --force && fwupdmgr get-updates"
 \e[36m"fwupdmgr update"
