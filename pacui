@@ -490,6 +490,10 @@ function func_m
             echo " cleaning systemd log file(s) ..."
             # limit logs in journalctl to an age of 30 days and a combined size of 50mb
             sudo journalctl --vacuum-size=100M --vacuum-time=30days
+
+            echo ""
+            echo " cleaning systemd core dump file(s) ..."
+            sudo systemd-tmpfiles --clean
         fi
         echo ""
 
@@ -2576,6 +2580,9 @@ These packages can cause really long update times and are generally a security r
 
 \e[36m"sudo journalctl --vacuum-size=100M --vacuum-time=30days"
 This command limits all log files in journalctl to a combined size of 250 megabytes and a maximum age of 30 days. This leaves plenty of log files behind to analyze systematic and reoccurring errors while preventing excessive amounts of log files.
+
+\e[36m"sudo systemd-tmpfiles --clean"
+This command cleans core dump file(s) in /var/lib/systemd/coredump/
 
 \e[36m"comm -13 <(echo "$available_kernels") <(echo "$installed_kernels")" \e[0m(for Manjaro)
 This long "comm" command compares the output of 2 lists: The first list of <KERNEL NAME> contains (still) available kernels in your repository (which are also installed on your system) and the second list of <KERNEL NAME> contains installed kernels.
