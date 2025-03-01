@@ -247,8 +247,3 @@ For short help, e.g. when using PacUI without UI, use one of the following comma
 Choose the "Help" option within PacUI's UI by pressing "H" or "h". `pacui --help` from the terminal will call PacUI's detailed help page, too.
 
 This help page explains some general stuff such as how to navigate PacUI. It also explains every PacUI option in detail. If you want to look up which commands PacUI uses under the hood and understand them in order to use PacUI correctly, this is the right place for you!
-
-### Manjaro Forum Threads
- - [New Forum](https://forum.manjaro.org/t/pacui-bash-script-providing-advanced-pacman-and-yay-pikaur-aurman-pakku-trizen-pacaur-pamac-cli-functionality-in-a-simple-ui/561)
- - [Archived Forum - Read-Only Topic](https://archived.forum.manjaro.org/t/pacui-a-simple-bash-frontend-for-pacman-and-yaourt-pacaur/677)
- - [Classic Forum - Inactive Thread](https://classicforum.manjaro.org/index.php?topic=21399.0)
