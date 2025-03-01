@@ -33,7 +33,6 @@ Table of Contents
    * [Help](#help)
       * [Short PacUI Help](#short-pacui-help)
       * [Detailed PacUI Help](#detailed-pacui-help)
-      * [Manjaro Forum Threads](#manjaro-forum-threads)
 
 
 ## Screenshots
