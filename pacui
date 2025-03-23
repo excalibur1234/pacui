@@ -328,11 +328,27 @@ function func_m
 
         elif [[ -f /usr/bin/reflector ]]                                            # checks, whether file "reflector" exists
         then
-
-            if ( sudo reflector --verbose --protocol https --age 6 --delay 6 --sort rate --connection-timeout 2 --score 30 --fastest 10 --save /etc/pacman.d/mirrorlist )            # sort 30 up-to-date https servers by download rate
+            if [[ -f /etc/xdg/reflector/reflector.conf ]]
             then
-                sleep 10 && sudo pacman -Syyuu
+                # test repository mirros/servers as configured in file /etc/xdg/reflector/reflector.conf and sync and update from that server:
+                sudo reflector @/etc/xdg/reflector/reflector.conf --verbose && sudo pacman -Syyuu
                 connection_error=false
+            else
+
+                local country
+                # select country code (of all available repository servers/mirrors) using fzf:
+                country="$(
+                    reflector --list-countries | tail -n +3 | awk '{$NF=""; print}' |
+                    fzf -i --multi --exact --no-sort --layout=reverse --bind='pgdn:half-page-down,pgup:half-page-up' --margin=1 --info=inline-right --no-separator --no-unicode --preview-window='right,55%,wrap,<68(bottom,60%,wrap)' --header="Select your closest country. ENTER to confirm. ESC to quit." --prompt='Enter string to filter > '  |
+                    awk '{print $NF}' | paste -sd ","
+                    )"
+                if [[ -n "$country" ]]
+                then
+                    # test repository mirros/servers from those countries and selecting one and update:
+                    sudo reflector --verbose --protocol https,ftps,sftp,ssh --age 12 --delay 12 --sort rate --connection-timeout 2 --fastest 10 --country="$( echo "$country" )"  --save /etc/pacman.d/mirrorlist && sudo pacman -Syyuu
+                    connection_error=false
+                fi
+
             fi
         else
             local mirror_server_list
@@ -1637,7 +1653,7 @@ function func_f
 
         elif [[ -f /usr/bin/reflector ]]                                            # do this, if system uses reflector (default on Arch Linux or distributions using Arch Linux mirrors/repo servers)
         then
-            sudo reflector --verbose --protocol https,ftps --age 5 --sort rate --save /etc/pacman.d/mirrorlist && sleep 10 && sudo pacman -Syy
+            sudo reflector --verbose --age 24 --save /etc/pacman.d/mirrorlist && sleep 10 && sudo pacman -Syy
 
         else
             local mirror_server_list
@@ -1941,7 +1957,7 @@ function func_c
         [[ -f $HOME/.gnupg/gpg.conf ]]                  && echo -e "\e[31m$HOME/.gnupg/gpg.conf                                                                                                                                                                                                                                      Configure GnuPG user settings in file:\e[0m" >> "${pacui_config}"
         [[ -f /etc/pacman.conf ]]                       && echo -e "\e[31m/etc/pacman.conf                                                                                                                                                                                                                                           Configure Pacman in file:\e[0m" >> "${pacui_config}"
         [[ -f /etc/pacman-mirrors.conf ]]               && echo -e "/etc/pacman-mirrors.conf                                                                                                                                                                                                                                         Configure Manjaro's pacman-mirrors in file:" >> "${pacui_config}"
-        [[ -f /etc/xdg/reflector/reflector.conf ]]      && echo -e "/etc/xdg/reflector/reflector.conf                                                                                                                                                                                                                                Configure Arch Linux's reflector in file:" >> "${pacui_config}"
+        [[ -f /etc/xdg/reflector/reflector.conf ]]      && echo -e "/etc/xdg/reflector/reflector.conf                                                                                                                                                                                                                                Configure (only) reflector service and MAINTAIN SYSTEM in file:" >> "${pacui_config}"
         [[ -f /etc/pacman.d/mirrorlist ]]               && echo -e "/etc/pacman.d/mirrorlist                                                                                                                                                                                                                                         Configure mirror list manually in file:" >> "${pacui_config}"
         [[ -f $HOME/.config/trizen/trizen.conf ]]       && echo -e "$HOME/.config/trizen/trizen.conf                                                                                                                                                                                                                                 Configure Trizen in file:" >> "${pacui_config}"
         [[ -f $HOME/.config/yay/config.json ]]          && echo -e "$HOME/.config/yay/config.json                                                                                                                                                                                                                                    Configure Yay in file:" >> "${pacui_config}"
@@ -2529,8 +2545,8 @@ This command deletes all partially downloaded packages from Pacman cache directo
 \e[36m"sudo pacman-mirrors -f 0 && sudo pacman -Syyuu" \e[0m(for Manjaro)
 This command generates a new mirrorlist of all available Manjaro repository mirrors/servers and sorts it by ping of up-to-date mirrors/servers. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror and the system is updated. If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -f 0 -c Germany,France". In order to prevent a partially updated system after the change to another repository mirror/server, all packagaes are updated/downgraded to the repository version using "sudo pacman -Suu".
 
-\e[36m"sudo reflector --verbose --protocol https,ftps --age 5 --sort rate --save /etc/pacman.d/mirrorlist && sudo pacman -Syyuu" \e[0m(for Arch and other Arch-based distros)
-This command generates a new mirrorslist of secure and fast repository mirrors/servers. Then it resyncs the database to match the mirrors and updates the system.
+\e[36m"sudo reflector @/etc/xdg/reflector/reflector.conf --verbose && sudo pacman -Syyuu" \e[0m(for Arch and other Arch-based distros)
+This command generates a new mirrorslist of repository mirrors/servers as configured in file /etc/xdg/reflector/reflector.conf. Then it resyncs the database to match the mirrors and updates the system. If this configuration file is not present, a manual fallback is used instead.
 
 \e[36m"flatpak repair" \e[0m(only if flatpak is installed)
 This command repairs anything wrong with flatpak. It can even clean up unneeded files.
@@ -2675,8 +2691,8 @@ This command removes Pacmans database lock. The database lock prevents multiple 
 This command generates a new mirrorslist of all available Manjaro repository mirrors/servers and sorts it by ping of up-to-date mirrors/servers. Additionally, the latest package database is downloaded from the chosen Manjaro repository mirror. If you want to speed up this command, it is recommended to only test your connection quality to Manjaro mirrors/servers near you. Example: You have noticed the pings to German and French mirrors are always best for you. Then, you can run: "sudo pacman-mirrors -c Germany,France".
 Here, the risk of a (temporarily) partially updated system has to be considered against the effort to fix all systems, including systems on which it is no longer possible to install any packages. The system can be put in a partially updated state during the course of FIX PACMAN ERRORS, but at the end of FIX PACMAN ERRORS the complete system is updated.
 
-\e[36m"sudo reflector --verbose --protocol https,ftps --age 5 --sort rate --save /etc/pacman.d/mirrorlist && sudo pacman -Syy" \e[0m(For Arch and other Arch-based distributions)
-This command generates a new mirrorlist of secure and fast repository mirrors/servers. Then it resynchronizes the database to match the mirrors.
+\e[36m"sudo reflector --verbose --age 24 --save /etc/pacman.d/mirrorlist && sudo pacman -Syy" \e[0m(For Arch and other Arch-based distributions)
+This command generates a new mirrorlist of repository mirrors/servers. Then it resynchronizes the database to match the mirrors.
 
 \e[36m"sudo rankmirrors -n 10 --max-time 2 --verbose && sudo pacman -Syy" \e[0m(If neither 'pacman-mirrors' nor 'reflector' is installed)
 First, an updated list of secure and up-to-date mirrors/servers is downloaded. Afterward, this list gets ranked by ping using this command.
@@ -2895,7 +2911,7 @@ then
 
     elif [[ -f /usr/bin/reflector ]]                                                # checks, whether file "reflector" exists
     then
-        sudo reflector --verbose --protocol https,ftps --age 5 --sort rate --save /etc/pacman.d/mirrorlist && sleep 10 && sudo pacman -Syyu          # If it does exists, then the mirror will sort by it
+        sudo reflector --verbose --age 24 --save /etc/pacman.d/mirrorlist && sudo pacman -Syyu          # If it does exists, then the mirror will sort by it
 
     else
         local mirror_server_list
