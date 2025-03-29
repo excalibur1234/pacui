@@ -124,7 +124,7 @@ PacUI is [no longer available on the AUR](https://github.com/excalibur1234/pacui
 PKGBUILDs are still availble (see `PKGBUILD_AUR` file) and Pacui can be executed without installation or manually installed (see above).
 
 ### chaotic-aur
-Both the stable and -git version of PacUI are in [chaotic-aur](https://lonewolf.pedrohlc.com/chaotic-aur/).  After adding chaotic-aur to your list of repositories, PacUI can be installed using the same commands as within Manjaro (see above).
+Both the stable and -git version of PacUI are in [chaotic-aur](https://aur.chaotic.cx/packages?search=pacui).  After adding chaotic-aur to your list of repositories, PacUI can be installed using the same commands as within Manjaro (see above).
 
 
 ## Usage
