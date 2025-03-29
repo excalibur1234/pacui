@@ -56,8 +56,8 @@ PacUI has the following hard dependency:
 If you want PacUI to fully work, these dependencies are needed as well:
 - [expac](https://github.com/falconindy/expac)
 - [fzf](https://github.com/junegunn/fzf)
-- less
-- [pacman-contrib](https://www.archlinux.org/packages/community/x86_64/pacman-contrib/) (on Arch Linux)
+- [less](https://archlinux.org/packages/core/x86_64/less/)
+- [pacman-contrib](https://archlinux.org/packages/extra/x86_64/pacman-contrib/) (on Arch Linux)
 
 By default, Pacman is used for package management. If you want to enable the use of the AUR, PacUI optionally requires at least one of these AUR helpers: 
 - [Yay](https://github.com/Jguer/yay)
@@ -71,10 +71,10 @@ By default, Pacman is used for package management. If you want to enable the use
 
 PacUI supports even more features, if these packages are installed:
 - pacman-mirrors (on Manjaro): PacUI uses "pacman-mirrors" to update your list of repository mirrors and automatically choose the fastest one for you. If this is not installed, "rankmirrors" (which is part of "pacman-contrib") gets used instead.
-- [reflector](https://archlinux.org/packages/community/any/reflector/) (on Arch Linux): PacUI uses "reflector" to update your list of repository mirrors and automatically choose the fastest one for you. If this is not installed, "rankmirrors" (which is part of "pacman-contrib") gets used instead.
+- [reflector](https://archlinux.org/packages/extra/any/reflector/) (on Arch Linux): PacUI uses "reflector" to update your list of repository mirrors and automatically choose the fastest one for you. If this is not installed, "rankmirrors" (which is part of "pacman-contrib") gets used instead.
 - [flatpak](https://archlinux.org/packages/extra/x86_64/flatpak/): PacUI uses "flatpak" to update and clean your installed flatpak packages.
 - [snapd](https://aur.archlinux.org/packages/snapd): PacUI uses "snapd" to update and clean your installed snapd packages.
-- [fwupd](https://archlinux.org/packages/community/x86_64/fwupd/): PacUI uses "fwupd" to install firmware updates for your system.
+- [fwupd](https://archlinux.org/packages/extra/x86_64/fwupd/): PacUI uses "fwupd" to install firmware updates for your system.
 - [downgrade](https://aur.archlinux.org/packages/downgrade): PacUI activates a hidden "Downgrade Packages" option, which lets you use "downgrade" from within PacUI.
 
 ### Execute without prior Installation
@@ -189,7 +189,11 @@ If the `DIFFPROG` environment variable is not set, PacUI uses its own diff progr
 
 ## Useful Tips and Recommended Settings
 
-It is highly recommended to use an utility, which notifies the user about available updates alongside of PacUI. Such a lightweight utility is for example [update-notifier](https://github.com/Chrysostomus/update-notifier).
+It is highly recommended to use an utility, which notifies the user about available updates alongside of PacUI. 
+The [Arch Wiki recommends](https://wiki.archlinux.org/title/System_maintenance#Partial_upgrades_are_unsupported) for this: 
+```
+checkupdates
+```
 
 Along with PacUI the following settings are recommended by the author:
 
