@@ -3297,7 +3297,7 @@ do
         * )                                                                         # do this, if $choice variable contains anything else not offered above
             echo -e " \e[41m Wrong option \e[0m"
             echo -e "  Please try again...  "
-            sleep 2
+            sleep 1
             ;;
 
     esac                                                                            # close case-loop

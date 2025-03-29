@@ -198,13 +198,10 @@ Along with PacUI the following settings are recommended by the author:
 ```
 pacui c
 ```
-- A fancy list view for all Pacman updates can be enabled by uncommenting the following line:
+- A fancy list view for all Pacman updates can be enabled by uncommenting the following lines:
 ```
+#Color
 #VerbosePkgLists
-```
-- Parallel Pacman downloads can be enabled by uncommenting the following line:
-```
-#ParallelDownloads = 3
 ```
 
 ### Alias
@@ -245,4 +242,8 @@ For short help, e.g. when using PacUI without UI, use one of the following comma
 ### Detailed PacUI Help
 Choose the "Help" option within PacUI's UI by pressing "H" or "h". `pacui --help` from the terminal will call PacUI's detailed help page, too.
 
-This help page explains some general stuff such as how to navigate PacUI. It also explains every PacUI option in detail. If you want to look up which commands PacUI uses under the hood and understand them in order to use PacUI correctly, this is the right place for you!
+This help page explains some general stuff such as how to navigate PacUI. It also explains every PacUI option in detail. If you want to look up which commands PacUI uses in general under the hood and understand them in order to use PacUI correctly, this is the right place for you!
+
+Internally, PacUI uses even more commands than mentioned in the detailed help page. 
+If are brave enough, feel free to take a look in your /usr/bin/pacui file. It is a single BASH script of about 3k lines. However, there are many function, which are each much shorter. In general, the most easy to read code is used (even if it is longer) including many comments!
+If you still have trouble understanding the code of PacUI, try asking an AI for explanations of (a limited subset of PacUI's code)!
