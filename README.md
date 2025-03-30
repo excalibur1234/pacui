@@ -28,6 +28,7 @@ Table of Contents
       * [Diff program](#diff-program)
    * [Useful Tips and Recommended Settings](#useful-tips-and-recommended-settings)
       * [Additional Pacman Settings](#additional-pacman-settings)
+      * [Additional Reflector Settings](#additional-reflector-settings)
       * [Alias](#alias)
       * [Search syntax](#search-syntax)
    * [Help](#help)
@@ -207,6 +208,14 @@ pacui c
 #Color
 #VerbosePkgLists
 ```
+
+### Additional Reflector Settings
+PacUI uses the same configuration file for Reflector as the optional systemd service and timer in Arch Linux. An easy way to edit this /etc/xdg/reflector/reflector.conf file by using PacUI is:
+```
+pacui c
+```
+In this file, it is recommended to edit at least the `--country` flag for your nearest country. 
+This can speed up MAINTAIN SYSTEM dramatically and yield better results.
 
 ### Alias
 If you use PacUI without the UI it is recommended to use an alias for PacUI to reduce the amount of necessary typing. Do this by adding the following line to your ~/.bashrc file (if you use bash):
