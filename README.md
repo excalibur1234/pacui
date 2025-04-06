@@ -210,11 +210,14 @@ pacui c
 ```
 
 ### Additional Reflector Settings
-PacUI uses the same configuration file for Reflector as the optional systemd service and timer in Arch Linux. An easy way to edit this /etc/xdg/reflector/reflector.conf file by using PacUI is:
+PacUI uses Reflector, if it is found on the system.
+
+PacUI uses the same configuration file for Reflector as the optional systemd service and timer in Arch Linux. An easy way to edit this file '/etc/xdg/reflector/reflector.conf' by using PacUI is:
 ```
 pacui c
 ```
 In this file, it is recommended to edit at least the `--country` flag for your nearest country. 
+
 This can speed up MAINTAIN SYSTEM dramatically and yield better results.
 
 ### Alias
