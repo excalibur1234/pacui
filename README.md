@@ -76,11 +76,11 @@ PacUI supports even more features, if these packages are installed:
 - [flatpak](https://archlinux.org/packages/extra/x86_64/flatpak/): PacUI uses "flatpak" to update and clean your installed flatpak packages.
 - [snapd](https://aur.archlinux.org/packages/snapd): PacUI uses "snapd" to update and clean your installed snapd packages.
 - [fwupd](https://archlinux.org/packages/extra/x86_64/fwupd/): PacUI uses "fwupd" to install firmware updates for your system.
-- [downgrade](https://aur.archlinux.org/packages/downgrade): PacUI activates a hidden "Downgrade Packages" option, which lets you use "downgrade" from within PacUI.
+- [downgrade](https://aur.archlinux.org/packages/downgrade): PacUI activates a hidden DOWNGRADE PACKAGES option, which lets you use "downgrade" from within PacUI.
 
 ### Execute without prior Installation
 If possible, read chapter [Dependencies](#dependencies) first and install any dependencies you need.
-PacUI file can be downloaded and run without prior installation:
+`pacui` file can be downloaded and run without prior installation:
 ```
 wget https://raw.githubusercontent.com/excalibur1234/pacui/master/pacui
 ```
@@ -97,15 +97,15 @@ I find this feature of PacUI invaluable for fixing systems. Here are two example
 Please read chapter [Dependencies](#dependencies) first and decide which packages to install to suit your needs.
 
 PacUI can be manually installed (i.e. executing the same steps as described in the PKBUILD file) as follows:
-1. Download 'pacui' file:
+1. Download `pacui` file:
 ```
 wget https://raw.githubusercontent.com/excalibur1234/pacui/master/pacui
 ```
-2. Install 'pacui' file manually:
+2. Install `pacui` file manually:
 ```
 sudo cp pacui /usr/bin/
 ```
-3. Make 'pacui' file executable:
+3. Make `pacui` file executable:
 ```
 sudo chmod +x /usr/bin/pacui
 ```
@@ -146,7 +146,7 @@ PacUI does not care, whether you use upper or lower case letters as options or w
 - `pacui -rt`
 - `pacui --rt`
 
-This principle can be used with all of PacUI's options. Here is another random example (of PacUI's hidden "List Packages by Size" option):
+This principle can be used with all of PacUI's options. Here is another random example (of PacUI's hidden LIST PACKAGES BY SIZE option):
 - `pacui LS`
 - `pacui -LS`
 - `pacui --LS`
@@ -178,15 +178,15 @@ Examples:
 ### Multiple installed AUR helpers
 If more than one AUR helper is installed, they are automatically used in the same order as listed [above](#dependencies) (i.e. Yay is used with priority while Pamac-cli is only used as a last resort). A specific AUR helper can be set with the `PACUI_AUR_HELPER` environment variable.
 
-Environment variables can typically be set by adding them to your /etc/environment file. If this file exists on your system, it can be selected using PacUI's "Edit Config Files" option:
+Environment variables can typically be set by adding them to your `/etc/environment` file. If this file exists on your system, it can be selected using PacUI's EDIT CINFIG FILES option:
 ```
 pacui c
 ```
 
 ### Diff program
-As described in [Detailed PacUI Help](#detailed-pacui-help), PacUI uses [pacdiff](https://wiki.archlinux.org/title/Pacman/Pacnew_and_Pacsave#pacdiff) for comparing .pac* files and a diff program specified by the `DIFFPROG` environment variable.
+As described in [Detailed PacUI Help](#detailed-pacui-help), PacUI uses [pacdiff](https://wiki.archlinux.org/title/Pacman/Pacnew_and_Pacsave#pacdiff) for comparing `.pac*` files and a diff program specified by the `DIFFPROG` environment variable.
 
-If the `DIFFPROG` environment variable is not set, PacUI uses its own diff program to (only!) show any differences in old and new .pac* files.
+If the `DIFFPROG` environment variable is not set, PacUI uses its own diff program to (only!) show any differences in old and new `.pac*` files.
 
 ## Useful Tips and Recommended Settings
 
@@ -199,7 +199,7 @@ checkupdates
 Along with PacUI the following settings are recommended by the author:
 
 ### Additional Pacman Settings
-- An easy way to edit the /etc/pacman.conf file by using PacUI is:
+- An easy way to edit the `/etc/pacman.conf` file by using PacUI is:
 ```
 pacui c
 ```
@@ -212,7 +212,7 @@ pacui c
 ### Additional Reflector Settings
 PacUI uses Reflector, if it is found on the system.
 
-PacUI uses the same configuration file for Reflector as the optional systemd service and timer in Arch Linux. An easy way to edit this file '/etc/xdg/reflector/reflector.conf' by using PacUI is:
+PacUI uses the same configuration file for Reflector as the optional systemd service and timer in Arch Linux. An easy way to edit this file `/etc/xdg/reflector/reflector.conf` by using PacUI is:
 ```
 pacui c
 ```
@@ -221,7 +221,7 @@ In this file, it is recommended to edit at least the `--country` flag for your n
 This can speed up MAINTAIN SYSTEM dramatically and yield better results.
 
 ### Alias
-If you use PacUI without the UI it is recommended to use an alias for PacUI to reduce the amount of necessary typing. Do this by adding the following line to your ~/.bashrc file (if you use bash):
+If you use PacUI without the UI it is recommended to use an alias for PacUI to reduce the amount of necessary typing. Do this by adding the following line to your `~/.bashrc` file (if you use bash):
 ```
 alias p='pacui'
 ```
@@ -256,10 +256,10 @@ For short help, e.g. when using PacUI without UI, use one of the following comma
 - `pacui -h`
 
 ### Detailed PacUI Help
-Choose the "Help" option within PacUI's UI by pressing "H" or "h". `pacui --help` from the terminal will call PacUI's detailed help page, too.
+Choose the HELP option within PacUI's UI by pressing "H" or "h". `pacui --help` from the terminal will call PacUI's detailed help page, too.
 
 This help page explains some general stuff such as how to navigate PacUI. It also explains every PacUI option in detail. If you want to look up which commands PacUI uses in general under the hood and understand them in order to use PacUI correctly, this is the right place for you!
 
 Internally, PacUI uses even more commands than mentioned in the detailed help page. 
-If are brave enough, feel free to take a look in your /usr/bin/pacui file. It is a single BASH script of about 3k lines. However, there are many function, which are each much shorter. In general, the most easy to read code is used (even if it is longer) including many comments!
+If are brave enough, feel free to take a look in your `/usr/bin/pacui` file. It is a single BASH script of about 3k lines. However, there are many function, which are each much shorter. In general, the most easy to read code is used (even if it is longer) including many comments!
 If you still have trouble understanding the code of PacUI, try asking an AI for explanations of (a limited subset of PacUI's code)!
