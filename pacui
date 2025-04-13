@@ -315,62 +315,60 @@ function func_m
         fi
 
 
-        local connection_error
-        connection_error=true
-        echo " choosing fastest mirror (which can take a while) and updating system ..."
-        if [[ -f /usr/bin/pacman-mirrors ]]                                         # checks, whether file "pacman-mirrors" exists
+        if [[ -f /usr/bin/pacman-mirrors ]] || [[ -f /usr/bin/reflector ]] || [[ -f /usr/bin/rankmirrors ]]
         then
-            if ( sudo pacman-mirrors -f 0 )                                         # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
+            echo " choosing fastest mirror (which can take a while) and updating system ..."
+            if [[ -f /usr/bin/pacman-mirrors ]]                                         # checks, whether file "pacman-mirrors" exists
             then
-                sudo pacman -Syyuu
-                connection_error=false
-            fi
-
-        elif [[ -f /usr/bin/reflector ]]                                            # checks, whether file "reflector" exists
-        then
-            if [[ -f /etc/xdg/reflector/reflector.conf ]]
-            then
-                # test repository mirros/servers as configured in file /etc/xdg/reflector/reflector.conf and sync and update from that server:
-                sudo reflector @/etc/xdg/reflector/reflector.conf --verbose && sudo pacman -Syyuu
-                connection_error=false
-            else
-
-                local country
-                # select country code (of all available repository servers/mirrors) using fzf:
-                country="$(
-                    reflector --list-countries | tail -n +3 | awk '{$NF=""; print}' |
-                    fzf -i --multi --exact --no-sort --layout=reverse --bind='pgdn:half-page-down,pgup:half-page-up' --margin=1 --info=inline-right --no-separator --no-unicode --preview-window='right,55%,wrap,<68(bottom,60%,wrap)' --header="Select your closest country. ENTER to confirm. ESC to quit." --prompt='Enter string to filter > '  |
-                    awk '{print $NF}' | paste -sd ","
-                    )"
-                if [[ -n "$country" ]]
+                if ( sudo pacman-mirrors -f 0 )                                         # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
                 then
-                    # test repository mirros/servers from those countries and selecting one and update:
-                    sudo reflector --verbose --protocol https,ftps,sftp,ssh --age 12 --delay 12 --sort rate --connection-timeout 2 --fastest 10 --country="$( echo "$country" )"  --save /etc/pacman.d/mirrorlist && sudo pacman -Syyuu
-                    connection_error=false
-                fi
-
-            fi
-        else
-            local mirror_server_list
-            mirror_server_list="$( curl --silent 'https://archlinux.org/mirrorlist/?country=all&protocol=https&use_mirror_status=on' )"                 # download list of up-to-date https mirror servers
-
-            if [[ -n  "$mirror_server_list" ]]
-            then
-                mirror_server_list="$( echo "$mirror_server_list" | sed -e 's/^#Server/Server/' -e '/^#/d' )"
-                mirror_server_list="$( echo "$mirror_server_list" | sudo rankmirrors -n 10 --max-time 2 --verbose - )"                                  # sort mirror servers by ping time
-
-                if [[ -n  "$( echo "$mirror_server_list" | awk '/ ... /' )" ]]      # 'rankmirrors' creates a new ouput containing strings " ... "
-                then
-                    echo "$mirror_server_list" | sudo tee /etc/pacman.d/mirrorlist  # overwrite existing file with mirror servers with upated list
                     sudo pacman -Syyuu
-                    connection_error=false
+                fi
+
+            elif [[ -f /usr/bin/reflector ]]                                            # checks, whether file "reflector" exists
+            then
+                if [[ -f /etc/xdg/reflector/reflector.conf ]]
+                then
+                    # test repository mirros/servers as configured in file /etc/xdg/reflector/reflector.conf and sync and update from that server:
+                    sudo reflector @/etc/xdg/reflector/reflector.conf --verbose && sudo pacman -Syyuu
+                else
+
+                    local country
+                    # select country code (of all available repository servers/mirrors) using fzf:
+                    country="$(
+                        reflector --list-countries | tail -n +3 | awk '{$NF=""; print}' |
+                        fzf -i --multi --exact --no-sort --layout=reverse --bind='pgdn:half-page-down,pgup:half-page-up' --margin=1 --info=inline-right --no-separator --no-unicode --preview-window='right,55%,wrap,<68(bottom,60%,wrap)' --header="Select your closest country. ENTER to confirm. ESC to quit." --prompt='Enter string to filter > '  |
+                        awk '{print $NF}' | paste -sd ","
+                        )"
+                    if [[ -n "$country" ]]
+                    then
+                        # test repository mirros/servers from those countries and selecting one and update:
+                        sudo reflector --verbose --protocol https,ftps,sftp,ssh --age 12 --delay 12 --sort rate --connection-timeout 2 --fastest 10 --country="$( echo "$country" )"  --save /etc/pacman.d/mirrorlist && sudo pacman -Syyuu
+                    fi
+
+                fi
+            elif [[ -f /usr/bin/rankmirrors ]]                                            # checks, whether file "rankmirrors" exists
+            then
+                local mirror_server_list
+                mirror_server_list="$( curl --silent 'https://archlinux.org/mirrorlist/?country=all&protocol=https&use_mirror_status=on' )"                 # download list of up-to-date https mirror servers
+
+                if [[ -n  "$mirror_server_list" ]]
+                then
+                    mirror_server_list="$( echo "$mirror_server_list" | sed -e 's/^#Server/Server/' -e '/^#/d' )"
+                    mirror_server_list="$( echo "$mirror_server_list" | sudo rankmirrors -n 10 --max-time 2 --verbose - )"                                  # sort mirror servers by ping time
+
+                    if [[ -n  "$( echo "$mirror_server_list" | awk '/ ... /' )" ]]      # 'rankmirrors' creates a new ouput containing strings " ... "
+                    then
+                        echo "$mirror_server_list" | sudo tee /etc/pacman.d/mirrorlist  # overwrite existing file with mirror servers with upated list
+                        sudo pacman -Syyuu
+                    fi
                 fi
             fi
+            echo ""
         fi
-        echo ""
 
 
-        if [[ "$connection_error" == "false" ]] && [[ -f /usr/bin/flatpak ]]
+        if [[ -f /usr/bin/flatpak ]]
         then
             echo " repairing flatpak(s) ..."
             sudo flatpak repair --system --verbose                                  # repair system-wide flatpaks
@@ -414,17 +412,20 @@ function func_m
         echo ""
 
 
-        echo " sudo pacdiff ..."
-        #set +u                                                                     # temporarily disable strict mode for environment variables
-        if [[ -n "$DIFFPROG" ]]                                                     # this if-condition avoids error message when $DIFFPROG is not set/empty
+        if [[ -f /usr/bin/pacdiff ]]
         then
-            sudo pacdiff
-        else
-            # use pacdiff to search for .pacnew and .pacsave files. display both the original and the used config file using "func_diff" function defined above.
-            sudo DIFFPROG="pacui --diff" pacdiff
+            echo " sudo pacdiff ..."
+            #set +u                                                                     # temporarily disable strict mode for environment variables
+            if [[ -n "$DIFFPROG" ]]                                                     # this if-condition avoids error message when $DIFFPROG is not set/empty
+            then
+                sudo pacdiff
+            else
+                # use pacdiff to search for .pacnew and .pacsave files. display both the original and the used config file using "func_diff" function defined above.
+                sudo DIFFPROG="pacui --diff" pacdiff
+            fi
+            #set -u
+            echo ""
         fi
-        #set -u
-        echo ""
 
 
         echo " checking systemctl ..."
@@ -567,57 +568,60 @@ function func_m
         echo ""
 
 
-        echo " cleaning pacman package cache ..."
-        # remove all packages, which are not installed on this system, except the latest versions (this is a back up, in case somebody removes networkmanager)
-        sudo paccache --verbose --remove --uninstalled --keep 1
-        echo ""
-        # remove all package versions, except the latest 3
-        sudo paccache --verbose --remove --keep 3
-        echo ""
+        if [[ -f /usr/bin/paccache ]]
+        then
+            echo " cleaning pacman package cache ..."
+            # remove all packages, which are not installed on this system, except the latest versions (this is a back up, in case somebody removes networkmanager)
+            sudo paccache --verbose --remove --uninstalled --keep 1
+            echo ""
+            # remove all package versions, except the latest 3
+            sudo paccache --verbose --remove --keep 3
+            echo ""
 
-        if [[ -d $HOME/.cache/yay/ ]]
-        then
-            echo " cleaning yay package cache '$HOME/.cache/yay/' ..."
-            paccache --verbose --remove --keep 1 --cachedir $HOME/.cache/yay/       # ATTENTION: (i do not know why but) using quotes (" or ' symbols) around cach directory path breaks this command
-            echo ""
-        fi
-        if [[ -d $HOME/.cache/pikaur/pkg/ ]]
-        then
-            echo " cleaning pikaur package cache '$HOME/.cache/pikaur/pkg/' ..."
-            paccache --verbose --remove --keep 1 --cachedir $HOME/.cache/pikaur/pkg/            # ATTENTION: (i do not know why but) using quotes (" or ' symbols) around cach directory path breaks this command
-            echo ""
-        fi
-        if [[ -d $HOME/.cache/aurman/ ]]
-        then
-            echo " cleaning aurman package cache '$HOME/.cache/aurman/' ..."
-            paccache --verbose --remove --keep 1 --cachedir $HOME/.cache/aurman/    # ATTENTION: (i do not know why but) using quotes (" or ' symbols) around cach directory path breaks this command
-            echo ""
-        fi
-        if [[ -d $HOME/.cache/pakku/ ]]
-        then
-            echo " cleaning pakku package cache '$HOME/.cache/pakku/' ..."
-            paccache --verbose --remove --keep 1 --cachedir $HOME/.cache/pakku/     # ATTENTION: (i do not know why but) using quotes (" or ' symbols) around cach directory path breaks this command
-            echo ""
-        fi
-        # trizen uses package cache directory of pacman
-        if [[ -d $HOME/.cache/paru/ ]]
-        then
-            echo " cleaning paru package cache '$HOME/.cache/paru/' ..."
-            paccache --verbose --remove --keep 1 --cachedir $HOME/.cache/paru/      # ATTENTION: (i do not know why but) using quotes (" or ' symbols) around cach directory path breaks this command
-            echo ""
-        fi
-        if [[ -d $XDG_CACHE_HOME/paru/ ]]
-        then
-            echo " cleaning paru package cache '$XDG_CACHE_HOME/paru/' ..."
-            paccache --verbose --remove --keep 1 --cachedir $XDG_CACHE_HOME/paru/   # ATTENTION: (i do not know why but) using quotes (" or ' symbols) around cach directory path breaks this command
-            echo ""
-        fi
-        # pacaur uses package cache directory of pacman
-        if [[ "$AUR_Helper" == "pamac" ]]
-        then
-            echo " cleaning pamac package cache ..."
-            pamac clean --keep 2
-            echo ""
+            if [[ -d $HOME/.cache/yay/ ]]
+            then
+                echo " cleaning yay package cache '$HOME/.cache/yay/' ..."
+                paccache --verbose --remove --keep 1 --cachedir $HOME/.cache/yay/       # ATTENTION: (i do not know why but) using quotes (" or ' symbols) around cach directory path breaks this command
+                echo ""
+            fi
+            if [[ -d $HOME/.cache/pikaur/pkg/ ]]
+            then
+                echo " cleaning pikaur package cache '$HOME/.cache/pikaur/pkg/' ..."
+                paccache --verbose --remove --keep 1 --cachedir $HOME/.cache/pikaur/pkg/            # ATTENTION: (i do not know why but) using quotes (" or ' symbols) around cach directory path breaks this command
+                echo ""
+            fi
+            if [[ -d $HOME/.cache/aurman/ ]]
+            then
+                echo " cleaning aurman package cache '$HOME/.cache/aurman/' ..."
+                paccache --verbose --remove --keep 1 --cachedir $HOME/.cache/aurman/    # ATTENTION: (i do not know why but) using quotes (" or ' symbols) around cach directory path breaks this command
+                echo ""
+            fi
+            if [[ -d $HOME/.cache/pakku/ ]]
+            then
+                echo " cleaning pakku package cache '$HOME/.cache/pakku/' ..."
+                paccache --verbose --remove --keep 1 --cachedir $HOME/.cache/pakku/     # ATTENTION: (i do not know why but) using quotes (" or ' symbols) around cach directory path breaks this command
+                echo ""
+            fi
+            # trizen uses package cache directory of pacman
+            if [[ -d $HOME/.cache/paru/ ]]
+            then
+                echo " cleaning paru package cache '$HOME/.cache/paru/' ..."
+                paccache --verbose --remove --keep 1 --cachedir $HOME/.cache/paru/      # ATTENTION: (i do not know why but) using quotes (" or ' symbols) around cach directory path breaks this command
+                echo ""
+            fi
+            if [[ -d $XDG_CACHE_HOME/paru/ ]]
+            then
+                echo " cleaning paru package cache '$XDG_CACHE_HOME/paru/' ..."
+                paccache --verbose --remove --keep 1 --cachedir $XDG_CACHE_HOME/paru/   # ATTENTION: (i do not know why but) using quotes (" or ' symbols) around cach directory path breaks this command
+                echo ""
+            fi
+            # pacaur uses package cache directory of pacman
+            if [[ "$AUR_Helper" == "pamac" ]]
+            then
+                echo " cleaning pamac package cache ..."
+                pamac clean --keep 2
+                echo ""
+            fi
         fi
 
 
@@ -1035,81 +1039,90 @@ function func_r
 # this function provides core functionality of "Dependency Tree". the help page provides additional explanations.
 function func_t
 {
-        # write list of all installed packages to file /tmp/pacui-packages-local . then add list of packages in system repositories to the bottom of /tmp/pacui-packages-local.
-        #pacman -Qq | tr -d " " > /tmp/pacui-packages-local
-        expac -Q "%-33n    %d" > /tmp/pacui-packages-local
-        #pacman -Slq | tr -d " " >> /tmp/pacui-packages-local
-        expac -S "%-33n    %d" >> /tmp/pacui-packages-local
-
-        local pkg
-
-        pacui_tty_clean                                                             # clear terminal
-        #set +e
-        #set +E
-
-        pkg="$( sort -k1,1 -u /tmp/pacui-packages-local |
-            fzf -i --exact --no-sort --select-1 --query="$argument_input" --cycle --layout=reverse --bind='pgdn:half-page-down,pgup:half-page-up' --bind='preview-scroll-up:preview-up+preview-up+preview-up,preview-scroll-down:preview-down+preview-down+preview-down' --margin=1 --info=inline-right --no-separator --no-unicode --preview-window='right,55%,wrap,<68(bottom,60%,wrap)' \
-                --header="ENTER for dependency tree. ESC to quit." --prompt='Enter string to filter list > ' \
-                --preview '
-                    if ( pacman -Qq {1} &>/dev/null )                               # check, if 1. element of selected line is a locally installed package
-                    then
-                        echo -e "\e[1mInstalled package info: \e[0m"
-                        pacman -Qi {1} --color always
-
-                    else
-                        echo -e "\e[1mRepository package info: \e[0m"
-                        pacman -Si {1} --color always                               # do this, if package is not locally installed
-
-                    fi
-                ' |
-            awk '{print $1}'
-        )"
-
-        pacui_tty_clean                                                             # clear terminal
-
-
-        if [[ -n "$pkg" ]]
+        # check for "pacman-contrib" package
+        if [[ ! -f /usr/bin/pactree ]]
         then
-            if ( pacman -Qq "$pkg" &>/dev/null )                                    # check, if (in fzf) selected package is locally installed
-            then
 
-                # explain the " echo {} | sed 's/^[|`- ]*//g' | cut -d ' ' -f 1 " command used below:
-                # first echo selected line in fzf. then, remove all symbols from the beginning of the line, which does not belong to the package name. if there are multiple package names (e.g. with "provides") in 1 line all other (except for the first package name) are cut from the result.
-                pactree --color --ascii "$pkg" |
-                    fzf -i --multi --exact --no-sort --ansi --layout=reverse --bind='pgdn:half-page-down,pgup:half-page-up' --bind='preview-scroll-up:preview-up+preview-up+preview-up,preview-scroll-down:preview-down+preview-down+preview-down' --margin=1 --info=inline-right --no-separator --no-unicode --preview-window='right,55%,wrap,<68(bottom,60%,wrap)' \
-                        --header="Local Dependency Tree of \"$pkg\". ESC to quit." --prompt='Enter string to filter list > ' \
-                        --preview '
+            echo -e " \e[41m No 'pacman-contrib' package has been found. Please install it. \e[0m"
+
+        else
+
+            # write list of all installed packages to file /tmp/pacui-packages-local . then add list of packages in system repositories to the bottom of /tmp/pacui-packages-local.
+            #pacman -Qq | tr -d " " > /tmp/pacui-packages-local
+            expac -Q "%-33n    %d" > /tmp/pacui-packages-local
+            #pacman -Slq | tr -d " " >> /tmp/pacui-packages-local
+            expac -S "%-33n    %d" >> /tmp/pacui-packages-local
+
+            local pkg
+
+            pacui_tty_clean                                                             # clear terminal
+            #set +e
+            #set +E
+
+            pkg="$( sort -k1,1 -u /tmp/pacui-packages-local |
+                fzf -i --exact --no-sort --select-1 --query="$argument_input" --cycle --layout=reverse --bind='pgdn:half-page-down,pgup:half-page-up' --bind='preview-scroll-up:preview-up+preview-up+preview-up,preview-scroll-down:preview-down+preview-down+preview-down' --margin=1 --info=inline-right --no-separator --no-unicode --preview-window='right,55%,wrap,<68(bottom,60%,wrap)' \
+                    --header="ENTER for dependency tree. ESC to quit." --prompt='Enter string to filter list > ' \
+                    --preview '
+                        if ( pacman -Qq {1} &>/dev/null )                               # check, if 1. element of selected line is a locally installed package
+                        then
                             echo -e "\e[1mInstalled package info: \e[0m"
-                            pacman -Qi "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" --color always
-                        ' > /tmp/pacui-t
+                            pacman -Qi {1} --color always
 
-            else
+                        else
+                            echo -e "\e[1mRepository package info: \e[0m"
+                            pacman -Si {1} --color always                               # do this, if package is not locally installed
 
-                # if $pkg is not a locally installed package, "pactree --sync" shows reverse dependency tree of repository packages:
-                pactree --color --ascii --sync "$pkg" |
-                    fzf -i --multi --exact --no-sort --ansi --layout=reverse --bind='pgdn:half-page-down,pgup:half-page-up' --bind='preview-scroll-up:preview-up+preview-up+preview-up,preview-scroll-down:preview-down+preview-down+preview-down' --margin=1 --info=inline-right --no-separator --no-unicode --preview-window='right,55%,wrap,<68(bottom,60%,wrap)' \
-                        --header="Repository Dependency Tree of \"$pkg\". ESC to quit." --prompt='Enter string to filter list > ' \
-                        --preview '
-                            if ( pacman -Qq "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" &>/dev/null )                                                 # check, if selected line contains a locally installed package.
-                            then
+                        fi
+                    ' |
+                awk '{print $1}'
+            )"
+
+            pacui_tty_clean                                                             # clear terminal
+
+
+            if [[ -n "$pkg" ]]
+            then
+                if ( pacman -Qq "$pkg" &>/dev/null )                                    # check, if (in fzf) selected package is locally installed
+                then
+
+                    # explain the " echo {} | sed 's/^[|`- ]*//g' | cut -d ' ' -f 1 " command used below:
+                    # first echo selected line in fzf. then, remove all symbols from the beginning of the line, which does not belong to the package name. if there are multiple package names (e.g. with "provides") in 1 line all other (except for the first package name) are cut from the result.
+                    pactree --color --ascii "$pkg" |
+                        fzf -i --multi --exact --no-sort --ansi --layout=reverse --bind='pgdn:half-page-down,pgup:half-page-up' --bind='preview-scroll-up:preview-up+preview-up+preview-up,preview-scroll-down:preview-down+preview-down+preview-down' --margin=1 --info=inline-right --no-separator --no-unicode --preview-window='right,55%,wrap,<68(bottom,60%,wrap)' \
+                            --header="Local Dependency Tree of \"$pkg\". ESC to quit." --prompt='Enter string to filter list > ' \
+                            --preview '
                                 echo -e "\e[1mInstalled package info: \e[0m"
-                                pacman -Qi "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" --color always                                                 # display local package information in preview window of fzf
+                                pacman -Qi "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" --color always
+                            ' > /tmp/pacui-t
 
-                            else
-                                echo -e "\e[1mRepository package info: \e[0m"
-                                pacman -Si "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" --color always                                                 # display package info from repository, if package is not locally installed
+                else
 
-                            fi
-                        ' > /tmp/pacui-t
+                    # if $pkg is not a locally installed package, "pactree --sync" shows reverse dependency tree of repository packages:
+                    pactree --color --ascii --sync "$pkg" |
+                        fzf -i --multi --exact --no-sort --ansi --layout=reverse --bind='pgdn:half-page-down,pgup:half-page-up' --bind='preview-scroll-up:preview-up+preview-up+preview-up,preview-scroll-down:preview-down+preview-down+preview-down' --margin=1 --info=inline-right --no-separator --no-unicode --preview-window='right,55%,wrap,<68(bottom,60%,wrap)' \
+                            --header="Repository Dependency Tree of \"$pkg\". ESC to quit." --prompt='Enter string to filter list > ' \
+                            --preview '
+                                if ( pacman -Qq "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" &>/dev/null )                                                 # check, if selected line contains a locally installed package.
+                                then
+                                    echo -e "\e[1mInstalled package info: \e[0m"
+                                    pacman -Qi "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" --color always                                                 # display local package information in preview window of fzf
+
+                                else
+                                    echo -e "\e[1mRepository package info: \e[0m"
+                                    pacman -Si "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" --color always                                                 # display package info from repository, if package is not locally installed
+
+                                fi
+                            ' > /tmp/pacui-t
+
+                fi
+
+                pacui_tty_clean                                                         # clear terminal
 
             fi
 
-            pacui_tty_clean                                                         # clear terminal
-
+            #set -e
+            #set -E
         fi
-
-        #set -e
-        #set -E
 }
 
 
@@ -1117,81 +1130,90 @@ function func_t
 # this function provides core functionality of "Reverse Dependency Tree". the help page provides additional explanations.
 function func_rt
 {
-        # write list of all installed packages to file /tmp/pacui-packages-local . then add list of packages in system repositories to the bottom of /tmp/pacui-packages-local.
-        #pacman -Qq | tr -d " " > /tmp/pacui-packages-local
-        expac -Q "%-33n    %d" > /tmp/pacui-packages-local
-        #pacman -Slq | tr -d " " >> /tmp/pacui-packages-local
-        expac -S "%-33n    %d" >> /tmp/pacui-packages-local
-
-        local pkg
-
-        pacui_tty_clean                                                             # clear terminal
-        #set +e
-        #set +E
-
-        pkg="$( sort -k1,1 -u /tmp/pacui-packages-local  |
-            fzf -i --exact --no-sort --select-1 --query="$argument_input" --cycle --layout=reverse --bind='pgdn:half-page-down,pgup:half-page-up' --bind='preview-scroll-up:preview-up+preview-up+preview-up,preview-scroll-down:preview-down+preview-down+preview-down' --margin=1 --info=inline-right --no-separator --no-unicode --preview-window='right,55%,wrap,<68(bottom,60%,wrap)' \
-                --header="ENTER for reverse dependency tree. ESC to quit." --prompt='Enter string to filter list > ' \
-                --preview '
-                    if ( pacman -Qq {1} &>/dev/null )                               # check, if 1. element of selected line is a locally installed package
-                    then
-                        echo -e "\e[1mInstalled package info: \e[0m"
-                        pacman -Qi {1} --color always
-
-                    else
-                        echo -e "\e[1mRepository package info: \e[0m"
-                        pacman -Si {1} --color always                               # do this, if package is not locally installed
-
-                    fi
-                ' |
-            awk '{print $1}'
-        )"
-
-        pacui_tty_clean                                                             # clear terminal
-
-
-        if [[ -n "$pkg" ]]
+        # check for "pacman-contrib" package
+        if [[ ! -f /usr/bin/pactree ]]
         then
-            if ( pacman -Qq "$pkg" &>/dev/null )                                    # check, if (in fzf) selected package is locally installed
-            then
 
-                # explain the " echo {} | sed 's/^[|`- ]*//g' | cut -d ' ' -f 1 " command used below:
-                # first echo selected line in fzf. then, remove all symbols from the beginning of the line, which does not belong to the package name. if there are multiple package names (e.g. with "provides") in 1 line all other (except for the first package name) are cut from the result.
-                pactree --color --ascii --reverse "$pkg" |
-                    fzf -i --multi --exact --no-sort --ansi --layout=reverse --bind='pgdn:half-page-down,pgup:half-page-up' --bind='preview-scroll-up:preview-up+preview-up+preview-up,preview-scroll-down:preview-down+preview-down+preview-down' --margin=1 --info=inline-right --no-separator --no-unicode --preview-window='right,55%,wrap,<68(bottom,60%,wrap)' \
-                        --header="Local Reverse Dependency Tree of \"$pkg\". ESC to quit." --prompt='Enter string to filter list > ' \
-                        --preview '
+            echo -e " \e[41m No 'pacman-contrib' package has been found. Please install it. \e[0m"
+
+        else
+
+            # write list of all installed packages to file /tmp/pacui-packages-local . then add list of packages in system repositories to the bottom of /tmp/pacui-packages-local.
+            #pacman -Qq | tr -d " " > /tmp/pacui-packages-local
+            expac -Q "%-33n    %d" > /tmp/pacui-packages-local
+            #pacman -Slq | tr -d " " >> /tmp/pacui-packages-local
+            expac -S "%-33n    %d" >> /tmp/pacui-packages-local
+
+            local pkg
+
+            pacui_tty_clean                                                             # clear terminal
+            #set +e
+            #set +E
+
+            pkg="$( sort -k1,1 -u /tmp/pacui-packages-local  |
+                fzf -i --exact --no-sort --select-1 --query="$argument_input" --cycle --layout=reverse --bind='pgdn:half-page-down,pgup:half-page-up' --bind='preview-scroll-up:preview-up+preview-up+preview-up,preview-scroll-down:preview-down+preview-down+preview-down' --margin=1 --info=inline-right --no-separator --no-unicode --preview-window='right,55%,wrap,<68(bottom,60%,wrap)' \
+                    --header="ENTER for reverse dependency tree. ESC to quit." --prompt='Enter string to filter list > ' \
+                    --preview '
+                        if ( pacman -Qq {1} &>/dev/null )                               # check, if 1. element of selected line is a locally installed package
+                        then
                             echo -e "\e[1mInstalled package info: \e[0m"
-                            pacman -Qi "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" --color always
-                        ' > /tmp/pacui-rt
+                            pacman -Qi {1} --color always
 
-            else
+                        else
+                            echo -e "\e[1mRepository package info: \e[0m"
+                            pacman -Si {1} --color always                               # do this, if package is not locally installed
 
-                # if $pkg is not a locally installed package, "pactree --sync" shows reverse dependency tree of repository packages:
-                pactree --color --ascii --sync --reverse "$pkg" |
-                    fzf -i --multi --exact --no-sort --ansi --layout=reverse --bind='pgdn:half-page-down,pgup:half-page-up' --bind='preview-scroll-up:preview-up+preview-up+preview-up,preview-scroll-down:preview-down+preview-down+preview-down' --margin=1 --info=inline-right --no-separator --no-unicode --preview-window='right,55%,wrap,<68(bottom,60%,wrap)' \
-                        --header="Repository Reverse Dependency Tree of \"$pkg\". ESC to quit." --prompt='Enter string to filter list > ' \
-                        --preview '
-                            if ( pacman -Qq "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" &>/dev/null )                                                 # check, if selected line contains a locally installed package.
-                            then
+                        fi
+                    ' |
+                awk '{print $1}'
+            )"
+
+            pacui_tty_clean                                                             # clear terminal
+
+
+            if [[ -n "$pkg" ]]
+            then
+                if ( pacman -Qq "$pkg" &>/dev/null )                                    # check, if (in fzf) selected package is locally installed
+                then
+
+                    # explain the " echo {} | sed 's/^[|`- ]*//g' | cut -d ' ' -f 1 " command used below:
+                    # first echo selected line in fzf. then, remove all symbols from the beginning of the line, which does not belong to the package name. if there are multiple package names (e.g. with "provides") in 1 line all other (except for the first package name) are cut from the result.
+                    pactree --color --ascii --reverse "$pkg" |
+                        fzf -i --multi --exact --no-sort --ansi --layout=reverse --bind='pgdn:half-page-down,pgup:half-page-up' --bind='preview-scroll-up:preview-up+preview-up+preview-up,preview-scroll-down:preview-down+preview-down+preview-down' --margin=1 --info=inline-right --no-separator --no-unicode --preview-window='right,55%,wrap,<68(bottom,60%,wrap)' \
+                            --header="Local Reverse Dependency Tree of \"$pkg\". ESC to quit." --prompt='Enter string to filter list > ' \
+                            --preview '
                                 echo -e "\e[1mInstalled package info: \e[0m"
-                                pacman -Qi "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" --color always                                                 # display local package information in preview window of fzf
+                                pacman -Qi "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" --color always
+                            ' > /tmp/pacui-rt
 
-                            else
-                                echo -e "\e[1mRepository package info: \e[0m"
-                                pacman -Si "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" --color always                                                 # display package info from repository, if package is not locally installed
+                else
 
-                            fi
-                        ' > /tmp/pacui-rt
+                    # if $pkg is not a locally installed package, "pactree --sync" shows reverse dependency tree of repository packages:
+                    pactree --color --ascii --sync --reverse "$pkg" |
+                        fzf -i --multi --exact --no-sort --ansi --layout=reverse --bind='pgdn:half-page-down,pgup:half-page-up' --bind='preview-scroll-up:preview-up+preview-up+preview-up,preview-scroll-down:preview-down+preview-down+preview-down' --margin=1 --info=inline-right --no-separator --no-unicode --preview-window='right,55%,wrap,<68(bottom,60%,wrap)' \
+                            --header="Repository Reverse Dependency Tree of \"$pkg\". ESC to quit." --prompt='Enter string to filter list > ' \
+                            --preview '
+                                if ( pacman -Qq "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" &>/dev/null )                                                 # check, if selected line contains a locally installed package.
+                                then
+                                    echo -e "\e[1mInstalled package info: \e[0m"
+                                    pacman -Qi "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" --color always                                                 # display local package information in preview window of fzf
+
+                                else
+                                    echo -e "\e[1mRepository package info: \e[0m"
+                                    pacman -Si "$( echo -e {} | sed "s/[\|\`\ -]*//" | cut -d " " -f 1 )" --color always                                                 # display package info from repository, if package is not locally installed
+
+                                fi
+                            ' > /tmp/pacui-rt
+
+                fi
+
+                pacui_tty_clean                                                         # clear terminal
 
             fi
 
-            pacui_tty_clean                                                         # clear terminal
-
+            #set -e
+            #set -E
         fi
-
-        #set -e
-        #set -E
 }
 
 
@@ -1644,34 +1666,38 @@ function func_f
         unset dbpath
 
 
-        echo " fixing mirrors (which can take a while) ..."
-        if [[ -f /usr/bin/pacman-mirrors ]]                                         # do this, if system uses pacman-mirrors (default in Manjaro)
+        if [[ -f /usr/bin/pacman-mirrors ]] || [[ -f /usr/bin/reflector ]] || [[ -f /usr/bin/rankmirrors ]]
         then
-            sudo pacman-mirrors -f 0 && sudo pacman -Syy                            # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
-            # here, "pacman -Syy" is used to sync to the (potentially new) repository server. this is important!
-            # but "pacman -Syy" (when pacman -S is executed later on) can result in a partially updated system. this cannot be prevented here, because it is possible the user's keys are corrupted and he is no longer able to install/update any packages.
-
-        elif [[ -f /usr/bin/reflector ]]                                            # do this, if system uses reflector (default on Arch Linux or distributions using Arch Linux mirrors/repo servers)
-        then
-            sudo reflector --verbose --age 24 --save /etc/pacman.d/mirrorlist && sleep 10 && sudo pacman -Syy
-
-        else
-            local mirror_server_list
-            mirror_server_list="$( curl --silent 'https://archlinux.org/mirrorlist/?country=all&protocol=https&use_mirror_status=on' )"                 # download list of up-to-date https mirror servers
-
-            if [[ -n  "$mirror_server_list" ]]
+            echo " fixing mirrors (which can take a while) ..."
+            if [[ -f /usr/bin/pacman-mirrors ]]                                         # do this, if system uses pacman-mirrors (default in Manjaro)
             then
-                mirror_server_list="$( echo "$mirror_server_list" | sed -e 's/^#Server/Server/' -e '/^#/d' )"
-                mirror_server_list="$( echo "$mirror_server_list" | sudo rankmirrors -n 10 --max-time 2 --verbose - )"                                  # sort mirror servers by ping time
+                sudo pacman-mirrors -f 0 && sudo pacman -Syy                            # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
+                # here, "pacman -Syy" is used to sync to the (potentially new) repository server. this is important!
+                # but "pacman -Syy" (when pacman -S is executed later on) can result in a partially updated system. this cannot be prevented here, because it is possible the user's keys are corrupted and he is no longer able to install/update any packages.
 
-                if [[ -n  "$( echo "$mirror_server_list" | awk '/ ... /' )" ]]      # 'rankmirrors' creates a new ouput containing strings " ... "
+            elif [[ -f /usr/bin/reflector ]]                                            # do this, if system uses reflector (default on Arch Linux or distributions using Arch Linux mirrors/repo servers)
+            then
+                sudo reflector --verbose --age 24 --save /etc/pacman.d/mirrorlist && sleep 10 && sudo pacman -Syy
+
+            elif [[ -f /usr/bin/rankmirrors ]]
+            then
+                local mirror_server_list
+                mirror_server_list="$( curl --silent 'https://archlinux.org/mirrorlist/?country=all&protocol=https&use_mirror_status=on' )"                 # download list of up-to-date https mirror servers
+
+                if [[ -n  "$mirror_server_list" ]]
                 then
-                    echo "$mirror_server_list" | sudo tee /etc/pacman.d/mirrorlist  # overwrite existing file with mirror servers with upated list
-                    sudo pacman -Syy
+                    mirror_server_list="$( echo "$mirror_server_list" | sed -e 's/^#Server/Server/' -e '/^#/d' )"
+                    mirror_server_list="$( echo "$mirror_server_list" | sudo rankmirrors -n 10 --max-time 2 --verbose - )"                                  # sort mirror servers by ping time
+
+                    if [[ -n  "$( echo "$mirror_server_list" | awk '/ ... /' )" ]]      # 'rankmirrors' creates a new ouput containing strings " ... "
+                    then
+                        echo "$mirror_server_list" | sudo tee /etc/pacman.d/mirrorlist  # overwrite existing file with mirror servers with upated list
+                        sudo pacman -Syy
+                    fi
                 fi
             fi
+            echo ""
         fi
-        echo ""
 
 
         local server
@@ -2844,8 +2870,8 @@ function func_h
         echo -e "  pacui 2    - \e[1mM\e[0maintain System"
         echo -e "  pacui 3    - \e[1mI\e[0mnstall Packages"
         echo -e "  pacui 4    - \e[1mR\e[0memove Packages and Deps"
-        echo -e "  pacui 5    - Dependency \e[1mT\e[0mree"
-        echo -e "  pacui 6    - R\e[1me\e[0mverse Dependency Tree"
+        [[ -f /usr/bin/pactree ]]   && echo -e "  pacui 5    - Dependency \e[1mT\e[0mree"
+        [[ -f /usr/bin/pactree ]]   && echo -e "  pacui 6    - R\e[1me\e[0mverse Dependency Tree"
         echo -e "  pacui 7    - \e[1mL\e[0mist Package Files"
         echo -e "  pacui 8    - \e[1mS\e[0mearch Package Files"
         echo
@@ -2891,47 +2917,51 @@ fi
 #set -u
 
 
-# bug #4 :
-# when database of system repositories has not been saved, it is impossible to use pacman (or expac) in any meaningful way.
-# therefore, the existence of the "core" database is tested here. if it does not exist, a repository server is chosen and the repository database synced to the user's system
-
-dbpath="$( awk -F '=' '/^DBPath/ {gsub(" ","",$2); print $2}' '/etc/pacman.conf' )" # extract path of database file from pacman.conf
-if [[ -z "$dbpath" ]]                                                               # if "dbpath" variable is empty (exact: if output of $dbpath is zero)
+if [[ -f /usr/bin/pacman-mirrors ]] || [[ -f /usr/bin/reflector ]] || [[ -f /usr/bin/rankmirrors ]]
 then
-    dbpath="/var/lib/pacman/"                                                       # default database path
-fi
+    # bug #4 :
+    # when database of system repositories has not been saved, it is impossible to use pacman (or expac) in any meaningful way.
+    # therefore, the existence of the "core" database is tested here. if it does not exist, a repository server is chosen and the repository database synced to the user's system
 
-if ! [[ -f "$dbpath"sync/core.db ]]                                                 # check, whether repository database file "core.db" exists
-then
-
-    echo " choosing fastest mirror (which can take a while) and updating system ..."
-    if [[ -f /usr/bin/pacman-mirrors ]]                                             # checks, whether file "pacman-mirrors" exists
+    dbpath="$( awk -F '=' '/^DBPath/ {gsub(" ","",$2); print $2}' '/etc/pacman.conf' )" # extract path of database file from pacman.conf
+    if [[ -z "$dbpath" ]]                                                               # if "dbpath" variable is empty (exact: if output of $dbpath is zero)
     then
-        sudo pacman-mirrors -f 0 && sudo pacman -Syyu                               # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
+        dbpath="/var/lib/pacman/"                                                       # default database path
+    fi
 
-    elif [[ -f /usr/bin/reflector ]]                                                # checks, whether file "reflector" exists
+
+    if ! [[ -f "$dbpath"sync/core.db ]]                                             # check, whether repository database file "core.db" exists
     then
-        sudo reflector --verbose --age 24 --save /etc/pacman.d/mirrorlist && sudo pacman -Syyu          # If it does exists, then the mirror will sort by it
 
-    else
-        local mirror_server_list
-        mirror_server_list="$( curl --silent 'https://archlinux.org/mirrorlist/?country=all&protocol=https&use_mirror_status=on' )"                 # download list of up-to-date https mirror servers
-
-        if [[ -n  "$mirror_server_list" ]]
+        echo " choosing fastest mirror (which can take a while) and updating system ..."
+        if [[ -f /usr/bin/pacman-mirrors ]]                                         # checks, whether file "pacman-mirrors" exists
         then
-            mirror_server_list="$( echo "$mirror_server_list" | sed -e 's/^#Server/Server/' -e '/^#/d' )"
-            mirror_server_list="$( echo "$mirror_server_list" | sudo rankmirrors -n 10 --max-time 2 --verbose - )"                                  # sort mirror servers by ping time
+            sudo pacman-mirrors -f 0 && sudo pacman -Syyu                           # choose mirrors server (with up-to-date packages) with lowest ping from all available mirrors and sync database.
 
-            if [[ -n  "$( echo "$mirror_server_list" | awk '/ ... /' )" ]]          # 'rankmirrors' creates a new ouput containing strings " ... "
+        elif [[ -f /usr/bin/reflector ]]                                            # checks, whether file "reflector" exists
+        then
+            sudo reflector --verbose --age 24 --save /etc/pacman.d/mirrorlist && sudo pacman -Syyu          # If it does exists, then the mirror will sort by it
+
+        elif [[ -f /usr/bin/rankmirrors ]]                                          # checks, whether file "rankmirrors" exists. This is part of the "pacman-contrib" package
+        then
+            local mirror_server_list
+            mirror_server_list="$( curl --silent 'https://archlinux.org/mirrorlist/?country=all&protocol=https&use_mirror_status=on' )"                 # download list of up-to-date https mirror servers
+
+            if [[ -n  "$mirror_server_list" ]]
             then
-                echo "$mirror_server_list" | sudo tee /etc/pacman.d/mirrorlist      # overwrite existing file with mirror servers with upated list
-                sudo pacman -Syyu
+                mirror_server_list="$( echo "$mirror_server_list" | sed -e 's/^#Server/Server/' -e '/^#/d' )"
+                mirror_server_list="$( echo "$mirror_server_list" | sudo rankmirrors -n 10 --max-time 2 --verbose - )"                                  # sort mirror servers by ping time
+
+                if [[ -n  "$( echo "$mirror_server_list" | awk '/ ... /' )" ]]      # 'rankmirrors' creates a new ouput containing strings " ... "
+                then
+                    echo "$mirror_server_list" | sudo tee /etc/pacman.d/mirrorlist  # overwrite existing file with mirror servers with upated list
+                    sudo pacman -Syyu
+                fi
             fi
         fi
     fi
+    unset dbpath
 fi
-unset dbpath
-
 
 # =======================
 
@@ -3173,7 +3203,7 @@ do
     echo -e " \e[1m|\e[0m    \e[7m 1 \e[0m \e[1mU\e[0mpdate System           \e[7m 2 \e[0m \e[1mM\e[0maintain System             \e[1m|\e[0m"
     echo -e " \e[1m|\e[0m    \e[7m 3 \e[0m \e[1mI\e[0mnstall Packages        \e[7m 4 \e[0m \e[1mR\e[0memove Packages and Deps    \e[1m|\e[0m"
     echo -e " \e[1m|\e[0m----------------------------------------------------------------\e[1m|\e[0m"
-    echo -e " \e[1m|\e[0m    \e[7m 5 \e[0m Dependency \e[1mT\e[0mree         \e[7m 6 \e[0m R\e[1me\e[0mverse Dependency Tree     \e[1m|\e[0m"
+    [[ -f /usr/bin/pactree ]] && echo -e " \e[1m|\e[0m    \e[7m 5 \e[0m Dependency \e[1mT\e[0mree         \e[7m 6 \e[0m R\e[1me\e[0mverse Dependency Tree     \e[1m|\e[0m"
     echo -e " \e[1m|\e[0m    \e[7m 7 \e[0m \e[1mL\e[0mist Package Files      \e[7m 8 \e[0m \e[1mS\e[0mearch Package Files        \e[1m|\e[0m"
     echo -e " \e[1m+----------------------------------------------------------------+\e[0m"
     echo -e "      \e[7m 9 \e[0m Roll \e[1mB\e[0mack System        \e[31m\e[7m Z \e[0m \e[31m\e[1mF\e[0;31mix Pacman Errors\e[0m "
