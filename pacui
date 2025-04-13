@@ -2609,7 +2609,7 @@ The third command removes built AUR packages (except the latest version).
 \e[36m"fwupdmgr update"
 fwupd can manage the firmware on (supported) devices in your system. Such devices can be e.g. hard drives, SSDs, network cards, bluetooth cards, (parts of) UEFI, etc.
 If fwupd is installed, the first command downloads the latest metadata from LVFS and displays any available update(s) for any fwupd-supported devices.
-If any update(s) are available, the second command installs them.
+The second command installs available firmware update(s).
 
 
 \e[1m3 - INSTALL PACKAGES
