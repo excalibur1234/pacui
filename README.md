@@ -263,4 +263,4 @@ This help page explains some general stuff such as how to navigate PacUI. It als
 Internally, PacUI uses even more commands than mentioned in the detailed help page. 
 If you are brave enough, feel free to take a look in your `/usr/bin/pacui` file. It is a single BASH script of about 3k lines. However, there are many functions, which are each much shorter. In general, the most easy to read code is used (even if it is longer) including many helpful comments!
 If you still have trouble understanding the code of PacUI, try asking an AI for explanations (of a limited subset) of PacUI's code.
-Because PacUI is free software, feel free to "steal" and adjust any of PacUI's code to your liking and e.g. add it to your own ~/.bashrc (or ~/.zshrc).
+Because PacUI is free software, feel free to "steal" and adjust any of PacUI's code to your liking and e.g. add it to your own `~/.bashrc` (or `~/.zshrc`).
